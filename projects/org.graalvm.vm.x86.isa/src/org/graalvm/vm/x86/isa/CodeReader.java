@@ -5,6 +5,10 @@ public abstract class CodeReader {
 
     public abstract boolean isAvailable();
 
+    public abstract long getPC();
+
+    public abstract void setPC(long pc);
+
     public short read16() {
         byte a = read8();
         byte b = read8();

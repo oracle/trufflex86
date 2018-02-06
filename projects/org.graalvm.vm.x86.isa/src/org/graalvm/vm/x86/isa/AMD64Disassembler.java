@@ -25,7 +25,7 @@ public class AMD64Disassembler {
                 assert (int) hdr.getMemorySize() == hdr.getMemorySize();
                 CodeSegmentReader reader = new CodeSegmentReader(hdr);
                 while (reader.isAvailable()) {
-                    long pc = reader.getVirtualAddress();
+                    long pc = reader.getPC();
                     AMD64Instruction insn = AMD64InstructionDecoder.decode(pc, reader);
                     Symbol sym = symbols.get(pc);
                     if (sym != null) {

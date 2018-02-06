@@ -5,18 +5,30 @@ import com.everyware.posix.elf.ProgramHeader;
 public class CodeSegmentReader extends CodeReader {
     private long vaddr;
     private long faddr;
+    private long vstart;
+    private long fstart;
     private long end;
     private byte[] elf;
 
     public CodeSegmentReader(ProgramHeader hdr) {
         vaddr = hdr.getVirtualAddress();
         faddr = hdr.getOffset();
+        vstart = vaddr;
+        fstart = faddr;
         end = faddr + hdr.getFileSize();
         elf = hdr.getElf().getData();
     }
 
-    public long getVirtualAddress() {
+    @Override
+    public long getPC() {
         return vaddr;
+    }
+
+    @Override
+    public void setPC(long pc) {
+        vaddr = pc;
+        long delta = pc - vstart;
+        faddr = fstart + delta;
     }
 
     @Override

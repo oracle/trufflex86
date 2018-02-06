@@ -12,6 +12,16 @@ public class CodeArrayReader extends CodeReader {
     }
 
     @Override
+    public long getPC() {
+        return offset;
+    }
+
+    @Override
+    public void setPC(long pc) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public byte read8() {
         return code[offset++];
     }

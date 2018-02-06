@@ -10,8 +10,13 @@ public class Syscall extends AMD64Instruction {
     }
 
     @Override
-    protected long executeInstruction(VirtualFrame frame) {
+    public long executeInstruction(VirtualFrame frame) {
         return 0;
+    }
+
+    @Override
+    public boolean isControlFlow() {
+        return true;
     }
 
     @Override

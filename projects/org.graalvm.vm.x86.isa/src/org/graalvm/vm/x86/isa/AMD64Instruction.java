@@ -15,9 +15,13 @@ public abstract class AMD64Instruction extends AMD64Node {
         this.instruction = instruction;
     }
 
-    protected abstract long executeInstruction(VirtualFrame frame);
+    public abstract long executeInstruction(VirtualFrame frame);
 
     protected abstract String[] disassemble();
+
+    public boolean isControlFlow() {
+        return false;
+    }
 
     public int getSize() {
         return instruction.length;

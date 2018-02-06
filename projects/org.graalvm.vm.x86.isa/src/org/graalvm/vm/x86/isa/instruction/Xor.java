@@ -35,7 +35,7 @@ public class Xor extends AMD64Instruction {
     }
 
     @Override
-    protected long executeInstruction(VirtualFrame frame) {
+    public long executeInstruction(VirtualFrame frame) {
         return 0;
     }
 
