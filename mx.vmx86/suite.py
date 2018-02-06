@@ -74,7 +74,6 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "org.graalvm.vm.memory",
         "org.graalvm.vm.x86.isa",
         "CORE",
         "POSIX",
@@ -155,6 +154,7 @@ suite = {
       "distDependencies" : [
         "CORE",
         "POSIX",
+        "VM",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
