@@ -74,22 +74,6 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "org.graalvm.vm.x86.isa",
-        "CORE",
-        "POSIX",
-        "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI"
-      ],
-      "javaCompliance" : "1.8",
-      "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
-      "license" : "GPLv3",
-    },
-
-    "org.graalvm.vm.x86.isa" : {
-      "subDir" : "projects",
-      "sourceDirs" : ["src"],
-      "dependencies" : [
         "org.graalvm.vm.memory",
         "CORE",
         "POSIX",
@@ -107,18 +91,6 @@ suite = {
       "sourceDirs" : ["src"],
       "dependencies" : [
         "org.graalvm.vm.x86",
-        "mx:JUNIT",
-      ],
-      "javaCompliance" : "1.8",
-      "workingSets" : "vmx86",
-      "license" : "GPLv3",
-    },
-
-    "org.graalvm.vm.x86.isa.test" : {
-      "subDir" : "projects",
-      "sourceDirs" : ["src"],
-      "dependencies" : [
-        "org.graalvm.vm.x86.isa",
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8",
@@ -148,8 +120,7 @@ suite = {
       "subDir" : "vmx86",
       "sourcesPath" : "build/vmx86_test.src.zip",
       "dependencies" : [
-        "org.graalvm.vm.x86.test",
-        "org.graalvm.vm.x86.isa.test",
+        "org.graalvm.vm.x86.test"
       ],
       "distDependencies" : [
         "CORE",

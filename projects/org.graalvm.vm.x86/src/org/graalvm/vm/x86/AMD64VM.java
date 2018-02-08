@@ -15,6 +15,10 @@ import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 public class AMD64VM {
     public static void main(String[] args) throws IOException {
         Trace.setupConsoleApplication(Levels.INFO);
+        if (args.length == 0) {
+            System.out.printf("Usage: %s program [args]\n", AMD64VM.class.getSimpleName());
+            System.exit(1);
+        }
         Source source = Source.newBuilder(AMD64Language.NAME, new File(args[0])).build();
         executeSource(source, args);
     }
@@ -34,7 +38,8 @@ public class AMD64VM {
             return result.asInt();
         } catch (Throwable ex) {
             /*
-             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to unwrap here.
+             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to
+             * unwrap here.
              */
             Throwable cause = ex.getCause();
             if (cause instanceof UnsupportedSpecializationException) {
