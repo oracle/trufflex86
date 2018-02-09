@@ -5,6 +5,9 @@
 *~
 *.sw?
 mx.vmx86/*.pyc
+mx.vmx86/.project
+mx.vmx86/.pydevproject
+mx.vmx86/*.iml
 mx.vmx86/env
 mx.vmx86/eclipse-launches/**
 .DS_Store
