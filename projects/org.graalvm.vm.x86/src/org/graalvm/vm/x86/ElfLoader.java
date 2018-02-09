@@ -194,19 +194,11 @@ public class ElfLoader {
             if (hdr.getType() == Elf.PT_LOAD) {
                 byte[] segment = new byte[(int) hdr.getMemorySize()];
                 hdr.load(segment);
-                if (hdr.getFlag(Elf.PF_X)) {
-                    MemoryPage p = new MemoryPage(new ByteMemory(segment), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
-                    p.r = true;
-                    p.w = true;
-                    p.x = true;
-                    memory.add(p);
-                } else {
-                    MemoryPage p = new MemoryPage(new ByteMemory(segment), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
-                    p.r = true;
-                    p.w = true;
-                    p.x = false;
-                    memory.add(p);
-                }
+                MemoryPage p = new MemoryPage(new ByteMemory(segment), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
+                p.r = hdr.getFlag(Elf.PF_R);
+                p.w = hdr.getFlag(Elf.PF_W);
+                p.x = hdr.getFlag(Elf.PF_X);
+                memory.add(p);
                 long end = load_bias + hdr.getVirtualAddress() + segment.length;
                 if (brk < load_bias + hdr.getVirtualAddress() + hdr.getMemorySize()) {
                     brk = end;
@@ -262,19 +254,11 @@ public class ElfLoader {
 
                     segment = new byte[(int) size];
                     hdr.load(segment);
-                    if (hdr.getFlag(Elf.PF_X)) {
-                        MemoryPage p = new MemoryPage(new ByteMemory(segment), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
-                        p.r = true;
-                        p.w = true;
-                        p.x = true;
-                        memory.add(p);
-                    } else {
-                        MemoryPage p = new MemoryPage(new ByteMemory(segment), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
-                        p.r = true;
-                        p.w = true;
-                        p.x = false;
-                        memory.add(p);
-                    }
+                    MemoryPage p = new MemoryPage(new ByteMemory(segment), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
+                    p.r = hdr.getFlag(Elf.PF_R);
+                    p.w = hdr.getFlag(Elf.PF_W);
+                    p.x = hdr.getFlag(Elf.PF_X);
+                    memory.add(p);
                 }
             }
 
