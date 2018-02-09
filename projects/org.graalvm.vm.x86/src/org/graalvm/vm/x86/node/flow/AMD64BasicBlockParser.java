@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86.isa.flow;
+package org.graalvm.vm.x86.node.flow;
 
 import java.util.ArrayList;
 import java.util.List;

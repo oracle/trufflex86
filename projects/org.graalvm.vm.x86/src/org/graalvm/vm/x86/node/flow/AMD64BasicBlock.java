@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86.isa.flow;
+package org.graalvm.vm.x86.node.flow;
 
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.node.AMD64Node;

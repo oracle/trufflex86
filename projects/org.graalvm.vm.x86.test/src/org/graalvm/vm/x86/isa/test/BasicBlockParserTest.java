@@ -3,8 +3,8 @@ package org.graalvm.vm.x86.isa.test;
 import static org.junit.Assert.assertEquals;
 
 import org.graalvm.vm.x86.isa.CodeSegmentReader;
-import org.graalvm.vm.x86.isa.flow.AMD64BasicBlock;
-import org.graalvm.vm.x86.isa.flow.AMD64BasicBlockParser;
+import org.graalvm.vm.x86.node.flow.AMD64BasicBlock;
+import org.graalvm.vm.x86.node.flow.AMD64BasicBlockParser;
 import org.graalvm.vm.x86.test.TestDataLoader;
 import org.junit.Test;
 
