@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.isa;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,8 +30,16 @@ public abstract class AMD64Instruction extends AMD64Node {
         return instruction.length;
     }
 
+    public byte[] getBytes() {
+        return Arrays.copyOf(instruction, instruction.length);
+    }
+
     public long getPC() {
         return pc;
+    }
+
+    public long next() {
+        return pc + instruction.length;
     }
 
     @Override

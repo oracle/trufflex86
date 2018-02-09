@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.isa;
 
+import java.util.Arrays;
+
 import org.graalvm.vm.x86.isa.instruction.Syscall;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incl;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incw;
@@ -15,43 +17,49 @@ public class AMD64InstructionDecoder {
     private static final Register[] REG32 = {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, Register.EBP, Register.ESI, Register.EDI};
 
     public static AMD64Instruction decode(long pc, CodeReader code) {
+        byte[] instruction = new byte[16];
+        int instructionLength = 0;
         byte op = code.read8();
+        instruction[instructionLength++] = op;
         boolean sizeOverride = false;
         AMD64RexPrefix rex = null;
         switch (op) {
             case AMD64InstructionPrefix.OPERAND_SIZE_OVERRIDE:
                 sizeOverride = true;
                 op = code.read8();
+                instruction[instructionLength++] = op;
                 break;
         }
         if (AMD64RexPrefix.isREX(op)) {
             rex = new AMD64RexPrefix(op);
             op = code.read8();
+            instruction[instructionLength++] = op;
         }
         switch (op) {
             case AMD64Opcode.INC_RM: {
                 assert rex == null;
                 Args args = new Args(code);
                 if (sizeOverride) {
-                    return new Incw(pc, args.getOp(new byte[]{AMD64InstructionPrefix.OPERAND_SIZE_OVERRIDE, op}), args.getOperandDecoder());
+                    return new Incw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else {
-                    return new Incl(pc, args.getOp(new byte[]{op}), args.getOperandDecoder());
+                    return new Incl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
             case AMD64Opcode.MOV_RM_R: {
                 assert rex == null;
                 Args args = new Args(code);
                 if (sizeOverride) {
-                    return new Movw(pc, args.getOp(new byte[]{AMD64InstructionPrefix.OPERAND_SIZE_OVERRIDE, op}), args.getOperandDecoder());
+                    return new Movw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else {
-                    return new Movl(pc, args.getOp(new byte[]{op}), args.getOperandDecoder());
+                    return new Movl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
             case AMD64Opcode.MOV_RM_I: {
                 Args args = new Args(code);
                 if (rex != null && rex.w) {
                     int imm = code.read32();
-                    return new Movq(pc, args.getOp(new byte[]{rex.getPrefix(), op}), args.getOperandDecoder(), imm);
+                    return new Movq(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)}, 4), args.getOperandDecoder(),
+                                    imm);
                 }
                 System.out.println("REX: " + rex);
                 throw new IllegalArgumentException();
@@ -67,39 +75,46 @@ public class AMD64InstructionDecoder {
                 assert rex == null;
                 if (sizeOverride) {
                     short imm = code.read16();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
                     Register reg = getRegister16(op);
-                    return new Movw(pc, new byte[]{op, (byte) imm, (byte) (imm >> 8)}, new RegisterOperand(reg), imm);
+                    return new Movw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg), imm);
                 } else {
                     int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     Register reg = getRegister32(op);
-                    return new Movl(pc, new byte[]{op, (byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)}, new RegisterOperand(reg), imm);
+                    return new Movl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg), imm);
                 }
             }
             case AMD64Opcode.XOR_RM_R: {
                 assert rex == null;
                 Args args = new Args(code);
                 if (sizeOverride) {
-                    return new Xorw(pc, args.getOp(new byte[]{AMD64InstructionPrefix.OPERAND_SIZE_OVERRIDE, op}), args.getOperandDecoder());
+                    return new Xorw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else {
-                    return new Xorl(pc, args.getOp(new byte[]{op}), args.getOperandDecoder());
+                    return new Xorl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
             case AMD64Opcode.XOR_RM8_R8: {
                 assert rex == null;
                 Args args = new Args(code);
-                return new Xorb(pc, args.getOp(new byte[]{op}), args.getOperandDecoder());
+                return new Xorb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
             }
             case AMD64Opcode.ESCAPE: {
                 byte op2 = code.read8();
+                instruction[instructionLength++] = op2;
                 switch (op2) {
                     case AMD64Opcode.SYSCALL:
-                        return new Syscall(pc, new byte[]{AMD64Opcode.ESCAPE, op, op2});
+                        return new Syscall(pc, Arrays.copyOf(instruction, instructionLength));
                     default:
-                        return new IllegalInstruction(pc, new byte[]{AMD64Opcode.ESCAPE, op, op2});
+                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
             }
             default:
-                return new IllegalInstruction(pc, new byte[]{op});
+                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
         }
     }
 
@@ -168,10 +183,18 @@ public class AMD64InstructionDecoder {
             return new OperandDecoder(modrm, sib, displacement);
         }
 
-        public byte[] getOp(byte[] prefix) {
-            byte[] result = new byte[prefix.length + bytes.length];
-            System.arraycopy(prefix, 0, result, 0, prefix.length);
-            System.arraycopy(bytes, 0, result, prefix.length, bytes.length);
+        public byte[] getOp(byte[] prefix, int prefixLength) {
+            byte[] result = new byte[prefixLength + bytes.length];
+            System.arraycopy(prefix, 0, result, 0, prefixLength);
+            System.arraycopy(bytes, 0, result, prefixLength, bytes.length);
+            return result;
+        }
+
+        public byte[] getOp2(byte[] prefix, int prefixLength, byte[] suffix, int suffixLength) {
+            byte[] result = new byte[prefixLength + bytes.length + suffixLength];
+            System.arraycopy(prefix, 0, result, 0, prefixLength);
+            System.arraycopy(bytes, 0, result, prefixLength, bytes.length);
+            System.arraycopy(suffix, 0, result, prefixLength + bytes.length, suffixLength);
             return result;
         }
     }

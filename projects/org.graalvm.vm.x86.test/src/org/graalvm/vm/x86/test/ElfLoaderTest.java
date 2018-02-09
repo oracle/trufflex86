@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,8 +122,6 @@ public class ElfLoaderTest {
         assertTrue(data.r);
         assertTrue(data.w);
         assertFalse(data.x);
-
-        mem.printLayout();
     }
 
     @Test
