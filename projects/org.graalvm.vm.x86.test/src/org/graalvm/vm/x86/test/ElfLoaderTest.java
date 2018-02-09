@@ -75,5 +75,7 @@ public class ElfLoaderTest {
         assertEquals('H', mem.getI8(0x6000cd));
         assertEquals('e', mem.getI8(0x6000ce));
         assertEquals('l', mem.getI8(0x6000cf));
+        assertEquals('l', mem.getI8(0x6000d0));
+        assertEquals('o', mem.getI8(0x6000d1));
     }
 }

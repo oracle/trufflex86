@@ -97,6 +97,12 @@ suite = {
       "workingSets" : "vmx86",
       "license" : "GPLv3",
     },
+
+    "org.graalvm.vm.x86.testcases.asm" : {
+      "subDir" : "tests",
+      "class" : "VMX86TestSuite",
+      "license" : "GPLv3"
+    }
   },
 
   "distributions" : {
@@ -115,6 +121,15 @@ suite = {
       ]
     },
 
+    "VM_TESTCASES" : {
+      "native" : True,
+      "platformDependent" : True,
+      "output" : "mxbuild/testcases",
+      "dependencies" : [
+        "org.graalvm.vm.x86.testcases.asm"
+      ],
+    },
+
     "VM_TEST" : {
       "path" : "build/vmx86_test.jar",
       "subDir" : "vmx86",
@@ -126,12 +141,16 @@ suite = {
         "CORE",
         "POSIX",
         "VM",
+        "VM_TESTCASES",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
       "exclude" : [
         "mx:JUNIT"
-      ]
+      ],
+      "javaProperties" : {
+        "vmx86test.testSuitePath" : "<path:VM_TESTCASES>"
+      },
     }
   }
 }

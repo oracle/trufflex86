@@ -16,10 +16,12 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     @ExplodeLoop
-    public void execute(VirtualFrame frame) {
+    public long execute(VirtualFrame frame) {
+        long pc = 0;
         for (AMD64Instruction insn : instructions) {
-            insn.executeInstruction(frame);
+            pc = insn.executeInstruction(frame);
         }
+        return pc;
     }
 
     public AMD64Instruction getLastInstruction() {
