@@ -11,7 +11,13 @@ public class IllegalInstruction extends AMD64Instruction {
 
     public IllegalInstruction(long pc, byte[] info) {
         super(pc, info);
-        errorMessage = String.format("%016X: Unknown opcode", pc);
+        String msg = String.format("%016X: Unknown opcode", pc);
+        if (info.length > 0) {
+            String insn = IntStream.range(0, instruction.length).mapToObj(i -> info[i]).map(x -> String.format("%02x", x & 0xff)).collect(Collectors.joining(" "));
+            errorMessage = msg + " (instruction: " + insn + ")";
+        } else {
+            errorMessage = msg;
+        }
     }
 
     @Override
