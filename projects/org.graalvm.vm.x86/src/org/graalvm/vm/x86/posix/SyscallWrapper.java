@@ -17,7 +17,9 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_open = 2;
     public static final int SYS_close = 3;
     public static final int SYS_exit = 60;
+    public static final int SYS_uname = 63;
     public static final int SYS_exit_group = 231;
+    public static final int SYS_tgkill = 234;
 
     private final PosixEnvironment posix;
 
@@ -40,6 +42,10 @@ public class SyscallWrapper extends AMD64Node {
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
                 throw new ProcessExitException((int) a1);
+            case SYS_uname:
+                return posix.uname(a1);
+            case SYS_tgkill:
+                throw new ProcessExitException(128 + (int) a3);
             default:
                 throw new SyscallException(Errno.ENOSYS);
         }

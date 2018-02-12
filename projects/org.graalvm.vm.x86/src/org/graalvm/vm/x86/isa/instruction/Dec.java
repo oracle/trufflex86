@@ -10,13 +10,13 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public abstract class Inc extends AMD64Instruction {
+public abstract class Dec extends AMD64Instruction {
     private final Operand operand;
 
     @Child protected ReadNode read;
     @Child protected WriteNode write;
 
-    protected Inc(long pc, byte[] instruction, Operand operand) {
+    protected Dec(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
     }
@@ -31,8 +31,8 @@ public abstract class Inc extends AMD64Instruction {
         write = operand.createWrite(state);
     }
 
-    public static class Incb extends Inc {
-        public Incb(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Decb extends Dec {
+        public Decb(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8));
         }
 
@@ -42,13 +42,13 @@ public abstract class Inc extends AMD64Instruction {
                 createChildren();
             }
             byte val = read.executeI8(frame);
-            write.executeI8(frame, (byte) (val + 1));
+            write.executeI8(frame, (byte) (val - 1));
             return next();
         }
     }
 
-    public static class Incw extends Inc {
-        public Incw(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Decw extends Dec {
+        public Decw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16));
         }
 
@@ -58,13 +58,13 @@ public abstract class Inc extends AMD64Instruction {
                 createChildren();
             }
             short val = read.executeI16(frame);
-            write.executeI16(frame, (short) (val + 1));
+            write.executeI16(frame, (short) (val - 1));
             return next();
         }
     }
 
-    public static class Incl extends Inc {
-        public Incl(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Decl extends Dec {
+        public Decl(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32));
         }
 
@@ -74,13 +74,13 @@ public abstract class Inc extends AMD64Instruction {
                 createChildren();
             }
             int val = read.executeI32(frame);
-            write.executeI32(frame, val + 1);
+            write.executeI32(frame, val - 1);
             return next();
         }
     }
 
-    public static class Incq extends Inc {
-        public Incq(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Decq extends Dec {
+        public Decq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64));
         }
 
@@ -90,13 +90,13 @@ public abstract class Inc extends AMD64Instruction {
                 createChildren();
             }
             long val = read.executeI64(frame);
-            write.executeI64(frame, val + 1);
+            write.executeI64(frame, val - 1);
             return next();
         }
     }
 
     @Override
     protected String[] disassemble() {
-        return new String[]{"inc", operand.toString()};
+        return new String[]{"dec", operand.toString()};
     }
 }

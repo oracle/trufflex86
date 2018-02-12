@@ -20,9 +20,16 @@ public class AMD64Context {
     private final PosixEnvironment posix;
     private final String[] args;
 
+    private final FrameDescriptor frameDescriptor;
     private final FrameSlot[] registers;
     private final FrameSlot pc;
-    private final FrameDescriptor frameDescriptor;
+    private final FrameSlot cf;
+    private final FrameSlot pf;
+    private final FrameSlot af;
+    private final FrameSlot zf;
+    private final FrameSlot sf;
+    private final FrameSlot df;
+    private final FrameSlot of;
 
     private final ArchitecturalState state;
 
@@ -39,6 +46,13 @@ public class AMD64Context {
             registers[i] = frameDescriptor.addFrameSlot(REGISTER_NAMES[i], FrameSlotKind.Long);
         }
         pc = frameDescriptor.addFrameSlot("rip", FrameSlotKind.Long);
+        cf = frameDescriptor.addFrameSlot("cf", FrameSlotKind.Boolean);
+        pf = frameDescriptor.addFrameSlot("pf", FrameSlotKind.Boolean);
+        af = frameDescriptor.addFrameSlot("af", FrameSlotKind.Boolean);
+        zf = frameDescriptor.addFrameSlot("zf", FrameSlotKind.Boolean);
+        sf = frameDescriptor.addFrameSlot("sf", FrameSlotKind.Boolean);
+        df = frameDescriptor.addFrameSlot("df", FrameSlotKind.Boolean);
+        of = frameDescriptor.addFrameSlot("of", FrameSlotKind.Boolean);
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
     }
@@ -73,6 +87,34 @@ public class AMD64Context {
 
     public FrameSlot[] getGPRs() {
         return registers;
+    }
+
+    public FrameSlot getCF() {
+        return cf;
+    }
+
+    public FrameSlot getPF() {
+        return pf;
+    }
+
+    public FrameSlot getAF() {
+        return af;
+    }
+
+    public FrameSlot getZF() {
+        return zf;
+    }
+
+    public FrameSlot getSF() {
+        return sf;
+    }
+
+    public FrameSlot getDF() {
+        return df;
+    }
+
+    public FrameSlot getOF() {
+        return of;
     }
 
     public ArchitecturalState getState() {

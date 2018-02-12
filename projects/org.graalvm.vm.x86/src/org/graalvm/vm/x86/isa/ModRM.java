@@ -107,6 +107,8 @@ public class ModRM {
                     {Register.AX, Register.CX, Register.DX, Register.BX, Register.SP, Register.BP, Register.SI, Register.DI},
                     // R32
                     {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, Register.EBP, Register.ESI, Register.EDI},
+                    // R64
+                    {Register.RAX, Register.RCX, Register.RDX, Register.RBX, Register.RSP, Register.RBP, Register.RSI, Register.RDI}
     };
 
     public ModRM(byte modrm) {
@@ -118,6 +120,18 @@ public class ModRM {
 
     public byte getModRM() {
         return modrm;
+    }
+
+    public int getMod() {
+        return mod;
+    }
+
+    public int getRM() {
+        return rm;
+    }
+
+    public int getReg() {
+        return reg;
     }
 
     public Operand getOperand1(int type, int size) {

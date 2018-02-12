@@ -8,9 +8,24 @@ public class RegisterAccessFactory {
     private final FrameSlot[] gpr;
     private final FrameSlot pc;
 
-    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot pc) {
+    private final FrameSlot cf;
+    private final FrameSlot pf;
+    private final FrameSlot af;
+    private final FrameSlot zf;
+    private final FrameSlot sf;
+    private final FrameSlot df;
+    private final FrameSlot of;
+
+    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot pc, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
         this.gpr = gpr;
         this.pc = pc;
+        this.cf = cf;
+        this.pf = pf;
+        this.af = af;
+        this.zf = zf;
+        this.sf = sf;
+        this.df = df;
+        this.of = of;
     }
 
     public AMD64Register getRegister(Register reg) {
@@ -27,5 +42,33 @@ public class RegisterAccessFactory {
 
     public AMD64Register getPC() {
         return new AMD64Register(pc);
+    }
+
+    public AMD64Flag getCF() {
+        return new AMD64Flag(cf);
+    }
+
+    public AMD64Flag getPF() {
+        return new AMD64Flag(pf);
+    }
+
+    public AMD64Flag getAF() {
+        return new AMD64Flag(af);
+    }
+
+    public AMD64Flag getZF() {
+        return new AMD64Flag(zf);
+    }
+
+    public AMD64Flag getSF() {
+        return new AMD64Flag(sf);
+    }
+
+    public AMD64Flag getDF() {
+        return new AMD64Flag(df);
+    }
+
+    public AMD64Flag getOF() {
+        return new AMD64Flag(of);
     }
 }

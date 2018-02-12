@@ -1,8 +1,11 @@
 package org.graalvm.vm.x86.node.flow;
 
+import java.util.Arrays;
+
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.node.AMD64Node;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -78,6 +81,28 @@ public class AMD64BasicBlock extends AMD64Node {
 
     public AMD64Instruction getLastInstruction() {
         return instructions[instructions.length - 1];
+    }
+
+    public AMD64BasicBlock split(long address) {
+        CompilerDirectives.transferToInterpreterAndInvalidate();
+        assert instructions.length > 1;
+        assert address != getAddress();
+        for (int i = 0; i < instructions.length; i++) {
+            if (instructions[i].getPC() == address) {
+                AMD64Instruction[] head = Arrays.copyOf(instructions, i);
+                AMD64Instruction[] tail = new AMD64Instruction[instructions.length - i];
+                System.arraycopy(instructions, i, tail, 0, tail.length);
+                assert head.length + tail.length == instructions.length;
+                assert head.length > 0;
+                assert tail.length > 0;
+                instructions = head;
+                AMD64BasicBlock result = new AMD64BasicBlock(tail);
+                result.setSuccessors(successors);
+                successors = new AMD64BasicBlock[]{result};
+                return result;
+            }
+        }
+        return null;
     }
 
     @Override
