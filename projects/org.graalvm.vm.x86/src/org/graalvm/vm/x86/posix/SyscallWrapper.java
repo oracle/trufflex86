@@ -27,7 +27,7 @@ public class SyscallWrapper extends AMD64Node {
 
     @TruffleBoundary
     public long executeI64(int nr, long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
-        log.log(Levels.INFO, () -> String.format("syscall %d: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", nr, a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
+        log.log(Levels.DEBUG, () -> String.format("syscall %d: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", nr, a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
         switch (nr) {
             case SYS_read:
                 return posix.read((int) a1, a2, a3);
