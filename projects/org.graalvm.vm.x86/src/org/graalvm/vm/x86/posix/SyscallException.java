@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86;
+package org.graalvm.vm.x86.posix;
 
 public class SyscallException extends Exception {
     private static final long serialVersionUID = 6528834022867326832L;

@@ -11,6 +11,7 @@ import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.Errno;
@@ -186,7 +187,7 @@ public class ElfLoader {
 
         symbols = new TreeMap<>();
 
-        Memory elfhdrmem = new ByteMemory(data);
+        Memory elfhdrmem = new ByteMemory(data, false);
         MemoryPage elfhdrpage = new MemoryPage(elfhdrmem, load_addr, elf.e_phoff + elf.e_phnum * elf.e_phentsize, filename);
         memory.add(elfhdrpage);
 
@@ -194,7 +195,7 @@ public class ElfLoader {
             if (hdr.getType() == Elf.PT_LOAD) {
                 byte[] segment = new byte[(int) hdr.getMemorySize()];
                 hdr.load(segment);
-                MemoryPage p = new MemoryPage(new ByteMemory(segment), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
+                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
                 p.r = hdr.getFlag(Elf.PF_R);
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
@@ -254,7 +255,7 @@ public class ElfLoader {
 
                     segment = new byte[(int) size];
                     hdr.load(segment);
-                    MemoryPage p = new MemoryPage(new ByteMemory(segment), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
+                    MemoryPage p = new MemoryPage(new ByteMemory(segment, false), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
                     p.r = hdr.getFlag(Elf.PF_R);
                     p.w = hdr.getFlag(Elf.PF_W);
                     p.x = hdr.getFlag(Elf.PF_X);
@@ -275,7 +276,7 @@ public class ElfLoader {
         }
 
         long pad = pad(brk);
-        MemoryPage padding = new MemoryPage(new ByteMemory(pad), brk, pad, "[heap]");
+        MemoryPage padding = new MemoryPage(new ByteMemory(pad, false), brk, pad, "[heap]");
         memory.add(padding);
         brk += pad;
         assert brk % PAGE_SIZE == 0 : String.format("unaligned: 0x%016X", brk);

@@ -1,5 +1,9 @@
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.node.ReadNode;
+import org.graalvm.vm.x86.node.WriteNode;
+
 import com.oracle.truffle.api.CompilerAsserts;
 
 public class MemoryOperand extends Operand {
@@ -75,5 +79,17 @@ public class MemoryOperand extends Operand {
             buf.append(String.format("0x%x", displacement));
         }
         return "[" + buf + "]";
+    }
+
+    @Override
+    public ReadNode createRead(ArchitecturalState state) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public WriteNode createWrite(ArchitecturalState state) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -1,5 +1,9 @@
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.node.ReadNode;
+import org.graalvm.vm.x86.node.WriteNode;
+
 public class RegisterOperand extends Operand {
     private final Register register;
 
@@ -14,5 +18,15 @@ public class RegisterOperand extends Operand {
     @Override
     public String toString() {
         return register.toString();
+    }
+
+    @Override
+    public ReadNode createRead(ArchitecturalState state) {
+        return state.getRegisters().getRegister(register).createRead();
+    }
+
+    @Override
+    public WriteNode createWrite(ArchitecturalState state) {
+        return state.getRegisters().getRegister(register).createWrite();
     }
 }

@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86;
+package org.graalvm.vm.x86.posix;
 
 import java.io.InputStream;
 import java.io.OutputStream;

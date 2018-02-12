@@ -41,7 +41,7 @@ public class InitializerNode extends AMD64Node {
         VirtualMemory memory = ctx.getMemory();
         long stackbase = memory.pageStart(AMD64.STACK_BASE);
         long stacksize = memory.roundToPageSize(AMD64.STACK_SIZE);
-        Memory stackMemory = new ByteMemory(stacksize);
+        Memory stackMemory = new ByteMemory(stacksize, false);
         MemoryPage stack = new MemoryPage(stackMemory, stackbase, stacksize, "[stack]");
         memory.add(stack);
         long sp = AMD64.STACK_ADDRESS - 16;

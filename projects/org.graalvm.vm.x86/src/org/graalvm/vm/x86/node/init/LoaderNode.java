@@ -8,11 +8,11 @@ import java.util.Map;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.ElfLoader;
-import org.graalvm.vm.x86.PosixEnvironment;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.vfs.FileSystem;

@@ -8,11 +8,63 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class AMD64BasicBlock extends AMD64Node {
-    @CompilationFinal(dimensions = 1) private final AMD64Instruction[] instructions;
+    @Children private AMD64Instruction[] instructions;
+    @CompilationFinal(dimensions = 1) private AMD64BasicBlock[] successors;
+
+    public long index;
 
     public AMD64BasicBlock(AMD64Instruction[] instructions) {
         assert instructions.length > 0;
         this.instructions = instructions;
+    }
+
+    public boolean contains(long address) {
+        for (AMD64Instruction insn : instructions) {
+            if (insn.getPC() == address) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setSuccessors(AMD64BasicBlock[] successors) {
+        this.successors = successors;
+    }
+
+    public AMD64BasicBlock[] getSuccessors() {
+        return successors;
+    }
+
+    public AMD64BasicBlock getSuccessor(long pc) {
+        if (successors == null) {
+            return null;
+        }
+        for (AMD64BasicBlock block : successors) {
+            if (block.getAddress() == pc) {
+                return block;
+            }
+        }
+        return null;
+    }
+
+    public long[] getBTA() {
+        return instructions[instructions.length - 1].getBTA();
+    }
+
+    public void setIndex(long index) {
+        this.index = index;
+    }
+
+    public long getIndex() {
+        return index;
+    }
+
+    public long getAddress() {
+        return instructions[0].getPC();
+    }
+
+    public int getInstructionCount() {
+        return instructions.length;
     }
 
     @ExplodeLoop

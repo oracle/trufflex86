@@ -1,15 +1,36 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
+import org.graalvm.vm.x86.node.ReadNode;
+import org.graalvm.vm.x86.node.WriteNode;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public class Mov extends AMD64Instruction {
+public abstract class Mov extends AMD64Instruction {
     private final Operand operand1;
     private final Operand operand2;
+
+    @Child protected ReadNode read;
+    @Child protected WriteNode write;
+
+    protected void createChildren() {
+        assert read == null;
+        assert write == null;
+
+        CompilerDirectives.transferToInterpreter();
+        ArchitecturalState state = getContextReference().get().getState();
+        write = operand1.createWrite(state);
+        read = operand2.createRead(state);
+    }
+
+    protected boolean needsChildren() {
+        return read == null;
+    }
 
     protected Mov(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -21,6 +42,16 @@ public class Mov extends AMD64Instruction {
         public Movb(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), operands.getOperand2(OperandDecoder.R8));
         }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            if (needsChildren()) {
+                createChildren();
+            }
+            byte val = read.executeI8(frame);
+            write.executeI8(frame, val);
+            return next();
+        }
     }
 
     public static class Movw extends Mov {
@@ -29,7 +60,17 @@ public class Mov extends AMD64Instruction {
         }
 
         public Movw(long pc, byte[] instruction, Operand register, short immediate) {
-            super(pc, instruction, register, new ImmediateOperand(immediate));
+            super(pc, instruction, register, new ImmediateOperand(Short.toUnsignedLong(immediate)));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            if (needsChildren()) {
+                createChildren();
+            }
+            short val = read.executeI16(frame);
+            write.executeI16(frame, val);
+            return next();
         }
     }
 
@@ -39,11 +80,21 @@ public class Mov extends AMD64Instruction {
         }
 
         public Movl(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(immediate));
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(Integer.toUnsignedLong(immediate)));
         }
 
         public Movl(long pc, byte[] instruction, Operand register, int immediate) {
-            super(pc, instruction, register, new ImmediateOperand(immediate));
+            super(pc, instruction, register, new ImmediateOperand(Integer.toUnsignedLong(immediate)));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            if (needsChildren()) {
+                createChildren();
+            }
+            int val = read.executeI32(frame);
+            write.executeI32(frame, val);
+            return next();
         }
     }
 
@@ -53,13 +104,18 @@ public class Mov extends AMD64Instruction {
         }
 
         public Movq(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(immediate));
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(Integer.toUnsignedLong(immediate)));
         }
-    }
 
-    @Override
-    public long executeInstruction(VirtualFrame frame) {
-        return 0;
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            if (needsChildren()) {
+                createChildren();
+            }
+            long val = read.executeI64(frame);
+            write.executeI64(frame, val);
+            return next();
+        }
     }
 
     @Override

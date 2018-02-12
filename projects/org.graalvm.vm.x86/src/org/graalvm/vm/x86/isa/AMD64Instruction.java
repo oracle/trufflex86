@@ -26,6 +26,10 @@ public abstract class AMD64Instruction extends AMD64Node {
         return false;
     }
 
+    public long[] getBTA() {
+        return null;
+    }
+
     public int getSize() {
         return instruction.length;
     }
@@ -39,7 +43,7 @@ public abstract class AMD64Instruction extends AMD64Node {
     }
 
     public long next() {
-        return pc + instruction.length;
+        return getPC() + getSize();
     }
 
     @Override

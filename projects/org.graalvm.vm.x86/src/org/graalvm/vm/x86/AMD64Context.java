@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.NavigableMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.TruffleLanguage.Env;

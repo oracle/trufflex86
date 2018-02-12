@@ -4,7 +4,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public class RegisterReadNode extends AMD64Node {
+public class RegisterReadNode extends ReadNode {
     private final FrameSlot slot;
     private final int shift;
 
@@ -18,18 +18,22 @@ public class RegisterReadNode extends AMD64Node {
         this.shift = shift;
     }
 
+    @Override
     public byte executeI8(VirtualFrame frame) {
         return (byte) (FrameUtil.getLongSafe(frame, slot) >> shift);
     }
 
+    @Override
     public short executeI16(VirtualFrame frame) {
         return (short) FrameUtil.getLongSafe(frame, slot);
     }
 
+    @Override
     public int executeI32(VirtualFrame frame) {
         return (int) FrameUtil.getLongSafe(frame, slot);
     }
 
+    @Override
     public long executeI64(VirtualFrame frame) {
         return FrameUtil.getLongSafe(frame, slot);
     }

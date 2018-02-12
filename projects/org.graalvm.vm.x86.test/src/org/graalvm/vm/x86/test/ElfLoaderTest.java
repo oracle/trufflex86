@@ -15,7 +15,7 @@ import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.ElfLoader;
-import org.graalvm.vm.x86.PosixEnvironment;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class ElfLoaderTest {
         byte[] program = TestDataLoader.loadFile("bin/helloworld.elf");
 
         mem = new VirtualMemory();
-        Memory stackMemory = new ByteMemory(4 * 1024);
+        Memory stackMemory = new ByteMemory(4 * 1024, false);
         MemoryPage stack = new MemoryPage(stackMemory, 0x7ffff000, stackMemory.size(), "[stack]");
         mem.add(stack);
 
