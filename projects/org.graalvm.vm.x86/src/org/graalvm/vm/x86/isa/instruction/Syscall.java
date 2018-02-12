@@ -7,7 +7,6 @@ import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 

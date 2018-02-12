@@ -26,7 +26,6 @@ public class AMD64Language extends TruffleLanguage<AMD64Context> {
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
         String path = request.getSource().getPath();
-        System.out.printf("loading file '%s'\n", path);
         byte[] data = Files.readAllBytes(Paths.get(path));
         Elf elf = new Elf(data);
         if (elf.ei_class != Elf.ELFCLASS64) {

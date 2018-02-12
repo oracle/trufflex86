@@ -11,6 +11,7 @@ import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
+import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -118,6 +119,9 @@ public class DispatchNode extends AMD64Node {
                     block = successor;
                 }
             }
+        } catch (ProcessExitException e) {
+            writePC.executeI64(frame, pc);
+            return e.getCode();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
             t.printStackTrace();
