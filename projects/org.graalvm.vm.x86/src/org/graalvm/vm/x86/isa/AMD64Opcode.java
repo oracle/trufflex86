@@ -3,7 +3,11 @@ package org.graalvm.vm.x86.isa;
 public class AMD64Opcode {
     public static final byte ESCAPE = 0x0F;
 
+    public static final byte ADD_RM_I = (byte) 0x83;
+
     public static final byte CALL_REL = (byte) 0xE8;
+
+    public static final byte CMP_RM_I8 = (byte) 0x80;
 
     public static final byte INC_RM = (byte) 0xFF;
 
@@ -36,6 +40,12 @@ public class AMD64Opcode {
     public static final byte MOV_R_I = (byte) 0xB8;
 
     public static final byte MOVSXD_R_RM = 0x63;
+
+    public static final byte NOP = (byte) 0x90;
+    public static final byte NOP_RM = 0x1f;
+
+    public static final byte POP_R = 0x58;
+    public static final byte PUSH_R = 0x50;
 
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;

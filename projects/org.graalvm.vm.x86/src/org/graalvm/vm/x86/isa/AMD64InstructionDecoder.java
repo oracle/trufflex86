@@ -2,8 +2,11 @@ package org.graalvm.vm.x86.isa;
 
 import java.util.Arrays;
 
-import org.graalvm.vm.x86.isa.instruction.Syscall;
+import org.graalvm.vm.x86.isa.instruction.Add.Addl;
+import org.graalvm.vm.x86.isa.instruction.Add.Addq;
+import org.graalvm.vm.x86.isa.instruction.Add.Addw;
 import org.graalvm.vm.x86.isa.instruction.Call.CallRelative;
+import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpb;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decl;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decq;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decw;
@@ -14,7 +17,6 @@ import org.graalvm.vm.x86.isa.instruction.Jcc.Ja;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jae;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jb;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jbe;
-import org.graalvm.vm.x86.isa.instruction.Jcc.Jrcxz;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Je;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jg;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jge;
@@ -26,6 +28,7 @@ import org.graalvm.vm.x86.isa.instruction.Jcc.Jnp;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jns;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jo;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jp;
+import org.graalvm.vm.x86.isa.instruction.Jcc.Jrcxz;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Js;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
@@ -35,22 +38,29 @@ import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movw;
 import org.graalvm.vm.x86.isa.instruction.Movsxd.Movslq;
+import org.graalvm.vm.x86.isa.instruction.Nop;
+import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
+import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
+import org.graalvm.vm.x86.isa.instruction.Push.Pushq;
+import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Ret;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subl;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subq;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subw;
+import org.graalvm.vm.x86.isa.instruction.Syscall;
 import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
 import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorb;
-import org.graalvm.vm.x86.isa.instruction.Xor.Xorw;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
+import org.graalvm.vm.x86.isa.instruction.Xor.Xorw;
 
 public class AMD64InstructionDecoder {
     private static final Register[] REG16 = {Register.AX, Register.CX, Register.DX, Register.BX, Register.SP, Register.BP, Register.SI, Register.DI};
     private static final Register[] REG32 = {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, Register.EBP, Register.ESI, Register.EDI};
+    private static final Register[] REG64 = {Register.RAX, Register.RCX, Register.RDX, Register.RBX, Register.RSP, Register.RBP, Register.RSI, Register.RDI};
 
     public static AMD64Instruction decode(long pc, CodeReader code) {
         byte[] instruction = new byte[16];
@@ -90,6 +100,18 @@ public class AMD64InstructionDecoder {
                 instruction[instructionLength++] = (byte) (rel32 >> 16);
                 instruction[instructionLength++] = (byte) (rel32 >> 24);
                 return new CallRelative(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(rel32));
+            }
+            case AMD64Opcode.CMP_RM_I8: {
+                Args args = new Args(code);
+                switch (args.modrm.getReg()) {
+                    case 7: {
+                        byte imm = code.read8();
+                        instruction[instructionLength++] = imm;
+                        assert rex == null;
+                        return new Cmpb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                    }
+                }
+                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
             }
             case AMD64Opcode.INC_RM: { // or: DEC_RM
                 Args args = new Args(code);
@@ -301,6 +323,40 @@ public class AMD64InstructionDecoder {
                 assert rex == null;
                 throw new AssertionError("not yet implemented");
             }
+            case AMD64Opcode.NOP:
+                return new Nop(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.POP_R + 0:
+            case AMD64Opcode.POP_R + 1:
+            case AMD64Opcode.POP_R + 2:
+            case AMD64Opcode.POP_R + 3:
+            case AMD64Opcode.POP_R + 4:
+            case AMD64Opcode.POP_R + 5:
+            case AMD64Opcode.POP_R + 6:
+            case AMD64Opcode.POP_R + 7: {
+                if (sizeOverride) {
+                    Register reg = getRegister16(op);
+                    return new Popw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
+                } else {
+                    Register reg = getRegister64(op);
+                    return new Popq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
+                }
+            }
+            case AMD64Opcode.PUSH_R + 0:
+            case AMD64Opcode.PUSH_R + 1:
+            case AMD64Opcode.PUSH_R + 2:
+            case AMD64Opcode.PUSH_R + 3:
+            case AMD64Opcode.PUSH_R + 4:
+            case AMD64Opcode.PUSH_R + 5:
+            case AMD64Opcode.PUSH_R + 6:
+            case AMD64Opcode.PUSH_R + 7: {
+                if (sizeOverride) {
+                    Register reg = getRegister16(op);
+                    return new Pushw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
+                } else {
+                    Register reg = getRegister64(op);
+                    return new Pushq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
+                }
+            }
             case AMD64Opcode.RET_NEAR:
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.SUB_RM_R: {
@@ -318,18 +374,34 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.SUB_RM_I: {
                 Args args = new Args(code);
-                if (args.modrm.getReg() == 5) { // SUB r/m32 i8
-                    byte imm = code.read8();
-                    instruction[instructionLength++] = imm;
-                    if (rex != null && rex.w) {
-                        assert !rex.r && !rex.b && !rex.x;
-                        return new Subq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                switch (args.modrm.getReg()) {
+                    case 0: { // ADD r/m32 i8
+                        byte imm = code.read8();
+                        instruction[instructionLength++] = imm;
+                        if (rex != null && rex.w) {
+                            assert !rex.r && !rex.b && !rex.x;
+                            return new Addq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        }
+                        assert rex == null;
+                        if (sizeOverride) {
+                            return new Addw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        } else {
+                            return new Addl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        }
                     }
-                    assert rex == null;
-                    if (sizeOverride) {
-                        return new Subw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
-                    } else {
-                        return new Subl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                    case 5: { // SUB r/m32 i8
+                        byte imm = code.read8();
+                        instruction[instructionLength++] = imm;
+                        if (rex != null && rex.w) {
+                            assert !rex.r && !rex.b && !rex.x;
+                            return new Subq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        }
+                        assert rex == null;
+                        if (sizeOverride) {
+                            return new Subw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        } else {
+                            return new Subl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                        }
                     }
                 }
                 return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
@@ -374,6 +446,10 @@ public class AMD64InstructionDecoder {
                 switch (op2) {
                     case AMD64Opcode.SYSCALL:
                         return new Syscall(pc, Arrays.copyOf(instruction, instructionLength));
+                    case AMD64Opcode.NOP_RM: {
+                        Args args = new Args(code);
+                        return new Nop(pc, args.getOp(instruction, instructionLength));
+                    }
                     default:
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
@@ -391,6 +467,11 @@ public class AMD64InstructionDecoder {
     private static Register getRegister32(byte op) {
         int reg = op & 0x7;
         return REG32[reg];
+    }
+
+    private static Register getRegister64(byte op) {
+        int reg = op & 0x7;
+        return REG64[reg];
     }
 
     private static class Args {

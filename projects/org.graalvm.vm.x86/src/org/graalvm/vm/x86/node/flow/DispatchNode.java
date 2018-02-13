@@ -173,7 +173,7 @@ public class DispatchNode extends AMD64Node {
     }
 
     public long execute(VirtualFrame frame) {
-        long cnt = 20; // max execution steps (help debug infinite loops)
+        long cnt = 50; // max execution steps (help debug infinite loops)
         long pc = readPC.executeI64(frame);
         try {
             if (usedBlocks == 0) {
