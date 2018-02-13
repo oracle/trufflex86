@@ -1,6 +1,11 @@
 package org.graalvm.vm.x86.isa;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.node.AddressComputationNode;
+import org.graalvm.vm.x86.node.AddressedMemoryReadNode;
+import org.graalvm.vm.x86.node.AddressedMemoryWriteNode;
+import org.graalvm.vm.x86.node.MemoryReadNode;
+import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -17,6 +22,13 @@ public class MemoryOperand extends Operand {
         this.index = null;
         this.scale = 0;
         this.displacement = 0;
+    }
+
+    public MemoryOperand(Register base, long displacement) {
+        this.base = base;
+        this.index = null;
+        this.scale = 0;
+        this.displacement = displacement;
     }
 
     public MemoryOperand(Register base, Register index, int scale) {
@@ -65,16 +77,16 @@ public class MemoryOperand extends Operand {
         }
         if (index != null) {
             if (buf.length() > 0) {
-                buf.append(" + ");
+                buf.append("+");
             }
             buf.append(index.toString());
             if (scale > 0) {
-                buf.append(" * " + (1 << scale));
+                buf.append("*" + (1 << scale));
             }
         }
         if (buf.length() == 0 || displacement != 0) {
             if (buf.length() > 0) {
-                buf.append(" + ");
+                buf.append("+");
             }
             buf.append(String.format("0x%x", displacement));
         }
@@ -82,14 +94,21 @@ public class MemoryOperand extends Operand {
     }
 
     @Override
-    public ReadNode createRead(ArchitecturalState state) {
-        // TODO Auto-generated method stub
-        return null;
+    public ReadNode createRead(ArchitecturalState state, long pc) {
+        AddressComputationNode address = new AddressComputationNode(state, this, pc);
+        MemoryReadNode memory = state.createMemoryRead();
+        return new AddressedMemoryReadNode(address, memory);
     }
 
     @Override
-    public WriteNode createWrite(ArchitecturalState state) {
-        // TODO Auto-generated method stub
-        return null;
+    public WriteNode createWrite(ArchitecturalState state, long pc) {
+        AddressComputationNode address = new AddressComputationNode(state, this, pc);
+        MemoryWriteNode memory = state.createMemoryWrite();
+        return new AddressedMemoryWriteNode(address, memory);
+    }
+
+    @Override
+    public int getSize() {
+        return 0;
     }
 }

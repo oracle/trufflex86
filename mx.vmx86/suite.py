@@ -102,6 +102,12 @@ suite = {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "license" : "GPLv3"
+    },
+
+    "org.graalvm.vm.x86.testcases.c" : {
+      "subDir" : "tests",
+      "class" : "VMX86TestSuite",
+      "license" : "GPLv3"
     }
   },
 
@@ -126,7 +132,8 @@ suite = {
       "platformDependent" : True,
       "output" : "mxbuild/testcases",
       "dependencies" : [
-        "org.graalvm.vm.x86.testcases.asm"
+        "org.graalvm.vm.x86.testcases.asm",
+        "org.graalvm.vm.x86.testcases.c"
       ],
     },
 

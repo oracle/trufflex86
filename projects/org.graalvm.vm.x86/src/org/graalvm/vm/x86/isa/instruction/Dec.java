@@ -27,8 +27,8 @@ public abstract class Dec extends AMD64Instruction {
 
         CompilerDirectives.transferToInterpreter();
         ArchitecturalState state = getContextReference().get().getState();
-        read = operand.createRead(state);
-        write = operand.createWrite(state);
+        read = operand.createRead(state, next());
+        write = operand.createWrite(state, next());
     }
 
     public static class Decb extends Dec {

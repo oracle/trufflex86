@@ -83,9 +83,27 @@ public class ModRM {
                                                     new MemoryOperand(Register.EDI)
                                     },
                                     // mod=1
-                                    {},
+                                    {
+                                                    new RegisterOperand(Register.EAX),
+                                                    new RegisterOperand(Register.ECX),
+                                                    new RegisterOperand(Register.EDX),
+                                                    new RegisterOperand(Register.EBX),
+                                                    null,
+                                                    new RegisterOperand(Register.EBP),
+                                                    new RegisterOperand(Register.ESI),
+                                                    new RegisterOperand(Register.EDI),
+                                    },
                                     // mod=2
-                                    {},
+                                    {
+                                                    new RegisterOperand(Register.EAX),
+                                                    new RegisterOperand(Register.ECX),
+                                                    new RegisterOperand(Register.EDX),
+                                                    new RegisterOperand(Register.EBX),
+                                                    null,
+                                                    new RegisterOperand(Register.EBP),
+                                                    new RegisterOperand(Register.ESI),
+                                                    new RegisterOperand(Register.EDI),
+                                    },
                                     // mod=3
                                     {
                                                     new RegisterOperand(Register.EAX),
@@ -96,6 +114,53 @@ public class ModRM {
                                                     new RegisterOperand(Register.EBP),
                                                     new RegisterOperand(Register.ESI),
                                                     new RegisterOperand(Register.EDI),
+                                    }
+                    },
+                    // R64
+                    {
+                                    // mod=0
+                                    {
+                                                    new MemoryOperand(Register.RAX),
+                                                    new MemoryOperand(Register.RCX),
+                                                    new MemoryOperand(Register.RDX),
+                                                    new MemoryOperand(Register.RBX),
+                                                    null, // SIB
+                                                    null, // RIP+disp32
+                                                    new MemoryOperand(Register.RSI),
+                                                    new MemoryOperand(Register.RDI)
+                                    },
+                                    // mod=1
+                                    {
+                                                    new RegisterOperand(Register.RAX),
+                                                    new RegisterOperand(Register.RCX),
+                                                    new RegisterOperand(Register.RDX),
+                                                    new RegisterOperand(Register.RBX),
+                                                    null,
+                                                    new RegisterOperand(Register.RBP),
+                                                    new RegisterOperand(Register.RSI),
+                                                    new RegisterOperand(Register.RDI),
+                                    },
+                                    // mod=2
+                                    {
+                                                    new RegisterOperand(Register.RAX),
+                                                    new RegisterOperand(Register.RCX),
+                                                    new RegisterOperand(Register.RDX),
+                                                    new RegisterOperand(Register.RBX),
+                                                    null,
+                                                    new RegisterOperand(Register.RBP),
+                                                    new RegisterOperand(Register.RSI),
+                                                    new RegisterOperand(Register.RDI),
+                                    },
+                                    // mod=3
+                                    {
+                                                    new RegisterOperand(Register.RAX),
+                                                    new RegisterOperand(Register.RCX),
+                                                    new RegisterOperand(Register.RDX),
+                                                    new RegisterOperand(Register.RBX),
+                                                    new RegisterOperand(Register.RSP),
+                                                    new RegisterOperand(Register.RBP),
+                                                    new RegisterOperand(Register.RSI),
+                                                    new RegisterOperand(Register.RDI),
                                     }
                     }
     };
@@ -142,6 +207,7 @@ public class ModRM {
             case A8:
             case A16:
             case A32:
+            case A64:
                 return OP1[type][mod][rm];
             default:
                 throw new IllegalArgumentException();

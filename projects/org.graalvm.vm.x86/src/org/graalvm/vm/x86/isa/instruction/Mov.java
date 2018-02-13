@@ -24,12 +24,28 @@ public abstract class Mov extends AMD64Instruction {
 
         CompilerDirectives.transferToInterpreter();
         ArchitecturalState state = getContextReference().get().getState();
-        write = operand1.createWrite(state);
-        read = operand2.createRead(state);
+        write = operand1.createWrite(state, next());
+        read = operand2.createRead(state, next());
     }
 
     protected boolean needsChildren() {
         return read == null;
+    }
+
+    protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
+        if (swap) {
+            return operands.getOperand2(type);
+        } else {
+            return operands.getOperand1(type);
+        }
+    }
+
+    protected static Operand getOp2(OperandDecoder operands, int type, boolean swap) {
+        if (swap) {
+            return operands.getOperand1(type);
+        } else {
+            return operands.getOperand2(type);
+        }
     }
 
     protected Mov(long pc, byte[] instruction, Operand operand1, Operand operand2) {
@@ -56,7 +72,11 @@ public abstract class Mov extends AMD64Instruction {
 
     public static class Movw extends Mov {
         public Movw(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R16), operands.getOperand2(OperandDecoder.R16));
+            this(pc, instruction, operands, false);
+        }
+
+        public Movw(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R16, swap), getOp2(operands, OperandDecoder.R16, swap));
         }
 
         public Movw(long pc, byte[] instruction, Operand register, short immediate) {
@@ -76,7 +96,11 @@ public abstract class Mov extends AMD64Instruction {
 
     public static class Movl extends Mov {
         public Movl(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), operands.getOperand2(OperandDecoder.R32));
+            this(pc, instruction, operands, false);
+        }
+
+        public Movl(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R32, swap), getOp2(operands, OperandDecoder.R32, swap));
         }
 
         public Movl(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
@@ -100,11 +124,15 @@ public abstract class Mov extends AMD64Instruction {
 
     public static class Movq extends Mov {
         public Movq(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R64));
+            this(pc, instruction, operands, false);
+        }
+
+        public Movq(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R64, swap), getOp2(operands, OperandDecoder.R64, swap));
         }
 
         public Movq(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(Integer.toUnsignedLong(immediate)));
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(immediate));
         }
 
         @Override

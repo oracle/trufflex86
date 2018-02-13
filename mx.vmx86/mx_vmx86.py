@@ -13,7 +13,9 @@ class VMX86TestSuite(mx.NativeProject):
         if not hasattr(self, '_tests'):
             self._tests = []
             root = os.path.join(self.dir, self.name)
-            for path, _, files in os.walk(root):
+            src = os.path.join(root, 'src')
+            lib = os.path.join(root, 'lib')
+            for path, _, files in os.walk(src):
                 for f in files:
                     absPath = os.path.join(path, f)
                     relPath = os.path.relpath(absPath, root)

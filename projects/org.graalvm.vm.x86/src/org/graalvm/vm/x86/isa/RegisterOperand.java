@@ -21,12 +21,17 @@ public class RegisterOperand extends Operand {
     }
 
     @Override
-    public ReadNode createRead(ArchitecturalState state) {
+    public ReadNode createRead(ArchitecturalState state, long pc) {
         return state.getRegisters().getRegister(register).createRead();
     }
 
     @Override
-    public WriteNode createWrite(ArchitecturalState state) {
+    public WriteNode createWrite(ArchitecturalState state, long pc) {
         return state.getRegisters().getRegister(register).createWrite();
+    }
+
+    @Override
+    public int getSize() {
+        return register.getSize();
     }
 }

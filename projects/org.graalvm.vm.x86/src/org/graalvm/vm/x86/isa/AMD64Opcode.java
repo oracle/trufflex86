@@ -25,20 +25,26 @@ public class AMD64Opcode {
     public static final byte JP = 0x7A;
     public static final byte JS = 0x78;
 
+    public static final byte LEA = (byte) 0x8D;
+
     public static final byte LODSB = (byte) 0xAC;
     public static final byte LODSD = (byte) 0xAD;
 
     public static final byte MOV_RM_R = (byte) 0x89;
     public static final byte MOV_RM_I = (byte) 0xC7;
-
+    public static final byte MOV_R_RM = (byte) 0x8B;
     public static final byte MOV_R_I = (byte) 0xB8;
+
+    public static final byte MOVSXD_R_RM = 0x63;
 
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;
 
     public static final byte SUB_RM_R = 0x29;
+    public static final byte SUB_RM_I = (byte) 0x83;
 
-    public static final byte TEST_RM_R = (byte) 0x84;
+    public static final byte TEST_RM_R8 = (byte) 0x84;
+    public static final byte TEST_RM_R = (byte) 0x85;
 
     public static final byte XOR_RM8_R8 = 0x30;
     public static final byte XOR_RM_R = 0x31;

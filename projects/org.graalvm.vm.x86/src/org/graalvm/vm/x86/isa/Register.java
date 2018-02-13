@@ -40,7 +40,8 @@ public enum Register {
     R12(12),
     R13(13),
     R14(14),
-    R15(15);
+    R15(15),
+    RIP(31);
 
     private Register(int id) {
         this.id = id;
@@ -96,6 +97,59 @@ public enum Register {
 
     public static Register get(int id) {
         return REGISTERS[id];
+    }
+
+    public int getSize() {
+        switch (this) {
+            case AH:
+            case AL:
+            case BH:
+            case BL:
+            case CH:
+            case CL:
+            case DH:
+            case DL:
+                return 1;
+            case AX:
+            case BX:
+            case CX:
+            case DX:
+            case SI:
+            case DI:
+            case BP:
+            case SP:
+                return 2;
+            case EAX:
+            case EBX:
+            case ECX:
+            case EDX:
+            case ESI:
+            case EDI:
+            case EBP:
+            case ESP:
+                return 4;
+            case RAX:
+            case RBX:
+            case RCX:
+            case RDX:
+            case RSI:
+            case RDI:
+            case RBP:
+            case RSP:
+            case R8:
+            case R9:
+            case R10:
+            case R11:
+            case R12:
+            case R13:
+            case R14:
+            case R15:
+            case RIP:
+                return 8;
+            default:
+                // unreachable
+                throw new AssertionError();
+        }
     }
 
     @Override

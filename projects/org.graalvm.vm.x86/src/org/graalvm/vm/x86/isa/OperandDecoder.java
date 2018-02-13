@@ -33,6 +33,7 @@ public class OperandDecoder {
                     return new MemoryOperand(sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
                 }
             }
+            throw new AssertionError("not implemented!");
         }
         if (modrm.hasSIB()) {
             if (modrm.hasDisplacement()) {
@@ -41,7 +42,16 @@ public class OperandDecoder {
                 return new MemoryOperand(sib.getBase(), sib.getIndex(), sib.getShift());
             }
         } else {
-            return modrm.getOperand1(ModRM.A32, type);
+            if (modrm.hasDisplacement()) {
+                RegisterOperand op = (RegisterOperand) modrm.getOperand1(ModRM.A64, type);
+                Register reg = Register.RIP;
+                if (op != null) {
+                    reg = op.getRegister();
+                }
+                return new MemoryOperand(reg, displacement);
+            } else {
+                return modrm.getOperand1(ModRM.A64, type);
+            }
         }
     }
 

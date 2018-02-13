@@ -25,9 +25,9 @@ public abstract class Xor extends AMD64Instruction {
 
         CompilerDirectives.transferToInterpreter();
         ArchitecturalState state = getContextReference().get().getState();
-        srcA = operand1.createRead(state);
-        srcB = operand2.createRead(state);
-        dst = operand1.createWrite(state);
+        srcA = operand1.createRead(state, next());
+        srcB = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
     }
 
     protected boolean needsChildren() {
@@ -87,6 +87,23 @@ public abstract class Xor extends AMD64Instruction {
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             dst.executeI32(frame, a ^ b);
+            return next();
+        }
+    }
+
+    public static class Xorq extends Xor {
+        public Xorq(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R64));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            if (needsChildren()) {
+                createChildren();
+            }
+            long a = srcA.executeI64(frame);
+            long b = srcB.executeI64(frame);
+            dst.executeI64(frame, a ^ b);
             return next();
         }
     }

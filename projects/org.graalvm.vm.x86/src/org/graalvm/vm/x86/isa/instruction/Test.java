@@ -35,8 +35,8 @@ public abstract class Test extends AMD64Instruction {
             assert readOperand1 == null;
             assert readOperand2 == null;
             ArchitecturalState state = getContextReference().get().getState();
-            readOperand1 = operand1.createRead(state);
-            readOperand2 = operand2.createRead(state);
+            readOperand1 = operand1.createRead(state, next());
+            readOperand2 = operand2.createRead(state, next());
             writeCF = state.getRegisters().getCF().createWrite();
             writePF = state.getRegisters().getPF().createWrite();
             writeZF = state.getRegisters().getZF().createWrite();
@@ -61,6 +61,66 @@ public abstract class Test extends AMD64Instruction {
             writeZF.execute(frame, val == 0);
             writeSF.execute(frame, val < 0);
             writeOF.execute(frame, Flags.getParity(val));
+            return next();
+        }
+    }
+
+    public static class Testw extends Test {
+        public Testw(long pc, byte[] instruction, OperandDecoder decoder) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R16), decoder.getOperand2(OperandDecoder.R16));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            short a = readOperand1.executeI16(frame);
+            short b = readOperand2.executeI16(frame);
+            short val = (short) (a & b);
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, val == 0);
+            writeSF.execute(frame, val < 0);
+            writeOF.execute(frame, Flags.getParity((byte) val));
+            return next();
+        }
+    }
+
+    public static class Testl extends Test {
+        public Testl(long pc, byte[] instruction, OperandDecoder decoder) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R32), decoder.getOperand2(OperandDecoder.R32));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            int a = readOperand1.executeI32(frame);
+            int b = readOperand2.executeI32(frame);
+            int val = a & b;
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, val == 0);
+            writeSF.execute(frame, val < 0);
+            writeOF.execute(frame, Flags.getParity((byte) val));
+            return next();
+        }
+    }
+
+    public static class Testq extends Test {
+        public Testq(long pc, byte[] instruction, OperandDecoder decoder) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R64), decoder.getOperand2(OperandDecoder.R64));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            long a = readOperand1.executeI64(frame);
+            long b = readOperand2.executeI64(frame);
+            long val = a & b;
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, val == 0);
+            writeSF.execute(frame, val < 0);
+            writeOF.execute(frame, Flags.getParity((byte) val));
             return next();
         }
     }
