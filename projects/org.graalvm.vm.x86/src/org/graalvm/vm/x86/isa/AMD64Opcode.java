@@ -29,6 +29,8 @@ public class AMD64Opcode {
     public static final byte JP = 0x7A;
     public static final byte JS = 0x78;
 
+    public static final byte JMP = (byte) 0xEB;
+
     public static final byte LEA = (byte) 0x8D;
 
     public static final byte LODSB = (byte) 0xAC;

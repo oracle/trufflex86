@@ -79,8 +79,12 @@ public abstract class Mov extends AMD64Instruction {
             super(pc, instruction, getOp1(operands, OperandDecoder.R16, swap), getOp2(operands, OperandDecoder.R16, swap));
         }
 
+        public Movw(long pc, byte[] instruction, OperandDecoder operands, short immediate) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R16), new ImmediateOperand(immediate));
+        }
+
         public Movw(long pc, byte[] instruction, Operand register, short immediate) {
-            super(pc, instruction, register, new ImmediateOperand(Short.toUnsignedLong(immediate)));
+            super(pc, instruction, register, new ImmediateOperand(immediate));
         }
 
         @Override
@@ -104,11 +108,11 @@ public abstract class Mov extends AMD64Instruction {
         }
 
         public Movl(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(Integer.toUnsignedLong(immediate)));
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(immediate));
         }
 
         public Movl(long pc, byte[] instruction, Operand register, int immediate) {
-            super(pc, instruction, register, new ImmediateOperand(Integer.toUnsignedLong(immediate)));
+            super(pc, instruction, register, new ImmediateOperand(immediate));
         }
 
         @Override

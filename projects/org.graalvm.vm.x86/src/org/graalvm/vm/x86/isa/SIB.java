@@ -2,9 +2,9 @@ package org.graalvm.vm.x86.isa;
 
 public class SIB {
     private final byte sib;
-    private final int ss;
-    private final int index;
-    private final int base;
+    public final int ss;
+    public final int index;
+    public final int base;
 
     private static final Register[] INDEX = {Register.EAX, Register.ECX, Register.EDX, Register.EBX, null, Register.EBP, Register.ESI, Register.EDI};
     private static final Register[] BASE = {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, null, Register.ESI, Register.EDI};
@@ -38,5 +38,10 @@ public class SIB {
 
     public Register getIndex(boolean ext) {
         return Register.get(index + (ext ? 8 : 0));
+    }
+
+    @Override
+    public String toString() {
+        return "SIB[sib=" + String.format("0x%02x", sib) + ";ss=" + ss + ";index=" + index + ";base=" + base + "]";
     }
 }

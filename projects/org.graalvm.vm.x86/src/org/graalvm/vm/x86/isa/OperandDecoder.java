@@ -30,10 +30,31 @@ public class OperandDecoder {
             // TODO!
             if (modrm.hasSIB()) {
                 if (modrm.hasDisplacement()) {
-                    return new MemoryOperand(sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
+                    if (sib.index == 0b100 && !rex.b) { // rsp not used
+                        return new MemoryOperand(sib.getBase(rex.b), displacement);
+                    } else {
+                        return new MemoryOperand(sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
+                    }
+                } else {
+                    return new MemoryOperand(sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift());
+                }
+            } else if (modrm.hasDisplacement()) {
+                RegisterOperand op = (RegisterOperand) modrm.getOperand1(ModRM.A64, type);
+                Register reg = Register.RIP;
+                if (op != null) {
+                    reg = op.getRegister();
+                    reg = getRegister(reg, rex.b);
+                }
+                return new MemoryOperand(reg, displacement);
+            } else {
+                Operand op = modrm.getOperand1(ModRM.A64, type);
+                if (op instanceof RegisterOperand) {
+                    Register reg = ((RegisterOperand) op).getRegister();
+                    return new RegisterOperand(getRegister(reg, rex.b));
+                } else {
+                    return op;
                 }
             }
-            throw new AssertionError("not implemented!");
         }
         if (modrm.hasSIB()) {
             if (modrm.hasDisplacement()) {
@@ -55,7 +76,20 @@ public class OperandDecoder {
         }
     }
 
+    private static Register getRegister(Register reg, boolean r) {
+        if (r) {
+            return Register.get(reg.getID() + 8);
+        } else {
+            return reg;
+        }
+    }
+
     public Operand getOperand2(int type) {
-        return new RegisterOperand(modrm.getOperand2(type));
+        if (rex != null && rex.r) {
+            Register reg = modrm.getOperand2(type);
+            return new RegisterOperand(getRegister(reg, rex.r));
+        } else {
+            return new RegisterOperand(modrm.getOperand2(type));
+        }
     }
 }

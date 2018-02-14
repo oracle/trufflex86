@@ -135,18 +135,13 @@ public class DispatchNode extends AMD64Node {
     private void computeSuccessors(AMD64BasicBlock block) {
         long[] bta = block.getBTA();
         if (bta != null) {
-            AMD64BasicBlock[] next = new AMD64BasicBlock[bta.length + 1];
+            AMD64BasicBlock[] next = new AMD64BasicBlock[bta.length];
             for (int i = 0; i < bta.length; i++) {
                 if (DEBUG) {
                     System.out.printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), bta[i]);
                 }
                 next[i] = get(bta[i]);
             }
-            if (DEBUG) {
-                System.out.printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), block.getLastInstruction().next());
-            }
-            next[next.length - 1] = get(block.getLastInstruction().next());
-            block.setSuccessors(next);
         }
         if (DEBUG) {
             System.out.printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
@@ -211,7 +206,7 @@ public class DispatchNode extends AMD64Node {
             }
         } catch (ProcessExitException e) {
             if (DEBUG) {
-                System.out.printf("Terminating execution at 0x%016x\n", pc);
+                System.out.printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
             writePC.executeI64(frame, pc);
             return e.getCode();

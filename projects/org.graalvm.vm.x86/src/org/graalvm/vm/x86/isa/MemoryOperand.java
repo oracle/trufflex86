@@ -32,6 +32,7 @@ public class MemoryOperand extends Operand {
     }
 
     public MemoryOperand(Register base, Register index, int scale) {
+        assert base != index;
         this.base = base;
         this.index = index;
         this.scale = scale;
@@ -39,6 +40,7 @@ public class MemoryOperand extends Operand {
     }
 
     public MemoryOperand(Register base, Register index, int scale, long displacement) {
+        assert base != index;
         this.base = base;
         this.index = index;
         this.scale = scale;

@@ -20,7 +20,7 @@ public class AMD64VM {
             System.exit(1);
         }
         Source source = Source.newBuilder(AMD64Language.NAME, new File(args[0])).build();
-        executeSource(source, args);
+        System.exit(executeSource(source, args));
     }
 
     private static int executeSource(Source source, String[] args) {
@@ -38,8 +38,7 @@ public class AMD64VM {
             return result.asInt();
         } catch (Throwable ex) {
             /*
-             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to
-             * unwrap here.
+             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to unwrap here.
              */
             Throwable cause = ex.getCause();
             if (cause instanceof UnsupportedSpecializationException) {

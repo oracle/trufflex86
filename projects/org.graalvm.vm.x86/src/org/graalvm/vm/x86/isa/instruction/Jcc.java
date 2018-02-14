@@ -373,7 +373,7 @@ public abstract class Jcc extends AMD64Instruction {
 
     @Override
     public long[] getBTA() {
-        return new long[]{bta};
+        return new long[]{bta, next()};
     }
 
     @Override

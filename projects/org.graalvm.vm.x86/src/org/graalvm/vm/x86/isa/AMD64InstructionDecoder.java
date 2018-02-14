@@ -30,6 +30,7 @@ import org.graalvm.vm.x86.isa.instruction.Jcc.Jo;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jp;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jrcxz;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Js;
+import org.graalvm.vm.x86.isa.instruction.Jmp;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
@@ -102,7 +103,7 @@ public class AMD64InstructionDecoder {
                 return new CallRelative(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(rel32));
             }
             case AMD64Opcode.CMP_RM_I8: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 switch (args.modrm.getReg()) {
                     case 7: {
                         byte imm = code.read8();
@@ -114,7 +115,7 @@ public class AMD64InstructionDecoder {
                 return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
             }
             case AMD64Opcode.INC_RM: { // or: DEC_RM
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 switch (args.modrm.getReg()) {
                     case 0: // INC
                         if (rex != null) {
@@ -233,15 +234,15 @@ public class AMD64InstructionDecoder {
                 instruction[instructionLength++] = rel8;
                 return new Js(pc, Arrays.copyOf(instruction, instructionLength), rel8);
             }
+            case AMD64Opcode.JMP: {
+                byte rel8 = code.read8();
+                instruction[instructionLength++] = rel8;
+                return new Jmp(pc, Arrays.copyOf(instruction, instructionLength), rel8);
+            }
             case AMD64Opcode.LEA: {
-                Args args = new Args(code);
-                if (rex != null) {
-                    assert !rex.r && !rex.b && !rex.x;
-                    if (rex.w) {
-                        return new Leaq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                    } else {
-                        throw new AssertionError("rex + lea r,m: not implemented");
-                    }
+                Args args = new Args(code, rex);
+                if (rex != null && rex.w) {
+                    return new Leaq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
                 if (sizeOverride) {
                     return new Leaw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -252,14 +253,9 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.LODSB:
                 return new Lodsb(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.MOV_RM_R: {
-                Args args = new Args(code);
-                if (rex != null) {
-                    assert !rex.r && !rex.b && !rex.x;
-                    if (rex.w) {
-                        return new Movq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                    } else {
-                        throw new AssertionError("rex + mov rm/r: not implemented");
-                    }
+                Args args = new Args(code, rex);
+                if (rex != null && rex.w) {
+                    return new Movq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
                 if (sizeOverride) {
                     return new Movw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -268,13 +264,20 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.MOV_RM_I: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
                     int imm = code.read32();
                     return new Movq(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)}, 4), args.getOperandDecoder(),
                                     imm);
                 }
-                throw new AssertionError("REX: " + rex);
+                if (sizeOverride) {
+                    short imm = code.read16();
+                    return new Movw(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8)}, 4), args.getOperandDecoder(), imm);
+                } else {
+                    int imm = code.read32();
+                    return new Movl(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)}, 4), args.getOperandDecoder(),
+                                    imm);
+                }
             }
             case AMD64Opcode.MOV_R_I + 0:
             case AMD64Opcode.MOV_R_I + 1:
@@ -302,12 +305,10 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.MOV_R_RM: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
-                    assert !rex.r && !rex.b && !rex.x;
                     return new Movq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 }
-                assert rex == null;
                 if (sizeOverride) {
                     return new Movw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 } else {
@@ -315,7 +316,7 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.MOVSXD_R_RM: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
                     assert !rex.r && !rex.b && !rex.x;
                     return new Movslq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -360,7 +361,7 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.RET_NEAR:
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.SUB_RM_R: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
                     assert !rex.r && !rex.b && !rex.x;
                     return new Subq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -373,7 +374,7 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.SUB_RM_I: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 switch (args.modrm.getReg()) {
                     case 0: { // ADD r/m32 i8
                         byte imm = code.read8();
@@ -408,11 +409,11 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.TEST_RM_R8: {
                 assert rex == null;
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 return new Testb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
             }
             case AMD64Opcode.TEST_RM_R: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
                     assert !rex.r && !rex.b && !rex.x;
                     return new Testq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -424,7 +425,7 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.XOR_RM_R: {
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 if (rex != null && rex.w) {
                     assert !rex.r && !rex.b && !rex.x;
                     return new Xorq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -437,7 +438,7 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.XOR_RM8_R8: {
                 assert rex == null;
-                Args args = new Args(code);
+                Args args = new Args(code, rex);
                 return new Xorb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
             }
             case AMD64Opcode.ESCAPE: {
@@ -475,6 +476,7 @@ public class AMD64InstructionDecoder {
     }
 
     private static class Args {
+        public final AMD64RexPrefix rex;
         public final ModRM modrm;
         public final SIB sib;
         public final long displacement;
@@ -482,6 +484,11 @@ public class AMD64InstructionDecoder {
         public final byte[] bytes;
 
         public Args(CodeReader code) {
+            this(code, null);
+        }
+
+        public Args(CodeReader code, AMD64RexPrefix rex) {
+            this.rex = rex;
             modrm = new ModRM(code.read8());
             if (modrm.hasSIB()) {
                 sib = new SIB(code.read8());
@@ -526,7 +533,7 @@ public class AMD64InstructionDecoder {
         }
 
         public OperandDecoder getOperandDecoder() {
-            return new OperandDecoder(modrm, sib, displacement);
+            return new OperandDecoder(modrm, sib, displacement, rex);
         }
 
         public byte[] getOp(byte[] prefix, int prefixLength) {
@@ -542,6 +549,11 @@ public class AMD64InstructionDecoder {
             System.arraycopy(bytes, 0, result, prefixLength, bytes.length);
             System.arraycopy(suffix, 0, result, prefixLength + bytes.length, suffixLength);
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Args[rex=" + rex + ";modrm=" + modrm + ";sib=" + sib + ";displacement=" + displacement + "]";
         }
     }
 }

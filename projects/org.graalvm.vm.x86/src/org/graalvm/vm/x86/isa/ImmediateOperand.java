@@ -35,7 +35,28 @@ public class ImmediateOperand extends Operand {
 
     @Override
     public String toString() {
-        return String.format("0x%x", value);
+        switch (getSize()) {
+            case 1:
+                if (value < 0) {
+                    return String.format("-0x%x", (byte) -value);
+                } else {
+                    return String.format("0x%x", (byte) value);
+                }
+            case 2:
+                if (value < 0) {
+                    return String.format("-0x%x", (short) -value);
+                } else {
+                    return String.format("0x%x", (short) value);
+                }
+            case 4:
+                if (value < 0) {
+                    return String.format("-0x%x", (int) -value);
+                } else {
+                    return String.format("0x%x", (int) value);
+                }
+            default:
+                return String.format("0x%x", value);
+        }
     }
 
     @Override
