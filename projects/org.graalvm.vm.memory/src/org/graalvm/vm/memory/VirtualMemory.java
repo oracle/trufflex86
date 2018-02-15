@@ -8,6 +8,9 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.memory.vector.Vector256;
+import org.graalvm.vm.memory.vector.Vector512;
 
 import com.everyware.posix.api.PosixPointer;
 
@@ -189,6 +192,45 @@ public class VirtualMemory {
         }
     }
 
+    public Vector128 getI128(long address) {
+        long ptr = addr(address);
+        try {
+            MemoryPage page = get(ptr);
+            Vector128 v = page.getI128(ptr);
+            logMemoryRead(address, v);
+            return v;
+        } catch (Throwable t) {
+            logMemoryRead(address, 8);
+            throw t;
+        }
+    }
+
+    public Vector256 getI256(long address) {
+        long ptr = addr(address);
+        try {
+            MemoryPage page = get(ptr);
+            Vector256 v = page.getI256(ptr);
+            logMemoryRead(address, v);
+            return v;
+        } catch (Throwable t) {
+            logMemoryRead(address, 8);
+            throw t;
+        }
+    }
+
+    public Vector512 getI512(long address) {
+        long ptr = addr(address);
+        try {
+            MemoryPage page = get(ptr);
+            Vector512 v = page.getI512(ptr);
+            logMemoryRead(address, v);
+            return v;
+        } catch (Throwable t) {
+            logMemoryRead(address, 8);
+            throw t;
+        }
+    }
+
     public void setI8(long address, byte val) {
         logMemoryWrite(address, 1, val);
         long ptr = addr(address);
@@ -215,6 +257,27 @@ public class VirtualMemory {
         long ptr = addr(address);
         MemoryPage page = get(ptr);
         page.setI64(ptr, val);
+    }
+
+    public void setI128(long address, Vector128 val) {
+        logMemoryWrite(address, val);
+        long ptr = addr(address);
+        MemoryPage page = get(ptr);
+        page.setI128(ptr, val);
+    }
+
+    public void setI256(long address, Vector256 val) {
+        logMemoryWrite(address, val);
+        long ptr = addr(address);
+        MemoryPage page = get(ptr);
+        page.setI256(ptr, val);
+    }
+
+    public void setI512(long address, Vector512 val) {
+        logMemoryWrite(address, val);
+        long ptr = addr(address);
+        MemoryPage page = get(ptr);
+        page.setI512(ptr, val);
     }
 
     public void dump(long p, int size) {
@@ -264,10 +327,52 @@ public class VirtualMemory {
         }
     }
 
+    private void logMemoryRead(long address, Vector128 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: read 16 bytes (%s)\n", addr(addr), value);
+        }
+    }
+
+    private void logMemoryRead(long address, Vector256 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: read 32 bytes (%s)\n", addr(addr), value);
+        }
+    }
+
+    private void logMemoryRead(long address, Vector512 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: read 64 bytes (%s)\n", addr(addr), value);
+        }
+    }
+
     private void logMemoryWrite(long address, int size, long value) {
         if (debugMemory) {
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016X: write %d bytes (0x%016X)\n", addr(addr), size, value);
+        }
+    }
+
+    private void logMemoryWrite(long address, Vector128 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: write 16 bytes (0%s)\n", addr(addr), value);
+        }
+    }
+
+    private void logMemoryWrite(long address, Vector256 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: write 32 bytes (0%s)\n", addr(addr), value);
+        }
+    }
+
+    private void logMemoryWrite(long address, Vector512 value) {
+        if (debugMemory) {
+            long addr = addr(address);
+            System.out.printf("Memory access to 0x%016X: write 64 bytes (0%s)\n", addr(addr), value);
         }
     }
 

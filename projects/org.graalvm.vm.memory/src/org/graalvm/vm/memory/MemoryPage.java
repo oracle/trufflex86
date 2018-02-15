@@ -1,6 +1,9 @@
 package org.graalvm.vm.memory;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.memory.vector.Vector256;
+import org.graalvm.vm.memory.vector.Vector512;
 
 public class MemoryPage {
     public final Memory memory;
@@ -132,6 +135,39 @@ public class MemoryPage {
         }
     }
 
+    public Vector128 getI128(long addr) {
+        if (!r) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            return memory.getI128(getOffset(addr));
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
+    public Vector256 getI256(long addr) {
+        if (!r) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            return memory.getI256(getOffset(addr));
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
+    public Vector512 getI512(long addr) {
+        if (!r) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            return memory.getI512(getOffset(addr));
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
     public void setI8(long addr, byte val) {
         if (!w) {
             throw new SegmentationViolation(addr);
@@ -171,6 +207,39 @@ public class MemoryPage {
         }
         try {
             memory.setI64(getOffset(addr), val);
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
+    public void setI128(long addr, Vector128 val) {
+        if (!w) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            memory.setI128(getOffset(addr), val);
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
+    public void setI256(long addr, Vector256 val) {
+        if (!w) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            memory.setI256(getOffset(addr), val);
+        } catch (SegmentationViolation e) {
+            throw new SegmentationViolation(addr);
+        }
+    }
+
+    public void setI512(long addr, Vector512 val) {
+        if (!w) {
+            throw new SegmentationViolation(addr);
+        }
+        try {
+            memory.setI512(getOffset(addr), val);
         } catch (SegmentationViolation e) {
             throw new SegmentationViolation(addr);
         }
