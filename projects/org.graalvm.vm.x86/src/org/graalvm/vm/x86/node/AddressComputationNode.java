@@ -21,6 +21,8 @@ public class AddressComputationNode extends AMD64Node {
         baseReg = operand.getBase();
         indexReg = operand.getIndex();
 
+        assert scale >= 0 && scale <= 3;
+
         if (baseReg != null) {
             if (baseReg == Register.RIP) {
                 base = new ImmediateNode(pc);
@@ -42,7 +44,7 @@ public class AddressComputationNode extends AMD64Node {
         if (index != null) {
             indexval = index.executeI64(frame);
         }
-        long addr = displacement + baseaddr + indexval << scale;
+        long addr = displacement + baseaddr + (indexval << scale);
         return addr;
     }
 }

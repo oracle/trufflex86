@@ -18,31 +18,29 @@ public class MemoryOperand extends Operand {
     private final long displacement;
 
     public MemoryOperand(Register base) {
-        this.base = base;
+        this.base = base.get64bit();
         this.index = null;
         this.scale = 0;
         this.displacement = 0;
     }
 
     public MemoryOperand(Register base, long displacement) {
-        this.base = base;
+        this.base = base.get64bit();
         this.index = null;
         this.scale = 0;
         this.displacement = displacement;
     }
 
     public MemoryOperand(Register base, Register index, int scale) {
-        assert base != index;
-        this.base = base;
-        this.index = index;
+        this.base = base.get64bit();
+        this.index = index.get64bit();
         this.scale = scale;
         this.displacement = 0;
     }
 
     public MemoryOperand(Register base, Register index, int scale, long displacement) {
-        assert base != index;
-        this.base = base;
-        this.index = index;
+        this.base = base != null ? base.get64bit() : base;
+        this.index = index != null ? index.get64bit() : index;
         this.scale = scale;
         this.displacement = displacement;
     }
@@ -87,10 +85,15 @@ public class MemoryOperand extends Operand {
             }
         }
         if (buf.length() == 0 || displacement != 0) {
-            if (buf.length() > 0) {
+            boolean add = displacement >= 0;
+            if (add && buf.length() > 0) {
                 buf.append("+");
             }
-            buf.append(String.format("0x%x", displacement));
+            if (add) {
+                buf.append(String.format("0x%x", displacement));
+            } else {
+                buf.append(String.format("-0x%x", -displacement));
+            }
         }
         return "[" + buf + "]";
     }
