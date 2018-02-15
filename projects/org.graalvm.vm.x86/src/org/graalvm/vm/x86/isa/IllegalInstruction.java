@@ -27,6 +27,11 @@ public class IllegalInstruction extends AMD64Instruction {
     }
 
     @Override
+    public boolean isControlFlow() {
+        return true;
+    }
+
+    @Override
     protected String[] disassemble() {
         if (instruction.length > 0) {
             String data = IntStream.range(0, instruction.length).mapToObj(i -> instruction[i]).map(x -> String.format("0x%02x", x)).collect(Collectors.joining(", "));
