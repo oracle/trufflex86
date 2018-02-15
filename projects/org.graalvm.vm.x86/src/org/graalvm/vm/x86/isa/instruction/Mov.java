@@ -59,6 +59,10 @@ public abstract class Mov extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), operands.getOperand2(OperandDecoder.R8));
         }
 
+        public Movb(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (needsChildren()) {
@@ -137,6 +141,10 @@ public abstract class Mov extends AMD64Instruction {
 
         public Movq(long pc, byte[] instruction, OperandDecoder operands, int immediate) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(immediate));
+        }
+
+        public Movq(long pc, byte[] instruction, Operand operand, int immediate) {
+            super(pc, instruction, operand, new ImmediateOperand(immediate));
         }
 
         @Override

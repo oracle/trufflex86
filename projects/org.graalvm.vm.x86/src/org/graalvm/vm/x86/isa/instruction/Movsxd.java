@@ -39,7 +39,7 @@ public abstract class Movsxd extends AMD64Instruction {
 
     public static class Movslq extends Movsxd {
         public Movslq(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R32));
+            super(pc, instruction, operands.getOperand2(OperandDecoder.R64), operands.getOperand1(OperandDecoder.R32));
         }
 
         @Override

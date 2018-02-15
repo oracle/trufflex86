@@ -47,6 +47,22 @@ public abstract class Add extends AMD64Instruction {
         return srcA == null;
     }
 
+    protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
+        if (swap) {
+            return operands.getOperand2(type);
+        } else {
+            return operands.getOperand1(type);
+        }
+    }
+
+    protected static Operand getOp2(OperandDecoder operands, int type, boolean swap) {
+        if (swap) {
+            return operands.getOperand1(type);
+        } else {
+            return operands.getOperand2(type);
+        }
+    }
+
     protected Add(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
         this.operand1 = operand1;
@@ -55,7 +71,11 @@ public abstract class Add extends AMD64Instruction {
 
     public static class Addb extends Add {
         public Addb(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R8), operands.getOperand2(OperandDecoder.R8));
+            this(pc, instruction, operands, false);
+        }
+
+        public Addb(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R8, swap), getOp2(operands, OperandDecoder.R8, swap));
         }
 
         public Addb(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
@@ -85,7 +105,11 @@ public abstract class Add extends AMD64Instruction {
 
     public static class Addw extends Add {
         public Addw(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R16), operands.getOperand2(OperandDecoder.R16));
+            this(pc, instruction, operands, false);
+        }
+
+        public Addw(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R16, swap), getOp2(operands, OperandDecoder.R16, swap));
         }
 
         public Addw(long pc, byte[] instruction, OperandDecoder operands, short imm) {
@@ -115,7 +139,11 @@ public abstract class Add extends AMD64Instruction {
 
     public static class Addl extends Add {
         public Addl(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), operands.getOperand2(OperandDecoder.R32));
+            this(pc, instruction, operands, false);
+        }
+
+        public Addl(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R32, swap), getOp2(operands, OperandDecoder.R32, swap));
         }
 
         public Addl(long pc, byte[] instruction, OperandDecoder operands, int imm) {
@@ -145,7 +173,11 @@ public abstract class Add extends AMD64Instruction {
 
     public static class Addq extends Add {
         public Addq(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R64));
+            this(pc, instruction, operands, false);
+        }
+
+        public Addq(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R64, swap), getOp2(operands, OperandDecoder.R64, swap));
         }
 
         public Addq(long pc, byte[] instruction, OperandDecoder operands, long imm) {

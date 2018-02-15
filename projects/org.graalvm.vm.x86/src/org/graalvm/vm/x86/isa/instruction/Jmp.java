@@ -7,7 +7,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 public class Jmp extends AMD64Instruction {
     private final long bta;
 
-    public Jmp(long pc, byte[] instruction, byte offset) {
+    public Jmp(long pc, byte[] instruction, int offset) {
         super(pc, instruction);
         this.bta = next() + offset;
     }

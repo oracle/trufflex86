@@ -3,11 +3,15 @@ package org.graalvm.vm.x86.isa;
 public class AMD64Opcode {
     public static final byte ESCAPE = 0x0F;
 
+    public static final byte ADD_RM_R = 0x01;
+    public static final byte ADD_R_RM = 0x03;
     public static final byte ADD_RM_I = (byte) 0x83;
 
     public static final byte CALL_REL = (byte) 0xE8;
 
+    public static final byte CMP_AL_I = 0x3C;
     public static final byte CMP_RM_I8 = (byte) 0x80;
+    public static final byte CMP_RM_R = 0x39;
 
     public static final byte INC_RM = (byte) 0xFF;
 
@@ -29,22 +33,53 @@ public class AMD64Opcode {
     public static final byte JP = 0x7A;
     public static final byte JS = 0x78;
 
-    public static final byte JMP = (byte) 0xEB;
+    public static final byte JA32 = (byte) 0x87;
+    public static final byte JAE32 = (byte) 0x83;
+    public static final byte JB32 = (byte) 0x82;
+    public static final byte JBE32 = (byte) 0x86;
+    public static final byte JE32 = (byte) 0x84;
+    public static final byte JG32 = (byte) 0x8F;
+    public static final byte JGE32 = (byte) 0x8D;
+    public static final byte JL32 = (byte) 0x8C;
+    public static final byte JLE32 = (byte) 0x8E;
+    public static final byte JNE32 = (byte) 0x85;
+    public static final byte JNO32 = (byte) 0x81;
+    public static final byte JNP32 = (byte) 0x8B;
+    public static final byte JNS32 = (byte) 0x89;
+    public static final byte JO32 = (byte) 0x80;
+    public static final byte JP32 = (byte) 0x8A;
+    public static final byte JS32 = (byte) 0x88;
+
+    public static final byte JMP_REL8 = (byte) 0xEB;
+    public static final byte JMP_REL32 = (byte) 0xE9;
 
     public static final byte LEA = (byte) 0x8D;
 
     public static final byte LODSB = (byte) 0xAC;
     public static final byte LODSD = (byte) 0xAD;
 
+    public static final byte MOV_RM_R8 = (byte) 0x88;
     public static final byte MOV_RM_R = (byte) 0x89;
     public static final byte MOV_RM_I = (byte) 0xC7;
     public static final byte MOV_R_RM = (byte) 0x8B;
+    public static final byte MOV_RM_I8 = (byte) 0xC6;
     public static final byte MOV_R_I = (byte) 0xB8;
 
+    public static final byte MOVDQA_X_XM = (byte) 0x6F;
+    public static final byte MOVDQA_XM_X = (byte) 0x7F;
+
+    public static final byte MOVSX_R_RM8 = (byte) 0xBE;
+    public static final byte MOVSX_R_RM16 = (byte) 0xBF;
     public static final byte MOVSXD_R_RM = 0x63;
 
+    public static final byte MOVZX_R_RM8 = (byte) 0xB6;
+    public static final byte MOVZX_R_RM16 = (byte) 0xB7;
+
+    public static final byte MUL_RM8 = (byte) 0xF6;
+    public static final byte MUL_RM = (byte) 0xF7;
+
     public static final byte NOP = (byte) 0x90;
-    public static final byte NOP_RM = 0x1f;
+    public static final byte NOP_RM = 0x1F;
 
     public static final byte POP_R = 0x58;
     public static final byte PUSH_R = 0x50;
@@ -52,8 +87,11 @@ public class AMD64Opcode {
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;
 
+    public static final byte SHL_RM_I = (byte) 0xC1;
+
     public static final byte SUB_RM_R = 0x29;
-    public static final byte SUB_RM_I = (byte) 0x83;
+    public static final byte SUB_RM_I = (byte) 0x81;
+    public static final byte SUB_RM_I8 = (byte) 0x83;
 
     public static final byte TEST_RM_R8 = (byte) 0x84;
     public static final byte TEST_RM_R = (byte) 0x85;

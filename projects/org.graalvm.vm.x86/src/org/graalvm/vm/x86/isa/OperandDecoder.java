@@ -51,6 +51,12 @@ public class OperandDecoder {
                 if (op instanceof RegisterOperand) {
                     Register reg = ((RegisterOperand) op).getRegister();
                     return new RegisterOperand(getRegister(reg, rex.b));
+                } else if (op instanceof MemoryOperand) {
+                    MemoryOperand mem = (MemoryOperand) op;
+                    Register base = mem.getBase();
+                    assert mem.getIndex() == null;
+                    assert mem.getDisplacement() == 0;
+                    return new MemoryOperand(getRegister(base, rex.b));
                 } else {
                     return op;
                 }
@@ -78,7 +84,7 @@ public class OperandDecoder {
 
     private static Register getRegister(Register reg, boolean r) {
         if (r) {
-            return Register.get(reg.getID() + 8);
+            return Register.get(reg.getID() + 8).getSize(reg.getSize());
         } else {
             return reg;
         }
@@ -90,6 +96,24 @@ public class OperandDecoder {
             return new RegisterOperand(getRegister(reg, rex.r));
         } else {
             return new RegisterOperand(modrm.getOperand2(type));
+        }
+    }
+
+    public Operand getAVXOperand1(int size) {
+        Operand op = getOperand1(R64);
+        if (op instanceof RegisterOperand) {
+            return new AVXRegisterOperand(((RegisterOperand) op).getRegister().getID(), size);
+        } else {
+            return op;
+        }
+    }
+
+    public Operand getAVXOperand2(int size) {
+        Operand op = getOperand2(R64);
+        if (op instanceof RegisterOperand) {
+            return new AVXRegisterOperand(((RegisterOperand) op).getRegister().getID(), size);
+        } else {
+            return op;
         }
     }
 }

@@ -2,9 +2,11 @@ package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
+import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.CompilerDirectives;
@@ -17,17 +19,26 @@ public abstract class Xor extends AMD64Instruction {
     @Child protected ReadNode srcA;
     @Child protected ReadNode srcB;
     @Child protected WriteNode dst;
+    @Child protected WriteFlagNode writeCF;
+    @Child protected WriteFlagNode writePF;
+    @Child protected WriteFlagNode writeZF;
+    @Child protected WriteFlagNode writeSF;
+    @Child protected WriteFlagNode writeOF;
 
-    protected void createChildren() {
-        assert srcA == null;
-        assert srcB == null;
-        assert dst == null;
+    protected void createChildrenIfNecessary() {
+        if (srcA == null) {
+            CompilerDirectives.transferToInterpreter();
+            ArchitecturalState state = getContextReference().get().getState();
+            srcA = operand1.createRead(state, next());
+            srcB = operand2.createRead(state, next());
+            dst = operand1.createWrite(state, next());
 
-        CompilerDirectives.transferToInterpreter();
-        ArchitecturalState state = getContextReference().get().getState();
-        srcA = operand1.createRead(state, next());
-        srcB = operand2.createRead(state, next());
-        dst = operand1.createWrite(state, next());
+            writeCF = state.getRegisters().getCF().createWrite();
+            writePF = state.getRegisters().getPF().createWrite();
+            writeZF = state.getRegisters().getZF().createWrite();
+            writeSF = state.getRegisters().getSF().createWrite();
+            writeOF = state.getRegisters().getOF().createWrite();
+        }
     }
 
     protected boolean needsChildren() {
@@ -47,12 +58,16 @@ public abstract class Xor extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
-            dst.executeI8(frame, (byte) (a ^ b));
+            byte result = (byte) (a ^ b);
+            dst.executeI8(frame, result);
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, result == 0);
+            writeSF.execute(frame, result < 0);
+            writePF.execute(frame, Flags.getParity(result));
             return next();
         }
     }
@@ -64,12 +79,16 @@ public abstract class Xor extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
-            dst.executeI16(frame, (short) (a ^ b));
+            short result = (short) (a ^ b);
+            dst.executeI16(frame, result);
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, result == 0);
+            writeSF.execute(frame, result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -81,12 +100,16 @@ public abstract class Xor extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
-            dst.executeI32(frame, a ^ b);
+            int result = a ^ b;
+            dst.executeI32(frame, result);
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, result == 0);
+            writeSF.execute(frame, result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -98,12 +121,16 @@ public abstract class Xor extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
-            dst.executeI64(frame, a ^ b);
+            long result = a ^ b;
+            dst.executeI64(frame, result);
+            writeCF.execute(frame, false);
+            writeOF.execute(frame, false);
+            writeZF.execute(frame, result == 0);
+            writeSF.execute(frame, result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }

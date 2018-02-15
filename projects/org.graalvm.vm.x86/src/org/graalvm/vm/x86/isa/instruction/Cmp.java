@@ -23,6 +23,7 @@ public abstract class Cmp extends AMD64Instruction {
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writePF;
+    @Child protected WriteFlagNode writeAF;
 
     protected void createChildren() {
         assert srcA == null;
@@ -37,6 +38,7 @@ public abstract class Cmp extends AMD64Instruction {
         writeSF = state.getRegisters().getSF().createWrite();
         writeZF = state.getRegisters().getZF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
+        writeAF = state.getRegisters().getAF().createWrite();
     }
 
     protected boolean needsChildren() {
@@ -58,6 +60,10 @@ public abstract class Cmp extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
         }
 
+        public Cmpb(long pc, byte[] instruction, Operand operand, byte imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (needsChildren()) {
@@ -67,13 +73,16 @@ public abstract class Cmp extends AMD64Instruction {
             byte b = srcB.executeI8(frame);
             byte result = (byte) (a - b);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = (byte) ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Byte.toUnsignedInt(a) < Byte.toUnsignedInt(b);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity(result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -96,13 +105,16 @@ public abstract class Cmp extends AMD64Instruction {
             short b = srcB.executeI16(frame);
             short result = (short) (a - b);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = (short) ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Short.toUnsignedInt(a) < Short.toUnsignedInt(b);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -125,13 +137,16 @@ public abstract class Cmp extends AMD64Instruction {
             int b = srcB.executeI32(frame);
             int result = a - b;
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Integer.compareUnsigned(a, b) < 0;
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -154,19 +169,22 @@ public abstract class Cmp extends AMD64Instruction {
             long b = srcB.executeI64(frame);
             long result = a - b;
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Long.compareUnsigned(a, b) < 0;
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
 
     @Override
     protected String[] disassemble() {
-        return new String[]{"sub", operand1.toString(), operand2.toString()};
+        return new String[]{"cmp", operand1.toString(), operand2.toString()};
     }
 }

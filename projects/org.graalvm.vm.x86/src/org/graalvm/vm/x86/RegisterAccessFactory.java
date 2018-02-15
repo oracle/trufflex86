@@ -1,11 +1,14 @@
 package org.graalvm.vm.x86;
 
+import org.graalvm.vm.x86.isa.AVXRegister;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.node.ReadFlagsNode;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 
 public class RegisterAccessFactory {
     private final FrameSlot[] gpr;
+    private final FrameSlot[] zmm;
     private final FrameSlot pc;
 
     private final FrameSlot cf;
@@ -16,8 +19,9 @@ public class RegisterAccessFactory {
     private final FrameSlot df;
     private final FrameSlot of;
 
-    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot pc, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
+    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot pc, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
         this.gpr = gpr;
+        this.zmm = zmm;
         this.pc = pc;
         this.cf = cf;
         this.pf = pf;
@@ -38,6 +42,10 @@ public class RegisterAccessFactory {
             default:
                 return new AMD64Register(gpr[reg.getID()]);
         }
+    }
+
+    public AVXRegister getAVXRegister(int i) {
+        return new AVXRegister(zmm[i]);
     }
 
     public AMD64Register getPC() {
@@ -70,5 +78,9 @@ public class RegisterAccessFactory {
 
     public AMD64Flag getOF() {
         return new AMD64Flag(of);
+    }
+
+    public ReadFlagsNode createReadFlags() {
+        return new ReadFlagsNode();
     }
 }

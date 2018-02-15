@@ -21,7 +21,8 @@ public class AMD64Context {
     private final String[] args;
 
     private final FrameDescriptor frameDescriptor;
-    private final FrameSlot[] registers;
+    private final FrameSlot[] gpr;
+    private final FrameSlot[] zmm;
     private final FrameSlot pc;
     private final FrameSlot cf;
     private final FrameSlot pf;
@@ -41,9 +42,13 @@ public class AMD64Context {
         posix = new PosixEnvironment(memory, ARCH_NAME);
         args = env.getApplicationArguments();
         assert REGISTER_NAMES.length == 16;
-        registers = new FrameSlot[REGISTER_NAMES.length];
+        gpr = new FrameSlot[REGISTER_NAMES.length];
         for (int i = 0; i < REGISTER_NAMES.length; i++) {
-            registers[i] = frameDescriptor.addFrameSlot(REGISTER_NAMES[i], FrameSlotKind.Long);
+            gpr[i] = frameDescriptor.addFrameSlot(REGISTER_NAMES[i], FrameSlotKind.Long);
+        }
+        zmm = new FrameSlot[32];
+        for (int i = 0; i < zmm.length; i++) {
+            zmm[i] = frameDescriptor.addFrameSlot("zmm" + i, FrameSlotKind.Object);
         }
         pc = frameDescriptor.addFrameSlot("rip", FrameSlotKind.Long);
         cf = frameDescriptor.addFrameSlot("cf", FrameSlotKind.Boolean);
@@ -78,7 +83,11 @@ public class AMD64Context {
     }
 
     public FrameSlot getGPR(int i) {
-        return registers[i];
+        return gpr[i];
+    }
+
+    public FrameSlot getZMM(int i) {
+        return zmm[i];
     }
 
     public FrameSlot getPC() {
@@ -86,7 +95,11 @@ public class AMD64Context {
     }
 
     public FrameSlot[] getGPRs() {
-        return registers;
+        return gpr;
+    }
+
+    public FrameSlot[] getZMMs() {
+        return zmm;
     }
 
     public FrameSlot getCF() {
@@ -119,5 +132,9 @@ public class AMD64Context {
 
     public ArchitecturalState getState() {
         return state;
+    }
+
+    public SymbolResolver getSymbolResolver() {
+        return new SymbolResolver(symbols);
     }
 }

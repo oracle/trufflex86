@@ -2,12 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 
-const char* text = "Hello world!\n";
-
-int puts(const char* s)
-{
-	return write(1, s, strlen(s));
-}
+const char* text = "Hello world!";
 
 int main(void)
 {

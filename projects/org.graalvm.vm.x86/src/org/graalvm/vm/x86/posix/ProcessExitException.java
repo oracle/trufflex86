@@ -1,6 +1,8 @@
 package org.graalvm.vm.x86.posix;
 
-public class ProcessExitException extends RuntimeException {
+import com.oracle.truffle.api.nodes.ControlFlowException;
+
+public class ProcessExitException extends ControlFlowException {
     private static final long serialVersionUID = -7483493093129513658L;
 
     private int code;

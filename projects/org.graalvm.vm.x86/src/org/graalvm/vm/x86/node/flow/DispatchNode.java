@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -168,7 +169,7 @@ public class DispatchNode extends AMD64Node {
     }
 
     public long execute(VirtualFrame frame) {
-        long cnt = 50; // max execution steps (help debug infinite loops)
+        long cnt = 100; // max execution steps (help debug infinite loops)
         long pc = readPC.executeI64(frame);
         try {
             if (usedBlocks == 0) {
@@ -204,12 +205,18 @@ public class DispatchNode extends AMD64Node {
                     block = successor;
                 }
             }
+            CompilerDirectives.transferToInterpreter();
+            System.err.printf("Execution aborted at 0x%016x: limit reached\n", pc);
         } catch (ProcessExitException e) {
             if (DEBUG) {
                 System.out.printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
             writePC.executeI64(frame, pc);
             return e.getCode();
+        } catch (CpuRuntimeException e) {
+            CompilerDirectives.transferToInterpreter();
+            System.err.printf("Exception at address 0x%016x!\n", e.getPC());
+            e.getCause().printStackTrace();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
             System.err.printf("Exception at address 0x%016x!\n", pc);

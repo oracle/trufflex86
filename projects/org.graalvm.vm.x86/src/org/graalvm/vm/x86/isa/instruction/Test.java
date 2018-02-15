@@ -60,7 +60,7 @@ public abstract class Test extends AMD64Instruction {
             writeOF.execute(frame, false);
             writeZF.execute(frame, val == 0);
             writeSF.execute(frame, val < 0);
-            writeOF.execute(frame, Flags.getParity(val));
+            writePF.execute(frame, Flags.getParity(val));
             return next();
         }
     }
@@ -80,7 +80,7 @@ public abstract class Test extends AMD64Instruction {
             writeOF.execute(frame, false);
             writeZF.execute(frame, val == 0);
             writeSF.execute(frame, val < 0);
-            writeOF.execute(frame, Flags.getParity((byte) val));
+            writePF.execute(frame, Flags.getParity((byte) val));
             return next();
         }
     }
@@ -100,7 +100,7 @@ public abstract class Test extends AMD64Instruction {
             writeOF.execute(frame, false);
             writeZF.execute(frame, val == 0);
             writeSF.execute(frame, val < 0);
-            writeOF.execute(frame, Flags.getParity((byte) val));
+            writePF.execute(frame, Flags.getParity((byte) val));
             return next();
         }
     }
@@ -120,7 +120,7 @@ public abstract class Test extends AMD64Instruction {
             writeOF.execute(frame, false);
             writeZF.execute(frame, val == 0);
             writeSF.execute(frame, val < 0);
-            writeOF.execute(frame, Flags.getParity((byte) val));
+            writePF.execute(frame, Flags.getParity((byte) val));
             return next();
         }
     }

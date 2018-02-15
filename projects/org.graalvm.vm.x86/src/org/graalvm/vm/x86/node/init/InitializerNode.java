@@ -4,12 +4,15 @@ import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.memory.vector.Vector512;
 import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.isa.AVXRegister;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
+import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 
@@ -20,7 +23,8 @@ public class InitializerNode extends AMD64Node {
     private final String programName;
 
     @Child private LoaderNode setup;
-    @Children private RegisterWriteNode[] registers;
+    @Children private RegisterWriteNode[] gpr;
+    @Children private AVXRegisterWriteNode[] zmm;
 
     @Child private WriteFlagNode writeCF;
     @Child private WriteFlagNode writePF;
@@ -33,10 +37,15 @@ public class InitializerNode extends AMD64Node {
     public InitializerNode(ArchitecturalState state, String programName) {
         this.setup = new LoaderNode(state);
         this.programName = programName;
-        registers = new RegisterWriteNode[16];
-        for (int i = 0; i < 16; i++) {
+        gpr = new RegisterWriteNode[16];
+        for (int i = 0; i < gpr.length; i++) {
             AMD64Register reg = state.getRegisters().getRegister(Register.get(i));
-            registers[i] = reg.createWrite();
+            gpr[i] = reg.createWrite();
+        }
+        zmm = new AVXRegisterWriteNode[32];
+        for (int i = 0; i < zmm.length; i++) {
+            AVXRegister reg = state.getRegisters().getAVXRegister(i);
+            zmm[i] = reg.createWrite();
         }
         writeCF = state.getRegisters().getCF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
@@ -49,8 +58,12 @@ public class InitializerNode extends AMD64Node {
 
     @ExplodeLoop
     public void execute(VirtualFrame frame) {
-        for (RegisterWriteNode register : registers) {
+        for (RegisterWriteNode register : gpr) {
             register.executeI64(frame, 0);
+        }
+
+        for (AVXRegisterWriteNode register : zmm) {
+            register.executeI512(frame, Vector512.ZERO);
         }
 
         AMD64Context ctx = getContextReference().get();
@@ -62,7 +75,7 @@ public class InitializerNode extends AMD64Node {
         memory.add(stack);
         long sp = AMD64.STACK_ADDRESS - 16;
         assert (sp & 0xf) == 0;
-        registers[Register.RSP.getID()].executeI64(frame, sp);
+        gpr[Register.RSP.getID()].executeI64(frame, sp);
 
         writeCF.execute(frame, false);
         writePF.execute(frame, false);

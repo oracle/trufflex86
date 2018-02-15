@@ -2,17 +2,32 @@ package org.graalvm.vm.x86.node.flow;
 
 import java.util.Arrays;
 
+import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.node.AMD64Node;
+import org.graalvm.vm.x86.node.debug.PrintStateNode;
+import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class AMD64BasicBlock extends AMD64Node {
+    @CompilationFinal private static boolean DEBUG = false;
+    @CompilationFinal private static boolean PRINT_STATE = true;
+    @CompilationFinal private static boolean PRINT_ONCE = false;
+
+    @Child private PrintStateNode printState;
+    @CompilationFinal private SymbolResolver symbolResolver;
+
     @Children private AMD64Instruction[] instructions;
     @CompilationFinal(dimensions = 1) private AMD64BasicBlock[] successors;
+
+    private boolean visited = false;
 
     public long index;
 
@@ -70,11 +85,55 @@ public class AMD64BasicBlock extends AMD64Node {
         return instructions.length;
     }
 
+    @TruffleBoundary
+    private void trace(long pc, AMD64Instruction insn) {
+        Symbol sym = symbolResolver.getSymbol(pc);
+        String func = sym == null ? "" : sym.getName();
+        if (PRINT_STATE) {
+            System.out.println("----------------\nIN: " + func);
+        } else if (sym != null) {
+            System.out.printf("%s:\n", sym.getName());
+        }
+        System.out.printf("0x%08x:\t%s\n\n", pc, insn);
+    }
+
+    private void debug(VirtualFrame frame, long pc, AMD64Instruction insn) {
+        if (DEBUG && (!PRINT_ONCE || !visited)) {
+            if (symbolResolver == null) {
+                CompilerDirectives.transferToInterpreter();
+                symbolResolver = getContextReference().get().getSymbolResolver();
+            }
+            trace(pc, insn);
+        }
+        if (DEBUG && (!PRINT_ONCE || !visited) && PRINT_STATE) {
+            if (printState == null) {
+                CompilerDirectives.transferToInterpreter();
+                printState = insert(new PrintStateNode());
+            }
+            if (!PRINT_ONCE || !visited) {
+                printState.execute(frame, pc);
+            }
+        }
+    }
+
     @ExplodeLoop
     public long execute(VirtualFrame frame) {
-        long pc = 0;
-        for (AMD64Instruction insn : instructions) {
-            pc = insn.executeInstruction(frame);
+        long pc = getAddress();
+        try {
+            for (AMD64Instruction insn : instructions) {
+                if (DEBUG) {
+                    debug(frame, pc, insn);
+                }
+                pc = insn.executeInstruction(frame);
+            }
+        } catch (ProcessExitException e) {
+            throw e;
+        } catch (Throwable t) {
+            CompilerDirectives.transferToInterpreter();
+            throw new CpuRuntimeException(pc, t);
+        }
+        if (DEBUG) {
+            visited = true;
         }
         return pc;
     }

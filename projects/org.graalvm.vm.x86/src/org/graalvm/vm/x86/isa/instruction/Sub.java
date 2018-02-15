@@ -25,6 +25,7 @@ public abstract class Sub extends AMD64Instruction {
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writePF;
+    @Child protected WriteFlagNode writeAF;
 
     protected void createChildren() {
         assert srcA == null;
@@ -41,6 +42,7 @@ public abstract class Sub extends AMD64Instruction {
         writeSF = state.getRegisters().getSF().createWrite();
         writeZF = state.getRegisters().getZF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
+        writeAF = state.getRegisters().getAF().createWrite();
     }
 
     protected boolean needsChildren() {
@@ -72,13 +74,16 @@ public abstract class Sub extends AMD64Instruction {
             byte result = (byte) (a - b);
             dst.executeI8(frame, result);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = (byte) ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Byte.toUnsignedInt(a) < Byte.toUnsignedInt(b);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity(result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -102,13 +107,16 @@ public abstract class Sub extends AMD64Instruction {
             short result = (short) (a - b);
             dst.executeI16(frame, result);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = (short) ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Short.toUnsignedInt(a) < Short.toUnsignedInt(b);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -132,13 +140,16 @@ public abstract class Sub extends AMD64Instruction {
             int result = a - b;
             dst.executeI32(frame, result);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Integer.compareUnsigned(a, b) < 0;
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -162,13 +173,16 @@ public abstract class Sub extends AMD64Instruction {
             long result = a - b;
             dst.executeI64(frame, result);
 
-            boolean overflow = (result < 0 && a > 0 && -b > 0) || (result >= 0 && a < 0 && -b < 0);
-            boolean carry = !(((a < 0 || -b < 0) && result >= 0) || (a < 0 && -b < 0));
+            boolean overflow = ((a ^ b) & (a ^ result)) < 0;
+            boolean carry = Long.compareUnsigned(a, b) < 0;
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
