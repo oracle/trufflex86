@@ -89,42 +89,42 @@ public abstract class Memory {
         check(pos);
         long low = i64L(pos);
         long high = i64L(pos + 8);
-        return new Vector128(low, high);
+        return new Vector128(high, low);
     }
 
     public Vector256 getI256L(long pos) {
         check(pos);
         Vector128 low = getI128L(pos);
         Vector128 high = getI128L(pos + 16);
-        return new Vector256(low, high);
+        return new Vector256(high, low);
     }
 
     public Vector256 getI256B(long pos) {
         check(pos);
         Vector128 high = getI128B(pos);
         Vector128 low = getI128B(pos + 16);
-        return new Vector256(low, high);
+        return new Vector256(high, low);
     }
 
     public Vector512 getI512L(long pos) {
         check(pos);
         Vector256 low = getI256L(pos);
         Vector256 high = getI256L(pos + 32);
-        return new Vector512(low, high);
+        return new Vector512(high, low);
     }
 
     public Vector512 getI512B(long pos) {
         check(pos);
         Vector256 high = getI256B(pos);
         Vector256 low = getI256B(pos + 32);
-        return new Vector512(low, high);
+        return new Vector512(high, low);
     }
 
     public Vector128 getI128B(long pos) {
         check(pos);
         long high = i64B(pos);
         long low = i64B(pos + 8);
-        return new Vector128(low, high);
+        return new Vector128(high, low);
     }
 
     public void setI8(long pos, byte val) {

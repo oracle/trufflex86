@@ -19,7 +19,7 @@ public class Vector512 {
         }
     }
 
-    public Vector512(Vector256 low, Vector256 high) {
+    public Vector512(Vector256 high, Vector256 low) {
         this.data[0] = high.getI64(0);
         this.data[1] = high.getI64(1);
         this.data[2] = high.getI64(2);
@@ -116,6 +116,29 @@ public class Vector512 {
     public void setF32(int i, float val) {
         assert i >= 0 && i < 16;
         setI32(i, Float.floatToRawIntBits(val));
+    }
+
+    public short getI16(int i) {
+        assert i >= 0 && i < 32;
+        long val = data[i / 4];
+        int shift = (3 - (i & 3)) << 4;
+        return (short) (val >>> shift);
+    }
+
+    public void setI16(int i, short val) {
+        assert i >= 0 && i < 32;
+        long old = data[i / 4];
+        int shift = (3 - (i & 3)) << 4;
+        long mask = ~(0xFFFFL << shift);
+        long result = (old & mask) | ((Short.toUnsignedLong(val) & 0xFFFFL) << shift);
+        data[i / 4] = result;
+    }
+
+    public byte getI8(int i) {
+        assert i >= 0 && i < 64;
+        long val = data[i / 8];
+        int shift = (7 - (i & 7)) << 3;
+        return (byte) (val >>> shift);
     }
 
     public Vector512 xor(Vector512 x) {

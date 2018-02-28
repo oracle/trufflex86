@@ -18,7 +18,7 @@ public class Vector256 {
         }
     }
 
-    public Vector256(Vector128 low, Vector128 high) {
+    public Vector256(Vector128 high, Vector128 low) {
         this.data[0] = high.getI64(0);
         this.data[1] = high.getI64(1);
         this.data[2] = low.getI64(0);
@@ -95,10 +95,82 @@ public class Vector256 {
         setI32(i, Float.floatToRawIntBits(val));
     }
 
+    public short getI16(int i) {
+        assert i >= 0 && i < 16;
+        long val = data[i / 4];
+        int shift = (3 - (i & 3)) << 4;
+        return (short) (val >>> shift);
+    }
+
+    public void setI16(int i, short val) {
+        assert i >= 0 && i < 16;
+        long old = data[i / 4];
+        int shift = (3 - (i & 3)) << 4;
+        long mask = ~(0xFFFFL << shift);
+        long result = (old & mask) | ((Short.toUnsignedLong(val) & 0xFFFFL) << shift);
+        data[i / 4] = result;
+    }
+
+    public byte getI8(int i) {
+        assert i >= 0 && i < 32;
+        long val = data[i / 8];
+        int shift = (7 - (i & 7)) << 3;
+        return (byte) (val >>> shift);
+    }
+
     public Vector256 xor(Vector256 x) {
         long[] result = new long[data.length];
         for (int i = 0; i < data.length; i++) {
             result[i] = data[i] ^ x.data[i];
+        }
+        return new Vector256(result);
+    }
+
+    private static long eq(long x, long y, long mask) {
+        if ((x & mask) == (y & mask)) {
+            return mask;
+        } else {
+            return 0;
+        }
+    }
+
+    public Vector256 eq8(Vector256 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= eq(data[i], x.data[i], 0xFF00000000000000L);
+            r |= eq(data[i], x.data[i], 0x00FF000000000000L);
+            r |= eq(data[i], x.data[i], 0x0000FF0000000000L);
+            r |= eq(data[i], x.data[i], 0x000000FF00000000L);
+            r |= eq(data[i], x.data[i], 0x00000000FF000000L);
+            r |= eq(data[i], x.data[i], 0x0000000000FF0000L);
+            r |= eq(data[i], x.data[i], 0x000000000000FF00L);
+            r |= eq(data[i], x.data[i], 0x00000000000000FFL);
+            result[i] = r;
+        }
+        return new Vector256(result);
+    }
+
+    public Vector256 eq16(Vector256 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= eq(data[i], x.data[i], 0xFFFF000000000000L);
+            r |= eq(data[i], x.data[i], 0x0000FFFF00000000L);
+            r |= eq(data[i], x.data[i], 0x00000000FFFF0000L);
+            r |= eq(data[i], x.data[i], 0x000000000000FFFFL);
+            result[i] = r;
+        }
+        return new Vector256(result);
+    }
+
+    public Vector256 eq32(Vector256 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= eq(data[i], x.data[i], 0xFFFFFFFF00000000L);
+            r |= eq(data[i], x.data[i], 0x00000000FFFFFFFFL);
+            result[i] = r;
         }
         return new Vector256(result);
     }
