@@ -37,19 +37,25 @@ public class ImmediateOperand extends Operand {
     public String toString() {
         switch (getSize()) {
             case 1:
-                if (value < 0) {
+                if ((byte) value == (byte) 0x80) {
+                    return "0x80";
+                } else if (value < 0) {
                     return String.format("-0x%x", (byte) -value);
                 } else {
                     return String.format("0x%x", (byte) value);
                 }
             case 2:
-                if (value < 0) {
+                if ((short) value == (short) 0x8000) {
+                    return "0x8000";
+                } else if (value < 0) {
                     return String.format("-0x%x", (short) -value);
                 } else {
                     return String.format("0x%x", (short) value);
                 }
             case 4:
-                if (value < 0) {
+                if ((int) value == 0x80000000) {
+                    return "0x80000000";
+                } else if (value < 0) {
                     return String.format("-0x%x", (int) -value);
                 } else {
                     return String.format("0x%x", (int) value);
