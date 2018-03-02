@@ -33,7 +33,7 @@ public class CodeMemoryReader extends CodeReader {
     @Override
     public long read64() {
         long value = memory.getI64(pc);
-        pc += 4;
+        pc += 8;
         return value;
     }
 

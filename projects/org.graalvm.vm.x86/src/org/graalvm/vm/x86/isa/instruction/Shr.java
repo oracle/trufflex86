@@ -135,8 +135,8 @@ public abstract class Shr extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
-            long shift = readShift.executeI8(frame) & 0x1f;
-            long result = src << shift;
+            long shift = readShift.executeI8(frame) & 0x3f;
+            long result = src >>> shift;
             writeDst.executeI64(frame, result);
             if (shift > 0) {
                 long bit = 1L << (shift - 1);

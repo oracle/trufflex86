@@ -9,6 +9,8 @@ import com.oracle.truffle.api.frame.FrameSlot;
 public class RegisterAccessFactory {
     private final FrameSlot[] gpr;
     private final FrameSlot[] zmm;
+    private final FrameSlot fs;
+    private final FrameSlot gs;
     private final FrameSlot pc;
 
     private final FrameSlot cf;
@@ -19,9 +21,12 @@ public class RegisterAccessFactory {
     private final FrameSlot df;
     private final FrameSlot of;
 
-    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot pc, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
+    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot pc, FrameSlot fs, FrameSlot gs, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df,
+                    FrameSlot of) {
         this.gpr = gpr;
         this.zmm = zmm;
+        this.fs = fs;
+        this.gs = gs;
         this.pc = pc;
         this.cf = cf;
         this.pf = pf;
@@ -46,6 +51,14 @@ public class RegisterAccessFactory {
 
     public AVXRegister getAVXRegister(int i) {
         return new AVXRegister(zmm[i]);
+    }
+
+    public AMD64Register getFS() {
+        return new AMD64Register(fs);
+    }
+
+    public AMD64Register getGS() {
+        return new AMD64Register(gs);
     }
 
     public AMD64Register getPC() {

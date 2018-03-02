@@ -47,7 +47,7 @@ public abstract class Movsxd extends AMD64Instruction {
             if (needsChildren()) {
                 createChildren();
             }
-            long val = read.executeI64(frame);
+            long val = read.executeI32(frame);
             write.executeI64(frame, val);
             return next();
         }

@@ -51,7 +51,10 @@ public class PrintStateNode extends AMD64Node {
     @Child private ReadNode readR13;
     @Child private ReadNode readR14;
     @Child private ReadNode readR15;
+    @Child private ReadNode readFS;
+    @Child private ReadNode readGS;
     @Child private ReadFlagsNode readFlags;
+    @Children private ReadNode[] readXMM;
 
     private void createChildrenIfNecessary() {
         if (readRAX == null) {
@@ -73,7 +76,13 @@ public class PrintStateNode extends AMD64Node {
             this.readR13 = regs.getRegister(Register.R13).createRead();
             this.readR14 = regs.getRegister(Register.R14).createRead();
             this.readR15 = regs.getRegister(Register.R15).createRead();
+            this.readFS = regs.getFS().createRead();
+            this.readGS = regs.getGS().createRead();
             this.readFlags = insert(regs.createReadFlags());
+            this.readXMM = new ReadNode[32];
+            for (int i = 0; i < readXMM.length; i++) {
+                readXMM[i] = regs.getAVXRegister(i).createRead();
+            }
         }
     }
 
@@ -101,8 +110,13 @@ public class PrintStateNode extends AMD64Node {
         state.r13 = readR13.executeI64(frame);
         state.r14 = readR14.executeI64(frame);
         state.r15 = readR15.executeI64(frame);
+        state.fs = readFS.executeI64(frame);
+        state.gs = readGS.executeI64(frame);
         state.rip = pc;
         state.rfl = readFlags.executeI64(frame);
+        for (int i = 0; i < readXMM.length; i++) {
+            state.xmm[i] = readXMM[i].executeI128(frame);
+        }
         print(state);
     }
 }

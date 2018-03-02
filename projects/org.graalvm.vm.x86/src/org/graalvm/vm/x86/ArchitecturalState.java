@@ -9,8 +9,8 @@ public class ArchitecturalState {
     private final VirtualMemory memory;
 
     public ArchitecturalState(AMD64Context context) {
-        registerAccess = new RegisterAccessFactory(context.getGPRs(), context.getZMMs(), context.getPC(), context.getCF(), context.getPF(), context.getAF(), context.getZF(), context.getSF(),
-                        context.getDF(), context.getOF());
+        registerAccess = new RegisterAccessFactory(context.getGPRs(), context.getZMMs(), context.getFS(), context.getGS(), context.getPC(), context.getCF(), context.getPF(), context.getAF(),
+                        context.getZF(), context.getSF(), context.getDF(), context.getOF());
         memory = context.getMemory();
     }
 

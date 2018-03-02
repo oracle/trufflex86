@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -11,6 +12,7 @@ import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Syscall extends AMD64Instruction {
@@ -34,7 +36,8 @@ public class Syscall extends AMD64Instruction {
         AMD64Context ctx = getContextReference().get();
         RegisterAccessFactory reg = ctx.getState().getRegisters();
         PosixEnvironment posix = ctx.getPosixEnvironment();
-        syscall = new SyscallWrapper(posix);
+        VirtualMemory memory = ctx.getMemory();
+        syscall = insert(new SyscallWrapper(posix, memory));
         readRAX = reg.getRegister(Register.RAX).createRead();
         readRDI = reg.getRegister(Register.RDI).createRead();
         readRSI = reg.getRegister(Register.RSI).createRead();
@@ -59,12 +62,18 @@ public class Syscall extends AMD64Instruction {
         long r9 = readR9.executeI64(frame);
         long result;
         try {
-            result = syscall.executeI64((int) rax, rdi, rsi, rdx, r10, r8, r9, 0);
+            result = syscall.executeI64(frame, (int) rax, rdi, rsi, rdx, r10, r8, r9, 0);
         } catch (SyscallException e) {
             result = -e.getValue();
+            log(rax);
         }
         writeRAX.executeI64(frame, result);
         return next();
+    }
+
+    @TruffleBoundary
+    private static void log(long nr) {
+        System.out.println("Unsupported syscall " + nr);
     }
 
     @Override

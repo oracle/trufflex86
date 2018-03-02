@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -16,8 +17,10 @@ import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class DispatchNode extends AMD64Node {
@@ -168,6 +171,26 @@ public class DispatchNode extends AMD64Node {
         usedBlocks++;
     }
 
+    @TruffleBoundary
+    public void dump() {
+        SymbolResolver resolver = getContextReference().get().getSymbolResolver();
+        boolean first = true;
+        for (Map.Entry<Long, AMD64BasicBlock> entry : blockLookup.entrySet()) {
+            long pc = entry.getKey();
+            Symbol sym = resolver.getSymbolExact(pc);
+            if (sym != null) {
+                if (!first) {
+                    System.out.println();
+                }
+                System.out.printf("%s:\n", sym.getName());
+            }
+            System.out.print(entry.getValue());
+            if (first) {
+                first = false;
+            }
+        }
+    }
+
     public long execute(VirtualFrame frame) {
         long cnt = 100; // max execution steps (help debug infinite loops)
         long pc = readPC.executeI64(frame);
@@ -217,10 +240,12 @@ public class DispatchNode extends AMD64Node {
             CompilerDirectives.transferToInterpreter();
             System.err.printf("Exception at address 0x%016x!\n", e.getPC());
             e.getCause().printStackTrace();
+            // dump();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
             System.err.printf("Exception at address 0x%016x!\n", pc);
             t.printStackTrace();
+            // dump();
         }
         writePC.executeI64(frame, pc);
         return pc;

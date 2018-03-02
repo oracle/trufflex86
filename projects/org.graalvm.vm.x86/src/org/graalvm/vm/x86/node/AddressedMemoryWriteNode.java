@@ -1,5 +1,9 @@
 package org.graalvm.vm.x86.node;
 
+import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.memory.vector.Vector256;
+import org.graalvm.vm.memory.vector.Vector512;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class AddressedMemoryWriteNode extends WriteNode {
@@ -33,5 +37,23 @@ public class AddressedMemoryWriteNode extends WriteNode {
     public void executeI64(VirtualFrame frame, long value) {
         long addr = address.execute(frame);
         writeMemory.executeI64(addr, value);
+    }
+
+    @Override
+    public void executeI128(VirtualFrame frame, Vector128 value) {
+        long addr = address.execute(frame);
+        writeMemory.executeI128(addr, value);
+    }
+
+    @Override
+    public void executeI256(VirtualFrame frame, Vector256 value) {
+        long addr = address.execute(frame);
+        writeMemory.executeI256(addr, value);
+    }
+
+    @Override
+    public void executeI512(VirtualFrame frame, Vector512 value) {
+        long addr = address.execute(frame);
+        writeMemory.executeI512(addr, value);
     }
 }

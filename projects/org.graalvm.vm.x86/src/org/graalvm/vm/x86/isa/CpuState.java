@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.memory.vector.Vector128;
+
 import com.everyware.util.BitTest;
 
 /*-
@@ -25,22 +27,7 @@ import com.everyware.util.BitTest;
     EFER=0000000000000500
 */
 public class CpuState {
-    private static final String staticText = "\n" +
-                    "ES =0000 0000000000000000 00000000 00000000\n" +
-                    "CS =0033 0000000000000000 ffffffff 00effb00 DPL=3 CS64 [-RA]\n" +
-                    "SS =002b 0000000000000000 ffffffff 00cff300 DPL=3 DS   [-WA]\n" +
-                    "DS =0000 0000000000000000 00000000 00000000\n" +
-                    "FS =0000 0000000000000000 00000000 00000000\n" +
-                    "GS =0000 0000000000000000 00000000 00000000\n" +
-                    "LDT=0000 0000000000000000 0000ffff 00008200 DPL=0 LDT\n" +
-                    "TR =0000 0000000000000000 0000ffff 00008b00 DPL=0 TSS64-busy\n" +
-                    "GDT=     0000004000802000 0000007f\n" +
-                    "IDT=     0000004000801000 000001ff\n" +
-                    "CR0=80010001 CR2=0000000000000000 CR3=0000000000000000 CR4=00000220\n" +
-                    "DR0=0000000000000000 DR1=0000000000000000 DR2=0000000000000000 DR3=0000000000000000\n" +
-                    "DR6=00000000ffff0ff0 DR7=0000000000000400\n" +
-                    "CCS=0000000000000004 CCD=0000000000000041 CCO=EFLAGS\n" +
-                    "EFER=0000000000000500";
+    public boolean printAVX = false;
 
     public long rax;
     public long rbx;
@@ -60,6 +47,11 @@ public class CpuState {
     public long r15;
     public long rip;
     public long rfl;
+
+    public long fs;
+    public long gs;
+
+    public Vector128[] xmm = new Vector128[32];
 
     private static String tohex(long val, int len) {
         String hex = Long.toHexString(val);
@@ -91,6 +83,13 @@ public class CpuState {
         }
     }
 
+    private static void addSegment(StringBuilder buf, String name, long segment) {
+        buf.append(name);
+        buf.append(" =0000 ");
+        buf.append(tohex(segment, 16));
+        buf.append(" 00000000 00000000\n");
+    }
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
@@ -108,8 +107,20 @@ public class CpuState {
         addFlag(buf, rfl, Flags.AF, 'A');
         addFlag(buf, rfl, Flags.PF, 'P');
         addFlag(buf, rfl, Flags.CF, 'C');
-        buf.append(']');
-        buf.append(staticText);
+        buf.append("]\n");
+        addSegment(buf, "FS", fs);
+        addSegment(buf, "GS", gs);
+        if (printAVX) {
+            for (int i = 0; i < xmm.length; i++) {
+                buf.append("xmm").append(i);
+                if (i < 10) {
+                    buf.append(" ");
+                }
+                buf.append("=");
+                buf.append(xmm[i]);
+                buf.append('\n');
+            }
+        }
         return buf.toString();
     }
 }

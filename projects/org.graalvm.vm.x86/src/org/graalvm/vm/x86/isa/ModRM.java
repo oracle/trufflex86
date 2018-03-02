@@ -73,14 +73,14 @@ public class ModRM {
                     {
                                     // mod=0
                                     {
-                                                    new MemoryOperand(Register.EAX),
-                                                    new MemoryOperand(Register.ECX),
-                                                    new MemoryOperand(Register.EDX),
-                                                    new MemoryOperand(Register.EBX),
+                                                    new MemoryOperand(null, Register.EAX),
+                                                    new MemoryOperand(null, Register.ECX),
+                                                    new MemoryOperand(null, Register.EDX),
+                                                    new MemoryOperand(null, Register.EBX),
                                                     null, // SIB
                                                     null, // disp32
-                                                    new MemoryOperand(Register.ESI),
-                                                    new MemoryOperand(Register.EDI)
+                                                    new MemoryOperand(null, Register.ESI),
+                                                    new MemoryOperand(null, Register.EDI)
                                     },
                                     // mod=1
                                     {
@@ -120,14 +120,14 @@ public class ModRM {
                     {
                                     // mod=0
                                     {
-                                                    new MemoryOperand(Register.RAX),
-                                                    new MemoryOperand(Register.RCX),
-                                                    new MemoryOperand(Register.RDX),
-                                                    new MemoryOperand(Register.RBX),
+                                                    new MemoryOperand(null, Register.RAX),
+                                                    new MemoryOperand(null, Register.RCX),
+                                                    new MemoryOperand(null, Register.RDX),
+                                                    new MemoryOperand(null, Register.RBX),
                                                     null, // SIB
                                                     null, // RIP+disp32
-                                                    new MemoryOperand(Register.RSI),
-                                                    new MemoryOperand(Register.RDI)
+                                                    new MemoryOperand(null, Register.RSI),
+                                                    new MemoryOperand(null, Register.RDI)
                                     },
                                     // mod=1
                                     {

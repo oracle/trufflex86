@@ -25,6 +25,8 @@ public class InitializerNode extends AMD64Node {
     @Child private LoaderNode setup;
     @Children private RegisterWriteNode[] gpr;
     @Children private AVXRegisterWriteNode[] zmm;
+    @Child private RegisterWriteNode fs;
+    @Child private RegisterWriteNode gs;
 
     @Child private WriteFlagNode writeCF;
     @Child private WriteFlagNode writePF;
@@ -47,6 +49,8 @@ public class InitializerNode extends AMD64Node {
             AVXRegister reg = state.getRegisters().getAVXRegister(i);
             zmm[i] = reg.createWrite();
         }
+        fs = state.getRegisters().getFS().createWrite();
+        gs = state.getRegisters().getGS().createWrite();
         writeCF = state.getRegisters().getCF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
         writeAF = state.getRegisters().getAF().createWrite();
@@ -76,6 +80,9 @@ public class InitializerNode extends AMD64Node {
         long sp = AMD64.STACK_ADDRESS - 16;
         assert (sp & 0xf) == 0;
         gpr[Register.RSP.getID()].executeI64(frame, sp);
+
+        fs.executeI64(frame, 0);
+        gs.executeI64(frame, 0);
 
         writeCF.execute(frame, false);
         writePF.execute(frame, false);

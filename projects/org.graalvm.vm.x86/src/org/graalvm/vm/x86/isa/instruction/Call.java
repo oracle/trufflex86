@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
+import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -15,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Call extends AMD64Instruction {
-    private final Operand operand;
+    protected final Operand operand;
 
     protected final long bta;
     @Child protected ReadNode readBTA;
@@ -66,8 +67,29 @@ public abstract class Call extends AMD64Instruction {
             if (bta != 0) {
                 return bta;
             } else {
+                if (readBTA == null) {
+                    CompilerDirectives.transferToInterpreter();
+                    ArchitecturalState state = getContextReference().get().getState();
+                    readBTA = operand.createRead(state, next());
+                }
                 return next() + readBTA.executeI64(frame);
             }
+        }
+    }
+
+    public static class CallAbsolute extends Call {
+        public CallAbsolute(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), 0);
+        }
+
+        @Override
+        protected long getCallTarget(VirtualFrame frame) {
+            if (readBTA == null) {
+                CompilerDirectives.transferToInterpreter();
+                ArchitecturalState state = getContextReference().get().getState();
+                readBTA = operand.createRead(state, next());
+            }
+            return readBTA.executeI64(frame);
         }
     }
 

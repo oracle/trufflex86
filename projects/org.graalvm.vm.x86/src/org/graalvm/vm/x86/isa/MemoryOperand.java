@@ -12,44 +12,61 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerAsserts;
 
 public class MemoryOperand extends Operand {
+    private final SegmentRegister segment;
     private final Register base;
     private final Register index;
     private final int scale;
     private final long displacement;
 
-    public MemoryOperand(Register base) {
+    public MemoryOperand(SegmentRegister segment, Register base) {
+        this.segment = segment;
         this.base = base.get64bit();
         this.index = null;
         this.scale = 0;
         this.displacement = 0;
     }
 
-    public MemoryOperand(Register base, long displacement) {
+    public MemoryOperand(SegmentRegister segment, Register base, long displacement) {
+        this.segment = segment;
         this.base = base.get64bit();
         this.index = null;
         this.scale = 0;
         this.displacement = displacement;
     }
 
-    public MemoryOperand(Register base, Register index, int scale) {
-        this.base = base.get64bit();
-        this.index = index.get64bit();
+    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale) {
+        this.segment = segment;
+        this.base = base != null ? base.get64bit() : null;
+        this.index = index != null ? index.get64bit() : null;
         this.scale = scale;
         this.displacement = 0;
     }
 
-    public MemoryOperand(Register base, Register index, int scale, long displacement) {
+    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale, long displacement) {
+        this.segment = segment;
         this.base = base != null ? base.get64bit() : base;
         this.index = index != null ? index.get64bit() : index;
         this.scale = scale;
         this.displacement = displacement;
     }
 
-    public MemoryOperand(long displacement) {
+    public MemoryOperand(SegmentRegister segment, long displacement) {
+        this.segment = segment;
         this.base = null;
         this.index = null;
         this.scale = 0;
         this.displacement = displacement;
+    }
+
+    public MemoryOperand getInSegment(SegmentRegister seg) {
+        MemoryOperand op = new MemoryOperand(seg, base, index, scale, displacement);
+        assert op.base == base;
+        assert op.index == index;
+        return op;
+    }
+
+    public SegmentRegister getSegment() {
+        return segment;
     }
 
     public Register getBase() {
@@ -95,7 +112,11 @@ public class MemoryOperand extends Operand {
                 buf.append(String.format("-0x%x", -displacement));
             }
         }
-        return "[" + buf + "]";
+        if (segment != null) {
+            return segment + ":[" + buf + "]";
+        } else {
+            return "[" + buf + "]";
+        }
     }
 
     @Override

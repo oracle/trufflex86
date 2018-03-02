@@ -147,6 +147,10 @@ public abstract class Mov extends AMD64Instruction {
             super(pc, instruction, operand, new ImmediateOperand(immediate));
         }
 
+        public Movq(long pc, byte[] instruction, Operand operand, long immediate) {
+            super(pc, instruction, operand, new ImmediateOperand(immediate));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (needsChildren()) {

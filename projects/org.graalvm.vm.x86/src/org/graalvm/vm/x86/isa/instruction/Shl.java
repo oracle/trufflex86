@@ -49,6 +49,10 @@ public abstract class Shl extends AMD64Instruction {
     }
 
     public static class Shlb extends Shl {
+        public Shlb(long pc, byte[] instruction, OperandDecoder decoder, Operand operand) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R8), operand);
+        }
+
         public Shlb(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
         }
@@ -75,6 +79,10 @@ public abstract class Shl extends AMD64Instruction {
     }
 
     public static class Shlw extends Shl {
+        public Shlw(long pc, byte[] instruction, OperandDecoder decoder, Operand operand) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R16), operand);
+        }
+
         public Shlw(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R16), new ImmediateOperand(imm));
         }
@@ -101,6 +109,10 @@ public abstract class Shl extends AMD64Instruction {
     }
 
     public static class Shll extends Shl {
+        public Shll(long pc, byte[] instruction, OperandDecoder decoder, Operand operand) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R32), operand);
+        }
+
         public Shll(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R32), new ImmediateOperand(imm));
         }
@@ -127,6 +139,10 @@ public abstract class Shl extends AMD64Instruction {
     }
 
     public static class Shlq extends Shl {
+        public Shlq(long pc, byte[] instruction, OperandDecoder decoder, Operand operand) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R64), operand);
+        }
+
         public Shlq(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R64), new ImmediateOperand(imm));
         }
@@ -135,7 +151,7 @@ public abstract class Shl extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
-            long shift = readShift.executeI8(frame) & 0x1f;
+            long shift = readShift.executeI8(frame) & 0x3f;
             long result = src << shift;
             writeDst.executeI64(frame, result);
             if (shift > 0) {

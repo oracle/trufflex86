@@ -23,6 +23,8 @@ public class AMD64Context {
     private final FrameDescriptor frameDescriptor;
     private final FrameSlot[] gpr;
     private final FrameSlot[] zmm;
+    private final FrameSlot fs;
+    private final FrameSlot gs;
     private final FrameSlot pc;
     private final FrameSlot cf;
     private final FrameSlot pf;
@@ -50,6 +52,8 @@ public class AMD64Context {
         for (int i = 0; i < zmm.length; i++) {
             zmm[i] = frameDescriptor.addFrameSlot("zmm" + i, FrameSlotKind.Object);
         }
+        fs = frameDescriptor.addFrameSlot("fs", FrameSlotKind.Long);
+        gs = frameDescriptor.addFrameSlot("gs", FrameSlotKind.Long);
         pc = frameDescriptor.addFrameSlot("rip", FrameSlotKind.Long);
         cf = frameDescriptor.addFrameSlot("cf", FrameSlotKind.Boolean);
         pf = frameDescriptor.addFrameSlot("pf", FrameSlotKind.Boolean);
@@ -88,6 +92,14 @@ public class AMD64Context {
 
     public FrameSlot getZMM(int i) {
         return zmm[i];
+    }
+
+    public FrameSlot getFS() {
+        return fs;
+    }
+
+    public FrameSlot getGS() {
+        return gs;
     }
 
     public FrameSlot getPC() {
