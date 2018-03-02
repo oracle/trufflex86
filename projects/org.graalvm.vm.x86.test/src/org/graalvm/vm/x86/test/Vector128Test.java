@@ -169,4 +169,29 @@ public class Vector128Test {
         assertEquals((short) 0x9ABC, vec.getI16(6));
         assertEquals((short) 0x4224, vec.getI16(7));
     }
+
+    @Test
+    public void testEq8v0() {
+        Vector128 values = new Vector128(0x6854000a21646c72L, 0x6f77206f6c6c6548L);
+        Vector128 eq = values.eq8(Vector128.ZERO);
+        Vector128 ref = new Vector128(0x0000ff0000000000L, 0x0000000000000000L);
+        assertEquals(ref, eq);
+    }
+
+    @Test
+    public void testByteMaskMSBv0() {
+        Vector128 value = new Vector128(0x0000ff0000000000L, 0x0000000000000000L);
+        long mask = value.byteMaskMSB();
+        long ref = 0x0000000000002000;
+        assertEquals(ref, mask);
+    }
+
+    @Test
+    public void testByteMaskMSBv1() {
+        Vector128 values = new Vector128(0x6854000a21646c72L, 0x6f77206f6c6c6548L);
+        Vector128 eq = values.eq8(Vector128.ZERO);
+        long mask = eq.byteMaskMSB();
+        long ref = 0x0000000000002000;
+        assertEquals(ref, mask);
+    }
 }

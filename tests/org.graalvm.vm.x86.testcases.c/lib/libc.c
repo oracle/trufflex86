@@ -157,22 +157,6 @@ int getgid(void)
 	__SYSCALL_0P(__NR_getgid);
 }
 
-// syscall functions
-int64_t syscall(int64_t n, ...)
-{
-	va_list ap;
-	int64_t a, b, c, d, e, f;
-	va_start(ap, n);
-	a = va_arg(ap, int64_t);
-	b = va_arg(ap, int64_t);
-	c = va_arg(ap, int64_t);
-	d = va_arg(ap, int64_t);
-	e = va_arg(ap, int64_t);
-	f = va_arg(ap, int64_t);
-	va_end(ap);
-	__SYSCALL_6P(n, a, b, c, d, e, f);
-}
-
 void _main(long* p)
 {
 	long argc = *(p++);
@@ -306,7 +290,7 @@ int vsprintf(char* buf, const char* s, va_list args)
 			*(p++) = *s;
 	}
 	*(p++) = 0;
-	return p - buf;
+	return p - buf - 1;
 }
 
 int sprintf(char* buf, const char* s, ...)

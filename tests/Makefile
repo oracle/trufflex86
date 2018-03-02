@@ -20,10 +20,10 @@ all: $(ELF_TARGETS)
 	$(QUIET)echo "[CC]   $@"
 	$(QUIET)$(CC) $(CFLAGS) $(CCNOSTD) -c -o "$@" "$<"
 
-%.elf: %.o lib/_start.o lib/libc.o
+%.elf: %.o lib/_start.o lib/syscall.o lib/libc.o
 	$(QUIET)mkdir -p $(shell dirname $@)
 	$(QUIET)echo "[CCLD] $@"
-	$(QUIET)$(CC) $(LDFLAGS) $(LDNOSTD) -o "$@" lib/_start.o lib/libc.o "$<"
+	$(QUIET)$(CC) $(LDFLAGS) $(LDNOSTD) -o "$@" lib/_start.o lib/libc.o lib/syscall.o "$<"
 
 # assembler
 %.o: %.s
