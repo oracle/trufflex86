@@ -1,5 +1,7 @@
 package org.graalvm.vm.memory.vector;
 
+import java.util.Arrays;
+
 import com.everyware.util.BitTest;
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -218,6 +220,38 @@ public class Vector128 {
         } else {
             throw new AssertionError("not yet implemented");
         }
+    }
+
+    @Override
+    public int hashCode() {
+        long result = 0;
+        for (int i = 0; i < data.length; i++) {
+            result ^= data[i];
+        }
+        return (int) result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Vector128)) {
+            return false;
+        }
+        Vector128 v = (Vector128) o;
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] != v.data[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Vector128 clone() {
+        long[] value = Arrays.copyOf(data, data.length);
+        return new Vector128(value);
     }
 
     @Override

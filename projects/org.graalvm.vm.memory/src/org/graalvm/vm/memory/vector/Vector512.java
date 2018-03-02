@@ -1,5 +1,7 @@
 package org.graalvm.vm.memory.vector;
 
+import java.util.Arrays;
+
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -147,6 +149,12 @@ public class Vector512 {
             result[i] = data[i] ^ x.data[i];
         }
         return new Vector512(result);
+    }
+
+    @Override
+    public Vector512 clone() {
+        long[] value = Arrays.copyOf(data, data.length);
+        return new Vector512(value);
     }
 
     @Override

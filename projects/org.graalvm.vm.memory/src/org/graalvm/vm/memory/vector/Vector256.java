@@ -1,5 +1,7 @@
 package org.graalvm.vm.memory.vector;
 
+import java.util.Arrays;
+
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 
 @ValueType
@@ -173,6 +175,12 @@ public class Vector256 {
             result[i] = r;
         }
         return new Vector256(result);
+    }
+
+    @Override
+    public Vector256 clone() {
+        long[] value = Arrays.copyOf(data, data.length);
+        return new Vector256(value);
     }
 
     @Override
