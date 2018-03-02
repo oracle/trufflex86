@@ -46,13 +46,21 @@ public abstract class AMD64Instruction extends AMD64Node {
         return getPC() + getSize();
     }
 
-    @Override
-    public String toString() {
+    public String[] getDisassemblyComponents() {
+        return disassemble();
+    }
+
+    public String getDisassembly() {
         String[] parts = disassemble();
         if (parts.length == 1) {
             return parts[0];
         } else {
             return String.format("%s\t%s", parts[0], Stream.of(parts).skip(1).collect(Collectors.joining(",")));
         }
+    }
+
+    @Override
+    public String toString() {
+        return getDisassembly();
     }
 }
