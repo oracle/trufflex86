@@ -211,6 +211,18 @@ public class PosixEnvironment {
         }
     }
 
+    public long getcwd(long buf, long size) throws SyscallException {
+        try {
+            posix.getcwd(posixPointer(buf), size);
+            return buf;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getcwd failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int uname(long buf) throws SyscallException {
         PosixPointer ptr = posixPointer(buf);
         Utsname uname = new Utsname();
