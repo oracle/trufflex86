@@ -65,7 +65,7 @@ public class VirtualMemory {
     public long brk(long addr) {
         if (Long.compareUnsigned(addr, brk) > 0 && Long.compareUnsigned(addr, POINTER_BASE) <= 0) {
             long sz = addr - brk;
-            Memory mem = new ByteMemory(sz);
+            Memory mem = new ByteMemory(sz, false);
             MemoryPage page = new MemoryPage(mem, brk, sz, "[heap]");
             add(page);
             brk = addr;
@@ -298,35 +298,42 @@ public class VirtualMemory {
     }
 
     public void dump(long p, int size) {
-        long ptr = p;
-        System.out.printf("memory at 0x%016x:\n", ptr);
-        long ptr2 = ptr;
-        boolean nl = true;
-        for (int i = 0; i < size; i++) {
-            nl = true;
-            if (i % 16 == 0) {
-                System.out.printf("%016x:", ptr);
-            }
-            byte u8 = getI8(ptr);
-            ptr++;
-            System.out.printf(" %02x", Byte.toUnsignedInt(u8));
-            if (i % 16 == 15) {
-                System.out.print("   ");
-                for (int j = 0; j < 16; j++) {
-                    u8 = getI8(ptr2);
-                    ptr2++;
-                    char ch = (char) (u8 & 0xff);
-                    if (ch < 32 || ch > 127) {
-                        ch = '.';
-                    }
-                    System.out.printf("%c", ch);
+        // disable memory access log during dump
+        boolean wasDebug = debugMemory;
+        debugMemory = false;
+        try {
+            long ptr = p;
+            System.out.printf("memory at 0x%016x:\n", ptr);
+            long ptr2 = ptr;
+            boolean nl = true;
+            for (int i = 0; i < size; i++) {
+                nl = true;
+                if (i % 16 == 0) {
+                    System.out.printf("%016x:", ptr);
                 }
-                System.out.println();
-                nl = false;
+                byte u8 = getI8(ptr);
+                ptr++;
+                System.out.printf(" %02x", Byte.toUnsignedInt(u8));
+                if (i % 16 == 15) {
+                    System.out.print("   ");
+                    for (int j = 0; j < 16; j++) {
+                        u8 = getI8(ptr2);
+                        ptr2++;
+                        char ch = (char) (u8 & 0xff);
+                        if (ch < 32 || ch > 127) {
+                            ch = '.';
+                        }
+                        System.out.printf("%c", ch);
+                    }
+                    System.out.println();
+                    nl = false;
+                }
             }
-        }
-        if (nl) {
-            System.out.println();
+            if (nl) {
+                System.out.println();
+            }
+        } finally {
+            debugMemory = wasDebug;
         }
     }
 
@@ -361,7 +368,11 @@ public class VirtualMemory {
     private void logMemoryRead(long address, int size, byte value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read %d bytes (0x%02x)\n", addr(addr), size, value);
+            if (value >= 0x20 && value < 0x80) { // ascii
+                System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
+            } else {
+                System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x)\n", addr(addr), size, value);
+            }
         }
     }
 
@@ -389,28 +400,32 @@ public class VirtualMemory {
     private void logMemoryWrite(long address, int size, long value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016X)\n", addr(addr), size, value);
+            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x)\n", addr(addr), size, value);
         }
     }
 
     private void logMemoryWrite(long address, int size, int value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08X)\n", addr(addr), size, value);
+            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x)\n", addr(addr), size, value);
         }
     }
 
     private void logMemoryWrite(long address, int size, short value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04X)\n", addr(addr), size, value);
+            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x)\n", addr(addr), size, value);
         }
     }
 
     private void logMemoryWrite(long address, int size, byte value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04X)\n", addr(addr), size, value);
+            if (value >= 0x20 && value < 0x80) { // ascii
+                System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
+            } else {
+                System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x)\n", addr(addr), size, value);
+            }
         }
     }
 
