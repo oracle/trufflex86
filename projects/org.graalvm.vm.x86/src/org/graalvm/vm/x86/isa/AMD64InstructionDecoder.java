@@ -814,6 +814,16 @@ public class AMD64InstructionDecoder {
                     return new Orl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.OR_R_RM: {
+                Args args = new Args(code, rex, segment);
+                if (rex != null && rex.w) {
+                    return new Orq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else if (sizeOverride) {
+                    return new Orw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else {
+                    return new Orl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                }
+            }
             case AMD64Opcode.POP_R + 0:
             case AMD64Opcode.POP_R + 1:
             case AMD64Opcode.POP_R + 2:
