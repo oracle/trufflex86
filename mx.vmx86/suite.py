@@ -86,18 +86,6 @@ suite = {
       "license" : "GPLv3",
     },
 
-    "org.graalvm.vm.x86.test" : {
-      "subDir" : "projects",
-      "sourceDirs" : ["src"],
-      "dependencies" : [
-        "org.graalvm.vm.x86",
-        "mx:JUNIT",
-      ],
-      "javaCompliance" : "1.8",
-      "workingSets" : "vmx86",
-      "license" : "GPLv3",
-    },
-
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
@@ -108,6 +96,20 @@ suite = {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "license" : "GPLv3"
+    },
+
+    "org.graalvm.vm.x86.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.x86",
+        "org.graalvm.vm.x86.testcases.asm",
+        "org.graalvm.vm.x86.testcases.c",
+        "mx:JUNIT",
+      ],
+      "javaCompliance" : "1.8",
+      "workingSets" : "vmx86",
+      "license" : "GPLv3",
     }
   },
 

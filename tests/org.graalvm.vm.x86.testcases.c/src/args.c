@@ -11,6 +11,6 @@ int main(int argc, char** argv)
 	for(i = 0; i < argc; i++) {
 		printf("args[%d] = '%s'\n", i, argv[i]);
 	}
-	syscall(60, 42L);
+	syscall(60, argc);
 	return 0;
 }
