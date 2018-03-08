@@ -17,6 +17,17 @@ public class ModRM {
     private final int reg;
     private final int rm;
 
+    private static final Operand[] OP1_R8_REX = {
+                    new RegisterOperand(Register.AL),
+                    new RegisterOperand(Register.CL),
+                    new RegisterOperand(Register.DL),
+                    new RegisterOperand(Register.BL),
+                    new RegisterOperand(Register.SPL),
+                    new RegisterOperand(Register.BPL),
+                    new RegisterOperand(Register.SIL),
+                    new RegisterOperand(Register.DIL)
+    };
+
     private static final Operand[][] OP1_R = {
                     // R8
                     {
@@ -176,6 +187,17 @@ public class ModRM {
                     {Register.RAX, Register.RCX, Register.RDX, Register.RBX, Register.RSP, Register.RBP, Register.RSI, Register.RDI}
     };
 
+    private static final Register[][] OP2REX = {
+                    // R8
+                    {Register.AL, Register.CL, Register.DL, Register.BL, Register.SPL, Register.BPL, Register.SIL, Register.DIL},
+                    // R16
+                    {Register.AX, Register.CX, Register.DX, Register.BX, Register.SP, Register.BP, Register.SI, Register.DI},
+                    // R32
+                    {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, Register.EBP, Register.ESI, Register.EDI},
+                    // R64
+                    {Register.RAX, Register.RCX, Register.RDX, Register.RBX, Register.RSP, Register.RBP, Register.RSI, Register.RDI}
+    };
+
     public ModRM(byte modrm) {
         this.modrm = modrm;
         mod = (modrm >> 6) & 0x03;
@@ -199,6 +221,14 @@ public class ModRM {
         return reg;
     }
 
+    public Operand getOperand1REX(int type, int size) {
+        if (mod == 0b11 && size == R8) {
+            return OP1_R8_REX[rm];
+        } else {
+            return getOperand1(type, size);
+        }
+    }
+
     public Operand getOperand1(int type, int size) {
         if (mod == 0b11) {
             return OP1_R[size][rm];
@@ -216,6 +246,10 @@ public class ModRM {
 
     public Register getOperand2(int type) {
         return OP2[type][reg];
+    }
+
+    public Register getOperand2REX(int type) {
+        return OP2REX[type][reg];
     }
 
     public boolean hasSIB() {

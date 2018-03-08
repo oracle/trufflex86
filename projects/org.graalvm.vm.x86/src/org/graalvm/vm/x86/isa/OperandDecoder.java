@@ -83,7 +83,7 @@ public class OperandDecoder {
                 }
                 return new MemoryOperand(segment, reg, displacement);
             } else {
-                Operand op = modrm.getOperand1(ModRM.A64, type);
+                Operand op = modrm.getOperand1REX(ModRM.A64, type);
                 if (op instanceof RegisterOperand) {
                     if (type == R8 && modrm.getMod() == 0b11) {
                         int id = modrm.getRM();
@@ -144,8 +144,8 @@ public class OperandDecoder {
     }
 
     public Operand getOperand2(int type) {
-        if (rex != null && rex.r) {
-            Register reg = modrm.getOperand2(type);
+        if (rex != null) {
+            Register reg = modrm.getOperand2REX(type);
             return new RegisterOperand(getRegister(reg, rex.r));
         } else {
             return new RegisterOperand(modrm.getOperand2(type));
