@@ -28,7 +28,7 @@ public class Pshufd extends AMD64Instruction {
 
     private int getOrder(int index) {
         int shift = index << 1;
-        return (order >> shift) & 0x3;
+        return 3 - ((order >> shift) & 0x3);
     }
 
     public Pshufd(long pc, byte[] instruction, OperandDecoder operands, byte order) {
@@ -53,6 +53,7 @@ public class Pshufd extends AMD64Instruction {
         dst.setI32(1, src.getI32(getOrder(2)));
         dst.setI32(2, src.getI32(getOrder(1)));
         dst.setI32(3, src.getI32(getOrder(0)));
+        writeDst.executeI128(frame, dst);
         return next();
     }
 

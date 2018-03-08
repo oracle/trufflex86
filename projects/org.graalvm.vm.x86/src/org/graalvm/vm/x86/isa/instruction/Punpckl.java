@@ -55,7 +55,7 @@ public abstract class Punpckl extends AMD64Instruction {
             byte[] bb = new byte[4];
             Endianess.set32bitBE(ba, 0, (int) la);
             Endianess.set32bitBE(bb, 0, (int) lb);
-            byte[] merged = new byte[]{bb[3], ba[3], bb[2], ba[2], bb[1], ba[1], bb[0], ba[0]};
+            byte[] merged = new byte[]{bb[0], ba[0], bb[1], ba[1], bb[2], ba[2], bb[3], ba[3]};
             long result = Endianess.get64bitBE(merged);
             Vector128 out = new Vector128(ha, result);
             writeDst.executeI128(frame, out);
@@ -80,7 +80,7 @@ public abstract class Punpckl extends AMD64Instruction {
             byte[] bb = new byte[4];
             Endianess.set32bitBE(ba, 0, (int) la);
             Endianess.set32bitBE(bb, 0, (int) lb);
-            byte[] merged = new byte[]{bb[3], bb[2], ba[3], ba[2], bb[1], bb[0], ba[1], ba[0]};
+            byte[] merged = new byte[]{bb[0], bb[1], ba[0], ba[1], bb[2], bb[3], ba[2], ba[3]};
             long result = Endianess.get64bitBE(merged);
             Vector128 out = new Vector128(ha, result);
             writeDst.executeI128(frame, out);
