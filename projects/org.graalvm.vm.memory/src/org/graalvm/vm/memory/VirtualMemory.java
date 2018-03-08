@@ -320,7 +320,7 @@ public class VirtualMemory {
                         u8 = getI8(ptr2);
                         ptr2++;
                         char ch = (char) (u8 & 0xff);
-                        if (ch < 32 || ch > 127) {
+                        if (!isPrintable(u8)) {
                             ch = '.';
                         }
                         System.out.printf("%c", ch);
