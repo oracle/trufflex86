@@ -11,6 +11,7 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
+import com.everyware.posix.api.Errno;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -65,7 +66,9 @@ public class Syscall extends AMD64Instruction {
             result = syscall.executeI64(frame, (int) rax, rdi, rsi, rdx, r10, r8, r9, 0);
         } catch (SyscallException e) {
             result = -e.getValue();
-            log(rax);
+            if (e.getValue() == Errno.ENOSYS) {
+                log(rax);
+            }
         }
         writeRAX.executeI64(frame, result);
         return next();
