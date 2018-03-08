@@ -23,6 +23,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_fstat = 5;
     public static final int SYS_lseek = 8;
     public static final int SYS_brk = 12;
+    public static final int SYS_ioctl = 16;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_exit = 60;
@@ -91,6 +92,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.lseek((int) a1, a2, (int) a3);
             case SYS_brk:
                 return brk(a1);
+            case SYS_ioctl:
+                return posix.ioctl((int) a1, a2, a3);
             case SYS_readv:
                 return posix.readv((int) a1, a2, (int) a3);
             case SYS_writev:

@@ -223,6 +223,17 @@ public class PosixEnvironment {
         }
     }
 
+    public long ioctl(int fd, long request, long arg) throws SyscallException {
+        try {
+            return posix.ioctl(fd, request, posixPointer(arg));
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "ioctl failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int uname(long buf) throws SyscallException {
         PosixPointer ptr = posixPointer(buf);
         Utsname uname = new Utsname();
