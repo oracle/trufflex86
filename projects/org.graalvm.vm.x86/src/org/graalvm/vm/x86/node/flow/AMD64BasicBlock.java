@@ -89,6 +89,18 @@ public class AMD64BasicBlock extends AMD64Node {
         return instructions.length;
     }
 
+    public AMD64Instruction getInstruction(long pc) {
+        if (!contains(pc)) {
+            return null;
+        }
+        for (AMD64Instruction insn : instructions) {
+            if (insn.getPC() == pc) {
+                return insn;
+            }
+        }
+        return null;
+    }
+
     @TruffleBoundary
     private void trace(long pc, AMD64Instruction insn) {
         Symbol sym = symbolResolver.getSymbol(pc);

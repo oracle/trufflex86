@@ -11,6 +11,7 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
+import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -245,6 +246,18 @@ public class DispatchNode extends AMD64Node {
                 System.err.printf("Exception at address 0x%016x!\n", e.getPC());
             } else {
                 System.err.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
+            }
+            try {
+                Long blockPC = blockLookup.floorKey(e.getPC());
+                if (blockPC != null) {
+                    AMD64BasicBlock block = blockLookup.get(blockPC);
+                    if (block.contains(e.getPC())) {
+                        AMD64Instruction insn = block.getInstruction(e.getPC());
+                        System.err.printf("Instruction: %s\n", insn.getDisassembly());
+                    }
+                }
+            } catch (Throwable t) {
+                System.err.printf("Error while retrieving instruction at 0x%016x\n", e.getPC());
             }
             e.getCause().printStackTrace();
             if (e.getCause() instanceof SegmentationViolation) {
