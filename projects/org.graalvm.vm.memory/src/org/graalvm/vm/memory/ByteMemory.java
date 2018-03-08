@@ -33,6 +33,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected byte i8(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return data[(int) pos];
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -42,6 +44,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected short i16L(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return Endianess.get16bitLE(data, (int) pos);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -51,6 +55,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected short i16B(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return Endianess.get16bitBE(data, (int) pos);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -60,6 +66,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected int i32L(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return Endianess.get32bitLE(data, (int) pos);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -69,6 +77,7 @@ public class ByteMemory extends Memory {
 
     @Override
     protected int i32B(long pos) {
+        assert pos == (int) pos;
         check(pos);
         try {
             return Endianess.get32bitBE(data, (int) pos);
@@ -79,6 +88,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected long i64L(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return Endianess.get64bitLE(data, (int) pos);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -88,6 +99,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected long i64B(long pos) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             return Endianess.get64bitBE(data, (int) pos);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -97,6 +110,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i8(long pos, byte val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             data[(int) pos] = val;
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -106,6 +121,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i16L(long pos, short val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set16bitLE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -115,6 +132,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i16B(long pos, short val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set16bitBE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -124,6 +143,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i32L(long pos, int val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set32bitLE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -133,6 +154,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i32B(long pos, int val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set32bitBE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -142,6 +165,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i64L(long pos, long val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set64bitLE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -151,6 +176,8 @@ public class ByteMemory extends Memory {
 
     @Override
     protected void i64B(long pos, long val) {
+        assert pos == (int) pos;
+        check(pos);
         try {
             Endianess.set64bitBE(data, (int) pos, val);
         } catch (ArrayIndexOutOfBoundsException e) {
