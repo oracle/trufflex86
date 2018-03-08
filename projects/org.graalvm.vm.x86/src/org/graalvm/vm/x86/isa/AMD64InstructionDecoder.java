@@ -73,6 +73,10 @@ import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpb;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpl;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpq;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpw;
+import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsb;
+import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsd;
+import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsq;
+import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsw;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgl;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgq;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
@@ -152,7 +156,6 @@ import org.graalvm.vm.x86.isa.instruction.Neg.Negl;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negq;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negw;
 import org.graalvm.vm.x86.isa.instruction.Nop;
-import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Not.Notb;
 import org.graalvm.vm.x86.isa.instruction.Not.Notl;
 import org.graalvm.vm.x86.isa.instruction.Not.Notq;
@@ -164,6 +167,7 @@ import org.graalvm.vm.x86.isa.instruction.Or.Orw;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128b;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128d;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128w;
+import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
 import org.graalvm.vm.x86.isa.instruction.Por;
@@ -175,6 +179,7 @@ import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pxor;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
+import org.graalvm.vm.x86.isa.instruction.Rep.Repz;
 import org.graalvm.vm.x86.isa.instruction.Ret;
 import org.graalvm.vm.x86.isa.instruction.Rol.Roll;
 import org.graalvm.vm.x86.isa.instruction.Rol.Rolq;
@@ -477,6 +482,29 @@ public class AMD64InstructionDecoder {
                     return new Cmpw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 } else {
                     return new Cmpl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                }
+            }
+            case AMD64Opcode.CMPSB: {
+                AMD64Instruction cmpsb = new Cmpsb(pc, Arrays.copyOf(instruction, instructionLength));
+                if (isREPZ) {
+                    return new Repz(pc, Arrays.copyOf(instruction, instructionLength), cmpsb);
+                } else {
+                    return cmpsb;
+                }
+            }
+            case AMD64Opcode.CMPSD: {
+                AMD64Instruction cmp;
+                if (rex != null && rex.w) {
+                    cmp = new Cmpsq(pc, Arrays.copyOf(instruction, instructionLength));
+                } else if (sizeOverride) {
+                    cmp = new Cmpsd(pc, Arrays.copyOf(instruction, instructionLength));
+                } else {
+                    cmp = new Cmpsw(pc, Arrays.copyOf(instruction, instructionLength));
+                }
+                if (isREPZ) {
+                    return new Repz(pc, Arrays.copyOf(instruction, instructionLength), cmp);
+                } else {
+                    return cmp;
                 }
             }
             case AMD64Opcode.INC_RM: { // or: DEC_RM

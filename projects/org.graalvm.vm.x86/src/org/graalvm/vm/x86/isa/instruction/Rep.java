@@ -69,14 +69,13 @@ public class Rep extends AMD64Instruction {
 
         public boolean executeRepeating(VirtualFrame frame) {
             long rcx = readRCX.executeI64(frame);
-            boolean zf = readZF.execute(frame);
-            if (rcx != 0 && !zf) {
+            if (rcx != 0) {
                 insn.executeInstruction(frame);
                 rcx--;
                 writeRCX.executeI64(frame, rcx);
-                zf = readZF.execute(frame);
             }
-            return rcx != 0 && !zf;
+            boolean zf = readZF.execute(frame);
+            return rcx != 0 && zf;
         }
     }
 
@@ -95,14 +94,13 @@ public class Rep extends AMD64Instruction {
 
         public boolean executeRepeating(VirtualFrame frame) {
             long rcx = readRCX.executeI64(frame);
-            boolean zf = readZF.execute(frame);
-            if (rcx != 0 && zf) {
+            if (rcx != 0) {
                 insn.executeInstruction(frame);
                 rcx--;
                 writeRCX.executeI64(frame, rcx);
-                zf = readZF.execute(frame);
             }
-            return rcx != 0 && zf;
+            boolean zf = readZF.execute(frame);
+            return rcx != 0 && !zf;
         }
     }
 
