@@ -239,7 +239,13 @@ public class DispatchNode extends AMD64Node {
             return e.getCode();
         } catch (CpuRuntimeException e) {
             CompilerDirectives.transferToInterpreter();
-            System.err.printf("Exception at address 0x%016x!\n", e.getPC());
+            SymbolResolver symbols = getContextReference().get().getSymbolResolver();
+            Symbol sym = symbols.getSymbol(e.getPC());
+            if (sym == null) {
+                System.err.printf("Exception at address 0x%016x!\n", e.getPC());
+            } else {
+                System.err.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
+            }
             e.getCause().printStackTrace();
             if (e.getCause() instanceof SegmentationViolation) {
                 memory.printLayout(System.err);
