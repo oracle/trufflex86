@@ -42,6 +42,9 @@ public class AMD64Context {
         frameDescriptor = fd;
         memory = new VirtualMemory();
         posix = new PosixEnvironment(memory, ARCH_NAME);
+        posix.setStandardIn(env.in());
+        posix.setStandardOut(env.out());
+        posix.setStandardErr(env.err());
         args = env.getApplicationArguments();
         assert REGISTER_NAMES.length == 16;
         gpr = new FrameSlot[REGISTER_NAMES.length];
