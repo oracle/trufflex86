@@ -365,10 +365,14 @@ public class VirtualMemory {
         }
     }
 
+    private static boolean isPrintable(byte value) {
+        return value >= 0x20 && value <= 0x7e; // ascii
+    }
+
     private void logMemoryRead(long address, int size, byte value) {
         if (debugMemory) {
             long addr = addr(address);
-            if (value >= 0x20 && value < 0x80) { // ascii
+            if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
             } else {
                 System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x)\n", addr(addr), size, value);
@@ -421,7 +425,7 @@ public class VirtualMemory {
     private void logMemoryWrite(long address, int size, byte value) {
         if (debugMemory) {
             long addr = addr(address);
-            if (value >= 0x20 && value < 0x80) { // ascii
+            if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
             } else {
                 System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x)\n", addr(addr), size, value);
