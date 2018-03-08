@@ -7,6 +7,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
@@ -240,6 +241,9 @@ public class DispatchNode extends AMD64Node {
             CompilerDirectives.transferToInterpreter();
             System.err.printf("Exception at address 0x%016x!\n", e.getPC());
             e.getCause().printStackTrace();
+            if (e.getCause() instanceof SegmentationViolation) {
+                memory.printLayout(System.err);
+            }
             // dump();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
