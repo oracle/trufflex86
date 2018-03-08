@@ -5,7 +5,9 @@ import java.util.Arrays;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.instruction.Call;
 import org.graalvm.vm.x86.node.AMD64Node;
+import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
@@ -20,8 +22,10 @@ public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal private static boolean DEBUG = false;
     @CompilationFinal private static boolean PRINT_STATE = true;
     @CompilationFinal private static boolean PRINT_ONCE = false;
+    @CompilationFinal private static boolean PRINT_ARGS = true;
 
     @Child private PrintStateNode printState;
+    @Child private PrintArgumentsNode printArgs;
     @CompilationFinal private SymbolResolver symbolResolver;
 
     @Children private AMD64Instruction[] instructions;
@@ -125,6 +129,13 @@ public class AMD64BasicBlock extends AMD64Node {
                     debug(frame, pc, insn);
                 }
                 pc = insn.executeInstruction(frame);
+                if (DEBUG && PRINT_ARGS && insn instanceof Call) {
+                    if (printArgs == null) {
+                        CompilerDirectives.transferToInterpreter();
+                        printArgs = insert(new PrintArgumentsNode());
+                    }
+                    printArgs.execute(frame, pc);
+                }
             }
         } catch (ProcessExitException e) {
             throw e;
