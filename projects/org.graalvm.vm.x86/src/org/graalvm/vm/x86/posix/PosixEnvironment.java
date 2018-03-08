@@ -13,6 +13,7 @@ import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.FileDescriptorManager;
+import com.everyware.posix.api.io.Iovec;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.VFS;
 import com.everyware.util.log.Trace;
@@ -127,6 +128,45 @@ public class PosixEnvironment {
             if (strace) {
                 log.log(Level.INFO, "write failed: " + Errno.toString(e.getErrno()));
             }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    private Iovec[] getIov64(long iov, int iovcnt) {
+        Iovec[] iovs = new Iovec[iovcnt];
+        long ptr = iov;
+        for (int i = 0; i < iovcnt; i++) {
+            long base = mem.getI64(ptr);
+            ptr += 8;
+            long size = mem.getI64(ptr);
+            ptr += 8;
+            PosixPointer baseptr = posixPointer(base);
+            assert Long.compareUnsigned(size, Integer.MAX_VALUE) < 0;
+            iovs[i] = new Iovec(baseptr, (int) size);
+        }
+        return iovs;
+    }
+
+    public long readv(int fd, long iov, int iovcnt) throws SyscallException {
+        if (iovcnt < 0) {
+            throw new SyscallException(Errno.EINVAL);
+        }
+        Iovec[] vec = getIov64(iov, iovcnt);
+        try {
+            return posix.readv(fd, vec);
+        } catch (PosixException e) {
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long writev(int fd, long iov, int iovcnt) throws SyscallException {
+        if (iovcnt < 0) {
+            throw new SyscallException(Errno.EINVAL);
+        }
+        Iovec[] vec = getIov64(iov, iovcnt);
+        try {
+            return posix.writev(fd, vec);
+        } catch (PosixException e) {
             throw new SyscallException(e.getErrno());
         }
     }

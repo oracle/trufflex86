@@ -21,6 +21,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_open = 2;
     public static final int SYS_close = 3;
     public static final int SYS_brk = 12;
+    public static final int SYS_readv = 19;
+    public static final int SYS_writev = 20;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_readlink = 89;
@@ -81,6 +83,10 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.close((int) a1);
             case SYS_brk:
                 return brk(a1);
+            case SYS_readv:
+                return posix.readv((int) a1, a2, (int) a3);
+            case SYS_writev:
+                return posix.writev((int) a1, a2, (int) a3);
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
                 throw new ProcessExitException((int) a1);
