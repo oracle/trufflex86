@@ -121,6 +121,7 @@ public class AMD64Opcode {
     public static final byte MOVDQA_XM_X = (byte) 0x7F;
 
     public static final byte MOVDQU_X_XM = (byte) 0x6F;
+    public static final byte MOVDQU_XM_X = (byte) 0x7F;
 
     public static final byte MOVSX_R_RM8 = (byte) 0xBE;
     public static final byte MOVSX_R_RM16 = (byte) 0xBF;
@@ -138,6 +139,7 @@ public class AMD64Opcode {
     public static final byte NOP = (byte) 0x90;
     public static final byte NOP_RM = 0x1F;
 
+    public static final byte OR_A_I8 = 0x0C;
     public static final byte OR_RM8_I = (byte) 0x80;
     public static final byte OR_RM_R = 0x09;
     public static final byte OR_R_RM = 0x0B;

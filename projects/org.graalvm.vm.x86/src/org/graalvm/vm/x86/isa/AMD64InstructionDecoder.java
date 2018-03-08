@@ -511,30 +511,18 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.INC_RM: { // or: DEC_RM
                 Args args = new Args(code, rex, segment);
                 switch (args.modrm.getReg()) {
-                    case 0: // INC
-                        if (rex != null) {
-                            assert !rex.r && !rex.b && !rex.x;
-                            if (rex.w) {
-                                return new Incq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                            } else {
-                                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
-                            }
-                        }
-                        if (sizeOverride) {
+                    case 0: // INC R/M
+                        if (rex != null && rex.w) {
+                            return new Incq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Incw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Incl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         }
-                    case 1: // DEC
-                        if (rex != null) {
-                            assert !rex.r && !rex.b && !rex.x;
-                            if (rex.w) {
-                                return new Decq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                            } else {
-                                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
-                            }
-                        }
-                        if (sizeOverride) {
+                    case 1: // DEC R/M
+                        if (rex != null && rex.w) {
+                            return new Decq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Decw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Decl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -837,6 +825,11 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.NOP:
                 return new Nop(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.OR_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Orb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
+            }
             case AMD64Opcode.OR_RM_R: {
                 Args args = new Args(code, rex, segment);
                 if (rex != null && rex.w) {
@@ -1661,6 +1654,16 @@ public class AMD64InstructionDecoder {
                             return new MovdqaToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPZ) {
                             return new MovdquToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.MOVDQA_XM_X: {
+                        Args args = new Args(code, rex, segment);
+                        if (sizeOverride) {
+                            return new MovdqaToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                        } else if (isREPZ) {
+                            return new MovdquToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }

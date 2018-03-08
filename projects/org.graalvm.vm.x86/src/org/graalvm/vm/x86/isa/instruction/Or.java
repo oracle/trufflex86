@@ -77,6 +77,10 @@ public abstract class Or extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
         }
 
+        public Orb(long pc, byte[] instruction, Operand operand, byte imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -104,6 +108,10 @@ public abstract class Or extends AMD64Instruction {
 
         public Orw(long pc, byte[] instruction, OperandDecoder operands, short imm) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16), new ImmediateOperand(imm));
+        }
+
+        public Orw(long pc, byte[] instruction, Operand operand, short imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
         }
 
         @Override
@@ -135,6 +143,10 @@ public abstract class Or extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(imm));
         }
 
+        public Orl(long pc, byte[] instruction, Operand operand, int imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -162,6 +174,10 @@ public abstract class Or extends AMD64Instruction {
 
         public Orq(long pc, byte[] instruction, OperandDecoder operands, long imm) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(imm));
+        }
+
+        public Orq(long pc, byte[] instruction, Operand operand, long imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
         }
 
         @Override

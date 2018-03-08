@@ -33,9 +33,21 @@ public abstract class Movdqu extends AMD64Instruction {
         }
     }
 
+    private static Operand getOp1(OperandDecoder operands, int size, boolean swap) {
+        return swap ? operands.getAVXOperand2(size) : operands.getAVXOperand1(size);
+    }
+
+    private static Operand getOp2(OperandDecoder operands, int size, boolean swap) {
+        return swap ? operands.getAVXOperand1(size) : operands.getAVXOperand2(size);
+    }
+
     public static class MovdquToReg extends Movdqu {
         public MovdquToReg(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            this(pc, instruction, operands, false);
+        }
+
+        public MovdquToReg(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp2(operands, 128, swap), getOp1(operands, 128, swap));
         }
 
         @Override
