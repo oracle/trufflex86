@@ -14,6 +14,7 @@ import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
+import com.everyware.posix.api.io.Stat;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.VFS;
 import com.everyware.util.log.Trace;
@@ -179,6 +180,21 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "readlink failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long fstat(int fd, long statbuf) throws SyscallException {
+        PosixPointer ptr = posixPointer(statbuf);
+        Stat stat = new Stat();
+        try {
+            int result = posix.fstat(fd, stat);
+            stat.write64(ptr);
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "fstat failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }

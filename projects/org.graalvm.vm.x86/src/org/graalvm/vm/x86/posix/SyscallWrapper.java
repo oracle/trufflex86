@@ -20,6 +20,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_write = 1;
     public static final int SYS_open = 2;
     public static final int SYS_close = 3;
+    public static final int SYS_fstat = 5;
     public static final int SYS_brk = 12;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
@@ -29,6 +30,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
+    public static final int SYS_openat = 257;
 
     private final PosixEnvironment posix;
     private final VirtualMemory memory;
@@ -81,6 +83,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.open(a1, (int) a2, (int) a3);
             case SYS_close:
                 return posix.close((int) a1);
+            case SYS_fstat:
+                return posix.fstat((int) a1, a2);
             case SYS_brk:
                 return brk(a1);
             case SYS_readv:
@@ -96,6 +100,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.readlink(a1, a2, a3);
             case SYS_tgkill:
                 throw new ProcessExitException(128 + (int) a3);
+            case SYS_openat:
+                return posix.openat((int) a1, a2, (int) a3, (int) a4);
             default:
                 throw new SyscallException(Errno.ENOSYS);
         }
