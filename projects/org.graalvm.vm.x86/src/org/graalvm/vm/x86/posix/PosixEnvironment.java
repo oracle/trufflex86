@@ -200,6 +200,17 @@ public class PosixEnvironment {
         }
     }
 
+    public long lseek(int fd, long offset, int whence) throws SyscallException {
+        try {
+            return posix.lseek(fd, offset, whence);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "lseek failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int uname(long buf) throws SyscallException {
         PosixPointer ptr = posixPointer(buf);
         Utsname uname = new Utsname();
