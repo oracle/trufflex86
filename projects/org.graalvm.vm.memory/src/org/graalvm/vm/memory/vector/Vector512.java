@@ -6,7 +6,7 @@ import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 @ValueType
-public class Vector512 {
+public class Vector512 implements Cloneable {
     public static final Vector512 ZERO = new Vector512();
 
     private final long[] data = new long[8];
@@ -159,6 +159,6 @@ public class Vector512 {
 
     @Override
     public String toString() {
-        return String.format("0x%016x%016x%016x%016", data[0], data[1], data[2], data[3]);
+        return String.format("0x%016x%016x%016x%016x%016x%016x%016x%016x", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
     }
 }

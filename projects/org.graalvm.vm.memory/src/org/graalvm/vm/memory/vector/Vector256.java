@@ -5,7 +5,7 @@ import java.util.Arrays;
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 
 @ValueType
-public class Vector256 {
+public class Vector256 implements Cloneable {
     public static final Vector256 ZERO = new Vector256();
 
     private final long[] data = new long[4];
@@ -185,6 +185,6 @@ public class Vector256 {
 
     @Override
     public String toString() {
-        return String.format("0x%016x%016x%016x%016", data[0], data[1], data[2], data[3]);
+        return String.format("0x%016x%016x%016x%016x", data[0], data[1], data[2], data[3]);
     }
 }

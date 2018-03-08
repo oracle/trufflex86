@@ -7,7 +7,7 @@ import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 @ValueType
-public class Vector128 {
+public class Vector128 implements Cloneable {
     public static final Vector128 ZERO = new Vector128();
 
     private final long[] data = new long[2];
