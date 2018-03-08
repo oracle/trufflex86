@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.isa;
 
 import java.util.Arrays;
 
+import org.graalvm.vm.x86.isa.instruction.Add.Addb;
 import org.graalvm.vm.x86.isa.instruction.Add.Addl;
 import org.graalvm.vm.x86.isa.instruction.Add.Addq;
 import org.graalvm.vm.x86.isa.instruction.Add.Addw;
@@ -328,6 +329,10 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Addl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
+            }
+            case AMD64Opcode.ADD_RM8_R: {
+                Args args = new Args(code, rex, segment);
+                return new Addb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
             }
             case AMD64Opcode.ADD_RM_R: {
                 Args args = new Args(code, rex, segment);
