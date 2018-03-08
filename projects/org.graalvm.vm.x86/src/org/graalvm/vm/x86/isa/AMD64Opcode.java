@@ -160,6 +160,7 @@ public class AMD64Opcode {
     public static final byte PUSH_R = 0x50;
     public static final byte PUSH_FS = (byte) 0xA0;
     public static final byte PUSH_GS = (byte) 0xA8;
+    public static final byte PUSH_I8 = 0x6A;
 
     public static final byte PXOR_X_XM = (byte) 0xEF;
 

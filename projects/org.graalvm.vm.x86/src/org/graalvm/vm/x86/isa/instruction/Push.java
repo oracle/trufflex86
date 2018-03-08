@@ -42,6 +42,23 @@ public abstract class Push extends AMD64Instruction {
         }
     }
 
+    public static class Pushb extends Push {
+        public Pushb(long pc, byte[] instruction, Operand src) {
+            super(pc, instruction, src);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            byte value = readSrc.executeI8(frame);
+            long rsp = readRSP.executeI64(frame);
+            rsp--;
+            writeMemory.executeI8(rsp, value);
+            writeRSP.executeI64(frame, rsp);
+            return next();
+        }
+    }
+
     public static class Pushw extends Push {
         public Pushw(long pc, byte[] instruction, Operand src) {
             super(pc, instruction, src);
