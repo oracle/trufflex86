@@ -86,6 +86,8 @@ public class SyscallWrapper extends AMD64Node {
                 throw new ProcessExitException((int) a1);
             case SYS_uname:
                 return posix.uname(a1);
+            case SYS_readlink:
+                return posix.readlink(a1, a2, a3);
             case SYS_tgkill:
                 throw new ProcessExitException(128 + (int) a3);
             default:

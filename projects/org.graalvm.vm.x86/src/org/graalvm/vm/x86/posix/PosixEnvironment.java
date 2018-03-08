@@ -131,6 +131,19 @@ public class PosixEnvironment {
         }
     }
 
+    public long readlink(long path, long buf, long bufsize) throws SyscallException {
+        String p = cstr(path);
+        PosixPointer ptr = posixPointer(buf);
+        try {
+            return posix.readlink(p, ptr, bufsize);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "readlink failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int uname(long buf) throws SyscallException {
         PosixPointer ptr = posixPointer(buf);
         Utsname uname = new Utsname();
