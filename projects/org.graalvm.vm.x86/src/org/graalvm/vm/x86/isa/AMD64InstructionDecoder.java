@@ -307,7 +307,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Addq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), imm);
                 } else if (sizeOverride) {
                     short imm = code.read16();
@@ -319,7 +319,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Addl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
             }
@@ -350,7 +350,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Andq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), imm);
                 } else if (sizeOverride) {
                     short imm = code.read16();
@@ -362,7 +362,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Andl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
             }
@@ -421,7 +421,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Cmpq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), imm);
                 } else if (sizeOverride) {
                     short imm = code.read16();
@@ -433,7 +433,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
-                    instruction[instructionLength++] = (byte) (imm >> 32);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
                     return new Cmpl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
             }
