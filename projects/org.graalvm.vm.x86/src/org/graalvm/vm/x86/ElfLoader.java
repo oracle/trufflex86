@@ -193,9 +193,15 @@ public class ElfLoader {
 
         for (ProgramHeader hdr : elf.getProgramHeaders()) {
             if (hdr.getType() == Elf.PT_LOAD) {
-                byte[] segment = new byte[(int) hdr.getMemorySize()];
+                long size = hdr.getMemorySize();
+                long offset = load_bias + hdr.getVirtualAddress();
+                long segmentEnd = offset + size;
+                long pageEnd = memory.roundToPageSize(segmentEnd);
+                size += pageEnd - segmentEnd;
+
+                byte[] segment = new byte[(int) size];
                 hdr.load(segment);
-                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), filename);
+                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), segment.length, filename);
                 p.r = hdr.getFlag(Elf.PF_R);
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
