@@ -4,15 +4,30 @@ QUIET	:= @
 
 CC	:= gcc
 LD	:= ld
+
 CFLAGS	:= -fPIE -O3 -g -std=c99 -pedantic -Wall -fdata-sections -ffunction-sections
 LDFLAGS	:= -fPIE -pie -O3 -Wl,--gc-sections
 
 CCNOSTD	:= -ffreestanding -fno-stack-protector -static -nostdlib
 LDNOSTD	:= $(CCNOSTD) -Wl,-y,__stack_chk_fail
 
+CCSTATIC:= -static
+LDSTATIC:= $(CCSTATIC)
+
 .PHONY: all
 
 all: $(ELF_TARGETS)
+
+# glibc static
+%.static.o: %.static.c
+	$(QUIET)mkdir -p $(shell dirname $@)
+	$(QUIET)echo "[CC]   $@"
+	$(QUIET)$(CC) $(CFLAGS) $(CCSTATIC) -c -o "$@" "$<"
+
+%.static.elf: %.static.o
+	$(QUIET)mkdir -p $(shell dirname $@)
+	$(QUIET)echo "[CCLD] $@"
+	$(QUIET)$(CC) $(LDFLAGS) $(LDSTATIC) -o "$@" "$<"
 
 # nostdlib
 %.o: %.c
