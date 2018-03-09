@@ -106,6 +106,8 @@ public class AMD64Opcode {
 
     public static final byte LEA = (byte) 0x8D;
 
+    public static final byte LEAVE = (byte) 0xC9;
+
     public static final byte LODSB = (byte) 0xAC;
     public static final byte LODSD = (byte) 0xAD;
 
@@ -190,6 +192,7 @@ public class AMD64Opcode {
     public static final byte SETS = (byte) 0x98;
 
     public static final byte SHL_RM_1 = (byte) 0xD1;
+    public static final byte SHL_RM8_I8 = (byte) 0xC0;
     public static final byte SHL_RM_I = (byte) 0xC1;
     public static final byte SHL_RM_C = (byte) 0xD3;
 

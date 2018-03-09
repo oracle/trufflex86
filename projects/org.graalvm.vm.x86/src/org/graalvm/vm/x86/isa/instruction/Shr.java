@@ -58,7 +58,7 @@ public abstract class Shr extends AMD64Instruction {
             createChildrenIfNecessary();
             byte src = readSrc.executeI8(frame);
             byte shift = (byte) (readShift.executeI8(frame) & 0x1f);
-            byte result = (byte) (src >>> shift);
+            byte result = (byte) (Byte.toUnsignedInt(src) >>> shift);
             writeDst.executeI8(frame, result);
             if (shift > 0) {
                 int bit = 1 << (shift - 1);
@@ -84,7 +84,7 @@ public abstract class Shr extends AMD64Instruction {
             createChildrenIfNecessary();
             short src = readSrc.executeI16(frame);
             short shift = (short) (readShift.executeI8(frame) & 0x1f);
-            short result = (short) (src >>> shift);
+            short result = (short) (Short.toUnsignedInt(src) >>> shift);
             writeDst.executeI16(frame, result);
             if (shift > 0) {
                 int bit = 1 << (shift - 1);

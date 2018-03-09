@@ -126,6 +126,7 @@ import org.graalvm.vm.x86.isa.instruction.Jmp.JmpIndirect;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
+import org.graalvm.vm.x86.isa.instruction.Leave.Leaveq;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
@@ -214,6 +215,7 @@ import org.graalvm.vm.x86.isa.instruction.Setcc.Sets;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shll;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlw;
+import org.graalvm.vm.x86.isa.instruction.Shr.Shrb;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrl;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrq;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrw;
@@ -656,6 +658,9 @@ public class AMD64InstructionDecoder {
                     return new Leal(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.LEAVE:
+                assert !sizeOverride;
+                return new Leaveq(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.LODSB:
                 return new Lodsb(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.MOV_RM_R: {
@@ -678,7 +683,7 @@ public class AMD64InstructionDecoder {
                 }
                 if (sizeOverride) {
                     short imm = code.read16();
-                    return new Movw(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8)}, 4), args.getOperandDecoder(), imm);
+                    return new Movw(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8)}, 2), args.getOperandDecoder(), imm);
                 } else {
                     int imm = code.read32();
                     return new Movl(pc, args.getOp2(instruction, instructionLength, new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)}, 4), args.getOperandDecoder(),
@@ -938,6 +943,15 @@ public class AMD64InstructionDecoder {
                     }
                 }
                 return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+            }
+            case AMD64Opcode.SHL_RM8_I8: {
+                Args args = new Args(code, rex, segment);
+                switch (args.modrm.getReg()) {
+                    case 5: { // SHR r/m8,i8
+                        byte imm = code.read8();
+                        return new Shrb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                    }
+                }
             }
             case AMD64Opcode.SHL_RM_I: {
                 Args args = new Args(code, rex, segment);
