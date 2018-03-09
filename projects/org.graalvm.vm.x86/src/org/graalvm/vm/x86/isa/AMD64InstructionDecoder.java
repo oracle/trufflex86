@@ -192,6 +192,9 @@ import org.graalvm.vm.x86.isa.instruction.Ror.Rorw;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarq;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarw;
+import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbl;
+import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbq;
+import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbw;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Seta;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setae;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setb;
@@ -1113,6 +1116,16 @@ public class AMD64InstructionDecoder {
                             return new Orw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new Orl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        }
+                    }
+                    case 3: { // SBB r/m32 i8
+                        byte imm = code.read8();
+                        if (rex != null && rex.w) {
+                            return new Sbbq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
+                            return new Sbbw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else {
+                            return new Sbbl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         }
                     }
                     case 4: { // AND r/m32 i8
