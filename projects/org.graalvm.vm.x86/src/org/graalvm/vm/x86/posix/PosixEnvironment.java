@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.VirtualMemory;
 
+import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
@@ -224,8 +225,28 @@ public class PosixEnvironment {
     }
 
     public long ioctl(int fd, long request, long arg) throws SyscallException {
+        assert request == (int) request;
         try {
-            return posix.ioctl(fd, request, posixPointer(arg));
+            int ioctl = Ioctls.translate((int) request);
+            switch ((int) request) {
+                case Ioctls.TCGETS: {
+                    // different layout of struct termios: missing last two entries (speed)
+                    byte[] buf = new byte[44];
+                    BytePosixPointer tmp = new BytePosixPointer(buf);
+                    int result = posix.ioctl(fd, ioctl, tmp);
+                    PosixPointer src = tmp;
+                    PosixPointer dst = posixPointer(arg);
+                    for (int i = 0; i < 36 / 4; i++) {
+                        int val = src.getI32();
+                        dst.setI32(val);
+                        src = src.add(4);
+                        dst = dst.add(4);
+                    }
+                    return result;
+                }
+                default:
+                    return posix.ioctl(fd, ioctl, posixPointer(arg));
+            }
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "ioctl failed: " + Errno.toString(e.getErrno()));
