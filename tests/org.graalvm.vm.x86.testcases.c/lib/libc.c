@@ -9,7 +9,7 @@
 
 int errno;
 
-extern int main(int, char**);
+extern int main(int, char**, char**);
 
 void exit(int status);
 
@@ -161,7 +161,8 @@ void _main(long* p)
 {
 	long argc = *(p++);
 	char** argv = (char**) p;
-	exit(main(argc, argv));
+	char** envp = (char**) (argv + argc + 1);
+	exit(main(argc, argv, envp));
 }
 
 void exit(int status)
