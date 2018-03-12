@@ -59,7 +59,7 @@ public class OperandDecoder {
                                 throw new AssertionError("this should not have a SIB/displacement!");
                         }
                     } else {
-                        if (sib.index == 0b100) { // no index
+                        if (sib.index == 0b100 && !rex.x) { // no index
                             return new MemoryOperand(segment, sib.getBase(rex.b), displacement);
                         } else {
                             return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
@@ -67,9 +67,9 @@ public class OperandDecoder {
                     }
                 } else if (modrm.getMod() == 0 && modrm.getRM() == 0b101) { // base not used
                     return new MemoryOperand(segment, sib.getIndex(rex.x), sib.getShift());
-                } else if (sib.index == 0b100) { // index not used
+                } else if (sib.index == 0b100 && !rex.x) { // index not used
                     return new MemoryOperand(segment, sib.getBase(rex.b));
-                } else if (modrm.getMod() == 0 && sib.base == 0b101) { // base not used
+                } else if (modrm.getMod() == 0 && sib.base == 0b101 && !rex.b) { // base not used
                     return new MemoryOperand(segment, null, sib.getIndex(rex.x), sib.getShift());
                 } else {
                     return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift());
