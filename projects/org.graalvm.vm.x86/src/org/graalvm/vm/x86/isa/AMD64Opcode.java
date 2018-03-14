@@ -158,6 +158,8 @@ public class AMD64Opcode {
 
     public static final byte POR_X_XM = (byte) 0xEB;
 
+    public static final byte PREFETCH = 0x18;
+
     public static final byte PSHUFD = 0x70;
 
     public static final byte PSLLDQ = 0x73;

@@ -173,6 +173,7 @@ import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
 import org.graalvm.vm.x86.isa.instruction.Por;
+import org.graalvm.vm.x86.isa.instruction.Prefetch;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
 import org.graalvm.vm.x86.isa.instruction.Pslldq;
 import org.graalvm.vm.x86.isa.instruction.Psrldq;
@@ -1864,11 +1865,27 @@ public class AMD64InstructionDecoder {
                         }
                     case AMD64Opcode.POR_X_XM:
                         if (sizeOverride) {
-                            Args args = new Args(code, segment);
+                            Args args = new Args(code, rex, segment);
                             return new Por(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
+                    case AMD64Opcode.PREFETCH: {
+                        Args args = new Args(code, rex, segment);
+                        byte[] insn = args.getOp(instruction, instructionLength);
+                        switch (args.modrm.getReg()) {
+                            case 1:
+                                return new Prefetch(pc, insn, args.getOperandDecoder(), Prefetch.PREFETCHT0);
+                            case 2:
+                                return new Prefetch(pc, insn, args.getOperandDecoder(), Prefetch.PREFETCHT1);
+                            case 3:
+                                return new Prefetch(pc, insn, args.getOperandDecoder(), Prefetch.PREFETCHT2);
+                            case 0:
+                                return new Prefetch(pc, insn, args.getOperandDecoder(), Prefetch.PREFETCHNTA);
+                            default:
+                                return new IllegalInstruction(pc, insn);
+                        }
+                    }
                     case AMD64Opcode.PSHUFD: {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment);
