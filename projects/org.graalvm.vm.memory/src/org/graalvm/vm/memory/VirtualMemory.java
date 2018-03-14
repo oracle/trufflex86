@@ -13,6 +13,7 @@ import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
 import com.everyware.posix.api.PosixPointer;
+import com.everyware.util.io.Endianess;
 
 public class VirtualMemory {
     public static final long PAGE_SIZE = 4096;
@@ -177,6 +178,18 @@ public class VirtualMemory {
             short val = page.getI16(ptr);
             logMemoryRead(address, 2, val);
             return val;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                byte[] bytes = new byte[]{getI8(ptr), getI8(ptr + 1)};
+                boolean isBE = page.getMemory().isBE();
+                short value = isBE ? Endianess.get16bitBE(bytes) : Endianess.get16bitLE(bytes);
+                logMemoryRead(address, 2, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 2);
+                throw t;
+            }
         } catch (Throwable t) {
             logMemoryRead(address, 2);
             throw t;
@@ -190,6 +203,18 @@ public class VirtualMemory {
             int v = page.getI32(ptr);
             logMemoryRead(address, 4, v);
             return v;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                byte[] bytes = new byte[]{getI8(ptr), getI8(ptr + 1), getI8(ptr + 2), getI8(ptr + 3)};
+                boolean isBE = page.getMemory().isBE();
+                int value = isBE ? Endianess.get32bitBE(bytes) : Endianess.get32bitLE(bytes);
+                logMemoryRead(address, 4, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 4);
+                throw t;
+            }
         } catch (Throwable t) {
             logMemoryRead(address, 4);
             throw t;
@@ -203,6 +228,18 @@ public class VirtualMemory {
             long v = page.getI64(ptr);
             logMemoryRead(address, 8, v);
             return v;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                byte[] bytes = new byte[]{getI8(ptr), getI8(ptr + 1), getI8(ptr + 2), getI8(ptr + 3), getI8(ptr + 4), getI8(ptr + 5), getI8(ptr + 6), getI8(ptr + 7)};
+                boolean isBE = page.getMemory().isBE();
+                long value = isBE ? Endianess.get64bitBE(bytes) : Endianess.get64bitLE(bytes);
+                logMemoryRead(address, 8, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 8);
+                throw t;
+            }
         } catch (Throwable t) {
             logMemoryRead(address, 8);
             throw t;
@@ -216,8 +253,19 @@ public class VirtualMemory {
             Vector128 v = page.getI128(ptr);
             logMemoryRead(address, v);
             return v;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                boolean isBE = page.getMemory().isBE();
+                Vector128 value = isBE ? new Vector128(getI64(ptr), getI64(ptr + 8)) : new Vector128(getI64(ptr + 8), getI64(ptr));
+                logMemoryRead(address, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 16);
+                throw t;
+            }
         } catch (Throwable t) {
-            logMemoryRead(address, 8);
+            logMemoryRead(address, 16);
             throw t;
         }
     }
@@ -229,8 +277,19 @@ public class VirtualMemory {
             Vector256 v = page.getI256(ptr);
             logMemoryRead(address, v);
             return v;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                boolean isBE = page.getMemory().isBE();
+                Vector256 value = isBE ? new Vector256(getI128(ptr), getI128(ptr + 16)) : new Vector256(getI128(ptr + 16), getI128(ptr));
+                logMemoryRead(address, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 32);
+                throw t;
+            }
         } catch (Throwable t) {
-            logMemoryRead(address, 8);
+            logMemoryRead(address, 32);
             throw t;
         }
     }
@@ -242,8 +301,19 @@ public class VirtualMemory {
             Vector512 v = page.getI512(ptr);
             logMemoryRead(address, v);
             return v;
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            try {
+                MemoryPage page = get(ptr);
+                boolean isBE = page.getMemory().isBE();
+                Vector512 value = isBE ? new Vector512(getI256(ptr), getI256(ptr + 32)) : new Vector512(getI256(ptr + 32), getI256(ptr));
+                logMemoryRead(address, value);
+                return value;
+            } catch (Throwable t) {
+                logMemoryRead(address, 64);
+                throw t;
+            }
         } catch (Throwable t) {
-            logMemoryRead(address, 8);
+            logMemoryRead(address, 64);
             throw t;
         }
     }
@@ -259,42 +329,113 @@ public class VirtualMemory {
         logMemoryWrite(address, 2, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI16(ptr, val);
+        try {
+            page.setI16(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            byte[] bytes = new byte[2];
+            if (isBE) {
+                Endianess.set16bitBE(bytes, 0, val);
+            } else {
+                Endianess.set16bitLE(bytes, 0, val);
+            }
+            setI8(address, bytes[0]);
+            setI8(address + 1, bytes[1]);
+        }
     }
 
     public void setI32(long address, int val) {
         logMemoryWrite(address, 4, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI32(ptr, val);
+        try {
+            page.setI32(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            byte[] bytes = new byte[4];
+            if (isBE) {
+                Endianess.set32bitBE(bytes, 0, val);
+            } else {
+                Endianess.set32bitLE(bytes, 0, val);
+            }
+            for (int i = 0; i < bytes.length; i++) {
+                setI8(address + i, bytes[i]);
+            }
+        }
     }
 
     public void setI64(long address, long val) {
         logMemoryWrite(address, 8, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI64(ptr, val);
+        try {
+            page.setI64(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            byte[] bytes = new byte[8];
+            if (isBE) {
+                Endianess.set64bitBE(bytes, 0, val);
+            } else {
+                Endianess.set64bitLE(bytes, 0, val);
+            }
+            for (int i = 0; i < bytes.length; i++) {
+                setI8(address + i, bytes[i]);
+            }
+        }
     }
 
     public void setI128(long address, Vector128 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI128(ptr, val);
+        try {
+            page.setI128(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            if (isBE) {
+                setI64(address, val.getI64(0));
+                setI64(address + 8, val.getI64(1));
+            } else {
+                setI64(address, val.getI64(1));
+                setI64(address + 8, val.getI64(0));
+            }
+        }
     }
 
     public void setI256(long address, Vector256 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI256(ptr, val);
+        try {
+            page.setI256(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            if (isBE) {
+                setI128(address, val.getI128(0));
+                setI128(address + 16, val.getI128(1));
+            } else {
+                setI128(address, val.getI128(1));
+                setI128(address + 16, val.getI128(0));
+            }
+        }
     }
 
     public void setI512(long address, Vector512 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
         MemoryPage page = get(ptr);
-        page.setI512(ptr, val);
+        try {
+            page.setI512(ptr, val);
+        } catch (SegmentationViolation e) { // unaligned access across page boundary
+            boolean isBE = page.getMemory().isBE();
+            if (isBE) {
+                setI256(address, val.getI256(0));
+                setI256(address + 16, val.getI256(1));
+            } else {
+                setI256(address, val.getI256(1));
+                setI256(address + 16, val.getI256(0));
+            }
+        }
     }
 
     public void dump(long p, int size) {

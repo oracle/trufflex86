@@ -16,6 +16,10 @@ public abstract class Memory {
         this.isBE = isBE;
     }
 
+    public boolean isBE() {
+        return isBE;
+    }
+
     public abstract long size();
 
     public byte[] getBytes() {
