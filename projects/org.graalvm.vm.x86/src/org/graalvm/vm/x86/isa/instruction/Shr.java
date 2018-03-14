@@ -53,6 +53,10 @@ public abstract class Shr extends AMD64Instruction {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
         }
 
+        public Shrb(long pc, byte[] instruction, OperandDecoder decoder, Operand shamt) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R8), shamt);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -77,6 +81,10 @@ public abstract class Shr extends AMD64Instruction {
     public static class Shrw extends Shr {
         public Shrw(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R16), new ImmediateOperand(imm));
+        }
+
+        public Shrw(long pc, byte[] instruction, OperandDecoder decoder, Operand shamt) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R16), shamt);
         }
 
         @Override
@@ -105,6 +113,10 @@ public abstract class Shr extends AMD64Instruction {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R32), new ImmediateOperand(imm));
         }
 
+        public Shrl(long pc, byte[] instruction, OperandDecoder decoder, Operand shamt) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R32), shamt);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -129,6 +141,10 @@ public abstract class Shr extends AMD64Instruction {
     public static class Shrq extends Shr {
         public Shrq(long pc, byte[] instruction, OperandDecoder decoder, byte imm) {
             super(pc, instruction, decoder.getOperand1(OperandDecoder.R64), new ImmediateOperand(imm));
+        }
+
+        public Shrq(long pc, byte[] instruction, OperandDecoder decoder, Operand shamt) {
+            super(pc, instruction, decoder.getOperand1(OperandDecoder.R64), shamt);
         }
 
         @Override
