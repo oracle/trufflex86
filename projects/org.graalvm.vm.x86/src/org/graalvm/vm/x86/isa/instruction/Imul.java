@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -44,25 +45,57 @@ public abstract class Imul extends AMD64Instruction {
         @Child protected ReadNode readOp2;
         @Child protected WriteNode writeDst;
 
+        private final Operand srcA;
+        private final Operand srcB;
+        private final Operand dst;
+
         protected Imul2(long pc, byte[] instruction, OperandDecoder operands, int type) {
             super(pc, instruction, operands.getOperand2(type), operands.getOperand1(type));
+            this.dst = operand1;
+            this.srcA = operand1;
+            this.srcB = operand2;
+        }
+
+        protected Imul2(long pc, byte[] instruction, OperandDecoder operands, short imm, int type) {
+            super(pc, instruction, operands.getOperand2(type), operands.getOperand1(type), new ImmediateOperand(imm));
+            this.dst = operand1;
+            this.srcA = operand2;
+            this.srcB = operand3;
+        }
+
+        protected Imul2(long pc, byte[] instruction, OperandDecoder operands, int imm, int type) {
+            super(pc, instruction, operands.getOperand2(type), operands.getOperand1(type), new ImmediateOperand(imm));
+            this.dst = operand1;
+            this.srcA = operand2;
+            this.srcB = operand3;
+        }
+
+        protected Imul2(long pc, byte[] instruction, OperandDecoder operands, long imm, int type) {
+            super(pc, instruction, operands.getOperand2(type), operands.getOperand1(type), new ImmediateOperand(imm));
+            this.dst = operand1;
+            this.srcA = operand2;
+            this.srcB = operand3;
         }
 
         protected void createChildrenIfNecessary() {
             if (readOp1 == null) {
                 CompilerDirectives.transferToInterpreter();
                 ArchitecturalState state = getContextReference().get().getState();
-                readOp1 = operand1.createRead(state, next());
-                readOp2 = operand2.createRead(state, next());
-                writeDst = operand1.createWrite(state, next());
+                readOp1 = srcA.createRead(state, next());
+                readOp2 = srcB.createRead(state, next());
+                writeDst = dst.createWrite(state, next());
                 createFlagNodes(state);
             }
         }
     }
 
-    public static class Imul2w extends Imul2 {
-        public Imul2w(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Imulw extends Imul2 {
+        public Imulw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands, OperandDecoder.R16);
+        }
+
+        public Imulw(long pc, byte[] instruction, OperandDecoder operands, short imm) {
+            super(pc, instruction, operands, imm, OperandDecoder.R16);
         }
 
         @Override
@@ -79,9 +112,13 @@ public abstract class Imul extends AMD64Instruction {
         }
     }
 
-    public static class Imul2l extends Imul2 {
-        public Imul2l(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Imull extends Imul2 {
+        public Imull(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands, OperandDecoder.R32);
+        }
+
+        public Imull(long pc, byte[] instruction, OperandDecoder operands, int imm) {
+            super(pc, instruction, operands, imm, OperandDecoder.R32);
         }
 
         @Override
@@ -98,9 +135,13 @@ public abstract class Imul extends AMD64Instruction {
         }
     }
 
-    public static class Imul2q extends Imul2 {
-        public Imul2q(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class Imulq extends Imul2 {
+        public Imulq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands, OperandDecoder.R64);
+        }
+
+        public Imulq(long pc, byte[] instruction, OperandDecoder operands, long imm) {
+            super(pc, instruction, operands, imm, OperandDecoder.R64);
         }
 
         @Override

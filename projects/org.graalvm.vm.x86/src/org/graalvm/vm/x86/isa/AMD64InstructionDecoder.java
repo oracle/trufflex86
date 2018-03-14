@@ -98,9 +98,9 @@ import org.graalvm.vm.x86.isa.instruction.Idiv.Idivb;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivl;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivq;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivw;
-import org.graalvm.vm.x86.isa.instruction.Imul.Imul2l;
-import org.graalvm.vm.x86.isa.instruction.Imul.Imul2q;
-import org.graalvm.vm.x86.isa.instruction.Imul.Imul2w;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imull;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imulq;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imulw;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incl;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incq;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incw;
@@ -536,6 +536,17 @@ public class AMD64InstructionDecoder {
                     return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), cmp);
                 } else {
                     return cmp;
+                }
+            }
+            case AMD64Opcode.IMUL_R_RM_I8: {
+                Args args = new Args(code, rex, segment);
+                byte imm = code.read8();
+                if (rex != null && rex.w) {
+                    return new Imulq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                } else if (sizeOverride) {
+                    return new Imulw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                } else {
+                    return new Imull(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                 }
             }
             case AMD64Opcode.INC_RM: { // or: DEC_RM
@@ -1594,11 +1605,11 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.IMUL_R_RM: {
                         Args args = new Args(code, rex, segment);
                         if (rex != null && rex.w) {
-                            return new Imul2q(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            return new Imulq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
-                            return new Imul2w(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            return new Imulw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
-                            return new Imul2l(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            return new Imull(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         }
                     }
                     case AMD64Opcode.JA32: {

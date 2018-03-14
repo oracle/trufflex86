@@ -62,6 +62,7 @@ public class AMD64Opcode {
     public static final byte IDIV_RM = (byte) 0xF7;
 
     public static final byte IMUL_R_RM = (byte) 0xAF;
+    public static final byte IMUL_R_RM_I8 = 0x6B;
 
     public static final byte INC_RM = (byte) 0xFF;
 
