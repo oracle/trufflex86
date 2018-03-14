@@ -9,7 +9,7 @@ public class AMD64Opcode {
     public static final byte ADD_R_RM = 0x03;
     public static final byte ADD_RM_I8 = (byte) 0x83;
 
-    public static final byte AND_A_I = (byte) 0x25;
+    public static final byte AND_A_I = 0x25;
     public static final byte AND_RM_I8 = (byte) 0x83;
     public static final byte AND_RM_R = 0x21;
     public static final byte AND_R_RM = 0x23;
@@ -118,13 +118,13 @@ public class AMD64Opcode {
     public static final byte MOV_RM_I8 = (byte) 0xC6;
     public static final byte MOV_R_I = (byte) 0xB8;
 
-    public static final byte MOVD_X_RM = (byte) 0x6E;
+    public static final byte MOVD_X_RM = 0x6E;
 
-    public static final byte MOVDQA_X_XM = (byte) 0x6F;
-    public static final byte MOVDQA_XM_X = (byte) 0x7F;
+    public static final byte MOVDQA_X_XM = 0x6F;
+    public static final byte MOVDQA_XM_X = 0x7F;
 
-    public static final byte MOVDQU_X_XM = (byte) 0x6F;
-    public static final byte MOVDQU_XM_X = (byte) 0x7F;
+    public static final byte MOVDQU_X_XM = 0x6F;
+    public static final byte MOVDQU_XM_X = 0x7F;
 
     public static final byte MOVSX_R_RM8 = (byte) 0xBE;
     public static final byte MOVSX_R_RM16 = (byte) 0xBF;
@@ -147,9 +147,9 @@ public class AMD64Opcode {
     public static final byte OR_RM_R = 0x09;
     public static final byte OR_R_RM = 0x0B;
 
-    public static final byte PCMPEQB_X_XM = (byte) 0x74;
-    public static final byte PCMPEQW_X_XM = (byte) 0x75;
-    public static final byte PCMPEQD_X_XM = (byte) 0x76;
+    public static final byte PCMPEQB_X_XM = 0x74;
+    public static final byte PCMPEQW_X_XM = 0x75;
+    public static final byte PCMPEQD_X_XM = 0x76;
 
     public static final byte PMOVMSKB_R_X = (byte) 0xD7;
 
@@ -157,7 +157,11 @@ public class AMD64Opcode {
 
     public static final byte POR_X_XM = (byte) 0xEB;
 
-    public static final byte PSHUFD = (byte) 0x70;
+    public static final byte PSHUFD = 0x70;
+
+    public static final byte PSLLDQ = 0x73;
+
+    public static final byte PSUBB = (byte) 0xF8;
 
     public static final byte PUNPCKLBW = 0x60;
     public static final byte PUNPCKLWD = 0x61;

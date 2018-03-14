@@ -3,6 +3,7 @@ package org.graalvm.vm.memory.vector;
 import java.util.Arrays;
 
 import com.everyware.util.BitTest;
+import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -24,6 +25,18 @@ public class Vector128 implements Cloneable {
     public Vector128(long high, long low) {
         this.data[0] = high;
         this.data[1] = low;
+    }
+
+    public Vector128(byte[] data) {
+        this(Endianess.get64bitBE(data, 0), Endianess.get64bitBE(data, 8));
+    }
+
+    public byte[] getBytes() {
+        assert data.length == 2;
+        byte[] result = new byte[16];
+        Endianess.set64bitBE(result, 0, data[0]);
+        Endianess.set64bitBE(result, 8, data[1]);
+        return result;
     }
 
     public double getF64(int i) {
@@ -220,6 +233,56 @@ public class Vector128 implements Cloneable {
         } else {
             throw new AssertionError("not yet implemented");
         }
+    }
+
+    public Vector128 shrBytes(int n) {
+        assert n > 0 && n < 16;
+        byte[] bytes = getBytes();
+        byte[] shifted = new byte[bytes.length];
+        for (int i = 0; i < 16; i++) {
+            int src = i - n;
+            if (src < 0) {
+                shifted[i] = 0;
+            } else {
+                shifted[i] = bytes[src];
+            }
+        }
+        return new Vector128(shifted);
+    }
+
+    public Vector128 shlBytes(int n) {
+        assert n > 0 && n < 16;
+        byte[] bytes = getBytes();
+        byte[] shifted = new byte[bytes.length];
+        for (int i = 0; i < 16; i++) {
+            int src = i + n;
+            if (src >= bytes.length) {
+                shifted[i] = 0;
+            } else {
+                shifted[i] = bytes[src];
+            }
+        }
+        return new Vector128(shifted);
+    }
+
+    public Vector128 addBytes(Vector128 vec) {
+        byte[] a = getBytes();
+        byte[] b = vec.getBytes();
+        byte[] result = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (byte) (a[i] + b[i]);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 subBytes(Vector128 vec) {
+        byte[] a = getBytes();
+        byte[] b = vec.getBytes();
+        byte[] result = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (byte) (a[i] - b[i]);
+        }
+        return new Vector128(result);
     }
 
     @Override

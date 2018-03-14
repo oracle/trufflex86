@@ -174,6 +174,9 @@ import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
 import org.graalvm.vm.x86.isa.instruction.Por;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
+import org.graalvm.vm.x86.isa.instruction.Pslldq;
+import org.graalvm.vm.x86.isa.instruction.Psrldq;
+import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklwd;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushb;
@@ -1837,6 +1840,29 @@ public class AMD64InstructionDecoder {
                             Args args = new Args(code, rex, segment);
                             byte imm = code.read8();
                             return new Pshufd(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PSLLDQ: {
+                        Args args = new Args(code, rex, segment);
+                        switch (args.modrm.getReg()) {
+                            case 3: {
+                                byte imm = code.read8();
+                                return new Psrldq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                            }
+                            case 7: {
+                                byte imm = code.read8();
+                                return new Pslldq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                            }
+                            default:
+                                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PSUBB: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment);
+                            return new Psubb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }

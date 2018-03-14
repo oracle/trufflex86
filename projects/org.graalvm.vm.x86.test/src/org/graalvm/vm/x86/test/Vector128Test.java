@@ -194,4 +194,28 @@ public class Vector128Test {
         long ref = 0x0000000000002000;
         assertEquals(ref, mask);
     }
+
+    @Test
+    public void testShlBytesv0() {
+        Vector128 vec = new Vector128(0x0011223344556677L, 0x8899AABBCCDDEEFFL);
+        Vector128 shifted = vec.shlBytes(1);
+        Vector128 ref = new Vector128(0x1122334455667788L, 0x99AABBCCDDEEFF00L);
+        assertEquals(ref, shifted);
+    }
+
+    @Test
+    public void testShlBytesv1() {
+        Vector128 vec = new Vector128(0x0011223344556677L, 0x8899AABBCCDDEEFFL);
+        Vector128 shifted = vec.shlBytes(2);
+        Vector128 ref = new Vector128(0x2233445566778899L, 0xAABBCCDDEEFF0000L);
+        assertEquals(ref, shifted);
+    }
+
+    @Test
+    public void testShlBytesv2() {
+        Vector128 vec = new Vector128(0x0011223344556677L, 0x8899AABBCCDDEEFFL);
+        Vector128 shifted = vec.shlBytes(3);
+        Vector128 ref = new Vector128(0x33445566778899AAL, 0xBBCCDDEEFF000000L);
+        assertEquals(ref, shifted);
+    }
 }
