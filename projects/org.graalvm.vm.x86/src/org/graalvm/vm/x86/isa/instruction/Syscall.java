@@ -1,5 +1,8 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.RegisterAccessFactory;
@@ -12,11 +15,14 @@ import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
 import com.everyware.posix.api.Errno;
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Syscall extends AMD64Instruction {
+    private static final Logger log = Trace.create(Syscall.class);
+
     @Child private SyscallWrapper syscall = null;
     @Child private RegisterReadNode readRAX;
     @Child private RegisterReadNode readRDI;
@@ -76,7 +82,7 @@ public class Syscall extends AMD64Instruction {
 
     @TruffleBoundary
     private static void log(long nr) {
-        System.out.println("Unsupported syscall " + nr);
+        log.log(Level.WARNING, "Unsupported syscall " + nr);
     }
 
     @Override
