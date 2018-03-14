@@ -5,6 +5,11 @@ public class CpuRuntimeException extends RuntimeException {
 
     private final long pc;
 
+    public CpuRuntimeException(long pc, String message) {
+        super(message);
+        this.pc = pc;
+    }
+
     public CpuRuntimeException(long pc, Throwable cause) {
         super(cause);
         this.pc = pc;

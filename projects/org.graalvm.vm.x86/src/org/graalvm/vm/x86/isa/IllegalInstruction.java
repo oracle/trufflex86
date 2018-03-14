@@ -23,7 +23,7 @@ public class IllegalInstruction extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         CompilerDirectives.transferToInterpreter();
-        throw new RuntimeException(errorMessage);
+        throw new IllegalInstructionException(pc, getBytes(), errorMessage);
     }
 
     @Override

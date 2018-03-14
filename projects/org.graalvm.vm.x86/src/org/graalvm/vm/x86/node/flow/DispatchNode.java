@@ -14,11 +14,13 @@ import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
+import org.graalvm.vm.x86.isa.IllegalInstructionException;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.everyware.posix.api.Signal;
 import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -262,6 +264,14 @@ public class DispatchNode extends AMD64Node {
             e.getCause().printStackTrace();
             if (e.getCause() instanceof SegmentationViolation) {
                 memory.printLayout(System.err);
+            }
+            writePC.executeI64(frame, pc);
+            if (e.getCause() instanceof IllegalInstructionException) {
+                return 128 + Signal.SIGILL;
+            } else if (e.getCause() instanceof SegmentationViolation) {
+                return 128 + Signal.SIGSEGV;
+            } else {
+                return 127;
             }
             // dump();
         } catch (Throwable t) {
