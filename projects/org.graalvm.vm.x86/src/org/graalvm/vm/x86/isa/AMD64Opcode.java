@@ -174,6 +174,9 @@ public class AMD64Opcode {
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;
 
+    public static final byte SCASB = (byte) 0xAE;
+    public static final byte SCAS = (byte) 0xAF;
+
     public static final byte SETA = (byte) 0x97;
     public static final byte SETAE = (byte) 0x93;
     public static final byte SETB = (byte) 0x92;

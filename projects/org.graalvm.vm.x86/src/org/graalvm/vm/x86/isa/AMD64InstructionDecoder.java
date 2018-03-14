@@ -182,6 +182,7 @@ import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pxor;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
+import org.graalvm.vm.x86.isa.instruction.Rep.Repnz;
 import org.graalvm.vm.x86.isa.instruction.Rep.Repz;
 import org.graalvm.vm.x86.isa.instruction.Ret;
 import org.graalvm.vm.x86.isa.instruction.Rol.Roll;
@@ -196,6 +197,10 @@ import org.graalvm.vm.x86.isa.instruction.Sar.Sarw;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbl;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbq;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbw;
+import org.graalvm.vm.x86.isa.instruction.Scas.Scasb;
+import org.graalvm.vm.x86.isa.instruction.Scas.Scasd;
+import org.graalvm.vm.x86.isa.instruction.Scas.Scasq;
+import org.graalvm.vm.x86.isa.instruction.Scas.Scasw;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Seta;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setae;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setb;
@@ -253,6 +258,7 @@ public class AMD64InstructionDecoder {
         boolean sizeOverride = false;
         // boolean addressOverride = false;
         boolean isREPZ = false;
+        boolean isREPNZ = false;
         SegmentRegister segment = null;
         AMD64RexPrefix rex = null;
         boolean decode = true;
@@ -270,6 +276,11 @@ public class AMD64InstructionDecoder {
                     break;
                 case AMD64InstructionPrefix.REPZ:
                     isREPZ = true;
+                    op = code.read8();
+                    instruction[instructionLength++] = op;
+                    break;
+                case AMD64InstructionPrefix.REPNZ:
+                    isREPNZ = true;
                     op = code.read8();
                     instruction[instructionLength++] = op;
                     break;
@@ -496,14 +507,18 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.CMPSB: {
+                assert segment == null;
                 AMD64Instruction cmpsb = new Cmpsb(pc, Arrays.copyOf(instruction, instructionLength));
                 if (isREPZ) {
                     return new Repz(pc, Arrays.copyOf(instruction, instructionLength), cmpsb);
+                } else if (isREPNZ) {
+                    return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), cmpsb);
                 } else {
                     return cmpsb;
                 }
             }
             case AMD64Opcode.CMPSD: {
+                assert segment == null;
                 AMD64Instruction cmp;
                 if (rex != null && rex.w) {
                     cmp = new Cmpsq(pc, Arrays.copyOf(instruction, instructionLength));
@@ -514,6 +529,8 @@ public class AMD64InstructionDecoder {
                 }
                 if (isREPZ) {
                     return new Repz(pc, Arrays.copyOf(instruction, instructionLength), cmp);
+                } else if (isREPNZ) {
+                    return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), cmp);
                 } else {
                     return cmp;
                 }
@@ -662,6 +679,7 @@ public class AMD64InstructionDecoder {
                 assert !sizeOverride;
                 return new Leaveq(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.LODSB:
+                assert segment == null;
                 return new Lodsb(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.MOV_RM_R: {
                 Args args = new Args(code, rex, segment);
@@ -902,6 +920,33 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.RET_NEAR:
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.SCASB: {
+                AMD64Instruction scas = new Scasb(pc, Arrays.copyOf(instruction, instructionLength));
+                if (isREPNZ) {
+                    return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), scas);
+                } else if (isREPZ) {
+                    return new Repz(pc, Arrays.copyOf(instruction, instructionLength), scas);
+                } else {
+                    return scas;
+                }
+            }
+            case AMD64Opcode.SCAS: {
+                AMD64Instruction scas;
+                if (rex != null && rex.w) {
+                    scas = new Scasq(pc, Arrays.copyOf(instruction, instructionLength));
+                } else if (sizeOverride) {
+                    scas = new Scasw(pc, Arrays.copyOf(instruction, instructionLength));
+                } else {
+                    scas = new Scasd(pc, Arrays.copyOf(instruction, instructionLength));
+                }
+                if (isREPNZ) {
+                    return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), scas);
+                } else if (isREPZ) {
+                    return new Repz(pc, Arrays.copyOf(instruction, instructionLength), scas);
+                } else {
+                    return scas;
+                }
+            }
             case AMD64Opcode.SHL_RM_1: {
                 Args args = new Args(code, rex, segment);
                 switch (args.modrm.getReg()) {
@@ -1034,6 +1079,8 @@ public class AMD64InstructionDecoder {
                 return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
             }
             case AMD64Opcode.STOSB: {
+                assert segment == null;
+                assert !isREPNZ;
                 AMD64Instruction stosb = new Stosb(pc, Arrays.copyOf(instruction, instructionLength));
                 if (isREPZ) {
                     return new Rep(pc, Arrays.copyOf(instruction, instructionLength), stosb);
@@ -1042,6 +1089,8 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.STOS: {
+                assert segment == null;
+                assert !isREPNZ;
                 AMD64Instruction stos;
                 if (rex != null && rex.w) {
                     stos = new Stosq(pc, Arrays.copyOf(instruction, instructionLength));
