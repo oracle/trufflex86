@@ -199,6 +199,7 @@ public class AMD64Opcode {
     public static final byte SETP = (byte) 0x9A;
     public static final byte SETS = (byte) 0x98;
 
+    public static final byte SHL_RM8_1 = (byte) 0xD0;
     public static final byte SHL_RM_1 = (byte) 0xD1;
     public static final byte SHL_RM8_I8 = (byte) 0xC0;
     public static final byte SHL_RM_I = (byte) 0xC1;

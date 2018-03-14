@@ -194,6 +194,7 @@ import org.graalvm.vm.x86.isa.instruction.Rol.Rolw;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorl;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorq;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorw;
+import org.graalvm.vm.x86.isa.instruction.Sar.Sarb;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarq;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarw;
@@ -220,6 +221,7 @@ import org.graalvm.vm.x86.isa.instruction.Setcc.Setns;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Seto;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setp;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Sets;
+import org.graalvm.vm.x86.isa.instruction.Shl.Shlb;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shll;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlw;
@@ -960,6 +962,18 @@ public class AMD64InstructionDecoder {
                 } else {
                     return scas;
                 }
+            }
+            case AMD64Opcode.SHL_RM8_1: {
+                Args args = new Args(code, rex, segment);
+                switch (args.modrm.getReg()) {
+                    case 4:
+                        return new Shlb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                    case 5:
+                        return new Shrb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                    case 7:
+                        return new Sarb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                }
+                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
             }
             case AMD64Opcode.SHL_RM_1: {
                 Args args = new Args(code, rex, segment);
