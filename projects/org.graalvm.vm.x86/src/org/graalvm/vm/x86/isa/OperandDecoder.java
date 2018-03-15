@@ -11,21 +11,15 @@ public class OperandDecoder {
     private final long displacement;
     private final AMD64RexPrefix rex;
     private final SegmentRegister segment;
+    private final boolean addressOverride;
 
-    public OperandDecoder(ModRM modrm, SIB sib, long displacement) {
-        this.modrm = modrm;
-        this.sib = sib;
-        this.displacement = displacement;
-        this.rex = null;
-        this.segment = null;
-    }
-
-    public OperandDecoder(ModRM modrm, SIB sib, long displacement, AMD64RexPrefix rex, SegmentRegister segment) {
+    public OperandDecoder(ModRM modrm, SIB sib, long displacement, AMD64RexPrefix rex, SegmentRegister segment, boolean addressOverride) {
         this.modrm = modrm;
         this.sib = sib;
         this.displacement = displacement;
         this.rex = rex;
         this.segment = segment;
+        this.addressOverride = addressOverride;
     }
 
     public Operand getOperand1(int type) {
@@ -44,35 +38,35 @@ public class OperandDecoder {
                 if (hasDisplacement) {
                     if (sib.index == 0b100 && !rex.b) { // rsp not used
                         if (modrm.getMod() == 0) { // base not used
-                            return new MemoryOperand(segment, displacement);
+                            return new MemoryOperand(segment, displacement, addressOverride);
                         } else {
-                            return new MemoryOperand(segment, sib.getBase(rex.b), displacement);
+                            return new MemoryOperand(segment, sib.getBase(rex.b), displacement, addressOverride);
                         }
                     } else if (sib.base == 0b101) {
                         switch (modrm.getMod()) {
                             case 0b00:
-                                return new MemoryOperand(segment, null, sib.getIndex(rex.x), sib.getShift(), displacement);
+                                return new MemoryOperand(segment, null, sib.getIndex(rex.x), sib.getShift(), displacement, addressOverride);
                             case 0b01:
                             case 0b10:
-                                return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
+                                return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement, addressOverride);
                             default:
                                 throw new AssertionError("this should not have a SIB/displacement!");
                         }
                     } else {
                         if (sib.index == 0b100 && !rex.x) { // no index
-                            return new MemoryOperand(segment, sib.getBase(rex.b), displacement);
+                            return new MemoryOperand(segment, sib.getBase(rex.b), displacement, addressOverride);
                         } else {
-                            return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement);
+                            return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), displacement, addressOverride);
                         }
                     }
                 } else if (modrm.getMod() == 0 && modrm.getRM() == 0b101) { // base not used
-                    return new MemoryOperand(segment, sib.getIndex(rex.x), sib.getShift());
+                    return new MemoryOperand(segment, sib.getIndex(rex.x), sib.getShift(), addressOverride);
                 } else if (sib.index == 0b100 && !rex.x) { // index not used
-                    return new MemoryOperand(segment, sib.getBase(rex.b));
+                    return new MemoryOperand(segment, sib.getBase(rex.b), addressOverride);
                 } else if (modrm.getMod() == 0 && sib.base == 0b101 && !rex.b) { // base not used
-                    return new MemoryOperand(segment, null, sib.getIndex(rex.x), sib.getShift());
+                    return new MemoryOperand(segment, null, sib.getIndex(rex.x), sib.getShift(), addressOverride);
                 } else {
-                    return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift());
+                    return new MemoryOperand(segment, sib.getBase(rex.b), sib.getIndex(rex.x), sib.getShift(), addressOverride);
                 }
             } else if (modrm.hasDisplacement()) {
                 RegisterOperand op = (RegisterOperand) modrm.getOperand1(ModRM.A64, ModRM.R64);
@@ -81,7 +75,7 @@ public class OperandDecoder {
                     reg = op.getRegister();
                     reg = getRegister(reg, rex.b);
                 }
-                return new MemoryOperand(segment, reg, displacement);
+                return new MemoryOperand(segment, reg, displacement, addressOverride);
             } else {
                 Operand op = modrm.getOperand1REX(ModRM.A64, type);
                 if (op instanceof RegisterOperand) {
@@ -97,7 +91,7 @@ public class OperandDecoder {
                     Register base = mem.getBase();
                     assert mem.getIndex() == null;
                     assert mem.getDisplacement() == 0;
-                    return new MemoryOperand(segment, getRegister(base, rex.b));
+                    return new MemoryOperand(segment, getRegister(base, rex.b), addressOverride);
                 } else {
                     return seg(op);
                 }
@@ -106,12 +100,12 @@ public class OperandDecoder {
         if (modrm.hasSIB()) {
             if (modrm.hasDisplacement()) {
                 if (sib.base == 0b101 && modrm.getMod() != 0) {
-                    return new MemoryOperand(segment, Register.RBP, sib.getIndex(), sib.getShift(), displacement);
+                    return new MemoryOperand(segment, Register.RBP, sib.getIndex(), sib.getShift(), displacement, addressOverride);
                 } else {
-                    return new MemoryOperand(segment, sib.getBase(), sib.getIndex(), sib.getShift(), displacement);
+                    return new MemoryOperand(segment, sib.getBase(), sib.getIndex(), sib.getShift(), displacement, addressOverride);
                 }
             } else {
-                return new MemoryOperand(segment, sib.getBase(), sib.getIndex(), sib.getShift());
+                return new MemoryOperand(segment, sib.getBase(), sib.getIndex(), sib.getShift(), addressOverride);
             }
         } else {
             if (modrm.hasDisplacement()) {
@@ -120,7 +114,7 @@ public class OperandDecoder {
                 if (op != null) {
                     reg = op.getRegister();
                 }
-                return new MemoryOperand(segment, reg, displacement);
+                return new MemoryOperand(segment, reg, displacement, addressOverride);
             } else {
                 return seg(modrm.getOperand1(ModRM.A64, type));
             }

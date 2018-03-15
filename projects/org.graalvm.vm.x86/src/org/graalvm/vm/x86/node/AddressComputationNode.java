@@ -13,6 +13,7 @@ public class AddressComputationNode extends AMD64Node {
     private final Register baseReg;
     private final Register indexReg;
     private final SegmentRegister segment;
+    private final boolean addressOverride;
 
     @Child private ReadNode base;
     @Child private ReadNode index;
@@ -24,6 +25,7 @@ public class AddressComputationNode extends AMD64Node {
         baseReg = operand.getBase();
         indexReg = operand.getIndex();
         segment = operand.getSegment();
+        addressOverride = operand.isAddressOverride();
 
         assert scale >= 0 && scale <= 3;
 
@@ -42,7 +44,24 @@ public class AddressComputationNode extends AMD64Node {
         }
     }
 
-    public long execute(VirtualFrame frame) {
+    public long executeI32(VirtualFrame frame) {
+        int seg = 0;
+        if (segment != null) {
+            seg = segmentBase.executeI32(frame);
+        }
+        int baseaddr = 0;
+        if (base != null) {
+            baseaddr = base.executeI32(frame);
+        }
+        int indexval = 0;
+        if (index != null) {
+            indexval = index.executeI32(frame);
+        }
+        int addr = seg + (int) displacement + baseaddr + (indexval << scale);
+        return addr;
+    }
+
+    public long executeI64(VirtualFrame frame) {
         long seg = 0;
         if (segment != null) {
             seg = segmentBase.executeI64(frame);
@@ -57,5 +76,13 @@ public class AddressComputationNode extends AMD64Node {
         }
         long addr = seg + displacement + baseaddr + (indexval << scale);
         return addr;
+    }
+
+    public long execute(VirtualFrame frame) {
+        if (addressOverride) {
+            return executeI32(frame);
+        } else {
+            return executeI64(frame);
+        }
     }
 }

@@ -17,40 +17,50 @@ public class MemoryOperand extends Operand {
     private final Register index;
     private final int scale;
     private final long displacement;
+    private final boolean addressOverride;
 
     public MemoryOperand(SegmentRegister segment, Register base) {
+        this(segment, base, false);
+    }
+
+    public MemoryOperand(SegmentRegister segment, Register base, boolean addressOverride) {
+        this.addressOverride = addressOverride;
         this.segment = segment;
-        this.base = base.get64bit();
+        this.base = getRegister(base);
         this.index = null;
         this.scale = 0;
         this.displacement = 0;
     }
 
-    public MemoryOperand(SegmentRegister segment, Register base, long displacement) {
+    public MemoryOperand(SegmentRegister segment, Register base, long displacement, boolean addressOverride) {
+        this.addressOverride = addressOverride;
         this.segment = segment;
-        this.base = base.get64bit();
+        this.base = getRegister(base);
         this.index = null;
         this.scale = 0;
         this.displacement = displacement;
     }
 
-    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale) {
+    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale, boolean addressOverride) {
+        this.addressOverride = addressOverride;
         this.segment = segment;
-        this.base = base != null ? base.get64bit() : null;
-        this.index = index != null ? index.get64bit() : null;
+        this.base = base != null ? getRegister(base) : null;
+        this.index = index != null ? getRegister(index) : null;
         this.scale = scale;
         this.displacement = 0;
     }
 
-    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale, long displacement) {
+    public MemoryOperand(SegmentRegister segment, Register base, Register index, int scale, long displacement, boolean addressOverride) {
+        this.addressOverride = addressOverride;
         this.segment = segment;
-        this.base = base != null ? base.get64bit() : base;
-        this.index = index != null ? index.get64bit() : index;
+        this.base = base != null ? getRegister(base) : base;
+        this.index = index != null ? getRegister(index) : index;
         this.scale = scale;
         this.displacement = displacement;
     }
 
-    public MemoryOperand(SegmentRegister segment, long displacement) {
+    public MemoryOperand(SegmentRegister segment, long displacement, boolean addressOverride) {
+        this.addressOverride = addressOverride;
         this.segment = segment;
         this.base = null;
         this.index = null;
@@ -59,10 +69,21 @@ public class MemoryOperand extends Operand {
     }
 
     public MemoryOperand getInSegment(SegmentRegister seg) {
-        MemoryOperand op = new MemoryOperand(seg, base, index, scale, displacement);
+        MemoryOperand op = new MemoryOperand(seg, base, index, scale, displacement, addressOverride);
         assert op.base == base;
         assert op.index == index;
+        assert op.scale == scale;
+        assert op.displacement == displacement;
+        assert op.segment == seg;
         return op;
+    }
+
+    private Register getRegister(Register reg) {
+        if (addressOverride) {
+            return reg.get32bit();
+        } else {
+            return reg.get64bit();
+        }
     }
 
     public SegmentRegister getSegment() {
@@ -83,6 +104,10 @@ public class MemoryOperand extends Operand {
 
     public long getDisplacement() {
         return displacement;
+    }
+
+    public boolean isAddressOverride() {
+        return addressOverride;
     }
 
     @Override

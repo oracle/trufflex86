@@ -94,6 +94,10 @@ public enum Register {
         return id;
     }
 
+    public Register get32bit() {
+        return getSize(4);
+    }
+
     public Register get64bit() {
         return getSize(8);
     }
