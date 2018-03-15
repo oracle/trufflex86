@@ -63,6 +63,10 @@ public abstract class Mov extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), new ImmediateOperand(imm));
         }
 
+        public Movb(long pc, byte[] instruction, Operand operand, byte imm) {
+            super(pc, instruction, operand, new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (needsChildren()) {

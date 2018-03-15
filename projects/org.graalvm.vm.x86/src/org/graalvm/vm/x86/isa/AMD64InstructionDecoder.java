@@ -22,6 +22,7 @@ import org.graalvm.vm.x86.isa.instruction.Bt.Btw;
 import org.graalvm.vm.x86.isa.instruction.Call.CallAbsolute;
 import org.graalvm.vm.x86.isa.instruction.Call.CallRelative;
 import org.graalvm.vm.x86.isa.instruction.Cdq;
+import org.graalvm.vm.x86.isa.instruction.Cld;
 import org.graalvm.vm.x86.isa.instruction.Cmov.Cmovael;
 import org.graalvm.vm.x86.isa.instruction.Cmov.Cmovaeq;
 import org.graalvm.vm.x86.isa.instruction.Cmov.Cmovaew;
@@ -266,6 +267,10 @@ import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorw;
 
 public class AMD64InstructionDecoder {
+    private static final Register[] REG8N = {Register.AL, Register.CL, Register.DL, Register.BL, Register.AH, Register.CH, Register.DH,
+                    Register.BH};
+    private static final Register[] REG8 = {Register.AL, Register.CL, Register.DL, Register.BL, Register.SPL, Register.BPL, Register.SIL, Register.DIL, Register.R8B, Register.R9B, Register.R10B,
+                    Register.R11B, Register.R12B, Register.R13B, Register.R14B, Register.R15B};
     private static final Register[] REG16 = {Register.AX, Register.CX, Register.DX, Register.BX, Register.SP, Register.BP, Register.SI, Register.DI, Register.R8W, Register.R9W, Register.R10W,
                     Register.R11W, Register.R12W, Register.R13W, Register.R14W, Register.R15W};
     private static final Register[] REG32 = {Register.EAX, Register.ECX, Register.EDX, Register.EBX, Register.ESP, Register.EBP, Register.ESI, Register.EDI, Register.R8D, Register.R9D, Register.R10D,
@@ -466,6 +471,8 @@ public class AMD64InstructionDecoder {
                 } else {
                     return new Cwde(pc, Arrays.copyOf(instruction, instructionLength));
                 }
+            case AMD64Opcode.CLD:
+                return new Cld(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.CMP_AL_I: {
                 byte imm = code.read8();
                 instruction[instructionLength++] = imm;
@@ -752,6 +759,19 @@ public class AMD64InstructionDecoder {
                 Args args = new Args(code, rex, segment, addressOverride);
                 byte imm = code.read8();
                 return new Movb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+            }
+            case AMD64Opcode.MOV_R8_I + 0:
+            case AMD64Opcode.MOV_R8_I + 1:
+            case AMD64Opcode.MOV_R8_I + 2:
+            case AMD64Opcode.MOV_R8_I + 3:
+            case AMD64Opcode.MOV_R8_I + 4:
+            case AMD64Opcode.MOV_R8_I + 5:
+            case AMD64Opcode.MOV_R8_I + 6:
+            case AMD64Opcode.MOV_R8_I + 7: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                Register reg = getRegister8(op, rex);
+                return new Movb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg), imm);
             }
             case AMD64Opcode.MOV_R_I + 0:
             case AMD64Opcode.MOV_R_I + 1:
@@ -2143,6 +2163,20 @@ public class AMD64InstructionDecoder {
             default:
                 return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
         }
+    }
+
+    private static Register getRegister8(byte op, AMD64RexPrefix rex) {
+        if (rex != null) {
+            return getRegister8(op, rex.b);
+        } else {
+            int reg = (op & 0x7);
+            return REG8N[reg];
+        }
+    }
+
+    private static Register getRegister8(byte op, boolean r) {
+        int reg = (op & 0x7) + (r ? 8 : 0);
+        return REG8[reg];
     }
 
     private static Register getRegister16(byte op, boolean r) {

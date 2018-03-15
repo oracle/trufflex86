@@ -27,6 +27,8 @@ public class AMD64Opcode {
     public static final byte CDQE = (byte) 0x98;
     public static final byte CDQ = (byte) 0x99;
 
+    public static final byte CLD = (byte) 0xFC;
+
     public static final byte CMOVA = 0x47;
     public static final byte CMOVAE = 0x43;
     public static final byte CMOVB = 0x42;
@@ -118,6 +120,7 @@ public class AMD64Opcode {
     public static final byte MOV_RM_I = (byte) 0xC7;
     public static final byte MOV_R_RM = (byte) 0x8B;
     public static final byte MOV_RM_I8 = (byte) 0xC6;
+    public static final byte MOV_R8_I = (byte) 0xB0;
     public static final byte MOV_R_I = (byte) 0xB8;
 
     public static final byte MOVD_X_RM = 0x6E;
