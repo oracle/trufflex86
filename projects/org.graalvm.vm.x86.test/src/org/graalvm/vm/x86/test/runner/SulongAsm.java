@@ -106,6 +106,16 @@ public class SulongAsm {
     }
 
     @Test
+    public void stosb001() throws Exception {
+        TestRunner.run("stosb001.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void stosb002() throws Exception {
+        TestRunner.run("stosb002.elf", new String[0], "", "buf: CC CC 42 42 42 42 42 42 42 42 42 42 CC CC CC CC\n", "", 1);
+    }
+
+    @Test
     public void qemuBsx() throws Exception {
         String stdout = "bsrw       A=0000000000000000 R=0000000012345678 1\n" +
                         "bsrw       A=0000000012340128 R=0000000012340008 0\n" +
@@ -210,5 +220,15 @@ public class SulongAsm {
                         "lea 0x4000(%%rdx, %%rcx, 4) = 00035ae900004018\n" +
                         "lea 0x4000(%%rsi, %%rcx, 8) = 00060a2500004030\n";
         TestRunner.run("qemu-lea.elf", new String[0], "", stdout, "", 0);
+    }
+
+    @Test
+    public void syscall001() throws Exception {
+        TestRunner.run("syscall001.elf", new String[0], "", "Hello world!\n", "", 42);
+    }
+
+    @Test
+    public void syscall002() throws Exception {
+        TestRunner.run("syscall002.elf", new String[0], "", "Hello world!\n", "", 42);
     }
 }
