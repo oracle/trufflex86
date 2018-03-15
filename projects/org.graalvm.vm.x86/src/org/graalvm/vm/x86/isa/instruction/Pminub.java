@@ -35,7 +35,7 @@ public class Pminub extends AMD64Instruction {
             ArchitecturalState state = getContextReference().get().getState();
             readA = operand1.createRead(state, next());
             readB = operand2.createRead(state, next());
-            writeDst = operand2.createWrite(state, next());
+            writeDst = operand1.createWrite(state, next());
         }
     }
 
