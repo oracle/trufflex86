@@ -1,11 +1,19 @@
 package org.graalvm.vm.memory;
 
+import java.util.logging.Logger;
+
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
+import com.everyware.util.log.Levels;
+import com.everyware.util.log.Trace;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class MemoryPage {
+    private static final Logger log = Trace.create(MemoryPage.class);
+
     public final Memory memory;
     public final long base;
     public final long size;
@@ -169,6 +177,9 @@ public class MemoryPage {
     }
 
     public void setI8(long addr, byte val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -180,6 +191,9 @@ public class MemoryPage {
     }
 
     public void setI16(long addr, short val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -191,6 +205,9 @@ public class MemoryPage {
     }
 
     public void setI32(long addr, int val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -202,6 +219,9 @@ public class MemoryPage {
     }
 
     public void setI64(long addr, long val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -213,6 +233,9 @@ public class MemoryPage {
     }
 
     public void setI128(long addr, Vector128 val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -224,6 +247,9 @@ public class MemoryPage {
     }
 
     public void setI256(long addr, Vector256 val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -235,6 +261,9 @@ public class MemoryPage {
     }
 
     public void setI512(long addr, Vector512 val) {
+        if (x) {
+            invalidateCodeCache(addr);
+        }
         if (!w) {
             throw new SegmentationViolation(addr);
         }
@@ -254,6 +283,11 @@ public class MemoryPage {
         } catch (SegmentationViolation e) {
             throw new SegmentationViolation(addr);
         }
+    }
+
+    @TruffleBoundary
+    private static void invalidateCodeCache(long addr) {
+        log.log(Levels.DEBUG, () -> String.format("Invalidate code cache: write to 0x%016x", addr));
     }
 
     @Override

@@ -5,7 +5,13 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.graalvm.vm.memory.ByteMemory;
+import org.graalvm.vm.memory.Memory;
+import org.graalvm.vm.memory.MemoryPage;
+import org.graalvm.vm.memory.PosixMemory;
+import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.Errno;
@@ -16,8 +22,11 @@ import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
 import com.everyware.posix.api.io.Stat;
+import com.everyware.posix.api.mem.Mman;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.VFS;
+import com.everyware.util.BitTest;
+import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
 
 public class PosixEnvironment {
@@ -65,6 +74,26 @@ public class PosixEnvironment {
 
     private PosixPointer posixPointer(long addr) {
         return mem.getPosixPointer(addr);
+    }
+
+    private long getPointer(PosixPointer ptr, boolean r, boolean w, boolean x) {
+        PosixMemory pmem = new PosixMemory(ptr, false);
+        MemoryPage page = mem.allocate(pmem, mem.roundToPageSize(ptr.size()), ptr.getName());
+        page.r = r;
+        page.w = w;
+        page.x = x;
+        return page.getBase();
+    }
+
+    private long getPointer(PosixPointer ptr, long address, long size, boolean r, boolean w, boolean x) {
+        long addr = mem.addr(address);
+        Memory memory = new PosixMemory(ptr, false);
+        MemoryPage page = new MemoryPage(memory, addr, size, ptr.getName());
+        page.r = r;
+        page.w = w;
+        page.x = x;
+        mem.add(page);
+        return address;
     }
 
     public void setStandardIn(InputStream in) {
@@ -303,6 +332,86 @@ public class PosixEnvironment {
 
     public long getpid() {
         return posix.getpid();
+    }
+
+    public long mmap(long addr, long length, int pr, int fl, int fildes, long offset) throws SyscallException {
+        int flags = fl | Mman.MAP_PRIVATE;
+        int prot = pr | Mman.PROT_WRITE;
+        try {
+            if (mem.pageStart(addr) != mem.addr(addr)) {
+                throw new PosixException(Errno.EINVAL);
+            }
+            if (length == 0) {
+                throw new PosixException(Errno.EINVAL);
+            }
+            if (BitTest.test(flags, Mman.MAP_ANONYMOUS) && BitTest.test(flags, Mman.MAP_PRIVATE)) {
+                if (strace) {
+                    log.log(Levels.INFO, () -> String.format("mmap(0x%016x, %d, %s, %s, %d, %d)", addr,
+                                    length, Mman.prot(prot), Mman.flags(flags), fildes, offset));
+                }
+                MemoryPage page;
+                if (BitTest.test(flags, Mman.MAP_FIXED)) {
+                    Memory bytes = new ByteMemory(length, false);
+                    page = new MemoryPage(bytes, mem.addr(addr), mem.roundToPageSize(length));
+                    mem.add(page);
+                } else {
+                    page = mem.allocate(mem.roundToPageSize(length));
+                }
+                page.x = BitTest.test(prot, Mman.PROT_EXEC);
+                return page.base;
+            }
+            PosixPointer p = new PosixVirtualMemoryPointer(mem, addr);
+            PosixPointer ptr = posix.mmap(p, length, prot, flags, fildes, offset);
+            boolean r = BitTest.test(prot, Mman.PROT_READ);
+            boolean w = BitTest.test(prot, Mman.PROT_WRITE);
+            boolean x = BitTest.test(prot, Mman.PROT_EXEC);
+            if (BitTest.test(flags, Mman.MAP_FIXED)) {
+                return getPointer(ptr, addr, mem.roundToPageSize(length), r, w, x);
+            } else {
+                assert mem.roundToPageSize(ptr.size()) == mem.roundToPageSize(length);
+                return getPointer(ptr, r, w, x);
+            }
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "mmap failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int munmap(long addr, long length) throws SyscallException {
+        if (strace) {
+            log.log(Level.INFO, () -> String.format("munmap(0x%016x, %s)", addr, length));
+        }
+        try {
+            // return posix.munmap(posixPointer(addr), length);
+            mem.remove(addr, length);
+            return 0;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "munmap failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int mprotect(long addr, long size, int prot) throws SyscallException {
+        if (strace) {
+            log.log(Level.INFO, () -> String.format("mprotect(0x%016x, %d, %s)", addr, size, Mman.prot(prot)));
+        }
+        try {
+            MemoryPage page = mem.get(addr);
+            // TODO: handle length properly
+            if (page.base == mem.addr(addr)) {
+                // TODO: this is a hack because the length is not handled properly
+                page.r |= BitTest.test(prot, Mman.PROT_READ);
+                page.w |= BitTest.test(prot, Mman.PROT_WRITE);
+                page.x |= BitTest.test(prot, Mman.PROT_EXEC);
+            }
+        } catch (SegmentationViolation e) {
+            throw new SyscallException(Errno.ENOMEM);
+        }
+        return 0;
     }
 
     public Posix getPosix() {

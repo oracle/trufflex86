@@ -12,18 +12,24 @@ import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
+import com.everyware.posix.api.Errno;
+import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.util.io.Endianess;
+import com.oracle.truffle.api.CompilerDirectives;
 
 public class VirtualMemory {
+    private static final boolean DEBUG = false;
+
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
 
-    public static final long POINTER_BASE = 0x8000000000000000L;
+    public static final long POINTER_BASE = 0x0800000000000000L;
+    public static final long POINTER_END = 0x8000000000000000L;
 
     private final NavigableMap<Long, MemoryPage> pages;
 
-    // private MemoryAllocator allocator;
+    private MemoryAllocator allocator;
 
     private long mask;
 
@@ -39,14 +45,22 @@ public class VirtualMemory {
 
     public VirtualMemory() {
         pages = new TreeMap<>(Long::compareUnsigned);
-        // allocator = new MemoryAllocator(POINTER_BASE, POINTER_END - POINTER_BASE);
+        allocator = new MemoryAllocator(POINTER_BASE, POINTER_END - POINTER_BASE);
         brk = 0;
         reportedBrk = brk;
-        debugMemory = false;
+        debugMemory = DEBUG;
         cache = null;
         cache2 = null;
         cacheHits = 0;
         cacheMisses = 0;
+        set64bit();
+    }
+
+    public void set32bit() {
+        mask = 0x00000000FFFFFFFFL;
+    }
+
+    public void set64bit() {
         mask = 0xFFFFFFFFFFFFFFFFL;
     }
 
@@ -96,9 +110,122 @@ public class VirtualMemory {
     }
 
     public void add(MemoryPage page) {
+        boolean ok = Long.compareUnsigned(page.end, POINTER_BASE) <= 0 || Long.compareUnsigned(page.end, POINTER_END) > 0;
+        if (!ok) {
+            allocator.allocat(page.base, page.size);
+        }
+        try {
+            MemoryPage oldPage = get(page.base);
+            if (page.contains(oldPage.base) && page.contains(oldPage.end - 1)) {
+                pages.remove(oldPage.base);
+            } else {
+                if (DEBUG) {
+                    CompilerDirectives.transferToInterpreter();
+                    System.out.printf("Splitting old page: 0x%016X-0x%016X, new page is 0x%016X-0x%016X\n", oldPage.base, oldPage.end, page.base, page.end);
+                }
+                long size1 = page.base - oldPage.base;
+                long size2 = oldPage.end - page.end;
+                if (DEBUG) {
+                    CompilerDirectives.transferToInterpreter();
+                    System.out.printf("size1 = 0x%016X, size2 = 0x%016X\n", size1, size2);
+                }
+                if (size1 > 0) {
+                    MemoryPage p = new MemoryPage(oldPage, oldPage.base, size1);
+                    pages.put(oldPage.base, p);
+                    cache = null;
+                    cache2 = null;
+                    if (DEBUG) {
+                        CompilerDirectives.transferToInterpreter();
+                        System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X]\n", oldPage.base, pages.get(oldPage.base).base, pages.get(oldPage.base).end);
+                    }
+                }
+                if (size2 > 0) {
+                    MemoryPage p = new MemoryPage(oldPage, page.end, size2);
+                    pages.put(page.end, p);
+                    cache = null;
+                    cache2 = null;
+                    if (DEBUG) {
+                        CompilerDirectives.transferToInterpreter();
+                        System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X]\n", page.end, pages.get(page.end).base, pages.get(page.end).end);
+                    }
+                }
+            }
+        } catch (SegmentationViolation e) {
+        }
         pages.put(page.base, page);
         cache = null;
         cache2 = null;
+        if (page.base != pageStart(page.base)) {
+            if (DEBUG) {
+                System.out.printf("bad page start: 0x%016X, should be 0x%016X\n", page.base,
+                                pageStart(page.base));
+            }
+            long base = pageStart(page.base);
+            long size = page.base - base;
+            try {
+                get(base);
+            } catch (SegmentationViolation e) {
+                Memory buf = new ByteMemory(size);
+                MemoryPage bufpage = new MemoryPage(buf, base, size, page.name);
+                pages.put(base, bufpage);
+                cache = null;
+                cache2 = null;
+            }
+        }
+        if (DEBUG) {
+            printLayout();
+        }
+    }
+
+    public void remove(long addr, long length) throws PosixException {
+        cache = null;
+        cache2 = null;
+        long address = addr(addr);
+        if ((address & ~PAGE_MASK) != 0) {
+            throw new PosixException(Errno.EINVAL);
+        }
+        try {
+            for (long p = address; Long.compareUnsigned(p, address + length) < 0;) {
+                MemoryPage page = get(p);
+                if (p != page.base) {
+                    // TODO: split
+                    throw new AssertionError("split not yet implemented");
+                }
+                pages.remove(page.base);
+                allocator.free(page.base, page.size);
+                p = page.end;
+            }
+        } catch (SegmentationViolation e) {
+            // swallow
+        }
+    }
+
+    public MemoryPage allocate(long size) {
+        long base = allocator.alloc(size);
+        if (base == 0) {
+            return null;
+        } else {
+            Memory mem = new ByteMemory(size);
+            MemoryPage page = new MemoryPage(mem, base, size);
+            add(page);
+            return page;
+        }
+    }
+
+    public MemoryPage allocate(Memory memory, long size, String name) {
+        long base = allocator.alloc(size);
+        if (base == 0) {
+            return null;
+        } else {
+            MemoryPage page = new MemoryPage(memory, base, size, name);
+            add(page);
+            return page;
+        }
+    }
+
+    public void free(long address) {
+        MemoryPage page = pages.remove(address);
+        allocator.free(address, page.size);
     }
 
     public void printAccessError(long addr, MemoryPage page) {

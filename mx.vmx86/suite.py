@@ -110,6 +110,18 @@ suite = {
       "javaCompliance" : "1.8",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
+    },
+
+    "org.graalvm.vm.memory.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.memory",
+        "mx:JUNIT",
+      ],
+      "javaCompliance" : "1.8",
+      "workingSets" : "vmx86",
+      "license" : "GPLv3",
     }
   },
 
@@ -144,7 +156,8 @@ suite = {
       "subDir" : "vmx86",
       "sourcesPath" : "build/vmx86_test.src.zip",
       "dependencies" : [
-        "org.graalvm.vm.x86.test"
+        "org.graalvm.vm.x86.test",
+        "org.graalvm.vm.memory.test"
       ],
       "distDependencies" : [
         "CORE",
