@@ -172,6 +172,7 @@ import org.graalvm.vm.x86.isa.instruction.Or.Orw;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128b;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128d;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128w;
+import org.graalvm.vm.x86.isa.instruction.Pminub;
 import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
@@ -1907,6 +1908,13 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment);
                             return new Pcmpeq128d(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    case AMD64Opcode.PMINUB_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment);
+                            return new Pminub(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }

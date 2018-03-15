@@ -285,6 +285,26 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 minUnsignedBytes(Vector128 vec) {
+        byte[] a = getBytes();
+        byte[] b = vec.getBytes();
+        byte[] result = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (byte) Math.min(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 maxUnsignedBytes(Vector128 vec) {
+        byte[] a = getBytes();
+        byte[] b = vec.getBytes();
+        byte[] result = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (byte) Math.max(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
+        }
+        return new Vector128(result);
+    }
+
     @Override
     public int hashCode() {
         long result = 0;
