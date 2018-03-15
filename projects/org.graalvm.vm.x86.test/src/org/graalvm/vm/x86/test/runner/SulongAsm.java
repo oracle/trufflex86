@@ -116,6 +116,56 @@ public class SulongAsm {
     }
 
     @Test
+    public void seto001() throws Exception {
+        TestRunner.run("seto001.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto002() throws Exception {
+        TestRunner.run("seto002.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto003() throws Exception {
+        TestRunner.run("seto003.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto004() throws Exception {
+        TestRunner.run("seto004.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto005() throws Exception {
+        TestRunner.run("seto005.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto006() throws Exception {
+        TestRunner.run("seto006.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto007() throws Exception {
+        TestRunner.run("seto007.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto008() throws Exception {
+        TestRunner.run("seto008.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
+    public void seto009() throws Exception {
+        TestRunner.run("seto009.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void seto010() throws Exception {
+        TestRunner.run("seto010.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
     public void qemuBsx() throws Exception {
         String stdout = "bsrw       A=0000000000000000 R=0000000012345678 1\n" +
                         "bsrw       A=0000000012340128 R=0000000012340008 0\n" +
