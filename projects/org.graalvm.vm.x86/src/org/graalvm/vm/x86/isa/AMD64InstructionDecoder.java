@@ -246,6 +246,10 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
 import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
+import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
+import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
+import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddq;
+import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddw;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorb;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
@@ -268,6 +272,7 @@ public class AMD64InstructionDecoder {
         // boolean addressOverride = false;
         boolean isREPZ = false;
         boolean isREPNZ = false;
+        // boolean lock = false;
         SegmentRegister segment = null;
         AMD64RexPrefix rex = null;
         boolean decode = true;
@@ -290,6 +295,11 @@ public class AMD64InstructionDecoder {
                     break;
                 case AMD64InstructionPrefix.REPNZ:
                     isREPNZ = true;
+                    op = code.read8();
+                    instruction[instructionLength++] = op;
+                    break;
+                case AMD64InstructionPrefix.LOCK:
+                    // lock = true;
                     op = code.read8();
                     instruction[instructionLength++] = op;
                     break;
@@ -2056,6 +2066,20 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.SYSCALL:
                         return new Syscall(pc, Arrays.copyOf(instruction, instructionLength));
+                    case AMD64Opcode.XADD_RM8_R8: {
+                        Args args = new Args(code, rex, segment);
+                        return new Xaddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    }
+                    case AMD64Opcode.XADD_RM_R: {
+                        Args args = new Args(code, rex, segment);
+                        if (rex != null && rex.w) {
+                            return new Xaddq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Xaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Xaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
                     default:
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
