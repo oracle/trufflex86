@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include <unistd.h>
+#include <stdio.h>
 
-int main(long p)
+int main(int argc, char** argv)
 {
-	write(1, "Hello world!\n", 13);
-	exit(0);
+	printf("Hello world!\n");
+	return 42;
 }

@@ -18,35 +18,40 @@ LDSTATIC:= $(CCSTATIC)
 
 all: $(ELF_TARGETS)
 
-# glibc static
-%.static.o: %.static.c
-	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[CC]   $@"
-	$(QUIET)$(CC) $(CFLAGS) $(CCSTATIC) -c -o "$@" "$<"
-
-%.static.elf: %.static.o
-	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[CCLD] $@"
-	$(QUIET)$(CC) $(LDFLAGS) $(LDSTATIC) -o "$@" "$<"
-
 # nostdlib
-%.o: %.c
+%.nostdlib.o: %.nostdlib.c
 	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[CC]   $@"
+	$(QUIET)echo "[CC-NSTD]   $@"
 	$(QUIET)$(CC) $(CFLAGS) $(CCNOSTD) -c -o "$@" "$<"
 
-%.elf: %.o lib/_start.o lib/syscall.o lib/libc.o
+lib/libc.o: lib/libc.c
 	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[CCLD] $@"
+	$(QUIET)echo "[CC-NSTD]   $@"
+	$(QUIET)$(CC) $(CFLAGS) $(CCNOSTD) -c -o "$@" "$<"
+
+%.nostdlib.elf: %.nostdlib.o lib/_start.o lib/syscall.o lib/libc.o
+	$(QUIET)mkdir -p $(shell dirname $@)
+	$(QUIET)echo "[CCLD-NSTD] $@"
 	$(QUIET)$(CC) $(LDFLAGS) $(LDNOSTD) -o "$@" lib/_start.o lib/libc.o lib/syscall.o "$<"
 
 # assembler
 %.o: %.s
 	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[AS]   $@"
+	$(QUIET)echo "[AS]        $@"
 	$(QUIET)$(CC) -c -o "$@" "$<"
+
+%.asm.elf: %.asm.o
+	$(QUIET)mkdir -p $(shell dirname $@)
+	$(QUIET)echo "[LD-ASM]    $@"
+	$(QUIET)$(LD) -o "$@" "$<"
+
+# glibc static
+%.o: %.c
+	$(QUIET)mkdir -p $(shell dirname $@)
+	$(QUIET)echo "[CC]        $@"
+	$(QUIET)$(CC) $(CFLAGS) $(CCSTATIC) -c -o "$@" "$<"
 
 %.elf: %.o
 	$(QUIET)mkdir -p $(shell dirname $@)
-	$(QUIET)echo "[LD]   $@"
-	$(QUIET)$(LD) -o "$@" "$<"
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(LDFLAGS) $(LDSTATIC) -o "$@" "$<"

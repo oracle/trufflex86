@@ -13,7 +13,7 @@ public class HelloWorldInterpreterTest {
 
         int code = 0;
 
-        TestRunner.run("hello.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("hello.nostdlib.elf", args, stdin, stdout, stderr, code);
     }
 
     @Test
@@ -26,7 +26,7 @@ public class HelloWorldInterpreterTest {
 
         int code = 0;
 
-        TestRunner.run("helloworld.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("helloworld.asm.elf", args, stdin, stdout, stderr, code);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class HelloWorldInterpreterTest {
 
         int code = 1;
 
-        TestRunner.run("hello-strlen.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("hello-strlen.nostdlib.elf", args, stdin, stdout, stderr, code);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class HelloWorldInterpreterTest {
 
         int code = 0;
 
-        TestRunner.run("strlen.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("strlen.asm.elf", args, stdin, stdout, stderr, code);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class HelloWorldInterpreterTest {
 
         int code = 0;
 
-        TestRunner.run("hello2.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("hello2.asm.elf", args, stdin, stdout, stderr, code);
     }
 
     @Test
@@ -82,6 +82,6 @@ public class HelloWorldInterpreterTest {
 
         int code = 0;
 
-        TestRunner.run("tls.elf", args, stdin, stdout, stderr, code);
+        TestRunner.run("tls.nostdlib.elf", args, stdin, stdout, stderr, code);
     }
 }

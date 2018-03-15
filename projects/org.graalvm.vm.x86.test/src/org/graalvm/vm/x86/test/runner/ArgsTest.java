@@ -3,7 +3,7 @@ package org.graalvm.vm.x86.test.runner;
 import org.junit.Test;
 
 public class ArgsTest {
-    private static final String FILENAME = "args.elf";
+    private static final String FILENAME = "args.nostdlib.elf";
 
     private static String get(String[] args) {
         StringBuilder buf = new StringBuilder("Arguments: ");

@@ -98,6 +98,12 @@ suite = {
       "license" : "GPLv3"
     },
 
+    "org.graalvm.vm.x86.testcases.sulong.asm" : {
+      "subDir" : "tests",
+      "class" : "VMX86TestSuite",
+      "license" : "GPLv3"
+    },
+
     "org.graalvm.vm.x86.test" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
@@ -105,6 +111,7 @@ suite = {
         "org.graalvm.vm.x86",
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
+        "org.graalvm.vm.x86.testcases.sulong.asm",
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8",
@@ -147,7 +154,8 @@ suite = {
       "output" : "mxbuild/testcases",
       "dependencies" : [
         "org.graalvm.vm.x86.testcases.asm",
-        "org.graalvm.vm.x86.testcases.c"
+        "org.graalvm.vm.x86.testcases.c",
+        "org.graalvm.vm.x86.testcases.sulong.asm",
       ],
     },
 
