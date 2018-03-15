@@ -55,21 +55,21 @@ public class AVXRegisterWriteNode extends WriteNode {
 
     @Override
     public void executeI32(VirtualFrame frame, int value) {
-        executeI32(frame, 0, value);
+        executeI32(frame, 15, value);
     }
 
     @Override
     public void executeI64(VirtualFrame frame, long value) {
-        executeI64(frame, 0, value);
+        executeI64(frame, 7, value);
     }
 
     @Override
     public void executeI128(VirtualFrame frame, Vector128 value) {
-        executeI128(frame, 0, value);
+        executeI128(frame, 3, value);
     }
 
     @Override
     public void executeI256(VirtualFrame frame, Vector256 value) {
-        executeI256(frame, 0, value);
+        executeI256(frame, 1, value);
     }
 }

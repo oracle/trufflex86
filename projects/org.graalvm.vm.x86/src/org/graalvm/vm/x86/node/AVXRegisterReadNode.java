@@ -18,37 +18,37 @@ public class AVXRegisterReadNode extends ReadNode {
     @Override
     public byte executeI8(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return (byte) reg.getI32(0);
+        return (byte) reg.getI32(15);
     }
 
     @Override
     public short executeI16(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return (short) reg.getI32(0);
+        return (short) reg.getI32(15);
     }
 
     @Override
     public int executeI32(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return reg.getI32(0);
+        return reg.getI32(15);
     }
 
     @Override
     public long executeI64(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return reg.getI64(0);
+        return reg.getI64(7);
     }
 
     @Override
     public Vector128 executeI128(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return reg.getI128(0);
+        return reg.getI128(3);
     }
 
     @Override
     public Vector256 executeI256(VirtualFrame frame) {
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
-        return reg.getI256(0);
+        return reg.getI256(1);
     }
 
     @Override

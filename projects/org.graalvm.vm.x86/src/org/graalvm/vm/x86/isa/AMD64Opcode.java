@@ -127,6 +127,12 @@ public class AMD64Opcode {
     public static final byte MOVDQU_X_XM = 0x6F;
     public static final byte MOVDQU_XM_X = 0x7F;
 
+    public static final byte MOVHPD_X_M64 = 0x16;
+    public static final byte MOVHPD_M64_X = 0x17;
+
+    public static final byte MOVLPD_X_M64 = 0x12;
+    public static final byte MOVLPD_M64_X = 0x13;
+
     public static final byte MOVNTDQ_M128_X = (byte) 0xE7;
 
     public static final byte MOVSX_R_RM8 = (byte) 0xBE;
