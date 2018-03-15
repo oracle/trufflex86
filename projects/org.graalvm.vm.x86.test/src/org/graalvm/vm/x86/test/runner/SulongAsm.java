@@ -291,4 +291,20 @@ public class SulongAsm {
     public void syscall_getgid001() throws Exception {
         TestRunner.run("syscall-getgid001.elf", new String[0], "", "gid: 1000\n", "", 0);
     }
+
+    @Test
+    public void syscall_write001() throws Exception {
+        TestRunner.run("syscall-write001.elf", new String[0], "", "Hello world!\n", "", 0);
+    }
+
+    @Test
+    public void syscall_writev001() throws Exception {
+        TestRunner.run("syscall-writev001.elf", new String[0], "", "hello world\nwritten: 12\n", "", 0);
+    }
+
+    @Ignore("not yet implemented")
+    @Test
+    public void syscall_writev002() throws Exception {
+        TestRunner.run("syscall-writev002.elf", new String[0], "", "written: -1\nerrno: 22\n", "", 0);
+    }
 }
