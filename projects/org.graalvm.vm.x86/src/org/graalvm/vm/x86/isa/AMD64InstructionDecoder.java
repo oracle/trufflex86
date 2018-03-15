@@ -225,6 +225,7 @@ import org.graalvm.vm.x86.isa.instruction.Setcc.Setns;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Seto;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Setp;
 import org.graalvm.vm.x86.isa.instruction.Setcc.Sets;
+import org.graalvm.vm.x86.isa.instruction.Sfence;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlb;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shll;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
@@ -2078,6 +2079,23 @@ public class AMD64InstructionDecoder {
                             return new Xaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Xaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
+                    case AMD64Opcode.FENCE: {
+                        op = code.read8();
+                        instruction[instructionLength++] = op;
+                        switch (op) {
+                            case AMD64Opcode.SFENCE:
+                            case AMD64Opcode.SFENCE + 1:
+                            case AMD64Opcode.SFENCE + 2:
+                            case AMD64Opcode.SFENCE + 3:
+                            case AMD64Opcode.SFENCE + 4:
+                            case AMD64Opcode.SFENCE + 5:
+                            case AMD64Opcode.SFENCE + 6:
+                            case AMD64Opcode.SFENCE + 7:
+                                return new Sfence(pc, Arrays.copyOf(instruction, instructionLength));
+                            default:
+                                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
                     }
                     default:

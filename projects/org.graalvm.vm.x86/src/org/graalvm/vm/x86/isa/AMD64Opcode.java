@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.isa;
 
 public class AMD64Opcode {
     public static final byte ESCAPE = 0x0F;
+    public static final byte FENCE = (byte) 0xAE;
 
     public static final byte ADD_A_I = 0x05;
     public static final byte ADD_RM8_R = 0x00;
@@ -208,6 +209,8 @@ public class AMD64Opcode {
     public static final byte SETO = (byte) 0x90;
     public static final byte SETP = (byte) 0x9A;
     public static final byte SETS = (byte) 0x98;
+
+    public static final byte SFENCE = (byte) 0xF8;
 
     public static final byte SHL_RM8_1 = (byte) 0xD0;
     public static final byte SHL_RM_1 = (byte) 0xD1;
