@@ -1,14 +1,17 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
+import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
+import com.everyware.math.LongMultiplication;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -40,7 +43,117 @@ public abstract class Imul extends AMD64Instruction {
         writeOF = state.getRegisters().getOF().createWrite();
     }
 
-    public static abstract class Imul2 extends Imul {
+    private static abstract class Imul1 extends Imul {
+        @Child protected ReadNode readOp;
+        @Child protected ReadNode readA;
+        @Child protected WriteNode writeA;
+        @Child protected WriteNode writeD;
+
+        protected Imul1(long pc, byte[] instruction, OperandDecoder operands, int type) {
+            super(pc, instruction, operands.getOperand1(type));
+        }
+
+        protected void createChildrenIfNecessary(Register ra, Register wa) {
+            createChildrenIfNecessary(ra, wa, null);
+        }
+
+        protected void createChildrenIfNecessary(Register ra, Register wa, Register wd) {
+            if (readOp == null) {
+                CompilerDirectives.transferToInterpreter();
+                ArchitecturalState state = getContextReference().get().getState();
+                RegisterAccessFactory regs = state.getRegisters();
+                readOp = operand1.createRead(state, next());
+                readA = regs.getRegister(ra).createRead();
+                writeA = regs.getRegister(wa).createWrite();
+                if (wd != null) {
+                    writeD = regs.getRegister(wd).createWrite();
+                }
+                createFlagNodes(state);
+            }
+        }
+    }
+
+    public static class Imul1b extends Imul1 {
+        public Imul1b(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands, OperandDecoder.R8);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary(Register.AL, Register.AX);
+            byte a = readOp.executeI8(frame);
+            byte b = readA.executeI8(frame);
+            int result = a * b;
+            writeA.executeI16(frame, (short) result);
+            boolean overflow = result != (short) result;
+            writeCF.execute(frame, overflow);
+            writeOF.execute(frame, overflow);
+            return next();
+        }
+    }
+
+    public static class Imul1w extends Imul1 {
+        public Imul1w(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands, OperandDecoder.R16);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary(Register.AX, Register.AX, Register.DX);
+            short a = readOp.executeI16(frame);
+            short b = readA.executeI16(frame);
+            int result = a * b;
+            writeA.executeI16(frame, (short) result);
+            writeD.executeI16(frame, (short) (result >> 16));
+            boolean overflow = result != (short) result;
+            writeCF.execute(frame, overflow);
+            writeOF.execute(frame, overflow);
+            return next();
+        }
+    }
+
+    public static class Imul1l extends Imul1 {
+        public Imul1l(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands, OperandDecoder.R32);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary(Register.EAX, Register.EAX, Register.EDX);
+            int a = readOp.executeI32(frame);
+            int b = readA.executeI32(frame);
+            long result = (long) a * (long) b;
+            writeA.executeI32(frame, (int) result);
+            writeD.executeI32(frame, (int) (result >> 32));
+            boolean overflow = result != (int) result;
+            writeCF.execute(frame, overflow);
+            writeOF.execute(frame, overflow);
+            return next();
+        }
+    }
+
+    public static class Imul1q extends Imul1 {
+        public Imul1q(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands, OperandDecoder.R64);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary(Register.RAX, Register.RAX, Register.RDX);
+            long a = readOp.executeI64(frame);
+            long b = readA.executeI64(frame);
+            long resultL = a * b;
+            long resultH = LongMultiplication.multiplyHigh(a, b);
+            writeA.executeI64(frame, resultL);
+            writeD.executeI64(frame, resultH);
+            boolean overflow = resultH != 0 && resultH != -1;
+            writeCF.execute(frame, overflow);
+            writeOF.execute(frame, overflow);
+            return next();
+        }
+    }
+
+    private static abstract class Imul2 extends Imul {
         @Child protected ReadNode readOp1;
         @Child protected ReadNode readOp2;
         @Child protected WriteNode writeDst;

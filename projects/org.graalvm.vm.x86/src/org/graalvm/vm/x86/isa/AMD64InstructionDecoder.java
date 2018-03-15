@@ -98,6 +98,10 @@ import org.graalvm.vm.x86.isa.instruction.Idiv.Idivb;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivl;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivq;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivw;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imul1b;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imul1l;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imul1q;
+import org.graalvm.vm.x86.isa.instruction.Imul.Imul1w;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imull;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imulq;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imulw;
@@ -176,6 +180,8 @@ import org.graalvm.vm.x86.isa.instruction.Pminub;
 import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popw;
+import org.graalvm.vm.x86.isa.instruction.Popf.Popfq;
+import org.graalvm.vm.x86.isa.instruction.Popf.Popfw;
 import org.graalvm.vm.x86.isa.instruction.Por;
 import org.graalvm.vm.x86.isa.instruction.Prefetch;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
@@ -187,6 +193,8 @@ import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklwd;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushb;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushq;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
+import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfq;
+import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfw;
 import org.graalvm.vm.x86.isa.instruction.Pxor;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
@@ -817,6 +825,8 @@ public class AMD64InstructionDecoder {
                         return new Negb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 4:
                         return new Mulb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    case 5:
+                        return new Imul1b(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 6:
                         return new Divb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 7:
@@ -866,6 +876,14 @@ public class AMD64InstructionDecoder {
                             return new Mulw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Mull(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    case 5:
+                        if (rex != null && rex.w) {
+                            return new Imul1q(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Imul1w(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Imul1l(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         }
                     case 6:
                         if (rex != null && rex.w) {
@@ -929,6 +947,12 @@ public class AMD64InstructionDecoder {
                     return new Popq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
                 }
             }
+            case AMD64Opcode.POPF:
+                if (sizeOverride) {
+                    return new Popfw(pc, Arrays.copyOf(instruction, instructionLength));
+                } else {
+                    return new Popfq(pc, Arrays.copyOf(instruction, instructionLength));
+                }
             case AMD64Opcode.PUSH_R + 0:
             case AMD64Opcode.PUSH_R + 1:
             case AMD64Opcode.PUSH_R + 2:
@@ -950,6 +974,12 @@ public class AMD64InstructionDecoder {
                 instruction[instructionLength++] = imm;
                 return new Pushb(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
             }
+            case AMD64Opcode.PUSHF:
+                if (sizeOverride) {
+                    return new Pushfw(pc, Arrays.copyOf(instruction, instructionLength));
+                } else {
+                    return new Pushfq(pc, Arrays.copyOf(instruction, instructionLength));
+                }
             case AMD64Opcode.RET_NEAR:
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.SCASB: {

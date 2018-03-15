@@ -167,6 +167,8 @@ public class AMD64Opcode {
 
     public static final byte POP_R = 0x58;
 
+    public static final byte POPF = (byte) 0x9D;
+
     public static final byte POR_X_XM = (byte) 0xEB;
 
     public static final byte PREFETCH = 0x18;
@@ -184,6 +186,8 @@ public class AMD64Opcode {
     public static final byte PUSH_FS = (byte) 0xA0;
     public static final byte PUSH_GS = (byte) 0xA8;
     public static final byte PUSH_I8 = 0x6A;
+
+    public static final byte PUSHF = (byte) 0x9C;
 
     public static final byte PXOR_X_XM = (byte) 0xEF;
 
