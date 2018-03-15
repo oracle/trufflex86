@@ -33,6 +33,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_uname = 63;
     public static final int SYS_getcwd = 79;
     public static final int SYS_readlink = 89;
+    public static final int SYS_getuid = 102;
+    public static final int SYS_getgid = 104;
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
@@ -116,6 +118,10 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getcwd(a1, a2);
             case SYS_readlink:
                 return posix.readlink(a1, a2, a3);
+            case SYS_getuid:
+                return posix.getuid();
+            case SYS_getgid:
+                return posix.getgid();
             case SYS_tgkill:
                 throw new ProcessExitException(128 + (int) a3);
             case SYS_openat:

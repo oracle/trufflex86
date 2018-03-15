@@ -282,4 +282,14 @@ public class SulongAsm {
     public void syscall002() throws Exception {
         TestRunner.run("syscall002.elf", new String[0], "", "Hello world!\n", "", 42);
     }
+
+    @Test
+    public void syscall_getuid001() throws Exception {
+        TestRunner.run("syscall-getuid001.elf", new String[0], "", "uid: 1000\n", "", 0);
+    }
+
+    @Test
+    public void syscall_getgid001() throws Exception {
+        TestRunner.run("syscall-getgid001.elf", new String[0], "", "gid: 1000\n", "", 0);
+    }
 }
