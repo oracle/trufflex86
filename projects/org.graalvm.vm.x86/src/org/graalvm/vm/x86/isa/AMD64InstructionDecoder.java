@@ -137,6 +137,7 @@ import org.graalvm.vm.x86.isa.instruction.Mov.Movb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movw;
+import org.graalvm.vm.x86.isa.instruction.Movaps;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovdToReg;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovqToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqa.MovdqaToReg;
@@ -1819,6 +1820,22 @@ public class AMD64InstructionDecoder {
                         instruction[instructionLength++] = (byte) (rel32 >> 16);
                         instruction[instructionLength++] = (byte) (rel32 >> 24);
                         return new Js(pc, Arrays.copyOf(instruction, instructionLength), rel32);
+                    }
+                    case AMD64Opcode.MOVAPS_X_XM: {
+                        if (!sizeOverride && !isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.MOVAPS_XM_X: {
+                        if (!sizeOverride && !isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
                     }
                     case AMD64Opcode.MOVD_X_RM: {
                         if (sizeOverride) {
