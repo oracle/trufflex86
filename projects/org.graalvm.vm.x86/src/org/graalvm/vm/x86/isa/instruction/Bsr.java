@@ -43,11 +43,11 @@ public abstract class Bsr extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            short value = readSrc.executeI16(frame);
+            int value = Short.toUnsignedInt(readSrc.executeI16(frame));
             if (value == 0) {
                 writeZF.execute(frame, true);
             } else {
-                int index = 15 - Integer.numberOfLeadingZeros(value);
+                int index = 31 - Integer.numberOfLeadingZeros(value);
                 writeDst.executeI16(frame, (short) index);
                 writeZF.execute(frame, false);
             }
@@ -67,7 +67,7 @@ public abstract class Bsr extends AMD64Instruction {
             if (value == 0) {
                 writeZF.execute(frame, true);
             } else {
-                int index = 31 - Integer.numberOfTrailingZeros(value);
+                int index = 31 - Integer.numberOfLeadingZeros(value);
                 writeDst.executeI32(frame, index);
                 writeZF.execute(frame, false);
             }
@@ -87,7 +87,7 @@ public abstract class Bsr extends AMD64Instruction {
             if (value == 0) {
                 writeZF.execute(frame, true);
             } else {
-                int index = 63 - Long.numberOfTrailingZeros(value);
+                int index = 63 - Long.numberOfLeadingZeros(value);
                 writeDst.executeI64(frame, index);
                 writeZF.execute(frame, false);
             }
