@@ -27,8 +27,24 @@ public class Vector128 implements Cloneable {
         this.data[1] = low;
     }
 
+    public Vector128(int a1, int a2, int a3, int a4) {
+        this(a1 << 32 | a2, a3 << 32 | a4);
+    }
+
     public Vector128(byte[] data) {
         this(Endianess.get64bitBE(data, 0), Endianess.get64bitBE(data, 8));
+    }
+
+    public Vector128(int[] data) {
+        this(data[0], data[1], data[2], data[3]);
+    }
+
+    public Vector128(float[] data) {
+        this(Float.floatToRawIntBits(data[0]), Float.floatToRawIntBits(data[1]), Float.floatToRawIntBits(data[2]), Float.floatToRawIntBits(data[3]));
+    }
+
+    public Vector128(double[] data) {
+        this(Double.doubleToRawLongBits(data[0]), Double.doubleToRawLongBits(data[1]));
     }
 
     public byte[] getBytes() {
@@ -36,6 +52,26 @@ public class Vector128 implements Cloneable {
         byte[] result = new byte[16];
         Endianess.set64bitBE(result, 0, data[0]);
         Endianess.set64bitBE(result, 8, data[1]);
+        return result;
+    }
+
+    @ExplodeLoop
+    public float[] getFloats() {
+        assert data.length == 2;
+        float[] result = new float[4];
+        for (int i = 0; i < 4; i++) {
+            result[i] = getF32(i);
+        }
+        return result;
+    }
+
+    @ExplodeLoop
+    public double[] getDoubles() {
+        assert data.length == 2;
+        double[] result = new double[2];
+        for (int i = 0; i < 2; i++) {
+            result[i] = getF64(i);
+        }
         return result;
     }
 
@@ -140,6 +176,26 @@ public class Vector128 implements Cloneable {
             result[i] = data[i] ^ x.data[i];
         }
         return new Vector128(result);
+    }
+
+    public Vector128 addDouble(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        double[] sum = new double[a.length];
+        for (int i = 0; i < sum.length; i++) {
+            sum[i] = a[i] + b[i];
+        }
+        return new Vector128(sum);
+    }
+
+    public Vector128 subDouble(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        double[] sum = new double[a.length];
+        for (int i = 0; i < sum.length; i++) {
+            sum[i] = a[i] - b[i];
+        }
+        return new Vector128(sum);
     }
 
     private static long eq(long x, long y, long mask) {

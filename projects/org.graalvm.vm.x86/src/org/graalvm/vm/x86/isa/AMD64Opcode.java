@@ -277,6 +277,8 @@ public class AMD64Opcode {
     public static final byte XOR_R8_RM8 = 0x32;
     public static final byte XOR_R_RM = 0x33;
 
+    public static final byte XORPD_X_XM = 0x57;
+
     // PREFIX: 0x0F (ESCAPE)
     public static final byte SYSCALL = 0x05;
 }

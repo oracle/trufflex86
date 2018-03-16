@@ -6,6 +6,7 @@ import org.graalvm.vm.x86.isa.instruction.Add.Addb;
 import org.graalvm.vm.x86.isa.instruction.Add.Addl;
 import org.graalvm.vm.x86.isa.instruction.Add.Addq;
 import org.graalvm.vm.x86.isa.instruction.Add.Addw;
+import org.graalvm.vm.x86.isa.instruction.Addpd;
 import org.graalvm.vm.x86.isa.instruction.Addsd;
 import org.graalvm.vm.x86.isa.instruction.And.Andb;
 import org.graalvm.vm.x86.isa.instruction.And.Andl;
@@ -162,6 +163,8 @@ import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbw;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movswl;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movswq;
 import org.graalvm.vm.x86.isa.instruction.Movsxd.Movslq;
+import org.graalvm.vm.x86.isa.instruction.Movupd.MovupdToRM;
+import org.graalvm.vm.x86.isa.instruction.Movupd.MovupdToReg;
 import org.graalvm.vm.x86.isa.instruction.Movups.MovupsToRM;
 import org.graalvm.vm.x86.isa.instruction.Movups.MovupsToReg;
 import org.graalvm.vm.x86.isa.instruction.Movzx.Movzbl;
@@ -281,6 +284,7 @@ import org.graalvm.vm.x86.isa.instruction.Xor.Xorb;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorw;
+import org.graalvm.vm.x86.isa.instruction.Xorpd;
 
 public class AMD64InstructionDecoder {
     private static final Register[] REG8N = {Register.AL, Register.CL, Register.DL, Register.BL, Register.AH, Register.CH, Register.DH,
@@ -530,6 +534,10 @@ public class AMD64InstructionDecoder {
                     case 4: {
                         byte imm = code.read8();
                         return new Andb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                    }
+                    case 5: {
+                        byte imm = code.read8();
+                        return new Subb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                     }
                     case 7: {
                         byte imm = code.read8();
@@ -1524,6 +1532,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
                             return new Addsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Addpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
@@ -2037,6 +2047,8 @@ public class AMD64InstructionDecoder {
                             return new MovupsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new MovsdToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new MovupdToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
@@ -2047,6 +2059,8 @@ public class AMD64InstructionDecoder {
                             return new MovupsToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new MovsdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new MovupdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
@@ -2294,6 +2308,14 @@ public class AMD64InstructionDecoder {
                             return new Xaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Xaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
+                    case AMD64Opcode.XORPD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Xorpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.FENCE: {
