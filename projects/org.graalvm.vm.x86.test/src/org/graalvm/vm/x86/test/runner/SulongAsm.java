@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.test.runner;
 
+import java.nio.file.Paths;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -305,6 +307,13 @@ public class SulongAsm {
     @Test
     public void syscall_writev002() throws Exception {
         TestRunner.run("syscall-writev002.elf", new String[0], "", "written: -1\nerrno: 22\n", "", 0);
+    }
+
+    @Test
+    public void syscall_getcwd001() throws Exception {
+        String cwd = Paths.get(".").toAbsolutePath().normalize().toString();
+        String stdout = "len: " + (cwd.length() + 1) + "\nvalue: '" + cwd + "'\n";
+        TestRunner.run("syscall-getcwd001.elf", new String[0], "", stdout, "", 0);
     }
 
     @Test

@@ -244,7 +244,8 @@ public class PosixEnvironment {
     public long getcwd(long buf, long size) throws SyscallException {
         try {
             posix.getcwd(posixPointer(buf), size);
-            return buf;
+            String cwd = cstr(buf);
+            return cwd.length() + 1;
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "getcwd failed: " + Errno.toString(e.getErrno()));
