@@ -306,4 +306,24 @@ public class SulongAsm {
     public void syscall_writev002() throws Exception {
         TestRunner.run("syscall-writev002.elf", new String[0], "", "written: -1\nerrno: 22\n", "", 0);
     }
+
+    @Test
+    public void xadd001() throws Exception {
+        TestRunner.run("xadd001.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xadd002() throws Exception {
+        TestRunner.run("xadd002.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xadd003() throws Exception {
+        TestRunner.run("xadd003.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xadd004() throws Exception {
+        TestRunner.run("xadd004.elf", new String[0], "", "", "", 1);
+    }
 }
