@@ -87,6 +87,16 @@ public class SulongAsm {
     }
 
     @Test
+    public void bswap001() throws Exception {
+        TestRunner.run("bswap001.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void bswap002() throws Exception {
+        TestRunner.run("bswap002.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
     public void cpuid002() throws Exception {
         TestRunner.run("cpuid002.elf", new String[0], "", "'VMX86onGraal'\n", "", 0);
     }

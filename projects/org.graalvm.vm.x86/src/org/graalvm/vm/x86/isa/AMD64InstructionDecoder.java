@@ -19,6 +19,8 @@ import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfw;
 import org.graalvm.vm.x86.isa.instruction.Bsr.Bsrl;
 import org.graalvm.vm.x86.isa.instruction.Bsr.Bsrq;
 import org.graalvm.vm.x86.isa.instruction.Bsr.Bsrw;
+import org.graalvm.vm.x86.isa.instruction.Bswap.Bswapl;
+import org.graalvm.vm.x86.isa.instruction.Bswap.Bswapq;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btl;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btq;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btw;
@@ -1564,6 +1566,22 @@ public class AMD64InstructionDecoder {
                             return new Bsrw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Bsrl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
+                    case AMD64Opcode.BSWAP:
+                    case AMD64Opcode.BSWAP + 1:
+                    case AMD64Opcode.BSWAP + 2:
+                    case AMD64Opcode.BSWAP + 3:
+                    case AMD64Opcode.BSWAP + 4:
+                    case AMD64Opcode.BSWAP + 5:
+                    case AMD64Opcode.BSWAP + 6:
+                    case AMD64Opcode.BSWAP + 7: {
+                        if (rex != null && rex.w) {
+                            Register reg = getRegister64(op2, rex.r);
+                            return new Bswapq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
+                        } else {
+                            Register reg = getRegister32(op2, rex != null ? rex.r : false);
+                            return new Bswapl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
                         }
                     }
                     case AMD64Opcode.BT_RM_R: {
