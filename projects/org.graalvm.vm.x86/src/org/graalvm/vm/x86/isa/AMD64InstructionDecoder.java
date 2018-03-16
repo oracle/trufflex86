@@ -137,6 +137,7 @@ import org.graalvm.vm.x86.isa.instruction.Mov.Movb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movw;
+import org.graalvm.vm.x86.isa.instruction.Movapd;
 import org.graalvm.vm.x86.isa.instruction.Movaps;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovdToReg;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovqToReg;
@@ -1850,19 +1851,23 @@ public class AMD64InstructionDecoder {
                         return new Js(pc, Arrays.copyOf(instruction, instructionLength), rel32);
                     }
                     case AMD64Opcode.MOVAPS_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Movapd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
-                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.MOVAPS_XM_X: {
+                        Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                        } else if (sizeOverride) {
+                            return new Movapd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                         } else {
-                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.MOVD_X_RM: {
