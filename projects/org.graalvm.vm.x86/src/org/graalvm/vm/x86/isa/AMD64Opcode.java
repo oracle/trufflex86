@@ -67,6 +67,8 @@ public class AMD64Opcode {
 
     public static final byte CVTSI2SD = 0x2A;
 
+    public static final byte DIVSD_X_XM = 0x5E;
+
     public static final byte IDIV_RM8 = (byte) 0xF6;
     public static final byte IDIV_RM = (byte) 0xF7;
 
@@ -165,6 +167,8 @@ public class AMD64Opcode {
 
     public static final byte MUL_RM8 = (byte) 0xF6;
     public static final byte MUL_RM = (byte) 0xF7;
+
+    public static final byte MULSD_X_XM = 0x59;
 
     public static final byte NOP = (byte) 0x90;
     public static final byte NOP_RM = 0x1F;
