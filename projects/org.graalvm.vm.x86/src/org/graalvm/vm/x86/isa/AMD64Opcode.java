@@ -15,6 +15,8 @@ public class AMD64Opcode {
     public static final byte AND_RM_R = 0x21;
     public static final byte AND_R_RM = 0x23;
 
+    public static final byte ANDPD_X_XM = 0x54;
+
     public static final byte BSF_R_RM = (byte) 0xBC;
 
     public static final byte BSR_R_RM = (byte) 0xBD;

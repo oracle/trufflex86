@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.isa.instruction.And.Andb;
 import org.graalvm.vm.x86.isa.instruction.And.Andl;
 import org.graalvm.vm.x86.isa.instruction.And.Andq;
 import org.graalvm.vm.x86.isa.instruction.And.Andw;
+import org.graalvm.vm.x86.isa.instruction.Andpd;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfl;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfq;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfw;
@@ -1513,6 +1514,14 @@ public class AMD64InstructionDecoder {
                 byte op2 = code.read8();
                 instruction[instructionLength++] = op2;
                 switch (op2) {
+                    case AMD64Opcode.ANDPD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Andpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.BSF_R_RM: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (rex != null && rex.w) {
