@@ -29,7 +29,7 @@ public class Cdq extends AMD64Instruction {
         }
         int rax = readEAX.executeI32(frame);
         if (rax < 0) {
-            writeEDX.executeI32(frame, 1);
+            writeEDX.executeI32(frame, -1);
         } else {
             writeEDX.executeI32(frame, 0);
         }

@@ -92,7 +92,7 @@ public abstract class Idiv extends AMD64Instruction {
                 throw new ArithmeticException(DIV_ZERO);
             }
             short dividendLow = readA.executeI16(frame);
-            short dividendHigh = readA.executeI16(frame);
+            short dividendHigh = readD.executeI16(frame);
             int dividend = (Short.toUnsignedInt(dividendHigh) << 16) | Short.toUnsignedInt(dividendLow);
             int quotient = dividend / divisor;
             short remainder = (short) (dividend % divisor);
@@ -120,7 +120,7 @@ public abstract class Idiv extends AMD64Instruction {
                 throw new ArithmeticException(DIV_ZERO);
             }
             int dividendLow = readA.executeI32(frame);
-            int dividendHigh = readA.executeI32(frame);
+            int dividendHigh = readD.executeI32(frame);
             long dividend = (Integer.toUnsignedLong(dividendHigh) << 32) | Integer.toUnsignedLong(dividendLow);
             long quotient = dividend / divisor;
             int remainder = (int) (dividend % divisor);
@@ -148,7 +148,7 @@ public abstract class Idiv extends AMD64Instruction {
                 throw new ArithmeticException(DIV_ZERO);
             }
             long dividendLow = readA.executeI64(frame);
-            long dividendHigh = readA.executeI64(frame);
+            long dividendHigh = readD.executeI64(frame);
             LongDivision.Result result = LongDivision.divs128by64(dividendHigh, dividendLow, divisor);
             if (result.isInvalid()) {
                 CompilerDirectives.transferToInterpreter();
