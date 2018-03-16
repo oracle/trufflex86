@@ -260,6 +260,7 @@ import org.graalvm.vm.x86.isa.instruction.Sub.Subb;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subl;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subq;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subw;
+import org.graalvm.vm.x86.isa.instruction.Subsd;
 import org.graalvm.vm.x86.isa.instruction.Syscall;
 import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
@@ -2207,6 +2208,14 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.SETS: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         return new Sets(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    }
+                    case AMD64Opcode.SUBSD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPNZ) {
+                            return new Subsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
                     }
                     case AMD64Opcode.SYSCALL:
                         return new Syscall(pc, Arrays.copyOf(instruction, instructionLength));

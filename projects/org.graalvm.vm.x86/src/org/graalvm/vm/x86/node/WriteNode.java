@@ -15,6 +15,14 @@ public abstract class WriteNode extends AMD64Node {
 
     public abstract void executeI64(VirtualFrame frame, long value);
 
+    public void executeF32(VirtualFrame frame, float value) {
+        executeI32(frame, Float.floatToRawIntBits(value));
+    }
+
+    public void executeF64(VirtualFrame frame, double value) {
+        executeI64(frame, Double.doubleToRawLongBits(value));
+    }
+
     @SuppressWarnings("unused")
     public void executeI128(VirtualFrame frame, Vector128 value) {
         throw new UnsupportedOperationException();

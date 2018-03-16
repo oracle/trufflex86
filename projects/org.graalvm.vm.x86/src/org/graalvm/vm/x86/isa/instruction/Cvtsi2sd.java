@@ -42,8 +42,7 @@ public abstract class Cvtsi2sd extends AMD64Instruction {
             createChildrenIfNecessary();
             int value = readSrc.executeI32(frame);
             // TODO: rounding mode
-            long dval = Double.doubleToRawLongBits(value);
-            writeDst.executeI64(frame, dval);
+            writeDst.executeF64(frame, value);
             return next();
         }
     }
@@ -58,8 +57,7 @@ public abstract class Cvtsi2sd extends AMD64Instruction {
             createChildrenIfNecessary();
             long value = readSrc.executeI64(frame);
             // TODO: rounding mode
-            long dval = Double.doubleToRawLongBits(value);
-            writeDst.executeI64(frame, dval);
+            writeDst.executeF64(frame, value);
             return next();
         }
     }

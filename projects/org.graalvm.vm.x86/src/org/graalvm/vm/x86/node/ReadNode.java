@@ -15,6 +15,14 @@ public abstract class ReadNode extends AMD64Node {
 
     public abstract long executeI64(VirtualFrame frame);
 
+    public float executeF32(VirtualFrame frame) {
+        return Float.intBitsToFloat(executeI32(frame));
+    }
+
+    public double executeF64(VirtualFrame frame) {
+        return Double.longBitsToDouble(executeI64(frame));
+    }
+
     public Vector128 executeI128(@SuppressWarnings("unused") VirtualFrame frame) {
         throw new UnsupportedOperationException();
     }
