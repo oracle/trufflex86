@@ -6,6 +6,7 @@ import org.graalvm.vm.x86.isa.instruction.Add.Addb;
 import org.graalvm.vm.x86.isa.instruction.Add.Addl;
 import org.graalvm.vm.x86.isa.instruction.Add.Addq;
 import org.graalvm.vm.x86.isa.instruction.Add.Addw;
+import org.graalvm.vm.x86.isa.instruction.Addsd;
 import org.graalvm.vm.x86.isa.instruction.And.Andb;
 import org.graalvm.vm.x86.isa.instruction.And.Andl;
 import org.graalvm.vm.x86.isa.instruction.And.Andq;
@@ -136,6 +137,7 @@ import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
 import org.graalvm.vm.x86.isa.instruction.Leave.Leaveq;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
+import org.graalvm.vm.x86.isa.instruction.Maxsd;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
@@ -267,6 +269,7 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
 import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
+import org.graalvm.vm.x86.isa.instruction.Ucomisd;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddq;
@@ -1514,6 +1517,14 @@ public class AMD64InstructionDecoder {
                 byte op2 = code.read8();
                 instruction[instructionLength++] = op2;
                 switch (op2) {
+                    case AMD64Opcode.ADDSD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPNZ) {
+                            return new Addsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.ANDPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
@@ -1873,6 +1884,14 @@ public class AMD64InstructionDecoder {
                         instruction[instructionLength++] = (byte) (rel32 >> 24);
                         return new Js(pc, Arrays.copyOf(instruction, instructionLength), rel32);
                     }
+                    case AMD64Opcode.MAXSD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPNZ) {
+                            return new Maxsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.MOVAPS_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
@@ -2228,6 +2247,14 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.SYSCALL:
                         return new Syscall(pc, Arrays.copyOf(instruction, instructionLength));
+                    case AMD64Opcode.UCOMISD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Ucomisd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.XADD_RM8_R8: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         return new Xaddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());

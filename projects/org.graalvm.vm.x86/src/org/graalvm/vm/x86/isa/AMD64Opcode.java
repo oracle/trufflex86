@@ -10,6 +10,8 @@ public class AMD64Opcode {
     public static final byte ADD_R_RM = 0x03;
     public static final byte ADD_RM_I8 = (byte) 0x83;
 
+    public static final byte ADDSD_X_XM = 0x58;
+
     public static final byte AND_A_I = 0x25;
     public static final byte AND_RM_I8 = (byte) 0x83;
     public static final byte AND_RM_R = 0x21;
@@ -118,6 +120,8 @@ public class AMD64Opcode {
 
     public static final byte LODSB = (byte) 0xAC;
     public static final byte LODSD = (byte) 0xAD;
+
+    public static final byte MAXSD_X_XM = 0x5F;
 
     public static final byte MOV_RM_R8 = (byte) 0x88;
     public static final byte MOV_RM_R = (byte) 0x89;
@@ -256,6 +260,8 @@ public class AMD64Opcode {
     public static final byte TEST_A_I = (byte) 0xA9;
     public static final byte TEST_RM_R8 = (byte) 0x84;
     public static final byte TEST_RM_R = (byte) 0x85;
+
+    public static final byte UCOMISD_X_XM = 0x2E;
 
     public static final byte XADD_RM8_R8 = (byte) 0xC0;
     public static final byte XADD_RM_R = (byte) 0xC1;
