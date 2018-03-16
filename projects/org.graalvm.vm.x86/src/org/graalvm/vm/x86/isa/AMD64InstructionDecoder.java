@@ -139,6 +139,7 @@ import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
 import org.graalvm.vm.x86.isa.instruction.Leave.Leaveq;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
 import org.graalvm.vm.x86.isa.instruction.Maxsd;
+import org.graalvm.vm.x86.isa.instruction.Minsd;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movb;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movl;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
@@ -1898,6 +1899,14 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
                             return new Maxsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.MINSD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPNZ) {
+                            return new Minsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }

@@ -125,6 +125,8 @@ public class AMD64Opcode {
 
     public static final byte MAXSD_X_XM = 0x5F;
 
+    public static final byte MINSD_X_XM = 0x5D;
+
     public static final byte MOV_RM_R8 = (byte) 0x88;
     public static final byte MOV_RM_R = (byte) 0x89;
     public static final byte MOV_RM_I = (byte) 0xC7;
