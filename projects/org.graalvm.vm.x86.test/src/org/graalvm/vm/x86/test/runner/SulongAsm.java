@@ -96,7 +96,6 @@ public class SulongAsm {
         TestRunner.run("lea001.elf", new String[0], "", "", "", 1);
     }
 
-    @Ignore("not yet implemented")
     @Test
     public void push001() throws Exception {
         TestRunner.run("push001.elf", new String[0], "", "", "", 1);

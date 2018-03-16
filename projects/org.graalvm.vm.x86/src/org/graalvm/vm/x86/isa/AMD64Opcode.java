@@ -192,6 +192,7 @@ public class AMD64Opcode {
     public static final byte PUSH_FS = (byte) 0xA0;
     public static final byte PUSH_GS = (byte) 0xA8;
     public static final byte PUSH_I8 = 0x6A;
+    public static final byte PUSH_I = 0x68;
 
     public static final byte PUSHF = (byte) 0x9C;
 

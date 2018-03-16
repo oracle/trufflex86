@@ -193,6 +193,7 @@ import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklwd;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushb;
+import org.graalvm.vm.x86.isa.instruction.Push.Pushl;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushq;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfq;
@@ -994,6 +995,22 @@ public class AMD64InstructionDecoder {
                 byte imm = code.read8();
                 instruction[instructionLength++] = imm;
                 return new Pushb(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+            }
+            case AMD64Opcode.PUSH_I: {
+                if (sizeOverride) {
+                    short imm = code.read16();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    return new Pushw(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                } else {
+                    assert false : "TODO: this is unchecked!";
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Pushl(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                }
             }
             case AMD64Opcode.PUSHF:
                 if (sizeOverride) {
