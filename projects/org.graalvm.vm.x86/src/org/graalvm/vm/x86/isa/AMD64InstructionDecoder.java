@@ -1236,6 +1236,10 @@ public class AMD64InstructionDecoder {
                     return new Subl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
             }
+            case AMD64Opcode.SUB_RM8_R8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Subb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+            }
             case AMD64Opcode.SUB_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {

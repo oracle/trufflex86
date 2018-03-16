@@ -302,7 +302,6 @@ public class SulongAsm {
         TestRunner.run("syscall-writev001.elf", new String[0], "", "hello world\nwritten: 12\n", "", 0);
     }
 
-    @Ignore("not yet implemented")
     @Test
     public void syscall_writev002() throws Exception {
         TestRunner.run("syscall-writev002.elf", new String[0], "", "written: -1\nerrno: 22\n", "", 0);

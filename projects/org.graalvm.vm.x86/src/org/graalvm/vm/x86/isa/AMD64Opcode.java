@@ -235,6 +235,7 @@ public class AMD64Opcode {
 
     public static final byte SUB_A_I8 = 0x2C;
     public static final byte SUB_A_I = 0x2D;
+    public static final byte SUB_RM8_R8 = 0x28;
     public static final byte SUB_RM_R = 0x29;
     public static final byte SUB_RM_I = (byte) 0x81;
     public static final byte SUB_RM_I8 = (byte) 0x83;
