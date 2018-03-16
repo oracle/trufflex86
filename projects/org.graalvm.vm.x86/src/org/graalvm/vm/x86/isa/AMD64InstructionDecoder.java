@@ -145,6 +145,9 @@ import org.graalvm.vm.x86.isa.instruction.Movdqu.MovdquToReg;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
+import org.graalvm.vm.x86.isa.instruction.Movq.MovqToRM;
+import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToRM;
+import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToReg;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbl;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbq;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbw;
@@ -293,6 +296,7 @@ public class AMD64InstructionDecoder {
         SegmentRegister segment = null;
         AMD64RexPrefix rex = null;
         boolean decode = true;
+        boolean np = true;
         while (decode) {
             switch (op) {
                 case AMD64InstructionPrefix.OPERAND_SIZE_OVERRIDE:
@@ -352,6 +356,9 @@ public class AMD64InstructionDecoder {
                     break;
                 default:
                     decode = false;
+            }
+            if (decode) {
+                np = false;
             }
         }
         if (AMD64RexPrefix.isREX(op)) {
@@ -1843,7 +1850,7 @@ public class AMD64InstructionDecoder {
                         return new Js(pc, Arrays.copyOf(instruction, instructionLength), rel32);
                     }
                     case AMD64Opcode.MOVAPS_X_XM: {
-                        if (!sizeOverride && !isREPZ) {
+                        if (np) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
@@ -1851,7 +1858,7 @@ public class AMD64InstructionDecoder {
                         }
                     }
                     case AMD64Opcode.MOVAPS_XM_X: {
-                        if (!sizeOverride && !isREPZ) {
+                        if (np) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Movaps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                         } else {
@@ -1930,6 +1937,16 @@ public class AMD64InstructionDecoder {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
+                    case AMD64Opcode.MOVQ_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPZ) {
+                            return new MovqToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new MovqToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.MOVSX_R_RM8: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (rex != null && rex.w) {
@@ -1950,11 +1967,23 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MOVUPS_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        return new MovupsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (np) {
+                            return new MovupsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
+                            return new MovsdToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
                     }
                     case AMD64Opcode.MOVUPS_XM_X: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        return new MovupsToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (np) {
+                            return new MovupsToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
+                            return new MovsdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
                     }
                     case AMD64Opcode.MOVZX_R_RM8: {
                         Args args = new Args(code, rex, segment, addressOverride);
