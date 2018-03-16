@@ -24,8 +24,10 @@ public class VirtualMemory {
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
 
-    public static final long POINTER_BASE = 0x0800000000000000L;
-    public static final long POINTER_END = 0x8000000000000000L;
+    // public static final long POINTER_BASE = 0x0800000000000000L;
+    // public static final long POINTER_END = 0x8000000000000000L;
+    public static final long POINTER_BASE = 0x00007f0000000000L;
+    public static final long POINTER_END = 0x00007fff00000000L;
 
     private final NavigableMap<Long, MemoryPage> pages;
 
