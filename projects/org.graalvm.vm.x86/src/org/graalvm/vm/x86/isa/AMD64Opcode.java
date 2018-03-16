@@ -61,6 +61,8 @@ public class AMD64Opcode {
 
     public static final byte CPUID = (byte) 0xA2;
 
+    public static final byte CVTSI2SD = 0x2A;
+
     public static final byte IDIV_RM8 = (byte) 0xF6;
     public static final byte IDIV_RM = (byte) 0xF7;
 
