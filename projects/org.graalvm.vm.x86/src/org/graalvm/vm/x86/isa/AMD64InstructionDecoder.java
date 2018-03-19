@@ -213,8 +213,6 @@ import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhwd;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklwd;
-import org.graalvm.vm.x86.isa.instruction.Push.Pushb;
-import org.graalvm.vm.x86.isa.instruction.Push.Pushl;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushq;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfq;
@@ -614,6 +612,22 @@ public class AMD64InstructionDecoder {
                     return new Imulw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                 } else {
                     return new Imull(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                }
+            }
+            case AMD64Opcode.IMUL_R_RM_I: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                if (rex != null && rex.w) {
+                    int imm = code.read32();
+                    byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)};
+                    return new Imulq(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
+                } else if (sizeOverride) {
+                    short imm = code.read16();
+                    byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8)};
+                    return new Imulw(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
+                } else {
+                    int imm = code.read32();
+                    byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)};
+                    return new Imull(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
                 }
             }
             case AMD64Opcode.INC_RM: { // or: DEC_RM
@@ -1024,11 +1038,17 @@ public class AMD64InstructionDecoder {
                 }
             }
             case AMD64Opcode.PUSH_I8: {
+                assert rex == null;
                 byte imm = code.read8();
                 instruction[instructionLength++] = imm;
-                return new Pushb(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                if (sizeOverride) {
+                    return new Pushw(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                } else {
+                    return new Pushq(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                }
             }
             case AMD64Opcode.PUSH_I: {
+                assert rex == null;
                 if (sizeOverride) {
                     short imm = code.read16();
                     instruction[instructionLength++] = (byte) imm;
@@ -1041,7 +1061,7 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     instruction[instructionLength++] = (byte) (imm >> 16);
                     instruction[instructionLength++] = (byte) (imm >> 24);
-                    return new Pushl(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
+                    return new Pushq(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
                 }
             }
             case AMD64Opcode.PUSHF:

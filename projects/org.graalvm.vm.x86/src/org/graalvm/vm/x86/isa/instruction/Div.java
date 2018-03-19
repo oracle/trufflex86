@@ -5,6 +5,8 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.math.LongDivision;
+import org.graalvm.vm.x86.math.LongDivision.Result;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -177,17 +179,21 @@ public abstract class Div extends AMD64Instruction {
             createChildrenIfNecessary();
             long rax = readRAX.executeI64(frame);
             long rdx = readRDX.executeI64(frame);
-            if (rdx != 0) {
-                CompilerDirectives.transferToInterpreter();
-                throw new AssertionError("not implemented"); // TODO: FIXME
-            }
             long op = readOp.executeI64(frame);
             if (op == 0) {
                 CompilerDirectives.transferToInterpreter();
                 throw new ArithmeticException("Division by zero"); // TODO: #DE
             }
-            long q = Long.divideUnsigned(rax, op);
-            long r = Long.remainderUnsigned(rax, op);
+            long q;
+            long r;
+            if (rdx != 0) {
+                Result result = LongDivision.divs128by64(rdx, rax, op);
+                q = result.quotient;
+                r = result.remainder;
+            } else {
+                q = Long.divideUnsigned(rax, op);
+                r = Long.remainderUnsigned(rax, op);
+            }
             writeRAX.executeI64(frame, q);
             writeRDX.executeI64(frame, r);
             return next();
