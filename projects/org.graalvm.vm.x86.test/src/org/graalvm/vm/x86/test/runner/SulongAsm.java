@@ -375,6 +375,11 @@ public class SulongAsm {
     }
 
     @Test
+    public void qemuMul() throws Exception {
+        TestRunner.run("qemu-mul.elf", new String[0], "", "", "", 0);
+    }
+
+    @Test
     public void syscall001() throws Exception {
         TestRunner.run("syscall001.elf", new String[0], "", "Hello world!\n", "", 42);
     }
