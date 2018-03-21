@@ -9,8 +9,8 @@ typedef union {
 
 void test(FLOAT a, FLOAT b)
 {
-	FLOAT sum = { .f = a.f + b.f };
-	printf("%08x:%08x:%08x\n", a.i, b.i, sum.i);
+	FLOAT diff = { .f = a.f - b.f };
+	printf("%08x:%08x:%08x\n", a.i, b.i, diff.i);
 }
 
 #define TEST(x, y)	test((FLOAT) { .f = (x) }, (FLOAT) { .f = (y) })
