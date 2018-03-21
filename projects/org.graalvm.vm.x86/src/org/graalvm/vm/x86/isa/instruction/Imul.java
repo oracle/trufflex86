@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
@@ -22,6 +23,8 @@ public abstract class Imul extends AMD64Instruction {
 
     @Child protected WriteFlagNode writeCF;
     @Child protected WriteFlagNode writeOF;
+    @Child protected WriteFlagNode writeSF;
+    @Child protected WriteFlagNode writePF;
 
     protected Imul(long pc, byte[] instruction, Operand operand1) {
         this(pc, instruction, operand1, null, null);
@@ -39,8 +42,11 @@ public abstract class Imul extends AMD64Instruction {
     }
 
     protected void createFlagNodes(ArchitecturalState state) {
-        writeCF = state.getRegisters().getCF().createWrite();
-        writeOF = state.getRegisters().getOF().createWrite();
+        RegisterAccessFactory regs = state.getRegisters();
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writePF = regs.getPF().createWrite();
     }
 
     private static abstract class Imul1 extends Imul {
@@ -85,9 +91,11 @@ public abstract class Imul extends AMD64Instruction {
             byte b = readA.executeI8(frame);
             int result = a * b;
             writeA.executeI16(frame, (short) result);
-            boolean overflow = result != (short) result;
+            boolean overflow = result != (byte) result;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, (byte) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -108,6 +116,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = result != (short) result;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, (short) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -128,6 +138,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = result != (int) result;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, (int) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -149,6 +161,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = resultH != 0 && resultH != -1;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, resultL < 0);
+            writePF.execute(frame, Flags.getParity((byte) resultL));
             return next();
         }
     }
@@ -221,6 +235,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = result != (short) result;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, (short) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -244,6 +260,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = result != (int) result;
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, (int) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -267,6 +285,8 @@ public abstract class Imul extends AMD64Instruction {
             boolean overflow = op1 != 0 && (result / op1 != op2); // TODO: implement properly!
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
+            writeSF.execute(frame, result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }

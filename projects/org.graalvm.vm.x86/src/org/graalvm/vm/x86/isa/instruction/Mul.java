@@ -1,7 +1,9 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
@@ -18,6 +20,8 @@ public abstract class Mul extends AMD64Instruction {
 
     @Child protected WriteFlagNode writeCF;
     @Child protected WriteFlagNode writeOF;
+    @Child protected WriteFlagNode writeSF;
+    @Child protected WriteFlagNode writePF;
 
     protected Mul(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
@@ -28,8 +32,11 @@ public abstract class Mul extends AMD64Instruction {
         if (writeCF == null) {
             CompilerDirectives.transferToInterpreter();
             ArchitecturalState state = getContextReference().get().getState();
-            writeCF = state.getRegisters().getCF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
+            RegisterAccessFactory regs = state.getRegisters();
+            writeCF = regs.getCF().createWrite();
+            writeOF = regs.getOF().createWrite();
+            writeSF = regs.getSF().createWrite();
+            writePF = regs.getPF().createWrite();
         }
     }
 
@@ -63,6 +70,8 @@ public abstract class Mul extends AMD64Instruction {
             boolean of = (byte) (result >> 8) != 0;
             writeCF.execute(frame, of);
             writeOF.execute(frame, of);
+            writeSF.execute(frame, (byte) result < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -102,6 +111,8 @@ public abstract class Mul extends AMD64Instruction {
             boolean of = resultH != 0;
             writeCF.execute(frame, of);
             writeOF.execute(frame, of);
+            writeSF.execute(frame, resultL < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -141,6 +152,8 @@ public abstract class Mul extends AMD64Instruction {
             boolean of = resultH != 0;
             writeCF.execute(frame, of);
             writeOF.execute(frame, of);
+            writeSF.execute(frame, resultL < 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
             return next();
         }
     }
@@ -179,6 +192,8 @@ public abstract class Mul extends AMD64Instruction {
             boolean of = resultH != 0;
             writeCF.execute(frame, of);
             writeOF.execute(frame, of);
+            writeSF.execute(frame, resultL < 0);
+            writePF.execute(frame, Flags.getParity((byte) resultL));
             return next();
         }
     }
