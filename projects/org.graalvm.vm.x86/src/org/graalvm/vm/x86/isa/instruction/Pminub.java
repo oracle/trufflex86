@@ -44,7 +44,7 @@ public class Pminub extends AMD64Instruction {
         createChildrenIfNecessary();
         Vector128 a = readA.executeI128(frame);
         Vector128 b = readB.executeI128(frame);
-        Vector128 result = a.minUnsignedBytes(b);
+        Vector128 result = a.minUnsignedPackedI8(b);
         writeDst.executeI128(frame, result);
         return next();
     }

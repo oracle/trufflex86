@@ -11,7 +11,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public abstract class Psub extends AMD64Instruction {
+public abstract class Padd extends AMD64Instruction {
     private final String name;
     private final Operand operand1;
     private final Operand operand2;
@@ -20,7 +20,7 @@ public abstract class Psub extends AMD64Instruction {
     @Child protected ReadNode readB;
     @Child protected WriteNode writeDst;
 
-    protected Psub(long pc, byte[] instruction, Operand operand1, Operand operand2, String name) {
+    protected Padd(long pc, byte[] instruction, Operand operand1, Operand operand2, String name) {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
@@ -37,9 +37,9 @@ public abstract class Psub extends AMD64Instruction {
         }
     }
 
-    public static class Psubb extends Psub {
-        public Psubb(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "psubb");
+    public static class Paddb extends Padd {
+        public Paddb(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "paddb");
         }
 
         @Override
@@ -47,7 +47,39 @@ public abstract class Psub extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readA.executeI128(frame);
             Vector128 b = readB.executeI128(frame);
-            Vector128 result = a.subPackedI8(b);
+            Vector128 result = a.addPackedI8(b);
+            writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
+    public static class Paddw extends Padd {
+        public Paddw(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "paddw");
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 a = readA.executeI128(frame);
+            Vector128 b = readB.executeI128(frame);
+            Vector128 result = a.addPackedI16(b);
+            writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
+    public static class Paddd extends Padd {
+        public Paddd(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "paddd");
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 a = readA.executeI128(frame);
+            Vector128 b = readB.executeI128(frame);
+            Vector128 result = a.addPackedI32(b);
             writeDst.executeI128(frame, result);
             return next();
         }

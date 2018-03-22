@@ -198,6 +198,9 @@ import org.graalvm.vm.x86.isa.instruction.Or.Orb;
 import org.graalvm.vm.x86.isa.instruction.Or.Orl;
 import org.graalvm.vm.x86.isa.instruction.Or.Orq;
 import org.graalvm.vm.x86.isa.instruction.Or.Orw;
+import org.graalvm.vm.x86.isa.instruction.Padd.Paddb;
+import org.graalvm.vm.x86.isa.instruction.Padd.Paddd;
+import org.graalvm.vm.x86.isa.instruction.Padd.Paddw;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128b;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128d;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128w;
@@ -2162,6 +2165,30 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.NOP_RM: {
                         Args args = new Args(code, segment, addressOverride);
                         return new Nop(pc, args.getOp(instruction, instructionLength));
+                    }
+                    case AMD64Opcode.PADDB_X_XM: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Paddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PADDW_X_XM: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Paddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PADDD_X_XM: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Paddd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
                     }
                     case AMD64Opcode.PCMPEQB_X_XM:
                         if (sizeOverride) {

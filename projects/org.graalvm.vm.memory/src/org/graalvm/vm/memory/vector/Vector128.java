@@ -33,18 +33,28 @@ public class Vector128 implements Cloneable {
 
     public Vector128(byte[] data) {
         this(Endianess.get64bitBE(data, 0), Endianess.get64bitBE(data, 8));
+        assert data.length == 16;
+    }
+
+    public Vector128(short[] data) {
+        this(Short.toUnsignedLong(data[0]) << 48 | Short.toUnsignedLong(data[1]) << 32 | Short.toUnsignedLong(data[2]) << 16 | Short.toUnsignedLong(data[3]),
+                        Short.toUnsignedLong(data[4]) << 48 | Short.toUnsignedLong(data[5]) << 32 | Short.toUnsignedLong(data[6]) << 16 | Short.toUnsignedLong(data[7]));
+        assert data.length == 8;
     }
 
     public Vector128(int[] data) {
         this(data[0], data[1], data[2], data[3]);
+        assert data.length == 4;
     }
 
     public Vector128(float[] data) {
         this(Float.floatToRawIntBits(data[0]), Float.floatToRawIntBits(data[1]), Float.floatToRawIntBits(data[2]), Float.floatToRawIntBits(data[3]));
+        assert data.length == 4;
     }
 
     public Vector128(double[] data) {
         this(Double.doubleToRawLongBits(data[0]), Double.doubleToRawLongBits(data[1]));
+        assert data.length == 2;
     }
 
     public byte[] getBytes() {
@@ -52,6 +62,22 @@ public class Vector128 implements Cloneable {
         byte[] result = new byte[16];
         Endianess.set64bitBE(result, 0, data[0]);
         Endianess.set64bitBE(result, 8, data[1]);
+        return result;
+    }
+
+    public short[] getShorts() {
+        short[] result = new short[8];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getI16(i);
+        }
+        return result;
+    }
+
+    public int[] getInts() {
+        int[] result = new int[4];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getI32(i);
+        }
         return result;
     }
 
@@ -321,7 +347,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(shifted);
     }
 
-    public Vector128 addBytes(Vector128 vec) {
+    public Vector128 addPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
@@ -331,7 +357,27 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
-    public Vector128 subBytes(Vector128 vec) {
+    public Vector128 addPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) (a[i] + b[i]);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 addPackedI32(Vector128 vec) {
+        int[] a = getInts();
+        int[] b = vec.getInts();
+        int[] result = new int[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] + b[i];
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 subPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
@@ -341,7 +387,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
-    public Vector128 minUnsignedBytes(Vector128 vec) {
+    public Vector128 minUnsignedPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
@@ -351,7 +397,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
-    public Vector128 maxUnsignedBytes(Vector128 vec) {
+    public Vector128 maxUnsignedPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
