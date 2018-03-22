@@ -44,11 +44,6 @@ public class AMD64Language extends TruffleLanguage<AMD64Context> {
     }
 
     @Override
-    protected Object getLanguageGlobal(AMD64Context context) {
-        return null;
-    }
-
-    @Override
     protected boolean isObjectOfLanguage(Object object) {
         return false;
     }
