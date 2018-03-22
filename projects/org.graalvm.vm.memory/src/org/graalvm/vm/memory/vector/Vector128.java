@@ -28,7 +28,7 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128(int a1, int a2, int a3, int a4) {
-        this(a1 << 32 | a2, a3 << 32 | a4);
+        this(Integer.toUnsignedLong(a1) << 32 | Integer.toUnsignedLong(a2), Integer.toUnsignedLong(a3) << 32 | Integer.toUnsignedLong(a4));
     }
 
     public Vector128(byte[] data) {
