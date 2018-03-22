@@ -9,6 +9,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public class Addsd extends AMD64Instruction {
     private final Operand operand1;
@@ -17,6 +18,10 @@ public class Addsd extends AMD64Instruction {
     @Child private ReadNode readA;
     @Child private ReadNode readB;
     @Child private WriteNode writeDst;
+
+    private final ConditionProfile profile = ConditionProfile.createCountingProfile();
+
+    private final static double NEG_NAN = Double.longBitsToDouble(0xfff8000000000000L);
 
     protected Addsd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -45,6 +50,19 @@ public class Addsd extends AMD64Instruction {
         double b = readB.executeF64(frame);
         // TODO: rounding mode
         double x = a + b;
+        if (profile.profile(!Double.isFinite(x))) {
+            if (Double.isNaN(a) && Double.isNaN(b)) {
+                x = a;
+            } else if (Double.isInfinite(a) && Double.isInfinite(b)) {
+                double signA = Math.copySign(1.0, a);
+                double signB = Math.copySign(1.0, b);
+                if (signA != signB) {
+                    x = NEG_NAN;
+                }
+            } else if (Double.isNaN(a) && Double.isNaN(b)) {
+                x = Math.min(a, b);
+            }
+        }
         writeDst.executeF64(frame, x);
         return next();
     }
