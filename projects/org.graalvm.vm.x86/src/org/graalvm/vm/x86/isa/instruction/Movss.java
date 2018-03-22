@@ -12,14 +12,14 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public abstract class Movq extends AMD64Instruction {
+public abstract class Movss extends AMD64Instruction {
     private final Operand operand1;
     private final Operand operand2;
 
     @Child protected ReadNode readSrc;
     @Child protected WriteNode writeDst;
 
-    protected Movq(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+    protected Movss(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
@@ -34,35 +34,35 @@ public abstract class Movq extends AMD64Instruction {
         }
     }
 
-    public static class MovqToReg extends Movq {
-        public MovqToReg(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class MovssToReg extends Movss {
+        public MovssToReg(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            long value = readSrc.executeI64(frame);
+            int value = readSrc.executeI32(frame);
             Vector128 vec = new Vector128(0, value);
             writeDst.executeI128(frame, vec);
             return next();
         }
     }
 
-    public static class MovqToXM extends Movq {
-        public MovqToXM(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class MovssToRM extends Movss {
+        public MovssToRM(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getAVXOperand1(128), operands.getAVXOperand2(128));
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            long value = readSrc.executeI64(frame);
+            int value = readSrc.executeI32(frame);
             if (writeDst instanceof AVXRegisterWriteNode) {
                 Vector128 vec = new Vector128(0, value);
                 writeDst.executeI128(frame, vec);
             } else {
-                writeDst.executeI64(frame, value);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -70,6 +70,6 @@ public abstract class Movq extends AMD64Instruction {
 
     @Override
     protected String[] disassemble() {
-        return new String[]{"movq", operand1.toString(), operand2.toString()};
+        return new String[]{"movss", operand1.toString(), operand2.toString()};
     }
 }

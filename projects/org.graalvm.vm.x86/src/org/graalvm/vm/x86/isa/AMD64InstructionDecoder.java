@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.isa.instruction.Add.Addq;
 import org.graalvm.vm.x86.isa.instruction.Add.Addw;
 import org.graalvm.vm.x86.isa.instruction.Addpd;
 import org.graalvm.vm.x86.isa.instruction.Addsd;
+import org.graalvm.vm.x86.isa.instruction.Addss;
 import org.graalvm.vm.x86.isa.instruction.And.Andb;
 import org.graalvm.vm.x86.isa.instruction.And.Andl;
 import org.graalvm.vm.x86.isa.instruction.And.Andq;
@@ -151,16 +152,19 @@ import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movw;
 import org.graalvm.vm.x86.isa.instruction.Movapd;
 import org.graalvm.vm.x86.isa.instruction.Movaps;
+import org.graalvm.vm.x86.isa.instruction.Movd.MovdToRM;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovdToReg;
+import org.graalvm.vm.x86.isa.instruction.Movd.MovqToRM;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovqToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqa.MovdqaToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqu.MovdquToReg;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
-import org.graalvm.vm.x86.isa.instruction.Movq.MovqToRM;
 import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToRM;
 import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToReg;
+import org.graalvm.vm.x86.isa.instruction.Movss.MovssToRM;
+import org.graalvm.vm.x86.isa.instruction.Movss.MovssToReg;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbl;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbq;
 import org.graalvm.vm.x86.isa.instruction.Movsx.Movsbw;
@@ -274,6 +278,7 @@ import org.graalvm.vm.x86.isa.instruction.Sub.Subl;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subq;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subw;
 import org.graalvm.vm.x86.isa.instruction.Subsd;
+import org.graalvm.vm.x86.isa.instruction.Subss;
 import org.graalvm.vm.x86.isa.instruction.Syscall;
 import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
@@ -1558,6 +1563,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
                             return new Addsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
+                            return new Addss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
                             return new Addpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
@@ -2071,7 +2078,11 @@ public class AMD64InstructionDecoder {
                         if (isREPZ) {
                             return new MovqToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
-                            return new MovqToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (rex != null && rex.w) {
+                                return new MovqToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new MovdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
@@ -2100,6 +2111,8 @@ public class AMD64InstructionDecoder {
                             return new MovupsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new MovsdToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
+                            return new MovssToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
                             return new MovupdToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
@@ -2112,6 +2125,8 @@ public class AMD64InstructionDecoder {
                             return new MovupsToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new MovsdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
+                            return new MovssToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
                             return new MovupdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
@@ -2351,6 +2366,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
                             return new Subsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
+                            return new Subss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }

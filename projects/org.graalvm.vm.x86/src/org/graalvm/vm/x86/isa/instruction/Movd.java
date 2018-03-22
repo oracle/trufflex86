@@ -50,6 +50,20 @@ public abstract class Movd extends AMD64Instruction {
         }
     }
 
+    public static class MovdToRM extends Movd {
+        public MovdToRM(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, "movd", operands.getOperand1(OperandDecoder.R32), operands.getAVXOperand2(128));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            int value = readSrc.executeI32(frame);
+            writeDst.executeI32(frame, value);
+            return next();
+        }
+    }
+
     public static class MovqToReg extends Movd {
         public MovqToReg(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, "movq", operands.getAVXOperand2(128), operands.getOperand1(OperandDecoder.R64));
@@ -61,6 +75,20 @@ public abstract class Movd extends AMD64Instruction {
             long value = readSrc.executeI64(frame);
             Vector128 result = new Vector128(0, value);
             writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
+    public static class MovqToRM extends Movd {
+        public MovqToRM(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, "movq", operands.getOperand1(OperandDecoder.R64), operands.getAVXOperand2(128));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            long value = readSrc.executeI64(frame);
+            writeDst.executeI64(frame, value);
             return next();
         }
     }
