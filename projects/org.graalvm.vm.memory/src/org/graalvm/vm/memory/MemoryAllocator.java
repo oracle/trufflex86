@@ -484,6 +484,8 @@ public class MemoryAllocator {
                 assert false;
             }
         }
+        // TODO: unreachable?
+        assert false;
         compact(start);
         usedMemory -= size - remaining;
 
