@@ -423,7 +423,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (!zf && (sf == of)) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
@@ -442,7 +442,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (!zf && (sf == of)) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
@@ -461,7 +461,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (!zf && (sf == of)) {
                 long value = readSrc.executeI64(frame);
                 writeDst.executeI64(frame, value);
@@ -499,7 +499,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf == of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
@@ -517,7 +517,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf == of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
@@ -535,7 +535,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf == of) {
                 long value = readSrc.executeI64(frame);
                 writeDst.executeI64(frame, value);
@@ -573,7 +573,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf != of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
@@ -591,7 +591,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf != of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
@@ -609,7 +609,7 @@ public abstract class Cmov extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (sf != of) {
                 long value = readSrc.executeI64(frame);
                 writeDst.executeI64(frame, value);
@@ -650,7 +650,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (zf || (sf != of)) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
@@ -669,7 +669,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (zf || (sf != of)) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
@@ -688,7 +688,7 @@ public abstract class Cmov extends AMD64Instruction {
             createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
-            boolean of = readSF.execute(frame);
+            boolean of = readOF.execute(frame);
             if (zf || (sf != of)) {
                 long value = readSrc.executeI64(frame);
                 writeDst.executeI64(frame, value);
