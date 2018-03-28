@@ -706,21 +706,21 @@ public class VirtualMemory {
     private void logMemoryWrite(long address, Vector128 value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 16 bytes (0%s)\n", addr(addr), value);
+            System.out.printf("Memory access to 0x%016x: write 16 bytes (%s)\n", addr(addr), value);
         }
     }
 
     private void logMemoryWrite(long address, Vector256 value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 32 bytes (0%s)\n", addr(addr), value);
+            System.out.printf("Memory access to 0x%016x: write 32 bytes (%s)\n", addr(addr), value);
         }
     }
 
     private void logMemoryWrite(long address, Vector512 value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 64 bytes (0%s)\n", addr(addr), value);
+            System.out.printf("Memory access to 0x%016x: write 64 bytes (%s)\n", addr(addr), value);
         }
     }
 
