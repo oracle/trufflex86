@@ -92,6 +92,8 @@ import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdl;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdq;
+import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssl;
+import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssq;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2sil;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2siq;
 import org.graalvm.vm.x86.isa.instruction.Cwd;
@@ -1840,6 +1842,13 @@ public class AMD64InstructionDecoder {
                                 return new Cvtsi2sdq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvtsi2sdl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
+                        } else if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            if (rex != null && rex.w) {
+                                return new Cvtsi2ssq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Cvtsi2ssl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         }
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
