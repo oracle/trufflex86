@@ -1,7 +1,9 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -17,6 +19,11 @@ public abstract class Neg extends AMD64Instruction {
     @Child protected ReadNode read;
     @Child protected WriteNode write;
     @Child protected WriteFlagNode writeCF;
+    @Child protected WriteFlagNode writeOF;
+    @Child protected WriteFlagNode writeSF;
+    @Child protected WriteFlagNode writeZF;
+    @Child protected WriteFlagNode writePF;
+    @Child protected WriteFlagNode writeAF;
 
     protected Neg(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
@@ -29,9 +36,15 @@ public abstract class Neg extends AMD64Instruction {
 
         CompilerDirectives.transferToInterpreter();
         ArchitecturalState state = getContextReference().get().getState();
+        RegisterAccessFactory regs = state.getRegisters();
         read = operand.createRead(state, next());
         write = operand.createWrite(state, next());
-        writeCF = state.getRegisters().getCF().createWrite();
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeAF = regs.getAF().createWrite();
     }
 
     public static class Negb extends Neg {
@@ -45,8 +58,18 @@ public abstract class Neg extends AMD64Instruction {
                 createChildren();
             }
             byte val = read.executeI8(frame);
-            write.executeI8(frame, (byte) -val);
+            byte result = (byte) -val;
+            write.executeI8(frame, result);
+
+            boolean overflow = (byte) (val & (0 ^ result)) < 0;
+            boolean adjust = ((val ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, val != 0);
+            writeOF.execute(frame, overflow);
+            writeSF.execute(frame, result < 0);
+            writeZF.execute(frame, result == 0);
+            writePF.execute(frame, Flags.getParity(result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -62,8 +85,18 @@ public abstract class Neg extends AMD64Instruction {
                 createChildren();
             }
             short val = read.executeI16(frame);
-            write.executeI16(frame, (short) -val);
+            short result = (short) -val;
+            write.executeI16(frame, result);
+
+            boolean overflow = (short) (val & (0 ^ result)) < 0;
+            boolean adjust = ((val ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, val != 0);
+            writeOF.execute(frame, overflow);
+            writeSF.execute(frame, result < 0);
+            writeZF.execute(frame, result == 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -79,8 +112,18 @@ public abstract class Neg extends AMD64Instruction {
                 createChildren();
             }
             int val = read.executeI32(frame);
-            write.executeI32(frame, -val);
+            int result = -val;
+            write.executeI32(frame, result);
+
+            boolean overflow = (val & (0 ^ result)) < 0;
+            boolean adjust = ((val ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, val != 0);
+            writeOF.execute(frame, overflow);
+            writeSF.execute(frame, result < 0);
+            writeZF.execute(frame, result == 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -96,8 +139,18 @@ public abstract class Neg extends AMD64Instruction {
                 createChildren();
             }
             long val = read.executeI64(frame);
-            write.executeI64(frame, -val);
+            long result = -val;
+            write.executeI64(frame, result);
+
+            boolean overflow = (val & (0 ^ result)) < 0;
+            boolean adjust = ((val ^ result) & 0x10) != 0;
+
             writeCF.execute(frame, val != 0);
+            writeOF.execute(frame, overflow);
+            writeSF.execute(frame, result < 0);
+            writeZF.execute(frame, result == 0);
+            writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
