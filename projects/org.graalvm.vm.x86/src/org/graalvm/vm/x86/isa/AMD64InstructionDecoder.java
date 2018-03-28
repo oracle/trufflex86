@@ -161,6 +161,10 @@ import org.graalvm.vm.x86.isa.instruction.Movdqu.MovdquToReg;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
+import org.graalvm.vm.x86.isa.instruction.Movs.Movsb;
+import org.graalvm.vm.x86.isa.instruction.Movs.Movsd;
+import org.graalvm.vm.x86.isa.instruction.Movs.Movsq;
+import org.graalvm.vm.x86.isa.instruction.Movs.Movsw;
 import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToRM;
 import org.graalvm.vm.x86.isa.instruction.Movsd.MovsdToReg;
 import org.graalvm.vm.x86.isa.instruction.Movss.MovssToRM;
@@ -879,6 +883,31 @@ public class AMD64InstructionDecoder {
                     return new Movw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 } else {
                     return new Movl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                }
+            }
+            case AMD64Opcode.MOVSB: {
+                assert segment == null;
+                AMD64Instruction insn = new Movsb(pc, Arrays.copyOf(instruction, instructionLength));
+                if (isREPZ) {
+                    return new Rep(pc, Arrays.copyOf(instruction, instructionLength), insn);
+                } else {
+                    return insn;
+                }
+            }
+            case AMD64Opcode.MOVSD: {
+                assert segment == null;
+                AMD64Instruction insn;
+                if (rex != null && rex.w) {
+                    insn = new Movsq(pc, Arrays.copyOf(instruction, instructionLength));
+                } else if (sizeOverride) {
+                    insn = new Movsw(pc, Arrays.copyOf(instruction, instructionLength));
+                } else {
+                    insn = new Movsd(pc, Arrays.copyOf(instruction, instructionLength));
+                }
+                if (isREPZ) {
+                    return new Rep(pc, Arrays.copyOf(instruction, instructionLength), insn);
+                } else {
+                    return insn;
                 }
             }
             case AMD64Opcode.MOVSXD_R_RM: {
