@@ -104,6 +104,21 @@ suite = {
       "license" : "GPLv3"
     },
 
+    "benchmarksgame" : {
+      "subDir" : "tests",
+      "native" : True,
+      "vpath" : True,
+      "results" : [
+        "bin/fasta.cint",
+        "bin/fasta.gcc",
+        "bin/fasta.gcc-4",
+        "bin/fannkuchredux.cint",
+        "bin/fannkuchredux.gcc",
+        "bin/fannkuchredux.gcc-3",
+      ],
+      "license" : "GPLv3"
+    },
+
     "org.graalvm.vm.x86.test" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
@@ -112,6 +127,7 @@ suite = {
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
         "org.graalvm.vm.x86.testcases.sulong.asm",
+        "benchmarksgame",
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8",
@@ -156,6 +172,7 @@ suite = {
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
         "org.graalvm.vm.x86.testcases.sulong.asm",
+        "benchmarksgame",
       ],
     },
 
