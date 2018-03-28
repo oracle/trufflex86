@@ -36,7 +36,7 @@ public class OperandDecoder {
                     }
                 }
                 if (hasDisplacement) {
-                    if (sib.index == 0b100 && !rex.b) { // rsp not used
+                    if (sib.index == 0b100 && !rex.x) { // rsp not used
                         if (modrm.getMod() == 0) { // base not used
                             return new MemoryOperand(segment, displacement, addressOverride);
                         } else {

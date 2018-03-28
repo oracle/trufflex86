@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Call.CallAbsolute;
+import org.graalvm.vm.x86.isa.instruction.Lea;
 import org.graalvm.vm.x86.isa.instruction.Mov.Movq;
 import org.graalvm.vm.x86.isa.instruction.Movsxd;
 import org.graalvm.vm.x86.isa.test.CodeArrayReader;
@@ -22,6 +23,9 @@ public class ModRMTest {
 
     public static final byte[] MACHINECODE3 = {0x4a, 0x63, 0x04, (byte) 0xa2};
     public static final String ASSEMBLY3 = "movsxd\trax,[rdx+r12*4]";
+
+    public static final byte[] MACHINECODE4 = {0x4a, (byte) 0x8d, 0x14, (byte) 0xa5, 0x00, 0x00, 0x00, 0x00};
+    public static final String ASSEMBLY4 = "lea\trdx,[r12*4]";
 
     @Test
     public void test1() {
@@ -51,5 +55,15 @@ public class ModRMTest {
         assertTrue(insn instanceof Movsxd);
         assertEquals(ASSEMBLY3, insn.toString());
         assertEquals(MACHINECODE3.length, reader.getPC());
+    }
+
+    @Test
+    public void test4() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE4, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Lea);
+        assertEquals(ASSEMBLY4, insn.toString());
+        assertEquals(MACHINECODE4.length, reader.getPC());
     }
 }
