@@ -41,6 +41,10 @@ public abstract class Xchg extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8), operands.getOperand2(OperandDecoder.R8));
         }
 
+        public Xchgb(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -55,6 +59,10 @@ public abstract class Xchg extends AMD64Instruction {
     public static class Xchgw extends Xchg {
         public Xchgw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16), operands.getOperand2(OperandDecoder.R16));
+        }
+
+        public Xchgw(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
         }
 
         @Override
@@ -73,6 +81,10 @@ public abstract class Xchg extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32), operands.getOperand2(OperandDecoder.R32));
         }
 
+        public Xchgl(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -87,6 +99,10 @@ public abstract class Xchg extends AMD64Instruction {
     public static class Xchgq extends Xchg {
         public Xchgq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R64));
+        }
+
+        public Xchgq(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
         }
 
         @Override

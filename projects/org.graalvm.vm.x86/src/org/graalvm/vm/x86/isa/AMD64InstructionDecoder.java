@@ -304,6 +304,9 @@ import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddq;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddw;
 import org.graalvm.vm.x86.isa.instruction.Xchg.Xchgb;
+import org.graalvm.vm.x86.isa.instruction.Xchg.Xchgl;
+import org.graalvm.vm.x86.isa.instruction.Xchg.Xchgq;
+import org.graalvm.vm.x86.isa.instruction.Xchg.Xchgw;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorb;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
@@ -1024,6 +1027,24 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.NOP:
                 return new Nop(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.XCHG_A_R + 1:
+            case AMD64Opcode.XCHG_A_R + 2:
+            case AMD64Opcode.XCHG_A_R + 3:
+            case AMD64Opcode.XCHG_A_R + 4:
+            case AMD64Opcode.XCHG_A_R + 5:
+            case AMD64Opcode.XCHG_A_R + 6:
+            case AMD64Opcode.XCHG_A_R + 7: {
+                if (rex != null && rex.w) {
+                    Register reg = getRegister64(op, rex.r);
+                    return new Xchgq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new RegisterOperand(reg));
+                } else if (sizeOverride) {
+                    Register reg = getRegister16(op, rex != null ? rex.r : false);
+                    return new Xchgw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), new RegisterOperand(reg));
+                } else {
+                    Register reg = getRegister32(op, rex != null ? rex.r : false);
+                    return new Xchgl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), new RegisterOperand(reg));
+                }
+            }
             case AMD64Opcode.OR_A_I8: {
                 byte imm = code.read8();
                 instruction[instructionLength++] = imm;
@@ -1587,11 +1608,11 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.XCHG_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
-                    return new Xorq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    return new Xchgq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else if (sizeOverride) {
-                    return new Xorw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    return new Xchgw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else {
-                    return new Xorl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    return new Xchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
             case AMD64Opcode.XOR_RM_R: {
