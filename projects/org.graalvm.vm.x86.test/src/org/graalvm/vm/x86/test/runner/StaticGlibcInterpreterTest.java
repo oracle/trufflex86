@@ -37,4 +37,12 @@ public class StaticGlibcInterpreterTest {
                         "yet another setjmp\n";
         TestRunner.run("longjmp.elf", new String[0], "", stdout, "", 0);
     }
+
+    @Test
+    public void atexit() throws Exception {
+        String stdout = "main\n" +
+                        "atexit hook 2\n" +
+                        "atexit hook 1\n";
+        TestRunner.run("atexit.elf", new String[0], "", stdout, "", 0);
+    }
 }
