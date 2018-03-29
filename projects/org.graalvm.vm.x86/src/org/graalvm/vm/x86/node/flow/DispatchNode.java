@@ -279,6 +279,7 @@ public class DispatchNode extends AMD64Node {
             System.err.printf("Exception at address 0x%016x!\n", pc);
             t.printStackTrace();
             // dump();
+            return 127;
         }
         writePC.executeI64(frame, pc);
         return pc;

@@ -31,6 +31,10 @@ public class SegmentationViolation extends ArrayIndexOutOfBoundsException {
         this.offset = offset;
     }
 
+    public long getAddress() {
+        return offset;
+    }
+
     @Override
     public String toString() {
         if (page != null) {
@@ -42,6 +46,5 @@ public class SegmentationViolation extends ArrayIndexOutOfBoundsException {
         } else {
             return String.format("Invalid memory access at 0x%016X", offset);
         }
-
     }
 }
