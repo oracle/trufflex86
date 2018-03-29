@@ -303,6 +303,7 @@ import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddq;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddw;
+import org.graalvm.vm.x86.isa.instruction.Xchg.Xchgb;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorb;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
@@ -1577,6 +1578,20 @@ public class AMD64InstructionDecoder {
                     return new Testw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 } else {
                     return new Testl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                }
+            }
+            case AMD64Opcode.XCHG_RM8_R8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Xchgb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+            }
+            case AMD64Opcode.XCHG_RM_R: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                if (rex != null && rex.w) {
+                    return new Xorq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                } else if (sizeOverride) {
+                    return new Xorw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                } else {
+                    return new Xorl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
             case AMD64Opcode.XOR_RM_R: {
