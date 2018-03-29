@@ -293,6 +293,7 @@ public class AMD64Opcode {
     public static final byte XCHG_RM8_R8 = (byte) 0x86;
     public static final byte XCHG_RM_R = (byte) 0x87;
 
+    public static final byte XOR_A_I = 0x35;
     public static final byte XOR_RM8_R8 = 0x30;
     public static final byte XOR_RM_R = 0x31;
     public static final byte XOR_R8_RM8 = 0x32;

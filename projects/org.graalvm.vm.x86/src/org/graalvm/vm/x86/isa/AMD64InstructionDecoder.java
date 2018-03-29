@@ -1615,6 +1615,28 @@ public class AMD64InstructionDecoder {
                     return new Xchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.XOR_A_I: {
+                if (rex != null && rex.w) {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Xorq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new ImmediateOperand(imm));
+                } else if (sizeOverride) {
+                    short imm = code.read16();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    return new Xorw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), new ImmediateOperand(imm));
+                } else {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Xorl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), new ImmediateOperand(imm));
+                }
+            }
             case AMD64Opcode.XOR_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {

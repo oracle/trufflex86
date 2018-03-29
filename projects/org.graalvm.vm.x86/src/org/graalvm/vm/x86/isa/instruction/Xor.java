@@ -72,6 +72,10 @@ public abstract class Xor extends AMD64Instruction {
             super(pc, instruction, getOp1(operands, OperandDecoder.R8, swap), getOp2(operands, OperandDecoder.R8, swap));
         }
 
+        public Xorb(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -95,6 +99,10 @@ public abstract class Xor extends AMD64Instruction {
 
         public Xorw(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
             super(pc, instruction, getOp1(operands, OperandDecoder.R16, swap), getOp2(operands, OperandDecoder.R16, swap));
+        }
+
+        public Xorw(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
         }
 
         @Override
@@ -122,6 +130,10 @@ public abstract class Xor extends AMD64Instruction {
             super(pc, instruction, getOp1(operands, OperandDecoder.R32, swap), getOp2(operands, OperandDecoder.R32, swap));
         }
 
+        public Xorl(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -145,6 +157,10 @@ public abstract class Xor extends AMD64Instruction {
 
         public Xorq(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
             super(pc, instruction, getOp1(operands, OperandDecoder.R64, swap), getOp2(operands, OperandDecoder.R64, swap));
+        }
+
+        public Xorq(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2);
         }
 
         @Override
