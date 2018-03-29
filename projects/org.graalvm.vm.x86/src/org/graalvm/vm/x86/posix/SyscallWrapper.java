@@ -27,6 +27,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_mprotect = 10;
     public static final int SYS_munmap = 11;
     public static final int SYS_brk = 12;
+    public static final int SYS_rt_sigprocmask = 14;
     public static final int SYS_ioctl = 16;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
@@ -110,6 +111,9 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.munmap(a1, a2);
             case SYS_brk:
                 return brk(a1);
+            case SYS_rt_sigprocmask:
+                log.log(Level.INFO, () -> String.format("rt_sigprocmask(%s, ..., %s)", a1, a4));
+                throw new SyscallException(Errno.ENOSYS);
             case SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
             case SYS_readv:
