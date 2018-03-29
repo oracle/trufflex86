@@ -55,7 +55,7 @@ public abstract class AMD64Instruction extends AMD64Node {
         if (parts.length == 1) {
             return parts[0];
         } else {
-            return String.format("%s\t%s", parts[0], Stream.of(parts).skip(1).collect(Collectors.joining(",")));
+            return parts[0] + "\t" + Stream.of(parts).skip(1).collect(Collectors.joining(","));
         }
     }
 

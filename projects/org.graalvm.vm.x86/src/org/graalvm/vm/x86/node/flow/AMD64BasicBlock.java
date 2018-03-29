@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
+import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -20,6 +21,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal private static boolean DEBUG = false;
+    @CompilationFinal private static boolean PRINT_SYMBOL = true;
     @CompilationFinal private static boolean PRINT_STATE = true;
     @CompilationFinal private static boolean PRINT_ONCE = false;
     @CompilationFinal private static boolean PRINT_ARGS = true;
@@ -103,14 +105,18 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @TruffleBoundary
     private void trace(long pc, AMD64Instruction insn) {
-        Symbol sym = symbolResolver.getSymbol(pc);
-        String func = sym == null ? "" : sym.getName();
-        if (PRINT_STATE) {
-            System.out.println("----------------\nIN: " + func);
-        } else if (sym != null) {
-            System.out.printf("%s:\n", sym.getName());
+        if (PRINT_SYMBOL) {
+            Symbol sym = symbolResolver.getSymbol(pc);
+            String func = sym == null ? "" : sym.getName();
+            if (PRINT_STATE) {
+                System.out.println("----------------\nIN: " + func);
+            } else if (sym != null) {
+                System.out.println(sym.getName() + ":");
+            }
+            System.out.println("0x" + HexFormatter.tohex(pc, 8) + ":\t" + insn + "\n");
+        } else {
+            System.out.println("0x" + HexFormatter.tohex(pc, 8) + ":\t" + insn);
         }
-        System.out.printf("0x%08x:\t%s\n\n", pc, insn);
     }
 
     private void debug(VirtualFrame frame, long pc, AMD64Instruction insn) {
@@ -155,7 +161,7 @@ public class AMD64BasicBlock extends AMD64Node {
             CompilerDirectives.transferToInterpreter();
             throw new CpuRuntimeException(pc, t);
         }
-        if (DEBUG) {
+        if (DEBUG && PRINT_ONCE) {
             visited = true;
         }
         return pc;

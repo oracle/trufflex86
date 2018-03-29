@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.isa;
 
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.util.BitTest;
 
@@ -53,15 +54,6 @@ public class CpuState {
 
     public Vector128[] xmm = new Vector128[32];
 
-    private static String tohex(long val, int len) {
-        String hex = Long.toHexString(val);
-        StringBuilder buf = new StringBuilder(len);
-        for (int i = hex.length(); i < len; i++) {
-            buf.append('0');
-        }
-        return buf.append(hex).toString();
-    }
-
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {
         for (int i = 0; i < names.length; i++) {
             if (i > 0) {
@@ -69,7 +61,7 @@ public class CpuState {
             }
             buf.append(names[i]);
             buf.append('=');
-            buf.append(tohex(values[i], 16));
+            buf.append(HexFormatter.tohex(values[i], 16));
         }
         buf.append('\n');
         return buf;
@@ -86,7 +78,7 @@ public class CpuState {
     private static void addSegment(StringBuilder buf, String name, long segment) {
         buf.append(name);
         buf.append(" =0000 ");
-        buf.append(tohex(segment, 16));
+        buf.append(HexFormatter.tohex(segment, 16));
         buf.append(" 00000000 00000000\n");
     }
 
@@ -97,8 +89,8 @@ public class CpuState {
         formatRegLine(buf, new String[]{"RSI", "RDI", "RBP", "RSP"}, new long[]{rsi, rdi, rbp, rsp});
         formatRegLine(buf, new String[]{"R8 ", "R9 ", "R10", "R11"}, new long[]{r8, r9, r10, r11});
         formatRegLine(buf, new String[]{"R12", "R13", "R14", "R15"}, new long[]{r12, r13, r14, r15});
-        buf.append("RIP=").append(tohex(rip, 16));
-        buf.append(" RFL=").append(tohex(rfl, 8));
+        buf.append("RIP=").append(HexFormatter.tohex(rip, 16));
+        buf.append(" RFL=").append(HexFormatter.tohex(rfl, 8));
         buf.append(" [");
         addFlag(buf, rfl, Flags.OF, 'O');
         addFlag(buf, rfl, Flags.DF, 'D');
