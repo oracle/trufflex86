@@ -18,6 +18,7 @@ import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
+import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
@@ -210,6 +211,21 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "readlink failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long stat(long pathname, long statbuf) throws SyscallException {
+        PosixPointer ptr = posixPointer(statbuf);
+        Stat stat = new Stat();
+        try {
+            int result = posix.stat(cstr(pathname), stat);
+            stat.write64(ptr);
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "stat failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }
@@ -413,6 +429,14 @@ public class PosixEnvironment {
             throw new SyscallException(Errno.ENOMEM);
         }
         return 0;
+    }
+
+    public int gettimeofday(long tp, @SuppressWarnings("unused") long tzp) {
+        Timeval t = new Timeval();
+        int val = posix.gettimeofday(t, null);
+        PosixPointer ptr = posixPointer(tp);
+        t.write64(ptr);
+        return val;
     }
 
     public Posix getPosix() {

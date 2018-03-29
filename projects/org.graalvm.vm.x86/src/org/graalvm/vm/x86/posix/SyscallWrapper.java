@@ -20,6 +20,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_write = 1;
     public static final int SYS_open = 2;
     public static final int SYS_close = 3;
+    public static final int SYS_stat = 4;
     public static final int SYS_fstat = 5;
     public static final int SYS_lseek = 8;
     public static final int SYS_mmap = 9;
@@ -29,10 +30,12 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_ioctl = 16;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
+    public static final int SYS_getpid = 39;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_getcwd = 79;
     public static final int SYS_readlink = 89;
+    public static final int SYS_gettimeofday = 96;
     public static final int SYS_getuid = 102;
     public static final int SYS_getgid = 104;
     public static final int SYS_arch_prctl = 158;
@@ -91,6 +94,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.open(a1, (int) a2, (int) a3);
             case SYS_close:
                 return posix.close((int) a1);
+            case SYS_stat:
+                return posix.stat(a1, a2);
             case SYS_fstat:
                 return posix.fstat((int) a1, a2);
             case SYS_lseek:
@@ -109,6 +114,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.readv((int) a1, a2, (int) a3);
             case SYS_writev:
                 return posix.writev((int) a1, a2, (int) a3);
+            case SYS_getpid:
+                return posix.getpid();
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
                 throw new ProcessExitException((int) a1);
@@ -118,6 +125,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getcwd(a1, a2);
             case SYS_readlink:
                 return posix.readlink(a1, a2, a3);
+            case SYS_gettimeofday:
+                return posix.gettimeofday(a1, a2);
             case SYS_getuid:
                 return posix.getuid();
             case SYS_getgid:
