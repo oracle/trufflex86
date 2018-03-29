@@ -20,6 +20,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 public class VirtualMemory {
     private static final boolean DEBUG = false;
+    private static final boolean DEBUG_1BYTE = false;
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
@@ -39,6 +40,7 @@ public class VirtualMemory {
     private long reportedBrk;
 
     private boolean debugMemory;
+    private boolean debugSingleByte;
 
     private MemoryPage cache;
     private MemoryPage cache2;
@@ -51,6 +53,7 @@ public class VirtualMemory {
         brk = 0;
         reportedBrk = brk;
         debugMemory = DEBUG;
+        debugSingleByte = DEBUG_1BYTE;
         cache = null;
         cache2 = null;
         cacheHits = 0;
@@ -167,7 +170,7 @@ public class VirtualMemory {
             try {
                 get(base);
             } catch (SegmentationViolation e) {
-                Memory buf = new ByteMemory(size);
+                Memory buf = new ByteMemory(size, false);
                 MemoryPage bufpage = new MemoryPage(buf, base, size, page.name);
                 pages.put(base, bufpage);
                 cache = null;
@@ -207,7 +210,7 @@ public class VirtualMemory {
         if (base == 0) {
             return null;
         } else {
-            Memory mem = new ByteMemory(size);
+            Memory mem = new ByteMemory(size, false);
             MemoryPage page = new MemoryPage(mem, base, size);
             add(page);
             return page;
@@ -640,7 +643,7 @@ public class VirtualMemory {
     }
 
     private void logMemoryRead(long address, int size, byte value) {
-        if (debugMemory) {
+        if (debugMemory && debugSingleByte) {
             long addr = addr(address);
             if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
@@ -693,7 +696,7 @@ public class VirtualMemory {
     }
 
     private void logMemoryWrite(long address, int size, byte value) {
-        if (debugMemory) {
+        if (debugMemory && debugSingleByte) {
             long addr = addr(address);
             if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
