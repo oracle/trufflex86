@@ -33,6 +33,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_getpid = 39;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
+    public static final int SYS_fcntl = 72;
+    public static final int SYS_getdents = 78;
     public static final int SYS_getcwd = 79;
     public static final int SYS_readlink = 89;
     public static final int SYS_gettimeofday = 96;
@@ -121,6 +123,10 @@ public class SyscallWrapper extends AMD64Node {
                 throw new ProcessExitException((int) a1);
             case SYS_uname:
                 return posix.uname(a1);
+            case SYS_fcntl:
+                return posix.fcntl((int) a1, (int) a2, a3);
+            case SYS_getdents:
+                return posix.getdents((int) a1, a2, (int) a3);
             case SYS_getcwd:
                 return posix.getcwd(a1, a2);
             case SYS_readlink:

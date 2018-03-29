@@ -14,12 +14,14 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.BytePosixPointer;
+import com.everyware.posix.api.Dirent;
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Utsname;
+import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
 import com.everyware.posix.api.io.Stat;
@@ -252,6 +254,36 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "lseek failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long fcntl(int fd, int cmd, @SuppressWarnings("unused") long arg) throws SyscallException {
+        try {
+            switch (cmd) {
+                case Fcntl.F_GETFD:
+                case Fcntl.F_GETFL:
+                    return posix.fcntl(fd, cmd);
+                default:
+                    log.log(Level.INFO, "fcntl command not implemented: " + cmd);
+                    throw new PosixException(Errno.EINVAL);
+            }
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "fcntl failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long getdents(int fd, long dirp, int count) throws SyscallException {
+        long cnt = Integer.toUnsignedLong(count);
+        try {
+            return posix.getdents(fd, posixPointer(dirp), cnt, Dirent.DIRENT_64);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getdents failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }
