@@ -108,6 +108,7 @@ import org.graalvm.vm.x86.isa.instruction.Div.Divl;
 import org.graalvm.vm.x86.isa.instruction.Div.Divq;
 import org.graalvm.vm.x86.isa.instruction.Div.Divw;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
+import org.graalvm.vm.x86.isa.instruction.Divss;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivb;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivl;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivq;
@@ -1868,6 +1869,9 @@ public class AMD64InstructionDecoder {
                         if (isREPNZ) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Divsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Divss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
