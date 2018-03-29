@@ -176,7 +176,7 @@ public class BenchmarksGame {
                         "atccaagcgcgttatctgattagagtttacaactcagtattttatcagtacgttttgttt\n" +
                         "ccaacattacccggtatgacaaaatgacgccacgtgtcgaataatggtctgaccaatgta\n" +
                         "ggaagtgaaaagataaatat\n";
-        TestRunner.run("fasta.gcc", new String[]{"1000"}, "", stdout, "", 0);
+        TestRunner.run("fasta.cint", new String[]{"1000"}, "", stdout, "", 0);
     }
 
     @Test
@@ -353,6 +353,182 @@ public class BenchmarksGame {
                         "ccaacattacccggtatgacaaaatgacgccacgtgtcgaataatggtctgaccaatgta\n" +
                         "ggaagtgaaaagataaatat\n";
         TestRunner.run("fasta.gcc", new String[0], "", stdout, "", 0);
+    }
+
+    @Test
+    public void fasta_gcc4() throws Exception {
+        String stdout = ">ONE Homo sapiens alu\n" +
+                        "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGA\n" +
+                        "TCACCTGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACT\n" +
+                        "AAAAATACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAG\n" +
+                        "GCTGAGGCAGGAGAATCGCTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCGAGATCGCG\n" +
+                        "CCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAGGCCGGGCGCGGT\n" +
+                        "GGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACCTGAGGTCA\n" +
+                        "GGAGTTCGAGACCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAATACAAAAA\n" +
+                        "TTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAG\n" +
+                        "AATCGCTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCCA\n" +
+                        "GCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAGGCCGGGCGCGGTGGCTCACGCCTGT\n" +
+                        "AATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGACC\n" +
+                        "AGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAATACAAAAATTAGCCGGGCGTG\n" +
+                        "GTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACC\n" +
+                        "CGGGAGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCCAGCCTGGGCGACAG\n" +
+                        "AGCGAGACTCCGTCTCAAAAAGGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTT\n" +
+                        "TGGGAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACA\n" +
+                        "TGGTGAAACCCCGTCTCTACTAAAAATACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCT\n" +
+                        "GTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGGAGGCGGAGG\n" +
+                        "TTGCAGTGAGCCGAGATCGCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGT\n" +
+                        "CTCAAAAAGGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGG\n" +
+                        "CGGGCGGATCACCTGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACATGGTGAAACCCCG\n" +
+                        "TCTCTACTAAAAATACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCAGCTA\n" +
+                        "CTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCG\n" +
+                        "AGATCGCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAGGCCG\n" +
+                        "GGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACC\n" +
+                        "TGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAA\n" +
+                        "TACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGA\n" +
+                        "GGCAGGAGAATCGCTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACT\n" +
+                        "GCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAGGCCGGGCGCGGTGGCTC\n" +
+                        "ACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGT\n" +
+                        "TCGAGACCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAATACAAAAATTAGC\n" +
+                        "CGGGCGTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATCG\n" +
+                        "CTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCCAGCCTG\n" +
+                        "GGCGACAGAGCGAGACTCCG\n" +
+                        ">TWO IUB ambiguity codes\n" +
+                        "cttBtatcatatgctaKggNcataaaSatgtaaaDcDRtBggDtctttataattcBgtcg\n" +
+                        "tactDtDagcctatttSVHtHttKtgtHMaSattgWaHKHttttagacatWatgtRgaaa\n" +
+                        "NtactMcSMtYtcMgRtacttctWBacgaaatatagScDtttgaagacacatagtVgYgt\n" +
+                        "cattHWtMMWcStgttaggKtSgaYaaccWStcgBttgcgaMttBYatcWtgacaYcaga\n" +
+                        "gtaBDtRacttttcWatMttDBcatWtatcttactaBgaYtcttgttttttttYaaScYa\n" +
+                        "HgtgttNtSatcMtcVaaaStccRcctDaataataStcYtRDSaMtDttgttSagtRRca\n" +
+                        "tttHatSttMtWgtcgtatSSagactYaaattcaMtWatttaSgYttaRgKaRtccactt\n" +
+                        "tattRggaMcDaWaWagttttgacatgttctacaaaRaatataataaMttcgDacgaSSt\n" +
+                        "acaStYRctVaNMtMgtaggcKatcttttattaaaaagVWaHKYagtttttatttaacct\n" +
+                        "tacgtVtcVaattVMBcttaMtttaStgacttagattWWacVtgWYagWVRctDattBYt\n" +
+                        "gtttaagaagattattgacVatMaacattVctgtBSgaVtgWWggaKHaatKWcBScSWa\n" +
+                        "accRVacacaaactaccScattRatatKVtactatatttHttaagtttSKtRtacaaagt\n" +
+                        "RDttcaaaaWgcacatWaDgtDKacgaacaattacaRNWaatHtttStgttattaaMtgt\n" +
+                        "tgDcgtMgcatBtgcttcgcgaDWgagctgcgaggggVtaaScNatttacttaatgacag\n" +
+                        "cccccacatYScaMgtaggtYaNgttctgaMaacNaMRaacaaacaKctacatagYWctg\n" +
+                        "ttWaaataaaataRattagHacacaagcgKatacBttRttaagtatttccgatctHSaat\n" +
+                        "actcNttMaagtattMtgRtgaMgcataatHcMtaBSaRattagttgatHtMttaaKagg\n" +
+                        "YtaaBataSaVatactWtataVWgKgttaaaacagtgcgRatatacatVtHRtVYataSa\n" +
+                        "KtWaStVcNKHKttactatccctcatgWHatWaRcttactaggatctataDtDHBttata\n" +
+                        "aaaHgtacVtagaYttYaKcctattcttcttaataNDaaggaaaDYgcggctaaWSctBa\n" +
+                        "aNtgctggMBaKctaMVKagBaactaWaDaMaccYVtNtaHtVWtKgRtcaaNtYaNacg\n" +
+                        "gtttNattgVtttctgtBaWgtaattcaagtcaVWtactNggattctttaYtaaagccgc\n" +
+                        "tcttagHVggaYtgtNcDaVagctctctKgacgtatagYcctRYHDtgBattDaaDgccK\n" +
+                        "tcHaaStttMcctagtattgcRgWBaVatHaaaataYtgtttagMDMRtaataaggatMt\n" +
+                        "ttctWgtNtgtgaaaaMaatatRtttMtDgHHtgtcattttcWattRSHcVagaagtacg\n" +
+                        "ggtaKVattKYagactNaatgtttgKMMgYNtcccgSKttctaStatatNVataYHgtNa\n" +
+                        "BKRgNacaactgatttcctttaNcgatttctctataScaHtataRagtcRVttacDSDtt\n" +
+                        "aRtSatacHgtSKacYagttMHtWataggatgactNtatSaNctataVtttRNKtgRacc\n" +
+                        "tttYtatgttactttttcctttaaacatacaHactMacacggtWataMtBVacRaSaatc\n" +
+                        "cgtaBVttccagccBcttaRKtgtgcctttttRtgtcagcRttKtaaacKtaaatctcac\n" +
+                        "aattgcaNtSBaaccgggttattaaBcKatDagttactcttcattVtttHaaggctKKga\n" +
+                        "tacatcBggScagtVcacattttgaHaDSgHatRMaHWggtatatRgccDttcgtatcga\n" +
+                        "aacaHtaagttaRatgaVacttagattVKtaaYttaaatcaNatccRttRRaMScNaaaD\n" +
+                        "gttVHWgtcHaaHgacVaWtgttScactaagSgttatcttagggDtaccagWattWtRtg\n" +
+                        "ttHWHacgattBtgVcaYatcggttgagKcWtKKcaVtgaYgWctgYggVctgtHgaNcV\n" +
+                        "taBtWaaYatcDRaaRtSctgaHaYRttagatMatgcatttNattaDttaattgttctaa\n" +
+                        "ccctcccctagaWBtttHtBccttagaVaatMcBHagaVcWcagBVttcBtaYMccagat\n" +
+                        "gaaaaHctctaacgttagNWRtcggattNatcRaNHttcagtKttttgWatWttcSaNgg\n" +
+                        "gaWtactKKMaacatKatacNattgctWtatctaVgagctatgtRaHtYcWcttagccaa\n" +
+                        "tYttWttaWSSttaHcaaaaagVacVgtaVaRMgattaVcDactttcHHggHRtgNcctt\n" +
+                        "tYatcatKgctcctctatVcaaaaKaaaagtatatctgMtWtaaaacaStttMtcgactt\n" +
+                        "taSatcgDataaactaaacaagtaaVctaggaSccaatMVtaaSKNVattttgHccatca\n" +
+                        "cBVctgcaVatVttRtactgtVcaattHgtaaattaaattttYtatattaaRSgYtgBag\n" +
+                        "aHSBDgtagcacRHtYcBgtcacttacactaYcgctWtattgSHtSatcataaatataHt\n" +
+                        "cgtYaaMNgBaatttaRgaMaatatttBtttaaaHHKaatctgatWatYaacttMctctt\n" +
+                        "ttVctagctDaaagtaVaKaKRtaacBgtatccaaccactHHaagaagaaggaNaaatBW\n" +
+                        "attccgStaMSaMatBttgcatgRSacgttVVtaaDMtcSgVatWcaSatcttttVatag\n" +
+                        "ttactttacgatcaccNtaDVgSRcgVcgtgaacgaNtaNatatagtHtMgtHcMtagaa\n" +
+                        "attBgtataRaaaacaYKgtRccYtatgaagtaataKgtaaMttgaaRVatgcagaKStc\n" +
+                        "tHNaaatctBBtcttaYaBWHgtVtgacagcaRcataWctcaBcYacYgatDgtDHccta\n" +
+                        ">THREE Homo sapiens frequency\n" +
+                        "aacacttcaccaggtatcgtgaaggctcaagattacccagagaacctttgcaatataaga\n" +
+                        "atatgtatgcagcattaccctaagtaattatattctttttctgactcaaagtgacaagcc\n" +
+                        "ctagtgtatattaaatcggtatatttgggaaattcctcaaactatcctaatcaggtagcc\n" +
+                        "atgaaagtgatcaaaaaagttcgtacttataccatacatgaattctggccaagtaaaaaa\n" +
+                        "tagattgcgcaaaattcgtaccttaagtctctcgccaagatattaggatcctattactca\n" +
+                        "tatcgtgtttttctttattgccgccatccccggagtatctcacccatccttctcttaaag\n" +
+                        "gcctaatattacctatgcaaataaacatatattgttgaaaattgagaacctgatcgtgat\n" +
+                        "tcttatgtgtaccatatgtatagtaatcacgcgactatatagtgctttagtatcgcccgt\n" +
+                        "gggtgagtgaatattctgggctagcgtgagatagtttcttgtcctaatatttttcagatc\n" +
+                        "gaatagcttctatttttgtgtttattgacatatgtcgaaactccttactcagtgaaagtc\n" +
+                        "atgaccagatccacgaacaatcttcggaatcagtctcgttttacggcggaatcttgagtc\n" +
+                        "taacttatatcccgtcgcttactttctaacaccccttatgtatttttaaaattacgttta\n" +
+                        "ttcgaacgtacttggcggaagcgttattttttgaagtaagttacattgggcagactcttg\n" +
+                        "acattttcgatacgactttctttcatccatcacaggactcgttcgtattgatatcagaag\n" +
+                        "ctcgtgatgattagttgtcttctttaccaatactttgaggcctattctgcgaaatttttg\n" +
+                        "ttgccctgcgaacttcacataccaaggaacacctcgcaacatgccttcatatccatcgtt\n" +
+                        "cattgtaattcttacacaatgaatcctaagtaattacatccctgcgtaaaagatggtagg\n" +
+                        "ggcactgaggatatattaccaagcatttagttatgagtaatcagcaatgtttcttgtatt\n" +
+                        "aagttctctaaaatagttacatcgtaatgttatctcgggttccgcgaataaacgagatag\n" +
+                        "attcattatatatggccctaagcaaaaacctcctcgtattctgttggtaattagaatcac\n" +
+                        "acaatacgggttgagatattaattatttgtagtacgaagagatataaaaagatgaacaat\n" +
+                        "tactcaagtcaagatgtatacgggatttataataaaaatcgggtagagatctgctttgca\n" +
+                        "attcagacgtgccactaaatcgtaatatgtcgcgttacatcagaaagggtaactattatt\n" +
+                        "aattaataaagggcttaatcactacatattagatcttatccgatagtcttatctattcgt\n" +
+                        "tgtatttttaagcggttctaattcagtcattatatcagtgctccgagttctttattattg\n" +
+                        "ttttaaggatgacaaaatgcctcttgttataacgctgggagaagcagactaagagtcgga\n" +
+                        "gcagttggtagaatgaggctgcaaaagacggtctcgacgaatggacagactttactaaac\n" +
+                        "caatgaaagacagaagtagagcaaagtctgaagtggtatcagcttaattatgacaaccct\n" +
+                        "taatacttccctttcgccgaatactggcgtggaaaggttttaaaagtcgaagtagttaga\n" +
+                        "ggcatctctcgctcataaataggtagactactcgcaatccaatgtgactatgtaatactg\n" +
+                        "ggaacatcagtccgcgatgcagcgtgtttatcaaccgtccccactcgcctggggagacat\n" +
+                        "gagaccacccccgtggggattattagtccgcagtaatcgactcttgacaatccttttcga\n" +
+                        "ttatgtcatagcaatttacgacagttcagcgaagtgactactcggcgaaatggtattact\n" +
+                        "aaagcattcgaacccacatgaatgtgattcttggcaatttctaatccactaaagcttttc\n" +
+                        "cgttgaatctggttgtagatatttatataagttcactaattaagatcacggtagtatatt\n" +
+                        "gatagtgatgtctttgcaagaggttggccgaggaatttacggattctctattgatacaat\n" +
+                        "ttgtctggcttataactcttaaggctgaaccaggcgtttttagacgacttgatcagctgt\n" +
+                        "tagaatggtttggactccctctttcatgtcagtaacatttcagccgttattgttacgata\n" +
+                        "tgcttgaacaatattgatctaccacacacccatagtatattttataggtcatgctgttac\n" +
+                        "ctacgagcatggtattccacttcccattcaatgagtattcaacatcactagcctcagaga\n" +
+                        "tgatgacccacctctaataacgtcacgttgcggccatgtgaaacctgaacttgagtagac\n" +
+                        "gatatcaagcgctttaaattgcatataacatttgagggtaaagctaagcggatgctttat\n" +
+                        "ataatcaatactcaataataagatttgattgcattttagagttatgacacgacatagttc\n" +
+                        "actaacgagttactattcccagatctagactgaagtactgatcgagacgatccttacgtc\n" +
+                        "gatgatcgttagttatcgacttaggtcgggtctctagcggtattggtacttaaccggaca\n" +
+                        "ctatactaataacccatgatcaaagcataacagaatacagacgataatttcgccaacata\n" +
+                        "tatgtacagaccccaagcatgagaagctcattgaaagctatcattgaagtcccgctcaca\n" +
+                        "atgtgtcttttccagacggtttaactggttcccgggagtcctggagtttcgacttacata\n" +
+                        "aatggaaacaatgtattttgctaatttatctatagcgtcatttggaccaatacagaatat\n" +
+                        "tatgttgcctagtaatccactataacccgcaagtgctgatagaaaatttttagacgattt\n" +
+                        "ataaatgccccaagtatccctcccgtgaatcctccgttatactaattagtattcgttcat\n" +
+                        "acgtataccgcgcatatatgaacatttggcgataaggcgcgtgaattgttacgtgacaga\n" +
+                        "gatagcagtttcttgtgatatggttaacagacgtacatgaagggaaactttatatctata\n" +
+                        "gtgatgcttccgtagaaataccgccactggtctgccaatgatgaagtatgtagctttagg\n" +
+                        "tttgtactatgaggctttcgtttgtttgcagagtataacagttgcgagtgaaaaaccgac\n" +
+                        "gaatttatactaatacgctttcactattggctacaaaatagggaagagtttcaatcatga\n" +
+                        "gagggagtatatggatgctttgtagctaaaggtagaacgtatgtatatgctgccgttcat\n" +
+                        "tcttgaaagatacataagcgataagttacgacaattataagcaacatccctaccttcgta\n" +
+                        "acgatttcactgttactgcgcttgaaatacactatggggctattggcggagagaagcaga\n" +
+                        "tcgcgccgagcatatacgagacctataatgttgatgatagagaaggcgtctgaattgata\n" +
+                        "catcgaagtacactttctttcgtagtatctctcgtcctctttctatctccggacacaaga\n" +
+                        "attaagttatatatatagagtcttaccaatcatgttgaatcctgattctcagagttcttt\n" +
+                        "ggcgggccttgtgatgactgagaaacaatgcaatattgctccaaatttcctaagcaaatt\n" +
+                        "ctcggttatgttatgttatcagcaaagcgttacgttatgttatttaaatctggaatgacg\n" +
+                        "gagcgaagttcttatgtcggtgtgggaataattcttttgaagacagcactccttaaataa\n" +
+                        "tatcgctccgtgtttgtatttatcgaatgggtctgtaaccttgcacaagcaaatcggtgg\n" +
+                        "tgtatatatcggataacaattaatacgatgttcatagtgacagtatactgatcgagtcct\n" +
+                        "ctaaagtcaattacctcacttaacaatctcattgatgttgtgtcattcccggtatcgccc\n" +
+                        "gtagtatgtgctctgattgaccgagtgtgaaccaaggaacatctactaatgcctttgtta\n" +
+                        "ggtaagatctctctgaattccttcgtgccaacttaaaacattatcaaaatttcttctact\n" +
+                        "tggattaactacttttacgagcatggcaaattcccctgtggaagacggttcattattatc\n" +
+                        "ggaaaccttatagaaattgcgtgttgactgaaattagatttttattgtaagagttgcatc\n" +
+                        "tttgcgattcctctggtctagcttccaatgaacagtcctcccttctattcgacatcgggt\n" +
+                        "ccttcgtacatgtctttgcgatgtaataattaggttcggagtgtggccttaatgggtgca\n" +
+                        "actaggaatacaacgcaaatttgctgacatgatagcaaatcggtatgccggcaccaaaac\n" +
+                        "gtgctccttgcttagcttgtgaatgagactcagtagttaaataaatccatatctgcaatc\n" +
+                        "gattccacaggtattgtccactatctttgaactactctaagagatacaagcttagctgag\n" +
+                        "accgaggtgtatatgactacgctgatatctgtaaggtaccaatgcaggcaaagtatgcga\n" +
+                        "gaagctaataccggctgtttccagctttataagattaaaatttggctgtcctggcggcct\n" +
+                        "cagaattgttctatcgtaatcagttggttcattaattagctaagtacgaggtacaactta\n" +
+                        "tctgtcccagaacagctccacaagtttttttacagccgaaacccctgtgtgaatcttaat\n" +
+                        "atccaagcgcgttatctgattagagtttacaactcagtattttatcagtacgttttgttt\n" +
+                        "ccaacattacccggtatgacaaaatgacgccacgtgtcgaataatggtctgaccaatgta\n" +
+                        "ggaagtgaaaagataaatat\n";
+        TestRunner.run("fasta.gcc-4", new String[0], "", stdout, "", 0);
     }
 
     @Test

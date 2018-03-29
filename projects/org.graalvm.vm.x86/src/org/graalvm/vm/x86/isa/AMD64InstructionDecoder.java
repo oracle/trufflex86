@@ -295,6 +295,7 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testl;
 import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
 import org.graalvm.vm.x86.isa.instruction.Ucomisd;
+import org.graalvm.vm.x86.isa.instruction.Ucomiss;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddq;
@@ -2451,6 +2452,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
                             return new Ucomisd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (np) {
+                            return new Ucomiss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
