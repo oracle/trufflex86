@@ -67,7 +67,7 @@ public abstract class Shl extends AMD64Instruction {
             writeDst.executeI8(frame, result8);
             if (shift > 0) {
                 boolean cf = (result & 0x100) != 0;
-                boolean of = cf == result8 < 0;
+                boolean of = cf ^ (result8 < 0);
                 writeCF.execute(frame, cf);
                 writeOF.execute(frame, of);
                 writeZF.execute(frame, result8 == 0);
@@ -97,7 +97,7 @@ public abstract class Shl extends AMD64Instruction {
             writeDst.executeI16(frame, result16);
             if (shift > 0) {
                 boolean cf = (result & 0x10000) != 0;
-                boolean of = cf == result16 < 0;
+                boolean of = cf ^ (result16 < 0);
                 writeCF.execute(frame, cf);
                 writeOF.execute(frame, of);
                 writeZF.execute(frame, result16 == 0);
@@ -127,7 +127,7 @@ public abstract class Shl extends AMD64Instruction {
             writeDst.executeI32(frame, result32);
             if (shift > 0) {
                 boolean cf = (result & 0x100000000L) != 0;
-                boolean of = cf == result32 < 0;
+                boolean of = cf ^ (result32 < 0);
                 writeCF.execute(frame, cf);
                 writeOF.execute(frame, of);
                 writeZF.execute(frame, result32 == 0);
@@ -157,7 +157,7 @@ public abstract class Shl extends AMD64Instruction {
             if (shift > 0) {
                 long bit = 1L << (64 - shift);
                 boolean cf = (result & bit) != 0;
-                boolean of = cf == result < 0;
+                boolean of = cf ^ (result < 0);
                 writeCF.execute(frame, cf);
                 writeOF.execute(frame, of);
                 writeZF.execute(frame, result == 0);
