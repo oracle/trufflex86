@@ -482,4 +482,57 @@ public class PosixEnvironment {
     public void mount(String path, FileSystem fs) throws PosixException {
         posix.getVFS().mount(path, fs);
     }
+
+    // DEBUGGING FEATURES (NONSTANDARD!)
+    public void printk(long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
+        String fmt = cstr(a1);
+        StringBuilder buf = new StringBuilder(fmt.length());
+        int state = 0;
+        long[] args = {a2, a3, a4, a5, a6, a7};
+        int argidx = 0;
+        for (char c : fmt.toCharArray()) {
+            switch (state) {
+                case 0: // normal text
+                    switch (c) {
+                        case '%':
+                            state = 1;
+                            break;
+                        default:
+                            buf.append(c);
+                    }
+                    break;
+                case 1: // '%'
+                    switch (c) {
+                        case 's':
+                            buf.append(cstr(args[argidx++]));
+                            state = 0;
+                            break;
+                        case 'd':
+                            buf.append(args[argidx++]);
+                            state = 0;
+                            break;
+                        case 'x':
+                            buf.append(Long.toHexString(args[argidx++]));
+                            state = 0;
+                            break;
+                        case '%':
+                            buf.append('%');
+                            state = 0;
+                            break;
+                        default:
+                            buf.append('%');
+                            state = 0;
+                            break;
+                    }
+                    break;
+            }
+        }
+        byte[] bytes = buf.toString().getBytes();
+        PosixPointer ptr = new BytePosixPointer(bytes);
+        try {
+            posix.write(1, ptr, bytes.length);
+        } catch (PosixException e) {
+            throw new SyscallException(e.getErrno());
+        }
+    }
 }

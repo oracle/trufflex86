@@ -46,6 +46,9 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
 
+    public static final int SYS_DEBUG = 0xDEADBEEF;
+    public static final int SYS_PRINTK = 0xDEADBABE;
+
     private final PosixEnvironment posix;
     private final VirtualMemory memory;
 
@@ -145,6 +148,12 @@ public class SyscallWrapper extends AMD64Node {
                 throw new ProcessExitException(128 + (int) a3);
             case SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
+            case SYS_DEBUG:
+                log.log(Levels.INFO, String.format("DEBUG: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
+                return 0;
+            case SYS_PRINTK:
+                posix.printk(a1, a2, a3, a4, a5, a6, a7);
+                return 0;
             default:
                 throw new SyscallException(Errno.ENOSYS);
         }
