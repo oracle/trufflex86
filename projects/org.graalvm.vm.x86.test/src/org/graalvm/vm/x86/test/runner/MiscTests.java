@@ -19,4 +19,17 @@ public class MiscTests {
                         "     5: [      0x6945c0; memsz:   2a40] flags: 0x4; PT_GNU_RELRO\n";
         TestRunner.run("dl_iterate_phdr.elf", new String[0], "", stdout, "", 0);
     }
+
+    @Test
+    public void ftell() throws Exception {
+        String stdout = "Running test case \"(fh = tmpfile()) != NULL\"\n" +
+                        "Running test case \"setvbuf(fh, buffer, _IOLBF, 4) == 0\"\n" +
+                        "Running test case \"fseek(fh, 0L, SEEK_SET) == 0\"\n" +
+                        "Running test case \"ungetc('x', fh) == 'x'\"\n" +
+                        "Running test case \"ftell(fh) == -1l\"\n" +
+                        "Running test case \"fseek(fh, 0L, SEEK_SET) == 0\"\n" +
+                        "Running test case \"fputc('1', fh) == '1'\"\n";
+        String stderr = "double free or corruption (out)\n";
+        TestRunner.run("ftell.elf", new String[0], "", stdout, stderr, 134);
+    }
 }
