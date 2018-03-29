@@ -8,6 +8,9 @@ public class HexFormatter {
     public static String tohex(long val, int len) {
         CompilerAsserts.partialEvaluationConstant(len);
         String hex = Long.toHexString(val);
+        if (hex.length() >= len) {
+            return hex;
+        }
         if (len == 8) {
             String zeroPad = "00000000";
             return zeroPad.substring(hex.length()) + hex;
