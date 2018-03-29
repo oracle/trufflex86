@@ -452,6 +452,11 @@ public class AMD64InstructionDecoder {
                     return new Addl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 }
             }
+            case AMD64Opcode.AND_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Andb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
+            }
             case AMD64Opcode.AND_A_I: {
                 if (rex != null && rex.w) {
                     int imm = code.read32();
@@ -1534,6 +1539,7 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.TEST_AL_I: {
                 byte imm = code.read8();
+                instruction[instructionLength++] = imm;
                 return new Testb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
             }
             case AMD64Opcode.TEST_A_I: {
