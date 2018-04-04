@@ -1,4 +1,4 @@
-package org.graalvm.x86.test.platform;
+package org.graalvm.vm.x86.test.platform;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
