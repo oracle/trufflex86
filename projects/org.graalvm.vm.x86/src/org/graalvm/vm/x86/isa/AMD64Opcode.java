@@ -195,6 +195,8 @@ public class AMD64Opcode {
     public static final byte PADDW_X_XM = (byte) 0xFD;
     public static final byte PADDD_X_XM = (byte) 0xFE;
 
+    public static final byte PAND_X_XM = (byte) 0xDB;
+
     public static final byte PCMPEQB_X_XM = 0x74;
     public static final byte PCMPEQW_X_XM = 0x75;
     public static final byte PCMPEQD_X_XM = 0x76;
