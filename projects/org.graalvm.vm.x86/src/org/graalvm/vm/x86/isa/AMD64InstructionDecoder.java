@@ -1073,6 +1073,10 @@ public class AMD64InstructionDecoder {
                     return new Orl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.OR_R8_RM8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Orb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+            }
             case AMD64Opcode.OR_R_RM: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {

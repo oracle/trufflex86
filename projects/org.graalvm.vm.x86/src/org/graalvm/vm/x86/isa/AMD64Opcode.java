@@ -189,6 +189,7 @@ public class AMD64Opcode {
     public static final byte OR_RM8_I = (byte) 0x80;
     public static final byte OR_RM8_R8 = 0x08;
     public static final byte OR_RM_R = 0x09;
+    public static final byte OR_R8_RM8 = 0x0A;
     public static final byte OR_R_RM = 0x0B;
 
     public static final byte PADDB_X_XM = (byte) 0xFC;
