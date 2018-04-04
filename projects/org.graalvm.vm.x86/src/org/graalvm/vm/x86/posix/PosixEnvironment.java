@@ -259,6 +259,18 @@ public class PosixEnvironment {
         }
     }
 
+    public int access(long pathname, int mode) throws SyscallException {
+        String path = cstr(pathname);
+        try {
+            return posix.access(path, mode);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "access failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long fcntl(int fd, int cmd, @SuppressWarnings("unused") long arg) throws SyscallException {
         try {
             switch (cmd) {
