@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
@@ -249,6 +250,16 @@ public class DispatchNode extends AMD64Node {
             } else {
                 System.err.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
             }
+            if (!(e.getCause() instanceof SegmentationViolation)) {
+                try {
+                    MemoryPage page = memory.get(e.getPC());
+                    if (page != null && page.name != null) {
+                        System.err.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                    }
+                } catch (Throwable t) {
+                    System.err.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
+                }
+            }
             try {
                 Long blockPC = blockLookup.floorKey(e.getPC());
                 if (blockPC != null) {
@@ -278,6 +289,15 @@ public class DispatchNode extends AMD64Node {
             CompilerDirectives.transferToInterpreter();
             System.err.printf("Exception at address 0x%016x!\n", pc);
             t.printStackTrace();
+            try {
+                MemoryPage page = memory.get(pc);
+                if (page != null && page.name != null) {
+                    System.err.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                }
+            } catch (Throwable th) {
+                System.err.printf("Error while retrieving associated page of 0x%016x\n", pc);
+            }
+            memory.printLayout(System.err);
             // dump();
             return 127;
         }
