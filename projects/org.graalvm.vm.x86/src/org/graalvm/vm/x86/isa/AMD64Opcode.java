@@ -199,6 +199,12 @@ public class AMD64Opcode {
     public static final byte PCMPEQW_X_XM = 0x75;
     public static final byte PCMPEQD_X_XM = 0x76;
 
+    public static final byte PCMPGTB_X_XM = 0x64;
+    public static final byte PCMPGTW_X_XM = 0x65;
+    public static final byte PCMPGTD_X_XM = 0x66;
+
+    public static final byte PMAXUB_X_XM = (byte) 0xDE;
+
     public static final byte PMINUB_X_XM = (byte) 0xDA;
 
     public static final byte PMOVMSKB_R_X = (byte) 0xD7;

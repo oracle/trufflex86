@@ -232,6 +232,14 @@ public class Vector128 implements Cloneable {
         }
     }
 
+    private static long gt(long x, long y, long mask) {
+        if ((x & mask) > (y & mask)) {
+            return mask;
+        } else {
+            return 0;
+        }
+    }
+
     public Vector128 eq8(Vector128 x) {
         long[] result = new long[data.length];
         for (int i = 0; i < data.length; i++) {
@@ -268,6 +276,47 @@ public class Vector128 implements Cloneable {
             long r = 0;
             r |= eq(data[i], x.data[i], 0xFFFFFFFF00000000L);
             r |= eq(data[i], x.data[i], 0x00000000FFFFFFFFL);
+            result[i] = r;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 gt8(Vector128 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= gt(data[i], x.data[i], 0xFF00000000000000L);
+            r |= gt(data[i], x.data[i], 0x00FF000000000000L);
+            r |= gt(data[i], x.data[i], 0x0000FF0000000000L);
+            r |= gt(data[i], x.data[i], 0x000000FF00000000L);
+            r |= gt(data[i], x.data[i], 0x00000000FF000000L);
+            r |= gt(data[i], x.data[i], 0x0000000000FF0000L);
+            r |= gt(data[i], x.data[i], 0x000000000000FF00L);
+            r |= gt(data[i], x.data[i], 0x00000000000000FFL);
+            result[i] = r;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 gt16(Vector128 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= gt(data[i], x.data[i], 0xFFFF000000000000L);
+            r |= gt(data[i], x.data[i], 0x0000FFFF00000000L);
+            r |= gt(data[i], x.data[i], 0x00000000FFFF0000L);
+            r |= gt(data[i], x.data[i], 0x000000000000FFFFL);
+            result[i] = r;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 gt32(Vector128 x) {
+        long[] result = new long[data.length];
+        for (int i = 0; i < data.length; i++) {
+            long r = 0;
+            r |= gt(data[i], x.data[i], 0xFFFFFFFF00000000L);
+            r |= gt(data[i], x.data[i], 0x00000000FFFFFFFFL);
             result[i] = r;
         }
         return new Vector128(result);

@@ -214,6 +214,10 @@ import org.graalvm.vm.x86.isa.instruction.Padd.Paddw;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128b;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128d;
 import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128w;
+import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128b;
+import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128d;
+import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128w;
+import org.graalvm.vm.x86.isa.instruction.Pmaxub;
 import org.graalvm.vm.x86.isa.instruction.Pminub;
 import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
 import org.graalvm.vm.x86.isa.instruction.Pop.Popq;
@@ -2336,6 +2340,34 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Pcmpeq128d(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    case AMD64Opcode.PCMPGTB_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Pcmpgt128b(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    case AMD64Opcode.PCMPGTW_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Pcmpgt128w(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    case AMD64Opcode.PCMPGTD_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Pcmpgt128d(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    case AMD64Opcode.PMAXUB_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Pmaxub(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
