@@ -886,6 +886,10 @@ public class AMD64InstructionDecoder {
                     return new Movl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg), imm);
                 }
             }
+            case AMD64Opcode.MOV_R8_RM8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Movb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+            }
             case AMD64Opcode.MOV_RM_R8: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 return new Movb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());

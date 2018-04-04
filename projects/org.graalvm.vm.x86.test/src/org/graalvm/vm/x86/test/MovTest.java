@@ -18,6 +18,9 @@ public class MovTest {
     public static final byte[] MACHINECODE2 = {0x48, (byte) 0x8b, 0x04, 0x24};
     public static final String ASSEMBLY2 = "mov\trax,[rsp]";
 
+    public static final byte[] MACHINECODE3 = {(byte) 0x8a, 0x06};
+    public static final String ASSEMBLY3 = "mov\tal,[rsi]";
+
     @Test
     public void test1() {
         CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
@@ -36,5 +39,15 @@ public class MovTest {
         assertTrue(insn instanceof Mov);
         assertEquals(ASSEMBLY2, insn.toString());
         assertEquals(MACHINECODE2.length, reader.getPC());
+    }
+
+    @Test
+    public void test3() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE3, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Mov);
+        assertEquals(ASSEMBLY3, insn.toString());
+        assertEquals(MACHINECODE3.length, reader.getPC());
     }
 }

@@ -56,7 +56,11 @@ public abstract class Mov extends AMD64Instruction {
 
     public static class Movb extends Mov {
         public Movb(long pc, byte[] instruction, OperandDecoder operands) {
-            super(pc, instruction, operands.getOperand1(OperandDecoder.R8), operands.getOperand2(OperandDecoder.R8));
+            this(pc, instruction, operands, false);
+        }
+
+        public Movb(long pc, byte[] instruction, OperandDecoder operands, boolean swap) {
+            super(pc, instruction, getOp1(operands, OperandDecoder.R8, swap), getOp2(operands, OperandDecoder.R8, swap));
         }
 
         public Movb(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
