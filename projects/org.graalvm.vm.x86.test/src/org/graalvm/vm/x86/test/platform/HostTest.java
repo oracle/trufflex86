@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.test.platform;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +17,7 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import org.graalvm.vm.x86.AMD64Language;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -93,10 +95,15 @@ public class HostTest {
     }
 
     @BeforeClass
-    public static void setup() {
+    public static void setupClass() {
         if (!isX86) {
             log.log(Level.WARNING, "Host is not x86, skipping tests which only work on x86 hosts");
         }
+    }
+
+    @Before
+    public void setup() {
+        assumeTrue(isX86);
     }
 
     public static void run(String filename, String[] args, String stdin) throws Exception {
