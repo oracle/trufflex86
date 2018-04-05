@@ -597,6 +597,10 @@ public class AMD64InstructionDecoder {
                     return new Cmpl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.CMP_R8_RM8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Cmpb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+            }
             case AMD64Opcode.CMP_R_RM: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
