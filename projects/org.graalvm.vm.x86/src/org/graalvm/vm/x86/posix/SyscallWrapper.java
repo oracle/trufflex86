@@ -119,7 +119,9 @@ public class SyscallWrapper extends AMD64Node {
             case SYS_brk:
                 return brk(a1);
             case SYS_rt_sigprocmask:
-                log.log(Level.INFO, () -> String.format("rt_sigprocmask(%s, ..., %s)", a1, a4));
+                if (posix.isStrace()) {
+                    log.log(Level.INFO, () -> String.format("rt_sigprocmask(%s, ..., %s)", a1, a4));
+                }
                 throw new SyscallException(Errno.ENOSYS);
             case SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
@@ -133,6 +135,9 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getpid();
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
+                if (posix.isStrace()) {
+                    log.log(Level.INFO, () -> String.format("exit(%d)", (int) a1));
+                }
                 throw new ProcessExitException((int) a1);
             case SYS_uname:
                 return posix.uname(a1);
@@ -151,6 +156,9 @@ public class SyscallWrapper extends AMD64Node {
             case SYS_getgid:
                 return posix.getgid();
             case SYS_tgkill:
+                if (posix.isStrace()) {
+                    log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));
+                }
                 throw new ProcessExitException(128 + (int) a3);
             case SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
@@ -158,6 +166,9 @@ public class SyscallWrapper extends AMD64Node {
                 log.log(Levels.INFO, String.format("DEBUG: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
                 return 0;
             case SYS_PRINTK:
+                if (posix.isStrace()) {
+                    log.log(Level.INFO, "printk(...)");
+                }
                 posix.printk(a1, a2, a3, a4, a5, a6, a7);
                 return 0;
             default:
