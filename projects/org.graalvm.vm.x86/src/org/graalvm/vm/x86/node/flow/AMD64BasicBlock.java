@@ -122,14 +122,14 @@ public class AMD64BasicBlock extends AMD64Node {
     private void debug(VirtualFrame frame, long pc, AMD64Instruction insn) {
         if (DEBUG && (!PRINT_ONCE || !visited)) {
             if (symbolResolver == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 symbolResolver = getContextReference().get().getSymbolResolver();
             }
             trace(pc, insn);
         }
         if (DEBUG && (!PRINT_ONCE || !visited) && PRINT_STATE) {
             if (printState == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 printState = insert(new PrintStateNode());
             }
             if (!PRINT_ONCE || !visited) {
@@ -149,7 +149,7 @@ public class AMD64BasicBlock extends AMD64Node {
                 pc = insn.executeInstruction(frame);
                 if (DEBUG && PRINT_ARGS && insn instanceof Call) {
                     if (printArgs == null) {
-                        CompilerDirectives.transferToInterpreter();
+                        CompilerDirectives.transferToInterpreterAndInvalidate();
                         printArgs = insert(new PrintArgumentsNode());
                     }
                     printArgs.execute(frame, pc);

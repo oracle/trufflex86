@@ -27,7 +27,7 @@ public class WriteFlagsNode extends WriteNode {
 
     private void createChildrenIfNecessary() {
         if (writeCF == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             writeCF = regs.getCF().createWrite();

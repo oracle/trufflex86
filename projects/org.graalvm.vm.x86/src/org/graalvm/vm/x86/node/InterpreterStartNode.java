@@ -21,7 +21,7 @@ public class InterpreterStartNode extends AMD64RootNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         TruffleLanguage<AMD64Context> language = getLanguage(AMD64Language.class);
         ArchitecturalState state = language.getContextReference().get().getState();
         interpreter = insert(new InterpreterRootNode(state, programName));

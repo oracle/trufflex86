@@ -39,7 +39,7 @@ public class Syscall extends AMD64Instruction {
 
     private void createChildren() {
         assert syscall == null;
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         AMD64Context ctx = getContextReference().get();
         RegisterAccessFactory reg = ctx.getState().getRegisters();
         PosixEnvironment posix = ctx.getPosixEnvironment();

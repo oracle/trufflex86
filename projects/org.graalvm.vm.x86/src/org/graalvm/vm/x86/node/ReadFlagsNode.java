@@ -24,7 +24,7 @@ public class ReadFlagsNode extends ReadNode {
 
     private void createChildrenIfNecessary() {
         if (readCF == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readCF = regs.getCF().createRead();

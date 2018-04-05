@@ -82,7 +82,7 @@ public class SyscallWrapper extends AMD64Node {
         switch (nr) {
             case SYS_arch_prctl:
                 if (prctl == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     prctl = insert(new ArchPrctl());
                 }
                 return prctl.execute(frame, (int) a1, a2);

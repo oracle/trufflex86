@@ -58,7 +58,7 @@ public class PrintArgumentsNode extends AMD64Node {
 
     public void execute(VirtualFrame frame, long pc) {
         if (readRDI == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             AMD64Context ctx = getContextReference().get();
             ArchitecturalState state = ctx.getState();
             RegisterAccessFactory regs = state.getRegisters();

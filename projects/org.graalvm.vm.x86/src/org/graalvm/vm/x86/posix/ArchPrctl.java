@@ -26,7 +26,7 @@ public class ArchPrctl extends AMD64Node {
         switch (code) {
             case ARCH_SET_GS:
                 if (writeGS == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     writeGS = state.getRegisters().getGS().createWrite();
                 }
@@ -34,7 +34,7 @@ public class ArchPrctl extends AMD64Node {
                 return 0;
             case ARCH_SET_FS:
                 if (writeGS == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     writeFS = state.getRegisters().getFS().createWrite();
                 }
@@ -42,12 +42,12 @@ public class ArchPrctl extends AMD64Node {
                 return 0;
             case ARCH_GET_FS:
                 if (readFS == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     readFS = state.getRegisters().getFS().createRead();
                 }
                 if (writeMemory == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     writeMemory = state.createMemoryWrite();
                 }
@@ -55,12 +55,12 @@ public class ArchPrctl extends AMD64Node {
                 return 0;
             case ARCH_GET_GS:
                 if (readGS == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     readGS = state.getRegisters().getGS().createRead();
                 }
                 if (writeMemory == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     writeMemory = state.createMemoryWrite();
                 }
