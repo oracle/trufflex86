@@ -2,6 +2,9 @@ package org.graalvm.vm.x86.isa;
 
 import java.util.Arrays;
 
+import org.graalvm.vm.x86.isa.instruction.Adc.Adcl;
+import org.graalvm.vm.x86.isa.instruction.Adc.Adcq;
+import org.graalvm.vm.x86.isa.instruction.Adc.Adcw;
 import org.graalvm.vm.x86.isa.instruction.Add.Addb;
 import org.graalvm.vm.x86.isa.instruction.Add.Addl;
 import org.graalvm.vm.x86.isa.instruction.Add.Addq;
@@ -414,6 +417,16 @@ public class AMD64InstructionDecoder {
             instruction[instructionLength++] = op;
         }
         switch (op) {
+            case AMD64Opcode.ADC_RM_R: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                if (rex != null && rex.w) {
+                    return new Adcq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                } else if (sizeOverride) {
+                    return new Adcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                } else {
+                    return new Adcl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                }
+            }
             case AMD64Opcode.ADD_A_I: {
                 if (rex != null && rex.w) {
                     int imm = code.read32();
@@ -1458,6 +1471,16 @@ public class AMD64InstructionDecoder {
                             return new Orw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new Orl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        }
+                    }
+                    case 2: { // ADC r/m32 i8
+                        byte imm = code.read8();
+                        if (rex != null && rex.w) {
+                            return new Adcq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
+                            return new Adcw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else {
+                            return new Adcl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         }
                     }
                     case 3: { // SBB r/m32 i8

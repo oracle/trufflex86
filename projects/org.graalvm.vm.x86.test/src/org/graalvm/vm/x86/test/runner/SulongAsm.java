@@ -2,11 +2,9 @@ package org.graalvm.vm.x86.test.runner;
 
 import java.nio.file.Paths;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SulongAsm {
-    @Ignore("not yet implemented")
     @Test
     public void adc001() throws Exception {
         String stdout = "00000000:00000000:0:00000000:0:0\n" +
