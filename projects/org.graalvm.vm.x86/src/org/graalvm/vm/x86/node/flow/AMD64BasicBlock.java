@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.node.flow;
 
+import static org.graalvm.vm.x86.Options.getBoolean;
+
 import java.util.Arrays;
 
 import org.graalvm.vm.x86.CpuRuntimeException;
@@ -20,11 +22,11 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class AMD64BasicBlock extends AMD64Node {
-    @CompilationFinal private static boolean DEBUG = false;
-    @CompilationFinal private static boolean PRINT_SYMBOL = true;
-    @CompilationFinal private static boolean PRINT_STATE = true;
-    @CompilationFinal private static boolean PRINT_ONCE = false;
-    @CompilationFinal private static boolean PRINT_ARGS = true;
+    @CompilationFinal private static boolean DEBUG = getBoolean("vmx86.debug.exec", false);
+    @CompilationFinal private static boolean PRINT_SYMBOL = getBoolean("vmx86.debug.symbols", true);
+    @CompilationFinal private static boolean PRINT_STATE = getBoolean("vmx86.debug.state", true);
+    @CompilationFinal private static boolean PRINT_ONCE = getBoolean("vmx86.debug.once", false);
+    @CompilationFinal private static boolean PRINT_ARGS = getBoolean("vmx86.debug.args", true);
 
     @Child private PrintStateNode printState;
     @Child private PrintArgumentsNode printArgs;

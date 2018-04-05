@@ -30,10 +30,20 @@ public class PrintArgumentsNode extends AMD64Node {
     private void print(String name, long value) {
         System.out.printf("%s = 0x%016x\n", name, value);
         if (memory.contains(value)) {
+            int length = 0;
+            for (int i = 64; i > 0; i -= 16) {
+                if (memory.contains(value + i)) {
+                    length = i;
+                    break;
+                }
+            }
+            if (length == 0) {
+                return;
+            }
             try {
-                memory.dump(value, 16);
+                memory.dump(value, length);
             } catch (SegmentationViolation e) {
-                System.out.printf("Cannot read %d byte(s) from 0x%016x\n", 16, value);
+                System.out.printf("Cannot read %d byte(s) from 0x%016x\n", length, value);
             }
         }
     }

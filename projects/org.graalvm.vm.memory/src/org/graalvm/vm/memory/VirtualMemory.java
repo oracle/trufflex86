@@ -19,8 +19,8 @@ import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerDirectives;
 
 public class VirtualMemory {
-    private static final boolean DEBUG = false;
-    private static final boolean DEBUG_1BYTE = false;
+    private static final boolean DEBUG = getBoolean("mem.debug", false);
+    private static final boolean DEBUG_1BYTE = getBoolean("mem.debug.1byte", true);
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
@@ -59,6 +59,11 @@ public class VirtualMemory {
         cacheHits = 0;
         cacheMisses = 0;
         set64bit();
+    }
+
+    public static boolean getBoolean(String name, boolean fallback) {
+        String value = System.getProperty(name, Boolean.toString(fallback));
+        return value.equalsIgnoreCase("true") || value.equals("1");
     }
 
     public void set32bit() {
