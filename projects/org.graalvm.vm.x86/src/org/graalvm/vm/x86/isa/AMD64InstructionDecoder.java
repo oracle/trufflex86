@@ -712,7 +712,6 @@ public class AMD64InstructionDecoder {
                     case 4: // JMP R/M
                         return new JmpIndirect(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 6: // PUSH R/M
-                        assert rex == null;
                         assert !sizeOverride;
                         return new Pushq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder().getOperand1(OperandDecoder.R64));
                     default:
