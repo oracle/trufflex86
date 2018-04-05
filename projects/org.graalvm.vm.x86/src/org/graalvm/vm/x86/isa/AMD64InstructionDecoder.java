@@ -501,6 +501,10 @@ public class AMD64InstructionDecoder {
                     return new Andl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
                 }
             }
+            case AMD64Opcode.AND_RM8_R8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Andb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+            }
             case AMD64Opcode.AND_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
