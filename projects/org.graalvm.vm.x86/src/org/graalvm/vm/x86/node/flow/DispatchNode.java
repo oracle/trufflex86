@@ -254,7 +254,7 @@ public class DispatchNode extends AMD64Node {
                 try {
                     MemoryPage page = memory.get(e.getPC());
                     if (page != null && page.name != null) {
-                        System.err.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                        System.err.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
                     }
                 } catch (Throwable t) {
                     System.err.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
