@@ -1517,6 +1517,16 @@ public class AMD64InstructionDecoder {
                             return new Subl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         }
                     }
+                    case 6: { // XOR r/m32 i8
+                        byte imm = code.read8();
+                        if (rex != null && rex.w) {
+                            return new Xorq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
+                            return new Xorw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else {
+                            return new Xorl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        }
+                    }
                     case 7: { // CMP r/m32 i8
                         byte imm = code.read8();
                         if (rex != null && rex.w) {
