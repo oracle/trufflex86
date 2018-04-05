@@ -115,6 +115,8 @@ import org.graalvm.vm.x86.isa.instruction.Div.Divq;
 import org.graalvm.vm.x86.isa.instruction.Div.Divw;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
+import org.graalvm.vm.x86.isa.instruction.Fxrstor;
+import org.graalvm.vm.x86.isa.instruction.Fxsave;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivb;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivl;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivq;
@@ -1167,7 +1169,6 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = (byte) (imm >> 8);
                     return new Pushw(pc, Arrays.copyOf(instruction, instructionLength), new ImmediateOperand(imm));
                 } else {
-                    assert false : "TODO: this is unchecked!";
                     int imm = code.read32();
                     instruction[instructionLength++] = (byte) imm;
                     instruction[instructionLength++] = (byte) (imm >> 8);
@@ -2661,20 +2662,20 @@ public class AMD64InstructionDecoder {
                         }
                     }
                     case AMD64Opcode.FENCE: {
-                        op = code.read8();
-                        instruction[instructionLength++] = op;
-                        switch (op) {
-                            case AMD64Opcode.SFENCE:
-                            case AMD64Opcode.SFENCE + 1:
-                            case AMD64Opcode.SFENCE + 2:
-                            case AMD64Opcode.SFENCE + 3:
-                            case AMD64Opcode.SFENCE + 4:
-                            case AMD64Opcode.SFENCE + 5:
-                            case AMD64Opcode.SFENCE + 6:
-                            case AMD64Opcode.SFENCE + 7:
-                                return new Sfence(pc, Arrays.copyOf(instruction, instructionLength));
-                            default:
-                                return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        if (np) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            switch (args.modrm.getReg()) {
+                                case 0:
+                                    return new Fxsave(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 1:
+                                    return new Fxrstor(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 7:
+                                    return new Sfence(pc, args.getOp(instruction, instructionLength));
+                                default:
+                                    return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                            }
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
                     }
                     default:
