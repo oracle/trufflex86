@@ -233,6 +233,21 @@ public class PosixEnvironment {
         }
     }
 
+    public long lstat(long pathname, long statbuf) throws SyscallException {
+        PosixPointer ptr = posixPointer(statbuf);
+        Stat stat = new Stat();
+        try {
+            int result = posix.lstat(cstr(pathname), stat);
+            stat.write64(ptr);
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "lstat failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long fstat(int fd, long statbuf) throws SyscallException {
         PosixPointer ptr = posixPointer(statbuf);
         Stat stat = new Stat();

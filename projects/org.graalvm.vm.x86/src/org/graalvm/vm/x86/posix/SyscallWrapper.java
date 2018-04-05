@@ -22,6 +22,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_close = 3;
     public static final int SYS_stat = 4;
     public static final int SYS_fstat = 5;
+    public static final int SYS_lstat = 6;
     public static final int SYS_lseek = 8;
     public static final int SYS_mmap = 9;
     public static final int SYS_mprotect = 10;
@@ -105,6 +106,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.stat(a1, a2);
             case SYS_fstat:
                 return posix.fstat((int) a1, a2);
+            case SYS_lstat:
+                return posix.lstat(a1, a2);
             case SYS_lseek:
                 return posix.lseek((int) a1, a2, (int) a3);
             case SYS_mmap:
