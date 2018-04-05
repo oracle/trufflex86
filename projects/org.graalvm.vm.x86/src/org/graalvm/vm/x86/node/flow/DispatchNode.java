@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
@@ -23,12 +24,16 @@ import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.api.Signal;
 import com.everyware.posix.elf.Symbol;
+import com.everyware.util.log.Levels;
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class DispatchNode extends AMD64Node {
+    private static final Logger log = Trace.create(DispatchNode.class);
+
     @CompilationFinal private static boolean DEBUG = false;
 
     @Children private AMD64BasicBlock[] blocks;
@@ -197,7 +202,7 @@ public class DispatchNode extends AMD64Node {
     }
 
     public long execute(VirtualFrame frame) {
-        long cnt = 100; // max execution steps (help debug infinite loops)
+        long cnt = -1; // max execution steps (help debug infinite loops)
         long pc = readPC.executeI64(frame);
         try {
             if (usedBlocks == 0) {
@@ -208,7 +213,8 @@ public class DispatchNode extends AMD64Node {
                 block = get(pc);
             }
             while (true) {
-                if (DEBUG && cnt-- <= 0) {
+                if (DEBUG && (cnt != -1) && (cnt-- == 0)) {
+                    System.out.printf("Terminating interpreter loop at pc=0x%016x\n", pc);
                     break;
                 }
                 if (DEBUG) {
@@ -246,9 +252,9 @@ public class DispatchNode extends AMD64Node {
             SymbolResolver symbols = getContextReference().get().getSymbolResolver();
             Symbol sym = symbols.getSymbol(e.getPC());
             if (sym == null) {
-                System.err.printf("Exception at address 0x%016x!\n", e.getPC());
+                Trace.log.printf("Exception at address 0x%016x!\n", e.getPC());
             } else {
-                System.err.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
+                Trace.log.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
             }
             if (!(e.getCause() instanceof SegmentationViolation)) {
                 try {
@@ -257,7 +263,7 @@ public class DispatchNode extends AMD64Node {
                         System.err.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
                     }
                 } catch (Throwable t) {
-                    System.err.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
+                    Trace.log.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
                 }
             }
             try {
@@ -266,15 +272,15 @@ public class DispatchNode extends AMD64Node {
                     AMD64BasicBlock block = blockLookup.get(blockPC);
                     if (block.contains(e.getPC())) {
                         AMD64Instruction insn = block.getInstruction(e.getPC());
-                        System.err.printf("Instruction: %s\n", insn.getDisassembly());
+                        Trace.log.printf("Instruction: %s\n", insn.getDisassembly());
                     }
                 }
             } catch (Throwable t) {
-                System.err.printf("Error while retrieving instruction at 0x%016x\n", e.getPC());
+                Trace.log.printf("Error while retrieving instruction at 0x%016x\n", e.getPC());
             }
             e.getCause().printStackTrace();
             if (e.getCause() instanceof SegmentationViolation) {
-                memory.printLayout(System.err);
+                memory.printLayout(Trace.log);
             }
             writePC.executeI64(frame, pc);
             if (e.getCause() instanceof IllegalInstructionException) {
@@ -287,17 +293,16 @@ public class DispatchNode extends AMD64Node {
             // dump();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
-            System.err.printf("Exception at address 0x%016x!\n", pc);
-            t.printStackTrace();
+            log.log(Levels.ERROR, String.format("Exception at address 0x%016x: %s", pc, t.getMessage()), t);
             try {
                 MemoryPage page = memory.get(pc);
                 if (page != null && page.name != null) {
-                    System.err.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                    Trace.log.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
                 }
             } catch (Throwable th) {
-                System.err.printf("Error while retrieving associated page of 0x%016x\n", pc);
+                Trace.log.printf("Error while retrieving associated page of 0x%016x\n", pc);
             }
-            memory.printLayout(System.err);
+            memory.printLayout(Trace.log);
             // dump();
             return 127;
         }
