@@ -260,7 +260,7 @@ public class DispatchNode extends AMD64Node {
                 try {
                     MemoryPage page = memory.get(e.getPC());
                     if (page != null && page.name != null) {
-                        System.err.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
+                        Trace.log.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
                     }
                 } catch (Throwable t) {
                     Trace.log.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
@@ -278,7 +278,7 @@ public class DispatchNode extends AMD64Node {
             } catch (Throwable t) {
                 Trace.log.printf("Error while retrieving instruction at 0x%016x\n", e.getPC());
             }
-            e.getCause().printStackTrace();
+            e.getCause().printStackTrace(Trace.log);
             if (e.getCause() instanceof SegmentationViolation) {
                 memory.printLayout(Trace.log);
             }
