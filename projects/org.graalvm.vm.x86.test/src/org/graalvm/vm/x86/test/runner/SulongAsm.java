@@ -84,6 +84,11 @@ public class SulongAsm {
     }
 
     @Test
+    public void cmp001() throws Exception {
+        TestRunner.run("cmp001.elf", new String[0], "", "80\n", "", 0);
+    }
+
+    @Test
     public void bsf001() throws Exception {
         TestRunner.run("bsf001.elf", new String[0], "", "", "", 1);
     }
