@@ -467,4 +467,24 @@ public class SulongAsm {
     public void xadd004() throws Exception {
         TestRunner.run("xadd004.elf", new String[0], "", "", "", 1);
     }
+
+    @Test
+    public void xchg001() throws Exception {
+        TestRunner.run("xchg001.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xchg002() throws Exception {
+        TestRunner.run("xchg002.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xchg003() throws Exception {
+        TestRunner.run("xchg003.elf", new String[0], "", "", "", 1);
+    }
+
+    @Test
+    public void xchg004() throws Exception {
+        TestRunner.run("xchg004.elf", new String[0], "", "", "", 1);
+    }
 }
