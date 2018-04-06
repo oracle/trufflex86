@@ -127,6 +127,8 @@ public class AMD64Opcode {
     public static final byte JMP_REL32 = (byte) 0xE9;
     public static final byte JMP_R = (byte) 0xFF;
 
+    public static final byte LAHF = (byte) 0x9F;
+
     public static final byte LEA = (byte) 0x8D;
 
     public static final byte LEAVE = (byte) 0xC9;
@@ -251,6 +253,8 @@ public class AMD64Opcode {
 
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;
+
+    public static final byte SAHF = (byte) 0x9E;
 
     public static final byte SBB_RM_R = 0x19;
 

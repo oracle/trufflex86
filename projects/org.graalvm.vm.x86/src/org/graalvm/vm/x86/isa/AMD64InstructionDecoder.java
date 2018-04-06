@@ -150,6 +150,7 @@ import org.graalvm.vm.x86.isa.instruction.Jcc.Jrcxz;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Js;
 import org.graalvm.vm.x86.isa.instruction.Jmp.JmpDirect;
 import org.graalvm.vm.x86.isa.instruction.Jmp.JmpIndirect;
+import org.graalvm.vm.x86.isa.instruction.Lahf;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
@@ -256,6 +257,7 @@ import org.graalvm.vm.x86.isa.instruction.Rol.Rolw;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorl;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorq;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorw;
+import org.graalvm.vm.x86.isa.instruction.Sahf;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarb;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarq;
@@ -818,6 +820,8 @@ public class AMD64InstructionDecoder {
                 instruction[instructionLength++] = (byte) (rel32 >> 24);
                 return new JmpDirect(pc, Arrays.copyOf(instruction, instructionLength), rel32);
             }
+            case AMD64Opcode.LAHF:
+                return new Lahf(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.LEA: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
@@ -1185,6 +1189,8 @@ public class AMD64InstructionDecoder {
                 }
             case AMD64Opcode.RET_NEAR:
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.SAHF:
+                return new Sahf(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.SBB_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
