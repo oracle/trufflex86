@@ -84,6 +84,24 @@ public class SulongAsm {
     }
 
     @Test
+    public void sub001() throws Exception {
+        String stdout = "00000000:00000000:00000000:0:0:1\n" +
+                        "00000000:00000d0c:00000d0c:0:0:0\n" +
+                        "00000d0c:00000000:fffff2f4:1:0:0\n" +
+                        "00000d0c:00000d0c:00000000:0:0:1\n" +
+                        "ffffffff:00000000:00000001:1:0:0\n" +
+                        "ffffffff:00000001:00000002:1:0:0\n" +
+                        "ffffffff:00000d0c:00000d0d:1:0:0\n" +
+                        "ffffffff:80000000:80000001:1:0:0\n" +
+                        "ffffffff:ffffffff:00000000:0:0:1\n" +
+                        "80000000:00000000:80000000:1:1:0\n" +
+                        "80000000:00000d0c:80000d0c:1:1:0\n" +
+                        "80000000:80000000:00000000:0:0:1\n" +
+                        "80000000:ffffffff:7fffffff:0:0:0\n";
+        TestRunner.run("sub001.elf", new String[0], "", stdout, "", 0);
+    }
+
+    @Test
     public void cmp001() throws Exception {
         TestRunner.run("cmp001.elf", new String[0], "", "80\n", "", 0);
     }
