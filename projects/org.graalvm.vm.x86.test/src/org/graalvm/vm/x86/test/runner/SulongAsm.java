@@ -55,6 +55,35 @@ public class SulongAsm {
     }
 
     @Test
+    public void sbb001() throws Exception {
+        String stdout = "00000000:00000000:0:00000000:0\n" +
+                        "00000000:00000000:1:ffffffff:1\n" +
+                        "00000d0c:00000000:1:fffff2f3:1\n" +
+                        "00000d0c:00000d0c:1:ffffffff:1\n" +
+                        "00000000:00000d0c:1:00000d0b:0\n" +
+                        "00000d0c:00000000:0:fffff2f4:1\n" +
+                        "00000d0c:00000d0c:0:00000000:0\n" +
+                        "00000000:00000d0c:0:00000d0c:0\n" +
+                        "ffffffff:00000000:0:00000001:1\n" +
+                        "ffffffff:00000d0c:0:00000d0d:1\n" +
+                        "ffffffff:80000000:0:80000001:1\n" +
+                        "ffffffff:ffffffff:0:00000000:0\n" +
+                        "ffffffff:00000000:1:00000000:1\n" +
+                        "ffffffff:00000d0c:1:00000d0c:1\n" +
+                        "ffffffff:80000000:1:80000000:1\n" +
+                        "ffffffff:ffffffff:1:ffffffff:1\n" +
+                        "80000000:00000000:0:80000000:1\n" +
+                        "80000000:00000d0c:0:80000d0c:1\n" +
+                        "80000000:80000000:0:00000000:0\n" +
+                        "80000000:ffffffff:0:7fffffff:0\n" +
+                        "80000000:00000000:1:7fffffff:1\n" +
+                        "80000000:00000d0c:1:80000d0b:1\n" +
+                        "80000000:80000000:1:ffffffff:1\n" +
+                        "80000000:ffffffff:1:7ffffffe:0\n";
+        TestRunner.run("sbc001.elf", new String[0], "", stdout, "", 0);
+    }
+
+    @Test
     public void bsf001() throws Exception {
         TestRunner.run("bsf001.elf", new String[0], "", "", "", 1);
     }
