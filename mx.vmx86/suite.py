@@ -116,6 +116,10 @@ suite = {
         "bin/fannkuchredux.gcc",
         "bin/fannkuchredux.gcc-3",
         "bin/mandelbrot.cint",
+        "bin/mandelbrot.gcc-2",
+        "bin/mandelbrot.gcc-4",
+        "bin/mandelbrot.gcc-8",
+        "bin/mandelbrot.gcc-9",
       ],
       "license" : "GPLv3"
     },
