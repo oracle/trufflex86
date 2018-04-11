@@ -78,12 +78,37 @@ public class SyscallWrapper extends AMD64Node {
         }
     }
 
+    @TruffleBoundary
+    private static void tracePrctl(int code, long addr) {
+        String name;
+        switch (code) {
+            case ArchPrctl.ARCH_GET_FS:
+                name = "ARCH_GET_FS";
+                break;
+            case ArchPrctl.ARCH_GET_GS:
+                name = "ARCH_GET_GS";
+                break;
+            case ArchPrctl.ARCH_SET_FS:
+                name = "ARCH_SET_FS";
+                break;
+            case ArchPrctl.ARCH_SET_GS:
+                name = "ARCH_SET_GS";
+                break;
+            default:
+                name = Integer.toString(code);
+        }
+        log.log(Level.INFO, () -> String.format("arch_prctl(%s, 0x%x)", name, addr));
+    }
+
     public long executeI64(VirtualFrame frame, int nr, long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
         switch (nr) {
             case SYS_arch_prctl:
                 if (prctl == null) {
                     CompilerDirectives.transferToInterpreterAndInvalidate();
                     prctl = insert(new ArchPrctl());
+                }
+                if (posix.isStrace()) {
+                    tracePrctl((int) a1, a2);
                 }
                 return prctl.execute(frame, (int) a1, a2);
         }
