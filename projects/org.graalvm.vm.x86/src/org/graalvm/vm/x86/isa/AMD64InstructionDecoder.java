@@ -303,6 +303,7 @@ import org.graalvm.vm.x86.isa.instruction.Sub.Subb;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subl;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subq;
 import org.graalvm.vm.x86.isa.instruction.Sub.Subw;
+import org.graalvm.vm.x86.isa.instruction.Subpd;
 import org.graalvm.vm.x86.isa.instruction.Subsd;
 import org.graalvm.vm.x86.isa.instruction.Subss;
 import org.graalvm.vm.x86.isa.instruction.Syscall;
@@ -2634,6 +2635,8 @@ public class AMD64InstructionDecoder {
                             return new Subsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPZ) {
                             return new Subss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Subpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
