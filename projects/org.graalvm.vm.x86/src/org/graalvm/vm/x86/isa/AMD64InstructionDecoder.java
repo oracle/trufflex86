@@ -2361,7 +2361,7 @@ public class AMD64InstructionDecoder {
                         }
                     }
                     case AMD64Opcode.NOP_RM: {
-                        Args args = new Args(code, segment, addressOverride);
+                        Args args = new Args(code, rex, segment, addressOverride);
                         return new Nop(pc, args.getOp(instruction, instructionLength));
                     }
                     case AMD64Opcode.PADDB_X_XM: {
@@ -2552,7 +2552,7 @@ public class AMD64InstructionDecoder {
                         return new Pushq(pc, Arrays.copyOf(instruction, instructionLength), new SegmentRegisterOperand(SegmentRegister.FS));
                     case AMD64Opcode.PXOR_X_XM:
                         if (sizeOverride) {
-                            Args args = new Args(code, segment, addressOverride);
+                            Args args = new Args(code, rex, segment, addressOverride);
                             return new Pxor(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
@@ -2731,10 +2731,6 @@ public class AMD64InstructionDecoder {
         public final boolean addressOverride;
 
         public final byte[] bytes;
-
-        public Args(CodeReader code, SegmentRegister segment, boolean addressOverride) {
-            this(code, null, segment, addressOverride);
-        }
 
         public Args(CodeReader code, AMD64RexPrefix rex, SegmentRegister segment, boolean addressOverride) {
             this.rex = rex;
