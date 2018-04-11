@@ -3,10 +3,10 @@ CFLAGS	:=	-static -O3
 
 .PHONY: all clean
 
-all: bin/fasta.cint bin/fasta.gcc bin/fasta.gcc-4 bin/fannkuchredux.cint bin/fannkuchredux.gcc bin/fannkuchredux.gcc-3
+all: bin/fasta.cint bin/fasta.gcc bin/fasta.gcc-4 bin/fannkuchredux.cint bin/fannkuchredux.gcc bin/fannkuchredux.gcc-3 bin/mandelbrot.cint
 
 clean:
-	rm -f bin/fasta.cint bin/fasta.gcc bin/fasta.gcc-4 bin/fannkuchredux.cint bin/fannkuchredux.gcc bin/fannkuchredux.gcc-3
+	rm -f bin/fasta.cint bin/fasta.gcc bin/fasta.gcc-4 bin/fannkuchredux.cint bin/fannkuchredux.gcc bin/fannkuchredux.gcc-3 bin/mandelbrot.cint
 
 bin:
 	mkdir bin
@@ -27,4 +27,7 @@ bin/fannkuchredux.gcc: fannkuchredux/fannkuchredux.gcc.c bin
 	$(CC) $(CFLAGS) -o $@ $<
 
 bin/fannkuchredux.gcc-3: fannkuchredux/fannkuchredux.gcc-3.gcc.c bin
+	$(CC) $(CFLAGS) -o $@ $<
+
+bin/mandelbrot.cint: mandelbrot/mandelbrot.cint-2.cint.c bin
 	$(CC) $(CFLAGS) -o $@ $<

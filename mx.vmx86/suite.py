@@ -115,6 +115,7 @@ suite = {
         "bin/fannkuchredux.cint",
         "bin/fannkuchredux.gcc",
         "bin/fannkuchredux.gcc-3",
+        "bin/mandelbrot.cint",
       ],
       "license" : "GPLv3"
     },
