@@ -200,6 +200,7 @@ import org.graalvm.vm.x86.isa.instruction.Mul.Mulb;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mull;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mulq;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mulw;
+import org.graalvm.vm.x86.isa.instruction.Mulpd;
 import org.graalvm.vm.x86.isa.instruction.Mulsd;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negb;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negl;
@@ -2357,6 +2358,9 @@ public class AMD64InstructionDecoder {
                         if (isREPNZ) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Mulsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Mulpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
