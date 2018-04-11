@@ -122,7 +122,7 @@ public abstract class Sar extends AMD64Instruction {
             createChildrenIfNecessary();
             int src = readSrc.executeI32(frame);
             int shift = readShift.executeI8(frame) & 0x1f;
-            int result = src >>> shift;
+            int result = src >> shift;
             writeDst.executeI32(frame, result);
             if (shift > 0) {
                 int bit = 1 << (shift - 1);
@@ -152,7 +152,7 @@ public abstract class Sar extends AMD64Instruction {
             createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
             long shift = readShift.executeI8(frame) & 0x3f;
-            long result = src >>> shift;
+            long result = src >> shift;
             writeDst.executeI64(frame, result);
             if (shift > 0) {
                 long bit = 1L << (shift - 1);
