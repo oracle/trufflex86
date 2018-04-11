@@ -307,6 +307,8 @@ public class AMD64Opcode {
 
     public static final byte UCOMISD_X_XM = 0x2E;
 
+    public static final byte UNPCKLPD_X_XM = 0x14;
+
     public static final byte XADD_RM8_R8 = (byte) 0xC0;
     public static final byte XADD_RM_R = (byte) 0xC1;
 
