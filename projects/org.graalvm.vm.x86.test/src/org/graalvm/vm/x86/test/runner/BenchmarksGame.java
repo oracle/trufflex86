@@ -1,6 +1,5 @@
 package org.graalvm.vm.x86.test.runner;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class BenchmarksGame {
@@ -705,7 +704,6 @@ public class BenchmarksGame {
         TestRunner.runBinary("mandelbrot.gcc-2", new String[]{"200"}, "", stdout, "", 0);
     }
 
-    @Ignore
     @Test
     public void mandelbrot_gcc4() throws Exception {
         String stdout = "UDQKMjAwIDIwMAoAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
