@@ -347,6 +347,17 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public int signsF64() {
+        int result = 0;
+        double[] values = getDoubles();
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] < 0) {
+                result |= (1 << i);
+            }
+        }
+        return result;
+    }
+
     @ExplodeLoop
     public long byteMaskMSB() {
         long result = 0;
