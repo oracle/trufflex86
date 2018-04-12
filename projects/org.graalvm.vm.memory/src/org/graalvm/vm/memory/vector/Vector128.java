@@ -349,9 +349,8 @@ public class Vector128 implements Cloneable {
 
     public int signsF64() {
         int result = 0;
-        double[] values = getDoubles();
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] < 0) {
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] < 0) {
                 result |= (1 << i);
             }
         }
