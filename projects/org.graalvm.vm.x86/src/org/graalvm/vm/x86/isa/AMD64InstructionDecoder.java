@@ -87,6 +87,7 @@ import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpb;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpl;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpq;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpw;
+import org.graalvm.vm.x86.isa.instruction.Cmppd;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsb;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsd;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsq;
@@ -1977,6 +1978,15 @@ public class AMD64InstructionDecoder {
                             return new Cmovsw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Cmovsl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
+                    case AMD64Opcode.CMPPD_X_XM: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            byte imm = code.read8();
+                            return Cmppd.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.CMPXCHG_RM_R: {

@@ -67,6 +67,8 @@ public class AMD64Opcode {
     public static final byte CMP_R8_RM8 = 0x3A;
     public static final byte CMP_R_RM = 0x3B;
 
+    public static final byte CMPPD_X_XM = (byte) 0xC2;
+
     public static final byte CMPSB = (byte) 0xA6;
     public static final byte CMPSD = (byte) 0xA7;
 
