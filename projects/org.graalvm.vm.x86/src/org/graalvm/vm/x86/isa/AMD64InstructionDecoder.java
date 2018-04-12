@@ -1095,6 +1095,28 @@ public class AMD64InstructionDecoder {
                 instruction[instructionLength++] = imm;
                 return new Orb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
             }
+            case AMD64Opcode.OR_A_I: {
+                if (rex != null && rex.w) {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Orq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), imm);
+                } else if (sizeOverride) {
+                    short imm = code.read16();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    return new Orw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), imm);
+                } else {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Orl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
+                }
+            }
             case AMD64Opcode.OR_RM8_R8: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 return new Orb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
