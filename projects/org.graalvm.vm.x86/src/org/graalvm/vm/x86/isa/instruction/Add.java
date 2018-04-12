@@ -25,6 +25,7 @@ public abstract class Add extends AMD64Instruction {
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writePF;
+    @Child protected WriteFlagNode writeAF;
 
     protected void createChildren() {
         assert srcA == null;
@@ -41,6 +42,7 @@ public abstract class Add extends AMD64Instruction {
         writeSF = state.getRegisters().getSF().createWrite();
         writeZF = state.getRegisters().getZF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
+        writeAF = state.getRegisters().getAF().createWrite();
     }
 
     protected boolean needsChildren() {
@@ -98,11 +100,13 @@ public abstract class Add extends AMD64Instruction {
 
             boolean overflow = (result < 0 && a > 0 && b > 0) || (result >= 0 && a < 0 && b < 0);
             boolean carry = ((a < 0 || b < 0) && result >= 0) || (a < 0 && b < 0);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity(result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -136,11 +140,13 @@ public abstract class Add extends AMD64Instruction {
 
             boolean overflow = (result < 0 && a > 0 && b > 0) || (result >= 0 && a < 0 && b < 0);
             boolean carry = ((a < 0 || b < 0) && result >= 0) || (a < 0 && b < 0);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -174,11 +180,13 @@ public abstract class Add extends AMD64Instruction {
 
             boolean overflow = (result < 0 && a > 0 && b > 0) || (result >= 0 && a < 0 && b < 0);
             boolean carry = ((a < 0 || b < 0) && result >= 0) || (a < 0 && b < 0);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
@@ -212,11 +220,13 @@ public abstract class Add extends AMD64Instruction {
 
             boolean overflow = (result < 0 && a > 0 && b > 0) || (result >= 0 && a < 0 && b < 0);
             boolean carry = ((a < 0 || b < 0) && result >= 0) || (a < 0 && b < 0);
+            boolean adjust = (((a ^ b) ^ result) & 0x10) != 0;
             writeCF.execute(frame, carry);
             writeOF.execute(frame, overflow);
             writeSF.execute(frame, result < 0);
             writeZF.execute(frame, result == 0);
             writePF.execute(frame, Flags.getParity((byte) result));
+            writeAF.execute(frame, adjust);
             return next();
         }
     }
