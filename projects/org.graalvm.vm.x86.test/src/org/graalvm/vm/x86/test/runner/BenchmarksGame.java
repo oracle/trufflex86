@@ -940,4 +940,26 @@ public class BenchmarksGame {
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
         TestRunner.runBinary("mandelbrot.gcc-9", new String[]{"200"}, "", stdout, "", 0);
     }
+
+    @Test
+    public void binarytrees_gcc() throws Exception {
+        String stdout = "stretch tree of depth 11\t check: -1\n" +
+                        "2048\t trees of depth 4\t check: -2048\n" +
+                        "512\t trees of depth 6\t check: -512\n" +
+                        "128\t trees of depth 8\t check: -128\n" +
+                        "32\t trees of depth 10\t check: -32\n" +
+                        "long lived tree of depth 10\t check: -1\n";
+        TestRunner.run("binarytrees.gcc", new String[]{"10"}, "", stdout, "", 0);
+    }
+
+    @Test
+    public void binarytrees_gcc2() throws Exception {
+        String stdout = "stretch tree of depth 11\t check: -1\n" +
+                        "2048\t trees of depth 4\t check: -2048\n" +
+                        "512\t trees of depth 6\t check: -512\n" +
+                        "128\t trees of depth 8\t check: -128\n" +
+                        "32\t trees of depth 10\t check: -32\n" +
+                        "long lived tree of depth 10\t check: -1\n";
+        TestRunner.run("binarytrees.gcc-2", new String[]{"10"}, "", stdout, "", 0);
+    }
 }

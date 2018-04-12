@@ -109,6 +109,8 @@ suite = {
       "native" : True,
       "vpath" : True,
       "results" : [
+        "bin/binarytrees.gcc",
+        "bin/binarytrees.gcc-2",
         "bin/fasta.cint",
         "bin/fasta.gcc",
         "bin/fasta.gcc-4",
