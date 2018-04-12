@@ -24,7 +24,7 @@ public class AMD64VM {
     }
 
     private static int executeSource(Source source, String[] args) {
-        System.out.println("== running on " + Truffle.getRuntime().getName());
+        Trace.println("== running on " + Truffle.getRuntime().getName());
 
         Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, args).build();
 
@@ -38,7 +38,8 @@ public class AMD64VM {
             return result.asInt();
         } catch (Throwable ex) {
             /*
-             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to unwrap here.
+             * PolyglotEngine.eval wraps the actual exception in an IOException, so we have to
+             * unwrap here.
              */
             Throwable cause = ex.getCause();
             if (cause instanceof UnsupportedSpecializationException) {
