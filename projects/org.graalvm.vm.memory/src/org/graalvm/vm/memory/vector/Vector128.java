@@ -338,10 +338,11 @@ public class Vector128 implements Cloneable {
         long[] result = new long[a.length];
         for (int i = 0; i < a.length; i++) {
             boolean val = a[i] <= b[i];
+            int inv = a.length - i - 1;
             if (val) {
-                result[i] = 0xFFFFFFFFFFFFFFFFL;
+                result[inv] = 0xFFFFFFFFFFFFFFFFL;
             } else {
-                result[i] = 0x0000000000000000L;
+                result[inv] = 0x0000000000000000L;
             }
         }
         return new Vector128(result);
