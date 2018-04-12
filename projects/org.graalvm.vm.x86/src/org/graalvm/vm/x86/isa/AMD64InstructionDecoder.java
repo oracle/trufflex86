@@ -297,6 +297,7 @@ import org.graalvm.vm.x86.isa.instruction.Shr.Shrb;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrl;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrq;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrw;
+import org.graalvm.vm.x86.isa.instruction.Stmxcsr;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosb;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosd;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosq;
@@ -1608,9 +1609,7 @@ public class AMD64InstructionDecoder {
                             int imm = code.read32();
                             byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)};
                             return new Subq(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
-                        }
-                        assert rex == null;
-                        if (sizeOverride) {
+                        } else if (sizeOverride) {
                             short imm = code.read16();
                             byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8)};
                             return new Subw(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
@@ -2710,6 +2709,8 @@ public class AMD64InstructionDecoder {
                                     return new Fxsave(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 1:
                                     return new Fxrstor(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 3:
+                                    return new Stmxcsr(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 7:
                                     return new Sfence(pc, args.getOp(instruction, instructionLength));
                                 default:
