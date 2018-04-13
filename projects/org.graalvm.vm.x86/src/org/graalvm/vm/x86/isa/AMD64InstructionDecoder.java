@@ -97,6 +97,7 @@ import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgq;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.isa.instruction.Cqo;
+import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdl;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdq;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssl;
@@ -2024,6 +2025,12 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.CPUID:
                         return new Cpuid(pc, Arrays.copyOf(instruction, instructionLength));
+                    case AMD64Opcode.CVTDQ2PD:
+                        if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Cvtdq2pd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                     case AMD64Opcode.CVTSI2SD: {
                         if (isREPNZ) {
                             Args args = new Args(code, rex, segment, addressOverride);
