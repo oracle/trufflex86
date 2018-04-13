@@ -79,6 +79,9 @@ public class AMD64Opcode {
     public static final byte CVTDQ2PD = (byte) 0xE6;
 
     public static final byte CVTSI2SD = 0x2A;
+
+    public static final byte CVTSS2SD = 0x5A;
+
     public static final byte CVTTSD2SI = 0x2C;
 
     public static final byte DIVSD_X_XM = 0x5E;
