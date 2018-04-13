@@ -104,6 +104,8 @@ import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssl;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssq;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2sil;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2siq;
+import org.graalvm.vm.x86.isa.instruction.Cvttss2si.Cvttss2sil;
+import org.graalvm.vm.x86.isa.instruction.Cvttss2si.Cvttss2siq;
 import org.graalvm.vm.x86.isa.instruction.Cwd;
 import org.graalvm.vm.x86.isa.instruction.Cxe.Cbw;
 import org.graalvm.vm.x86.isa.instruction.Cxe.Cdqe;
@@ -206,6 +208,7 @@ import org.graalvm.vm.x86.isa.instruction.Mul.Mulq;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mulw;
 import org.graalvm.vm.x86.isa.instruction.Mulpd;
 import org.graalvm.vm.x86.isa.instruction.Mulsd;
+import org.graalvm.vm.x86.isa.instruction.Mulss;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negb;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negl;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negq;
@@ -2060,6 +2063,13 @@ public class AMD64InstructionDecoder {
                             } else {
                                 return new Cvttsd2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
+                        } else if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            if (rex != null && rex.w) {
+                                return new Cvttss2siq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Cvttss2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         }
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                     }
@@ -2410,7 +2420,10 @@ public class AMD64InstructionDecoder {
                         return new Movzwl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     }
                     case AMD64Opcode.MULSD_X_XM: {
-                        if (isREPNZ) {
+                        if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Mulss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Mulsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
