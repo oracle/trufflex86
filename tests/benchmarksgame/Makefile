@@ -7,7 +7,8 @@ CXXFLAGS:=	-static -O3
 
 all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/fasta.gcc-4 bin/fastaredux.gcc-2 bin/fastaredux.gcc-3 \
-		bin/fastaredux.gcc-5 \
+		bin/fastaredux.gcc-5 bin/fastaredux.gpp bin/fastaredux.gpp-2 \
+		bin/fastaredux.gpp-5 \
 		bin/fannkuchredux.cint bin/fannkuchredux.gcc \
 		bin/fannkuchredux.gcc-3 bin/mandelbrot.cint \
 		bin/mandelbrot.gcc-2 bin/mandelbrot.gcc-4 bin/mandelbrot.gcc-8 \
@@ -19,7 +20,8 @@ clean:
 	rm -f bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint \
 			bin/fasta.gcc bin/fasta.gcc-4 \
 			bin/fastaredux.gcc-2 bin/fastaredux.gcc-3 \
-			bin/fastaredux.gcc-5 \
+			bin/fastaredux.gcc-5 bin/fastaredux.gpp \
+			bin/fastaredux.gpp-2 bin/fastaredux.gpp-5 \
 			bin/fannkuchredux.cint \
 			bin/fannkuchredux.gcc bin/fannkuchredux.gcc-3 \
 			bin/mandelbrot.cint bin/mandelbrot.gcc-2 \
@@ -56,6 +58,15 @@ bin/fastaredux.gcc-3: fastaredux/fastaredux.gcc-3.gcc.c bin
 
 bin/fastaredux.gcc-5: fastaredux/fastaredux.gcc-5.gcc.c bin
 	$(CC) $(CFLAGS) -o $@ $<
+
+bin/fastaredux.gpp: fastaredux/fastaredux.gpp.cpp bin
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+bin/fastaredux.gpp-2: fastaredux/fastaredux.gpp-2.gpp.cpp bin
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+bin/fastaredux.gpp-5: fastaredux/fastaredux.gpp-5.gpp.cpp bin
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/fannkuchredux.cint: fannkuchredux/fannkuchredux.cint.c bin
 	$(CC) $(CFLAGS) -o $@ $<

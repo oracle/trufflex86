@@ -455,6 +455,21 @@ public class BenchmarksGame {
     }
 
     @Test
+    public void fastaredux_gpp() throws Exception {
+        TestRunner.run("fastaredux.gpp", new String[]{"1000"}, "", FASTAREDUX, "", 0);
+    }
+
+    @Test
+    public void fastaredux_gpp2() throws Exception {
+        TestRunner.run("fastaredux.gpp-2", new String[]{"1000"}, "", FASTAREDUX, "", 0);
+    }
+
+    @Test
+    public void fastaredux_gpp5() throws Exception {
+        TestRunner.run("fastaredux.gpp-5", new String[]{"1000"}, "", FASTAREDUX, "", 0);
+    }
+
+    @Test
     public void fannkuchredux_cint() throws Exception {
         TestRunner.run("fannkuchredux.cint", new String[]{"7"}, "", "228\nPfannkuchen(7) = 16\n", "", 0);
     }
