@@ -295,6 +295,8 @@ public class AMD64Opcode {
     public static final byte SHL_RM_I = (byte) 0xC1;
     public static final byte SHL_RM_C = (byte) 0xD3;
 
+    public static final byte SQRTSD_X_XM = 0x51;
+
     public static final byte STOSB = (byte) 0xAA;
     public static final byte STOS = (byte) 0xAB;
 
