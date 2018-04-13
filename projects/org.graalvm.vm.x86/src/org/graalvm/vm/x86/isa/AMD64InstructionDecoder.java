@@ -237,6 +237,7 @@ import org.graalvm.vm.x86.isa.instruction.Popf.Popfw;
 import org.graalvm.vm.x86.isa.instruction.Por;
 import org.graalvm.vm.x86.isa.instruction.Prefetch;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
+import org.graalvm.vm.x86.isa.instruction.Psll.Pslld;
 import org.graalvm.vm.x86.isa.instruction.Pslldq;
 import org.graalvm.vm.x86.isa.instruction.Psrldq;
 import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
@@ -2535,6 +2536,21 @@ public class AMD64InstructionDecoder {
                             return new Pshufd(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PSLLD_XM_I: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        switch (args.modrm.getReg()) {
+                            case 6: {
+                                byte imm = code.read8();
+                                if (sizeOverride) {
+                                    return new Pslld(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                                } else {
+                                    return new IllegalInstruction(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1));
+                                }
+                            }
+                            default:
+                                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.PSLLDQ: {
