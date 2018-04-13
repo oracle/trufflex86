@@ -221,21 +221,31 @@ public class Vector128 implements Cloneable {
     public Vector128 subDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
-        double[] sum = new double[a.length];
-        for (int i = 0; i < sum.length; i++) {
-            sum[i] = a[i] - b[i];
+        double[] diff = new double[a.length];
+        for (int i = 0; i < diff.length; i++) {
+            diff[i] = a[i] - b[i];
         }
-        return new Vector128(sum);
+        return new Vector128(diff);
     }
 
     public Vector128 mulDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
-        double[] sum = new double[a.length];
-        for (int i = 0; i < sum.length; i++) {
-            sum[i] = a[i] * b[i];
+        double[] prod = new double[a.length];
+        for (int i = 0; i < prod.length; i++) {
+            prod[i] = a[i] * b[i];
         }
-        return new Vector128(sum);
+        return new Vector128(prod);
+    }
+
+    public Vector128 divDouble(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        double[] quot = new double[a.length];
+        for (int i = 0; i < quot.length; i++) {
+            quot[i] = a[i] / b[i];
+        }
+        return new Vector128(quot);
     }
 
     private static long eq(long x, long y, long mask) {

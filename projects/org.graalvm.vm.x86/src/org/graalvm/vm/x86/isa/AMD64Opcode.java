@@ -242,11 +242,11 @@ public class AMD64Opcode {
 
     public static final byte PSUBB = (byte) 0xF8;
 
-    public static final byte PUNPCKLBW = 0x60;
-    public static final byte PUNPCKLWD = 0x61;
-
     public static final byte PUNPCKHBW = 0x68;
     public static final byte PUNPCKHWD = 0x69;
+
+    public static final byte PUNPCKLBW = 0x60;
+    public static final byte PUNPCKLWD = 0x61;
 
     public static final byte PUSH_R = 0x50;
     public static final byte PUSH_FS = (byte) 0xA0;
@@ -315,6 +315,8 @@ public class AMD64Opcode {
     public static final byte TEST_RM_R = (byte) 0x85;
 
     public static final byte UCOMISD_X_XM = 0x2E;
+
+    public static final byte UNPCKHPD_X_XM = 0x15;
 
     public static final byte UNPCKLPD_X_XM = 0x14;
 

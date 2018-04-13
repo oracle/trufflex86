@@ -115,6 +115,7 @@ import org.graalvm.vm.x86.isa.instruction.Div.Divb;
 import org.graalvm.vm.x86.isa.instruction.Div.Divl;
 import org.graalvm.vm.x86.isa.instruction.Div.Divq;
 import org.graalvm.vm.x86.isa.instruction.Div.Divw;
+import org.graalvm.vm.x86.isa.instruction.Divpd;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
 import org.graalvm.vm.x86.isa.instruction.Fxrstor;
@@ -318,6 +319,7 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
 import org.graalvm.vm.x86.isa.instruction.Ucomisd;
 import org.graalvm.vm.x86.isa.instruction.Ucomiss;
+import org.graalvm.vm.x86.isa.instruction.Unpckhpd;
 import org.graalvm.vm.x86.isa.instruction.Unpcklpd;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
@@ -2067,6 +2069,9 @@ public class AMD64InstructionDecoder {
                         } else if (isREPZ) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Divss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Divpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
@@ -2583,22 +2588,6 @@ public class AMD64InstructionDecoder {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
                     }
-                    case AMD64Opcode.PUNPCKLBW: {
-                        if (sizeOverride) {
-                            Args args = new Args(code, rex, segment, addressOverride);
-                            return new Punpcklbw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else {
-                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
-                        }
-                    }
-                    case AMD64Opcode.PUNPCKLWD: {
-                        if (sizeOverride) {
-                            Args args = new Args(code, rex, segment, addressOverride);
-                            return new Punpcklwd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else {
-                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
-                        }
-                    }
                     case AMD64Opcode.PUNPCKHBW: {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment, addressOverride);
@@ -2611,6 +2600,22 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Punpckhwd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PUNPCKLBW: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Punpcklbw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PUNPCKLWD: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Punpcklwd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
@@ -2716,6 +2721,13 @@ public class AMD64InstructionDecoder {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
+                    case AMD64Opcode.UNPCKHPD_X_XM:
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Unpckhpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
                     case AMD64Opcode.UNPCKLPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
