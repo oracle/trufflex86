@@ -300,6 +300,9 @@ import org.graalvm.vm.x86.isa.instruction.Shl.Shlb;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shll;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlw;
+import org.graalvm.vm.x86.isa.instruction.Shld.Shldl;
+import org.graalvm.vm.x86.isa.instruction.Shld.Shldq;
+import org.graalvm.vm.x86.isa.instruction.Shld.Shldw;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrb;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrl;
 import org.graalvm.vm.x86.isa.instruction.Shr.Shrq;
@@ -2718,6 +2721,17 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.SETS: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         return new Sets(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    }
+                    case AMD64Opcode.SHLD_RM_R_C: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        Operand cl = new RegisterOperand(Register.CL);
+                        if (rex != null && rex.w) {
+                            return new Shldq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), cl);
+                        } else if (sizeOverride) {
+                            return new Shldw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), cl);
+                        } else {
+                            return new Shldl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), cl);
+                        }
                     }
                     case AMD64Opcode.SQRTSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
