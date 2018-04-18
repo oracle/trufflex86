@@ -45,6 +45,7 @@ public class HelloWorldTest {
         byte[] code = TestDataLoader.getCode("bin/helloworld.elf");
         assertEquals(29, code.length);
 
+        // @formatter:off
         byte[][] bytes = {
                         {0x31, (byte) 0xc0}, // xor eax,eax
                         {(byte) 0xff, (byte) 0xc0}, // inc eax
@@ -56,6 +57,7 @@ public class HelloWorldTest {
                         {0x31, (byte) 0xff}, // xor edi,edi
                         {0x0f, 0x05} // syscall
         };
+        // @formatter:on
 
         CodeReader reader = new CodeArrayReader(code, 0);
         long pc = 0;
