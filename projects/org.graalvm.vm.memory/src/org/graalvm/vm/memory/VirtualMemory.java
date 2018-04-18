@@ -223,11 +223,15 @@ public class VirtualMemory {
     }
 
     public MemoryPage allocate(Memory memory, long size, String name) {
+        return allocate(memory, size, name, 0);
+    }
+
+    public MemoryPage allocate(Memory memory, long size, String name, long offset) {
         long base = allocator.alloc(size);
         if (base == 0) {
             return null;
         } else {
-            MemoryPage page = new MemoryPage(memory, base, size, name);
+            MemoryPage page = new MemoryPage(memory, base, size, name, offset);
             add(page);
             return page;
         }

@@ -53,6 +53,19 @@ public class MemoryPage {
         fileOffset = 0;
     }
 
+    public MemoryPage(Memory memory, long base, long size, String name, long fileOffset) {
+        this.memory = memory;
+        this.base = base;
+        this.size = size;
+        this.end = base + size;
+        this.name = name;
+        offset = 0;
+        r = true;
+        w = true;
+        x = true;
+        this.fileOffset = fileOffset;
+    }
+
     protected MemoryPage(MemoryPage page) {
         this.memory = page.memory;
         this.base = page.base;

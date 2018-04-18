@@ -195,13 +195,14 @@ public class ElfLoader {
             if (hdr.getType() == Elf.PT_LOAD) {
                 long size = hdr.getMemorySize();
                 long offset = load_bias + hdr.getVirtualAddress();
+                long fileOffset = hdr.getOffset();
                 long segmentEnd = offset + size;
                 long pageEnd = memory.roundToPageSize(segmentEnd);
                 size += pageEnd - segmentEnd;
 
                 byte[] segment = new byte[(int) size];
                 hdr.load(segment);
-                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), segment.length, filename);
+                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), segment.length, filename, fileOffset);
                 p.r = hdr.getFlag(Elf.PF_R);
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
@@ -255,13 +256,14 @@ public class ElfLoader {
                     // round size to page size
                     long size = hdr.getMemorySize();
                     long offset = base + hdr.getVirtualAddress();
+                    long fileOffset = hdr.getOffset();
                     long end = offset + size;
                     long pageEnd = memory.roundToPageSize(end);
                     size += pageEnd - end;
 
                     segment = new byte[(int) size];
                     hdr.load(segment);
-                    MemoryPage p = new MemoryPage(new ByteMemory(segment, false), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter);
+                    MemoryPage p = new MemoryPage(new ByteMemory(segment, false), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter, fileOffset);
                     p.r = hdr.getFlag(Elf.PF_R);
                     p.w = hdr.getFlag(Elf.PF_W);
                     p.x = hdr.getFlag(Elf.PF_X);
