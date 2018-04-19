@@ -121,6 +121,7 @@ import org.graalvm.vm.x86.isa.instruction.Div.Divw;
 import org.graalvm.vm.x86.isa.instruction.Divpd;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
+import org.graalvm.vm.x86.isa.instruction.Fnstcw;
 import org.graalvm.vm.x86.isa.instruction.Fxrstor;
 import org.graalvm.vm.x86.isa.instruction.Fxsave;
 import org.graalvm.vm.x86.isa.instruction.Idiv.Idivb;
@@ -685,6 +686,10 @@ public class AMD64InstructionDecoder {
                 } else {
                     return cmp;
                 }
+            }
+            case AMD64Opcode.FNSTCW_M: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Fnstcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
             }
             case AMD64Opcode.IMUL_R_RM_I8: {
                 Args args = new Args(code, rex, segment, addressOverride);
