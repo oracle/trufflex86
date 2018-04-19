@@ -448,7 +448,6 @@ public class BenchmarksGame {
         TestRunner.run("fastaredux.gcc-3", new String[]{"1000"}, "", FASTAREDUX, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void fastaredux_gcc5() throws Exception {
         TestRunner.run("fastaredux.gcc-5", new String[]{"1000"}, "", FASTAREDUX, "", 0);
