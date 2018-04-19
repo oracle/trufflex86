@@ -8,6 +8,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.memory.util.Stringify;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
@@ -629,21 +630,36 @@ public class VirtualMemory {
     private void logMemoryRead(long address, int size, long value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read %d bytes (0x%016x)\n", addr(addr), size, value);
+            String val = Stringify.i64(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%016x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%016x)\n", addr(addr), size, value);
+            }
         }
     }
 
     private void logMemoryRead(long address, int size, int value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read %d bytes (0x%08x)\n", addr(addr), size, value);
+            String val = Stringify.i32(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%08x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%08x)\n", addr(addr), size, value);
+            }
         }
     }
 
     private void logMemoryRead(long address, int size, short value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read %d bytes (0x%04x)\n", addr(addr), size, value);
+            String val = Stringify.i16(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%04x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%04x)\n", addr(addr), size, value);
+            }
         }
     }
 
@@ -686,21 +702,36 @@ public class VirtualMemory {
     private void logMemoryWrite(long address, int size, long value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x)\n", addr(addr), size, value);
+            String val = Stringify.i64(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x)\n", addr(addr), size, value);
+            }
         }
     }
 
     private void logMemoryWrite(long address, int size, int value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x)\n", addr(addr), size, value);
+            String val = Stringify.i32(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x)\n", addr(addr), size, value);
+            }
         }
     }
 
     private void logMemoryWrite(long address, int size, short value) {
         if (debugMemory) {
             long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x)\n", addr(addr), size, value);
+            String val = Stringify.i16(value);
+            if (val != null) {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x, '%s')\n", addr(addr), size, value, val);
+            } else {
+                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x)\n", addr(addr), size, value);
+            }
         }
     }
 
