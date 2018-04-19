@@ -9,6 +9,7 @@ import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.ReadNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class CopyToCpuStateNode extends AMD64Node {
     @Child private ReadNode readRAX;
@@ -30,7 +31,7 @@ public class CopyToCpuStateNode extends AMD64Node {
     @Child private ReadNode readFS;
     @Child private ReadNode readGS;
     @Child private ReadFlagsNode readFlags;
-    @Children private ReadNode[] readXMM;
+    @Children private ReadNode[] readZMM;
 
     private void createChildrenIfNecessary() {
         if (readRAX == null) {
@@ -55,13 +56,14 @@ public class CopyToCpuStateNode extends AMD64Node {
             this.readFS = regs.getFS().createRead();
             this.readGS = regs.getGS().createRead();
             this.readFlags = insert(regs.createReadFlags());
-            this.readXMM = new ReadNode[32];
-            for (int i = 0; i < readXMM.length; i++) {
-                readXMM[i] = regs.getAVXRegister(i).createRead();
+            this.readZMM = new ReadNode[32];
+            for (int i = 0; i < readZMM.length; i++) {
+                readZMM[i] = regs.getAVXRegister(i).createRead();
             }
         }
     }
 
+    @ExplodeLoop
     public CpuState execute(VirtualFrame frame, long pc) {
         createChildrenIfNecessary();
         CpuState state = new CpuState();
@@ -85,8 +87,8 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.gs = readGS.executeI64(frame);
         state.rip = pc;
         state.rfl = readFlags.executeI64(frame);
-        for (int i = 0; i < readXMM.length; i++) {
-            state.xmm[i] = readXMM[i].executeI128(frame);
+        for (int i = 0; i < readZMM.length; i++) {
+            state.zmm[i] = readZMM[i].executeI512(frame).clone();
         }
         return state;
     }

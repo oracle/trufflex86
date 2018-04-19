@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.isa;
 
-import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.memory.vector.Vector512;
 import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.util.BitTest;
@@ -52,7 +52,7 @@ public class CpuState {
     public long fs;
     public long gs;
 
-    public Vector128[] xmm = new Vector128[32];
+    public Vector512[] zmm = new Vector512[32];
 
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {
         for (int i = 0; i < names.length; i++) {
@@ -103,13 +103,13 @@ public class CpuState {
         addSegment(buf, "FS", fs);
         addSegment(buf, "GS", gs);
         if (printAVX) {
-            for (int i = 0; i < xmm.length; i++) {
+            for (int i = 0; i < zmm.length; i++) {
                 buf.append("xmm").append(i);
                 if (i < 10) {
                     buf.append(" ");
                 }
                 buf.append("=");
-                buf.append(xmm[i]);
+                buf.append(zmm[i].getI128(3));
                 buf.append('\n');
             }
         }
