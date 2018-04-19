@@ -98,7 +98,16 @@ public class OperandDecoder {
             }
         }
         if (modrm.hasSIB()) {
-            if (modrm.hasDisplacement()) {
+            boolean hasDisplacement = modrm.hasDisplacement();
+            if (modrm.hasSIB() && sib.base == 0b101) {
+                switch (modrm.getMod()) {
+                    case 0b00:
+                    case 0b10:
+                    case 0b01:
+                        hasDisplacement = true;
+                }
+            }
+            if (hasDisplacement) {
                 if (sib.base == 0b101 && modrm.getMod() != 0) {
                     return new MemoryOperand(segment, Register.RBP, sib.getIndex(), sib.getShift(), displacement, addressOverride);
                 } else {
