@@ -1,7 +1,5 @@
 package org.graalvm.vm.memory.vector;
 
-import java.util.Arrays;
-
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -30,6 +28,13 @@ public class Vector512 implements Cloneable {
         this.data[5] = low.getI64(1);
         this.data[6] = low.getI64(2);
         this.data[7] = low.getI64(3);
+    }
+
+    @ExplodeLoop
+    public void setI512(Vector512 val) {
+        for (int i = 0; i < 8; i++) {
+            this.data[i] = val.data[i];
+        }
     }
 
     @ExplodeLoop
@@ -153,8 +158,7 @@ public class Vector512 implements Cloneable {
 
     @Override
     public Vector512 clone() {
-        long[] value = Arrays.copyOf(data, data.length);
-        return new Vector512(value);
+        return new Vector512(data);
     }
 
     @Override
