@@ -31,7 +31,7 @@ public abstract class Movs extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readRSI == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readRSI = regs.getRegister(Register.RSI).createRead();

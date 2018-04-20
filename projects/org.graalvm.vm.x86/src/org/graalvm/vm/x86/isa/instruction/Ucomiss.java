@@ -37,7 +37,7 @@ public class Ucomiss extends AMD64Instruction {
 
     private void createChildrenIfNecessary() {
         if (readA == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readA = operand1.createRead(state, next());

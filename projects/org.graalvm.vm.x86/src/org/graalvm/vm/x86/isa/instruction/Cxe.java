@@ -29,7 +29,7 @@ public abstract class Cxe extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             switch (size) {

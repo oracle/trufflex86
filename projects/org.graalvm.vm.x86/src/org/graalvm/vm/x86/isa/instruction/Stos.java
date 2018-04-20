@@ -27,7 +27,7 @@ public abstract class Stos extends AMD64Instruction {
 
     protected void createChildrenIfNecessary(Register src) {
         if (readDF == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readDF = regs.getDF().createRead();

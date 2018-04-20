@@ -132,7 +132,7 @@ public class Rep extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (loop == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RepeatingNode body = createRepeatingNode(state, insn);
             loop = insert(Truffle.getRuntime().createLoopNode(body));

@@ -27,7 +27,7 @@ public abstract class Movsd extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand2.createRead(state, next());
             writeDst = operand1.createWrite(state, next());

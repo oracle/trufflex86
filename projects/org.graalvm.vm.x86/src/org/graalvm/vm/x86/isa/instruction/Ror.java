@@ -30,7 +30,7 @@ public abstract class Ror extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand1.createRead(state, next());
             readShamt = operand2.createRead(state, next());

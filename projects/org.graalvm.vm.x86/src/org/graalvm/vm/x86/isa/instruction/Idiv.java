@@ -31,7 +31,7 @@ public abstract class Idiv extends AMD64Instruction {
 
     protected void create8bitChildrenIfNecessary() {
         if (readOperand == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readOperand = operand.createRead(state, next());
             readA = state.getRegisters().getRegister(Register.AX).createRead();
@@ -42,7 +42,7 @@ public abstract class Idiv extends AMD64Instruction {
 
     protected void createChildrenIfNecessary(Register a, Register d) {
         if (readOperand == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readOperand = operand.createRead(state, next());
             readA = state.getRegisters().getRegister(a).createRead();

@@ -21,7 +21,7 @@ public class Cwd extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         if (readAX == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readAX = regs.getRegister(Register.AX).createRead();

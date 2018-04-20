@@ -65,7 +65,7 @@ public abstract class Imul extends AMD64Instruction {
 
         protected void createChildrenIfNecessary(Register ra, Register wa, Register wd) {
             if (readOp == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readOp = operand1.createRead(state, next());
@@ -206,7 +206,7 @@ public abstract class Imul extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readOp1 == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readOp1 = srcA.createRead(state, next());
                 readOp2 = srcB.createRead(state, next());

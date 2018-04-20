@@ -33,7 +33,7 @@ public abstract class Div extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readAX = state.getRegisters().getRegister(Register.AX).createRead();
                 readOp = operand.createRead(state, next());
@@ -74,7 +74,7 @@ public abstract class Div extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readAX = state.getRegisters().getRegister(Register.AX).createRead();
                 readDX = state.getRegisters().getRegister(Register.DX).createRead();
@@ -119,7 +119,7 @@ public abstract class Div extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readEAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readEAX = state.getRegisters().getRegister(Register.EAX).createRead();
                 readEDX = state.getRegisters().getRegister(Register.EDX).createRead();
@@ -164,7 +164,7 @@ public abstract class Div extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readRAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readRAX = state.getRegisters().getRegister(Register.RAX).createRead();
                 readRDX = state.getRegisters().getRegister(Register.RDX).createRead();

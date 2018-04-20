@@ -39,7 +39,7 @@ public abstract class Call extends AMD64Instruction {
         assert writeRSP == null;
         assert writeMemory == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
         readRSP = rsp.createRead();
@@ -68,7 +68,7 @@ public abstract class Call extends AMD64Instruction {
                 return bta;
             } else {
                 if (readBTA == null) {
-                    CompilerDirectives.transferToInterpreter();
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
                     ArchitecturalState state = getContextReference().get().getState();
                     readBTA = operand.createRead(state, next());
                 }
@@ -85,7 +85,7 @@ public abstract class Call extends AMD64Instruction {
         @Override
         protected long getCallTarget(VirtualFrame frame) {
             if (readBTA == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readBTA = operand.createRead(state, next());
             }

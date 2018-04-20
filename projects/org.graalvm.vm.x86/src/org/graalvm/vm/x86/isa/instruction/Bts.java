@@ -28,7 +28,7 @@ public abstract class Bts extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readBase == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readBase = operand1.createRead(state, next());
             readOffset = operand2.createRead(state, next());

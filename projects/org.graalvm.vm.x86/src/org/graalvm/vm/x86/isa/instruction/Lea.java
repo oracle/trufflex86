@@ -28,7 +28,7 @@ public abstract class Lea extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (address == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             dst = operand1.createWrite(state, next());
             address = new AddressComputationNode(state, (MemoryOperand) operand2, next());

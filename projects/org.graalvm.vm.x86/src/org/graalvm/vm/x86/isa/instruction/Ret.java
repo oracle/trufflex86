@@ -25,7 +25,7 @@ public class Ret extends AMD64Instruction {
     }
 
     private void createChildren() {
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         assert readRSP == null;
         assert writeRSP == null;
         assert readMemory == null;

@@ -19,7 +19,7 @@ public class Rdtsc extends AMD64Instruction {
 
     private void createChildrenIfNecessary() {
         if (writeEAX == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             writeEAX = state.getRegisters().getRegister(Register.EAX).createWrite();
             writeEDX = state.getRegisters().getRegister(Register.EDX).createWrite();

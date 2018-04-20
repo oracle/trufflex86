@@ -30,7 +30,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readCF = regs.getCF().createRead();
                 readZF = regs.getZF().createRead();
@@ -51,7 +51,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readCF = regs.getCF().createRead();
             }
@@ -70,7 +70,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readCF = regs.getCF().createRead();
             }
@@ -90,7 +90,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readCF = regs.getCF().createRead();
                 readZF = regs.getZF().createRead();
@@ -111,7 +111,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readRCX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readRCX = regs.getRegister(Register.RAX).createRead();
             }
@@ -130,7 +130,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readZF = regs.getZF().createRead();
             }
@@ -151,7 +151,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
                 readZF = regs.getZF().createRead();
@@ -175,7 +175,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
                 readOF = regs.getOF().createRead();
@@ -197,7 +197,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
                 readOF = regs.getOF().createRead();
@@ -220,7 +220,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
                 readZF = regs.getZF().createRead();
@@ -243,7 +243,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readZF = regs.getZF().createRead();
             }
@@ -262,7 +262,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readOF = regs.getOF().createRead();
             }
@@ -281,7 +281,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readPF = regs.getPF().createRead();
             }
@@ -300,7 +300,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
             }
@@ -319,7 +319,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readOF = regs.getOF().createRead();
             }
@@ -338,7 +338,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readPF = regs.getPF().createRead();
             }
@@ -357,7 +357,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
                 readSF = regs.getSF().createRead();
             }

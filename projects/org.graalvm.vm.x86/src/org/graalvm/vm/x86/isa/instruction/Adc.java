@@ -34,7 +34,7 @@ public abstract class Adc extends AMD64Instruction {
         assert srcB == null;
         assert dst == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         srcA = operand1.createRead(state, next());
         srcB = operand2.createRead(state, next());

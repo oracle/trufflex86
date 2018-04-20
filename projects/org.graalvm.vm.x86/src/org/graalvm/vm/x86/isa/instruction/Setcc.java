@@ -25,7 +25,7 @@ public abstract class Setcc extends AMD64Instruction {
 
     protected void createOperandNodeIfNecessary() {
         if (writeDst == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             writeDst = operand.createWrite(state, next());
         }
@@ -41,7 +41,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -70,7 +70,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -97,7 +97,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -125,7 +125,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -154,7 +154,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -183,7 +183,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -215,7 +215,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -245,7 +245,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -276,7 +276,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -307,7 +307,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -334,7 +334,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readOF = regs.getOF().createRead();
@@ -361,7 +361,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readPF = regs.getPF().createRead();
@@ -388,7 +388,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -415,7 +415,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readOF = regs.getOF().createRead();
@@ -442,7 +442,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readPF = regs.getPF().createRead();
@@ -469,7 +469,7 @@ public abstract class Setcc extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();

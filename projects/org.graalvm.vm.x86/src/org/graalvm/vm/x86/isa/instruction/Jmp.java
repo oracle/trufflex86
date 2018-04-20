@@ -52,7 +52,7 @@ public abstract class Jmp extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readBTA == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 readBTA = operand.createRead(state, next());
             }

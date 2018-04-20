@@ -17,7 +17,7 @@ public class Cld extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         if (writeDF == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             writeDF = state.getRegisters().getDF().createWrite();
         }

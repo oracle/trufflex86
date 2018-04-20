@@ -26,7 +26,7 @@ public abstract class Lods extends AMD64Instruction {
 
     protected void createChildrenIfNecessary(Register a) {
         if (readRSI == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             assert readRSI == null;
             assert writeRSI == null;
             assert writeA == null;

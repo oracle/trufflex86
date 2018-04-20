@@ -26,7 +26,7 @@ public class Movapd extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (src == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             src = operand2.createRead(state, next());
             dst = operand1.createWrite(state, next());

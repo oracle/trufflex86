@@ -37,7 +37,7 @@ public abstract class Cmpxchg extends AMD64Instruction {
 
     protected void createChildrenIfNecessary(int size) {
         if (readA == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             Register a = null;
             switch (size) {
                 case OperandDecoder.R8:

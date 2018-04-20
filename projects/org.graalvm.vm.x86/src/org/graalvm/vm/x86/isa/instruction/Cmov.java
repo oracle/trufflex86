@@ -29,7 +29,7 @@ public abstract class Cmov extends AMD64Instruction {
 
     protected void createOperandNodesIfNecessary() {
         if (writeDst == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand2.createRead(state, next());
             writeDst = operand1.createWrite(state, next());
@@ -46,7 +46,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -119,7 +119,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -188,7 +188,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -258,7 +258,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readCF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readCF = regs.getCF().createRead();
@@ -331,7 +331,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -402,7 +402,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -480,7 +480,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -554,7 +554,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -629,7 +629,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -706,7 +706,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readZF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readZF = regs.getZF().createRead();
@@ -775,7 +775,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readOF = regs.getOF().createRead();
@@ -844,7 +844,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readPF = regs.getPF().createRead();
@@ -913,7 +913,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();
@@ -982,7 +982,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readOF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readOF = regs.getOF().createRead();
@@ -1051,7 +1051,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readPF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readPF = regs.getPF().createRead();
@@ -1120,7 +1120,7 @@ public abstract class Cmov extends AMD64Instruction {
 
         protected void createChildrenIfNecessary() {
             if (readSF == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 ArchitecturalState state = getContextReference().get().getState();
                 RegisterAccessFactory regs = state.getRegisters();
                 readSF = regs.getSF().createRead();

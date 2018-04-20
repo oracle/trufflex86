@@ -22,7 +22,7 @@ public abstract class Bswap extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand.createRead(state, next());
             writeDst = operand.createWrite(state, next());

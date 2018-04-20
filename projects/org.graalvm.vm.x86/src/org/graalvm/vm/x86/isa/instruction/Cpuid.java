@@ -59,7 +59,7 @@ public class Cpuid extends AMD64Instruction {
 
     private void createChildrenIfNecessary() {
         if (readEAX == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readEAX = regs.getRegister(Register.EAX).createRead();

@@ -47,7 +47,7 @@ public class Movhpd extends AMD64Instruction {
 
     private void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand2.createRead(state, next());
             readDst = operand1.createRead(state, next());

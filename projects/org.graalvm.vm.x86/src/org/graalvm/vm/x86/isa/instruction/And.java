@@ -34,7 +34,7 @@ public abstract class And extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readOperand1 == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             assert readOperand1 == null;
             assert readOperand2 == null;
             ArchitecturalState state = getContextReference().get().getState();

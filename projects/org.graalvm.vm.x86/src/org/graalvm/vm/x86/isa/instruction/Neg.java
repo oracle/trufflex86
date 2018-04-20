@@ -34,7 +34,7 @@ public abstract class Neg extends AMD64Instruction {
         assert read == null;
         assert write == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         RegisterAccessFactory regs = state.getRegisters();
         read = operand.createRead(state, next());

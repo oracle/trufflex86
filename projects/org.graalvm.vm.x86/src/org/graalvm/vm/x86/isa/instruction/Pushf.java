@@ -24,7 +24,7 @@ public abstract class Pushf extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readRSP == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             assert readRSP == null;
             assert writeRSP == null;
             assert writeMemory == null;

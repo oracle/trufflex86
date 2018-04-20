@@ -29,7 +29,7 @@ public abstract class Cmp extends AMD64Instruction {
         assert srcA == null;
         assert srcB == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         srcA = operand1.createRead(state, next());
         srcB = operand2.createRead(state, next());

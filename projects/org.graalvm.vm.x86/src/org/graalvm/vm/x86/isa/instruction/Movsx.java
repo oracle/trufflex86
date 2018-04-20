@@ -21,7 +21,7 @@ public abstract class Movsx extends AMD64Instruction {
         assert read == null;
         assert write == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         write = operand1.createWrite(state, next());
         read = operand2.createRead(state, next());

@@ -27,7 +27,7 @@ public abstract class Xchg extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readOp1 == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readOp1 = operand1.createRead(state, next());
             readOp2 = operand2.createRead(state, next());

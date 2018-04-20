@@ -30,7 +30,7 @@ public abstract class Mul extends AMD64Instruction {
 
     protected void createWriteFlagNodesIfNecessary() {
         if (writeCF == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             writeCF = regs.getCF().createWrite();
@@ -51,7 +51,7 @@ public abstract class Mul extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readAL == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 createWriteFlagNodesIfNecessary();
                 ArchitecturalState state = getContextReference().get().getState();
                 readAL = state.getRegisters().getRegister(Register.AL).createRead();
@@ -88,7 +88,7 @@ public abstract class Mul extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 createWriteFlagNodesIfNecessary();
                 ArchitecturalState state = getContextReference().get().getState();
                 readAX = state.getRegisters().getRegister(Register.AX).createRead();
@@ -129,7 +129,7 @@ public abstract class Mul extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readEAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 createWriteFlagNodesIfNecessary();
                 ArchitecturalState state = getContextReference().get().getState();
                 readEAX = state.getRegisters().getRegister(Register.EAX).createRead();
@@ -170,7 +170,7 @@ public abstract class Mul extends AMD64Instruction {
 
         private void createChildrenIfNecessary() {
             if (readRAX == null) {
-                CompilerDirectives.transferToInterpreter();
+                CompilerDirectives.transferToInterpreterAndInvalidate();
                 createWriteFlagNodesIfNecessary();
                 ArchitecturalState state = getContextReference().get().getState();
                 readRAX = state.getRegisters().getRegister(Register.RAX).createRead();

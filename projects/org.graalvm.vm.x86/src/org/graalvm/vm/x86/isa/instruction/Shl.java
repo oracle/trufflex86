@@ -35,7 +35,7 @@ public abstract class Shl extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (readSrc == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc = operand1.createRead(state, next());
             readShift = operand2.createRead(state, next());

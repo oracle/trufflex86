@@ -25,7 +25,7 @@ public abstract class Dec extends AMD64Instruction {
         assert read == null;
         assert write == null;
 
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         ArchitecturalState state = getContextReference().get().getState();
         read = operand.createRead(state, next());
         write = operand.createWrite(state, next());

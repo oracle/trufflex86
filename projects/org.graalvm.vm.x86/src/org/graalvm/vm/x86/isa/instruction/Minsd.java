@@ -30,7 +30,7 @@ public class Minsd extends AMD64Instruction {
 
     private void createChildrenIfNecessary() {
         if (readA == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readA = operand1.createRead(state, next());
             readB = operand2.createRead(state, next());

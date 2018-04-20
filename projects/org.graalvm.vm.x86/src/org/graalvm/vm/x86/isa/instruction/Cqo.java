@@ -21,7 +21,7 @@ public class Cqo extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         if (readRAX == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readRAX = regs.getRegister(Register.RAX).createRead();

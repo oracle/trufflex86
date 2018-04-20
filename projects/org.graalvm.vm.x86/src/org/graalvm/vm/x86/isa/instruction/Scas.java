@@ -36,7 +36,7 @@ public abstract class Scas extends AMD64Instruction {
 
     protected void createChildrenIfNecessary(Register a) {
         if (readA == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             readA = regs.getRegister(a).createRead();

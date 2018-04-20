@@ -38,7 +38,7 @@ public abstract class Sbb extends AMD64Instruction {
 
     protected void createChildrenIfNecessary() {
         if (srcA == null) {
-            CompilerDirectives.transferToInterpreter();
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
             srcA = operand1.createRead(state, next());
