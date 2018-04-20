@@ -17,6 +17,7 @@ import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.util.io.Endianess;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 
 public class VirtualMemory {
@@ -622,6 +623,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, int size) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: read %d bytes\n", addr(addr), size);
         }
@@ -629,6 +631,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, int size, long value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i64(value);
             if (val != null) {
@@ -641,6 +644,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, int size, int value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i32(value);
             if (val != null) {
@@ -653,6 +657,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, int size, short value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i16(value);
             if (val != null) {
@@ -669,6 +674,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, int size, byte value) {
         if (debugMemory && debugSingleByte) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
@@ -680,6 +686,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, Vector128 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: read 16 bytes (%s)\n", addr(addr), value);
         }
@@ -687,6 +694,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, Vector256 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: read 32 bytes (%s)\n", addr(addr), value);
         }
@@ -694,6 +702,7 @@ public class VirtualMemory {
 
     private void logMemoryRead(long address, Vector512 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: read 64 bytes (%s)\n", addr(addr), value);
         }
@@ -701,6 +710,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, int size, long value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i64(value);
             if (val != null) {
@@ -713,6 +723,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, int size, int value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i32(value);
             if (val != null) {
@@ -725,6 +736,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, int size, short value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             String val = Stringify.i16(value);
             if (val != null) {
@@ -737,6 +749,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, int size, byte value) {
         if (debugMemory && debugSingleByte) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             if (isPrintable(value)) {
                 System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
@@ -748,6 +761,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, Vector128 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: write 16 bytes (%s)\n", addr(addr), value);
         }
@@ -755,6 +769,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, Vector256 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: write 32 bytes (%s)\n", addr(addr), value);
         }
@@ -762,6 +777,7 @@ public class VirtualMemory {
 
     private void logMemoryWrite(long address, Vector512 value) {
         if (debugMemory) {
+            CompilerDirectives.transferToInterpreter();
             long addr = addr(address);
             System.out.printf("Memory access to 0x%016x: write 64 bytes (%s)\n", addr(addr), value);
         }
@@ -772,11 +788,13 @@ public class VirtualMemory {
     }
 
     public void printLayout(PrintStream out) {
+        CompilerAsserts.neverPartOfCompilation();
         out.println("Memory map:");
         pages.entrySet().stream().map((x) -> x.getValue().toString()).forEachOrdered(out::println);
     }
 
     public void printStats(PrintStream out) {
+        CompilerAsserts.neverPartOfCompilation();
         out.printf("Cache: %d hits, %d misses (%5.3f%% hits)\n", cacheHits, cacheMisses,
                         (double) cacheHits / (double) (cacheHits + cacheMisses));
     }
