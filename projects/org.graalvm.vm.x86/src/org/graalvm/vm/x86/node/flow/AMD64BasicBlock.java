@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.node.flow;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
+import static org.graalvm.vm.x86.util.Debug.printf;
 
 import java.util.Arrays;
 
@@ -15,6 +16,7 @@ import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.posix.elf.Symbol;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -27,6 +29,8 @@ public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal private static boolean PRINT_STATE = getBoolean("vmx86.debug.state", true);
     @CompilationFinal private static boolean PRINT_ONCE = getBoolean("vmx86.debug.once", false);
     @CompilationFinal private static boolean PRINT_ARGS = getBoolean("vmx86.debug.args", true);
+
+    @CompilationFinal private static boolean DEBUG_COMPILER = false;
 
     @Child private PrintStateNode printState;
     @Child private PrintArgumentsNode printArgs;
@@ -42,6 +46,9 @@ public class AMD64BasicBlock extends AMD64Node {
     public AMD64BasicBlock(AMD64Instruction[] instructions) {
         assert instructions.length > 0;
         this.instructions = instructions;
+        if (DEBUG_COMPILER) {
+            printf("0x%016x: SIZE=%d\n", instructions[0].getPC(), instructions.length);
+        }
     }
 
     public boolean contains(long address) {
@@ -61,6 +68,7 @@ public class AMD64BasicBlock extends AMD64Node {
         return successors;
     }
 
+    @ExplodeLoop
     public AMD64BasicBlock getSuccessor(long pc) {
         if (successors == null) {
             return null;
@@ -142,6 +150,13 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @ExplodeLoop
     public long execute(VirtualFrame frame) {
+        if (DEBUG_COMPILER) {
+            if (CompilerDirectives.inInterpreter()) {
+                printf("0x%016x: interpreter (%d insns)\n", instructions[0].getPC(), instructions.length);
+            } else {
+                printf("0x%016x: compiled code (%d insns)\n", instructions[0].getPC(), instructions.length);
+            }
+        }
         long pc = getAddress();
         try {
             for (AMD64Instruction insn : instructions) {
@@ -197,6 +212,7 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @Override
     public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
         StringBuilder buf = new StringBuilder(String.format("%016x:\n", instructions[0].getPC()));
         for (AMD64Instruction insn : instructions) {
             buf.append(insn).append('\n');
