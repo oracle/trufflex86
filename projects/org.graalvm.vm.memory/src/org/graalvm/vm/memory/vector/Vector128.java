@@ -1,17 +1,18 @@
 package org.graalvm.vm.memory.vector;
 
-import java.util.Arrays;
-
 import com.everyware.util.BitTest;
 import com.everyware.util.io.Endianess;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 @ValueType
 public class Vector128 implements Cloneable {
+    private static final int SIZE = 2;
+
     public static final Vector128 ZERO = new Vector128();
 
-    private final long[] data = new long[2];
+    private final long[] data = new long[SIZE];
 
     public Vector128() {
     }
@@ -185,24 +186,27 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 and(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             result[i] = data[i] & x.data[i];
         }
         return new Vector128(result);
     }
 
     public Vector128 or(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             result[i] = data[i] | x.data[i];
         }
         return new Vector128(result);
     }
 
     public Vector128 xor(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             result[i] = data[i] ^ x.data[i];
         }
         return new Vector128(result);
@@ -212,6 +216,7 @@ public class Vector128 implements Cloneable {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
         double[] sum = new double[a.length];
+        CompilerAsserts.partialEvaluationConstant(sum.length);
         for (int i = 0; i < sum.length; i++) {
             sum[i] = a[i] + b[i];
         }
@@ -222,6 +227,7 @@ public class Vector128 implements Cloneable {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
         double[] diff = new double[a.length];
+        CompilerAsserts.partialEvaluationConstant(diff.length);
         for (int i = 0; i < diff.length; i++) {
             diff[i] = a[i] - b[i];
         }
@@ -232,6 +238,7 @@ public class Vector128 implements Cloneable {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
         double[] prod = new double[a.length];
+        CompilerAsserts.partialEvaluationConstant(prod.length);
         for (int i = 0; i < prod.length; i++) {
             prod[i] = a[i] * b[i];
         }
@@ -242,6 +249,7 @@ public class Vector128 implements Cloneable {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
         double[] quot = new double[a.length];
+        CompilerAsserts.partialEvaluationConstant(quot.length);
         for (int i = 0; i < quot.length; i++) {
             quot[i] = a[i] / b[i];
         }
@@ -265,8 +273,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 eq8(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= eq(data[i], x.data[i], 0xFF00000000000000L);
             r |= eq(data[i], x.data[i], 0x00FF000000000000L);
@@ -282,8 +291,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 eq16(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= eq(data[i], x.data[i], 0xFFFF000000000000L);
             r |= eq(data[i], x.data[i], 0x0000FFFF00000000L);
@@ -295,8 +305,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 eq32(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= eq(data[i], x.data[i], 0xFFFFFFFF00000000L);
             r |= eq(data[i], x.data[i], 0x00000000FFFFFFFFL);
@@ -306,8 +317,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 gt8(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= gt(data[i], x.data[i], 0xFF00000000000000L);
             r |= gt(data[i], x.data[i], 0x00FF000000000000L);
@@ -323,8 +335,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 gt16(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= gt(data[i], x.data[i], 0xFFFF000000000000L);
             r |= gt(data[i], x.data[i], 0x0000FFFF00000000L);
@@ -336,8 +349,9 @@ public class Vector128 implements Cloneable {
     }
 
     public Vector128 gt32(Vector128 x) {
-        long[] result = new long[data.length];
-        for (int i = 0; i < data.length; i++) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             long r = 0;
             r |= gt(data[i], x.data[i], 0xFFFFFFFF00000000L);
             r |= gt(data[i], x.data[i], 0x00000000FFFFFFFFL);
@@ -350,7 +364,8 @@ public class Vector128 implements Cloneable {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
         long[] result = new long[a.length];
-        for (int i = 0; i < a.length; i++) {
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
             boolean val = a[i] <= b[i];
             int inv = a.length - i - 1;
             if (val) {
@@ -364,7 +379,7 @@ public class Vector128 implements Cloneable {
 
     public int signsF64() {
         int result = 0;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < SIZE; i++) {
             if (data[i] < 0) {
                 result |= (1 << i);
             }
@@ -375,8 +390,8 @@ public class Vector128 implements Cloneable {
     @ExplodeLoop
     public long byteMaskMSB() {
         long result = 0;
-        long o = 1L << (data.length * 8 - 1);
-        for (int i = 0; i < data.length; i++) {
+        long o = 1L << (SIZE * 8 - 1);
+        for (int i = 0; i < SIZE; i++) {
             assert o != 0;
             long val = data[i];
             long mask = 0x8000000000000000L;
@@ -405,8 +420,9 @@ public class Vector128 implements Cloneable {
                     overflowMask |= bit;
                 }
             }
-            long[] result = new long[data.length];
-            for (int i = 0; i < data.length; i++) {
+            long[] result = new long[SIZE];
+            CompilerAsserts.partialEvaluationConstant(result.length);
+            for (int i = 0; i < result.length; i++) {
                 result[i] = overflow | (data[i] << n);
                 overflow = (data[i] >> overflowShift) & overflowMask;
             }
@@ -449,6 +465,7 @@ public class Vector128 implements Cloneable {
     public Vector128 shlPackedI32(int n) {
         int[] ints = getInts();
         int[] result = new int[ints.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < ints.length; i++) {
             result[i] = ints[i] << n;
         }
@@ -459,6 +476,7 @@ public class Vector128 implements Cloneable {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) (a[i] + b[i]);
         }
@@ -469,6 +487,7 @@ public class Vector128 implements Cloneable {
         short[] a = getShorts();
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (a[i] + b[i]);
         }
@@ -479,6 +498,7 @@ public class Vector128 implements Cloneable {
         int[] a = getInts();
         int[] b = vec.getInts();
         int[] result = new int[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = a[i] + b[i];
         }
@@ -489,6 +509,7 @@ public class Vector128 implements Cloneable {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) (a[i] - b[i]);
         }
@@ -499,6 +520,7 @@ public class Vector128 implements Cloneable {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) Math.min(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
         }
@@ -509,6 +531,7 @@ public class Vector128 implements Cloneable {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) Math.max(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
         }
@@ -518,7 +541,7 @@ public class Vector128 implements Cloneable {
     @Override
     public int hashCode() {
         long result = 0;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < SIZE; i++) {
             result ^= data[i];
         }
         return (int) result;
@@ -533,7 +556,7 @@ public class Vector128 implements Cloneable {
             return false;
         }
         Vector128 v = (Vector128) o;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < SIZE; i++) {
             if (data[i] != v.data[i]) {
                 return false;
             }
@@ -543,12 +566,12 @@ public class Vector128 implements Cloneable {
 
     @Override
     public Vector128 clone() {
-        long[] value = Arrays.copyOf(data, data.length);
-        return new Vector128(value);
+        return new Vector128(data);
     }
 
     @Override
     public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
         return String.format("0x%016x%016x", data[0], data[1]);
     }
 }

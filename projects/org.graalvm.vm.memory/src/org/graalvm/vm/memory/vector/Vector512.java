@@ -148,6 +148,7 @@ public class Vector512 implements Cloneable {
         return (byte) (val >>> shift);
     }
 
+    @ExplodeLoop
     public Vector512 xor(Vector512 x) {
         long[] result = new long[data.length];
         for (int i = 0; i < data.length; i++) {
@@ -156,6 +157,7 @@ public class Vector512 implements Cloneable {
         return new Vector512(result);
     }
 
+    @ExplodeLoop
     @Override
     public Vector512 clone() {
         return new Vector512(data);
