@@ -88,7 +88,7 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.rip = pc;
         state.rfl = readFlags.executeI64(frame);
         for (int i = 0; i < readZMM.length; i++) {
-            state.zmm[i] = readZMM[i].executeI512(frame).clone();
+            state.zmm[i] = readZMM[i].executeI512(frame);
         }
         return state;
     }

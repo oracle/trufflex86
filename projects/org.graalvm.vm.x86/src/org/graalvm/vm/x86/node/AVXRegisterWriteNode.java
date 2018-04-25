@@ -44,7 +44,7 @@ public class AVXRegisterWriteNode extends WriteNode {
     @Override
     public void executeI512(VirtualFrame frame, Vector512 value) {
         CompilerAsserts.partialEvaluationConstant(slot);
-        frame.setObject(slot, value.clone());
+        frame.setObject(slot, value);
     }
 
     @Override

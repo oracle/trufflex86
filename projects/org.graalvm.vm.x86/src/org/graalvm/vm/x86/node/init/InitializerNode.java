@@ -67,7 +67,7 @@ public class InitializerNode extends AMD64Node {
         }
 
         for (AVXRegisterWriteNode register : zmm) {
-            register.executeI512(frame, Vector512.ZERO);
+            register.executeI512(frame, Vector512.ZERO.clone());
         }
 
         AMD64Context ctx = getContextReference().get();
