@@ -63,11 +63,7 @@ public class TraceDispatchNode extends AMD64Node {
     }
 
     public long getStartAddress() {
-        if (blocks[0] == null) {
-            return -1;
-        } else {
-            return blocks[0].getAddress();
-        }
+        return startPC;
     }
 
     public AMD64BasicBlock get(long address) {
