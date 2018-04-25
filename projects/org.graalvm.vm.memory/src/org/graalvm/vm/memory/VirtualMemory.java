@@ -19,6 +19,7 @@ import com.everyware.posix.api.PosixPointer;
 import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class VirtualMemory {
     private static final boolean DEBUG = getBoolean("mem.debug", false);
@@ -104,6 +105,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public Collection<MemoryPage> getPages() {
         return Collections.unmodifiableCollection(pages.values());
     }
@@ -121,6 +123,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void add(MemoryPage page) {
         boolean ok = Long.compareUnsigned(page.end, POINTER_BASE) <= 0 || Long.compareUnsigned(page.end, POINTER_END) > 0;
         if (!ok) {
@@ -189,6 +192,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void remove(long addr, long length) throws PosixException {
         cache = null;
         cache2 = null;
@@ -212,6 +216,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public MemoryPage allocate(long size) {
         long base = allocator.alloc(size);
         if (base == 0) {
@@ -228,6 +233,7 @@ public class VirtualMemory {
         return allocate(memory, size, name, 0);
     }
 
+    @TruffleBoundary
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
         long base = allocator.alloc(size);
         if (base == 0) {
@@ -245,12 +251,32 @@ public class VirtualMemory {
     }
 
     public void printAccessError(long addr, MemoryPage page) {
+        CompilerAsserts.neverPartOfCompilation();
         if (page != null) {
             System.err.printf("Tried to access 0x%016X, nearest page is P[0x%016X;0x%016X]\n", addr, page.base, page.end);
         } else {
             System.err.printf("Tried to access 0x%016X\n", addr);
         }
         printLayout(System.err);
+    }
+
+    @TruffleBoundary
+    private MemoryPage getFloorEntry(long addr) {
+        Map.Entry<Long, MemoryPage> entry = pages.floorEntry(addr);
+        if (entry == null) {
+            throw new SegmentationViolation(addr);
+        }
+        MemoryPage page = entry.getValue();
+        if (page.contains(addr)) {
+            if (cache != null) {
+                cache2 = page;
+            } else {
+                cache = page;
+            }
+            return page;
+        } else {
+            throw new SegmentationViolation(addr);
+        }
     }
 
     public MemoryPage get(long address) {
@@ -269,21 +295,8 @@ public class VirtualMemory {
         } else {
             cacheMisses++;
         }
-        Map.Entry<Long, MemoryPage> entry = pages.floorEntry(addr);
-        if (entry == null) {
-            throw new SegmentationViolation(addr);
-        }
-        MemoryPage page = entry.getValue();
-        if (page.contains(addr)) {
-            if (cache != null) {
-                cache2 = page;
-            } else {
-                cache = page;
-            }
-            return page;
-        } else {
-            throw new SegmentationViolation(addr);
-        }
+        // slow path
+        return getFloorEntry(addr);
     }
 
     public PosixPointer getPosixPointer(long address) {
@@ -291,6 +304,7 @@ public class VirtualMemory {
         return new PosixVirtualMemoryPointer(this, addr);
     }
 
+    @TruffleBoundary
     public boolean contains(long address) {
         long addr = addr(address);
         Map.Entry<Long, MemoryPage> entry = pages.floorEntry(addr);
@@ -582,6 +596,7 @@ public class VirtualMemory {
     }
 
     public void dump(long p, int size) {
+        CompilerAsserts.neverPartOfCompilation();
         // disable memory access log during dump
         boolean wasDebug = debugMemory;
         debugMemory = false;
