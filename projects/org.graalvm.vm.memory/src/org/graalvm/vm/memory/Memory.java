@@ -7,6 +7,7 @@ import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public abstract class Memory {
     private final boolean isBE;
@@ -26,32 +27,46 @@ public abstract class Memory {
         throw new AssertionError("not implemented");
     }
 
+    @TruffleBoundary
     protected abstract byte i8(long pos);
 
+    @TruffleBoundary
     protected abstract short i16B(long pos);
 
+    @TruffleBoundary
     protected abstract short i16L(long pos);
 
+    @TruffleBoundary
     protected abstract int i32B(long pos);
 
+    @TruffleBoundary
     protected abstract int i32L(long pos);
 
+    @TruffleBoundary
     protected abstract long i64B(long pos);
 
+    @TruffleBoundary
     protected abstract long i64L(long pos);
 
+    @TruffleBoundary
     protected abstract void i8(long pos, byte val);
 
+    @TruffleBoundary
     protected abstract void i16L(long pos, short val);
 
+    @TruffleBoundary
     protected abstract void i16B(long pos, short val);
 
+    @TruffleBoundary
     protected abstract void i32L(long pos, int val);
 
+    @TruffleBoundary
     protected abstract void i32B(long pos, int val);
 
+    @TruffleBoundary
     protected abstract void i64L(long pos, long val);
 
+    @TruffleBoundary
     protected abstract void i64B(long pos, long val);
 
     public byte getI8(long pos) {

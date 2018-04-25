@@ -3,6 +3,7 @@ package org.graalvm.vm.memory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class PosixMemory extends Memory {
     private PosixPointer ptr;
@@ -17,6 +18,7 @@ public class PosixMemory extends Memory {
         return ptr.add((int) pos);
     }
 
+    @TruffleBoundary
     @Override
     protected byte i8(long pos) {
         try {
@@ -26,6 +28,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected short i16L(long pos) {
         try {
@@ -35,6 +38,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected short i16B(long pos) {
         try {
@@ -44,6 +48,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected int i32L(long pos) {
         try {
@@ -53,6 +58,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected int i32B(long pos) {
         try {
@@ -62,6 +68,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected long i64L(long pos) {
         try {
@@ -71,6 +78,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected long i64B(long pos) {
         try {
@@ -80,6 +88,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i8(long pos, byte val) {
         try {
@@ -89,6 +98,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i16L(long pos, short val) {
         try {
@@ -98,6 +108,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i16B(long pos, short val) {
         try {
@@ -107,6 +118,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i32L(long pos, int val) {
         try {
@@ -116,6 +128,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i32B(long pos, int val) {
         try {
@@ -125,6 +138,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i64L(long pos, long val) {
         try {
@@ -134,6 +148,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     protected void i64B(long pos, long val) {
         try {
@@ -143,6 +158,7 @@ public class PosixMemory extends Memory {
         }
     }
 
+    @TruffleBoundary
     @Override
     public long size() {
         return ptr.size();
