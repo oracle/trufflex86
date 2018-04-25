@@ -69,6 +69,10 @@ public class AMD64Context {
         symbols = Collections.emptyNavigableMap();
     }
 
+    public FrameDescriptor getFrameDescriptor() {
+        return frameDescriptor;
+    }
+
     public VirtualMemory getMemory() {
         return memory;
     }
