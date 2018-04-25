@@ -4,6 +4,7 @@ import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameUtil;
@@ -17,27 +18,32 @@ public class AVXRegisterWriteNode extends WriteNode {
     }
 
     public void executeI32(VirtualFrame frame, int i, int value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
         reg.setI32(i, value);
     }
 
     public void executeI64(VirtualFrame frame, int i, long value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
         reg.setI64(i, value);
     }
 
     public void executeI128(VirtualFrame frame, int i, Vector128 value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
         reg.setI128(i, value);
     }
 
     public void executeI256(VirtualFrame frame, int i, Vector256 value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         Vector512 reg = (Vector512) FrameUtil.getObjectSafe(frame, slot);
         reg.setI256(i, value);
     }
 
     @Override
     public void executeI512(VirtualFrame frame, Vector512 value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         frame.setObject(slot, value.clone());
     }
 

@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.node;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -12,6 +13,7 @@ public class ReadFlagNode extends AMD64Node {
     }
 
     public boolean execute(VirtualFrame frame) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         return FrameUtil.getBooleanSafe(frame, slot);
     }
 }

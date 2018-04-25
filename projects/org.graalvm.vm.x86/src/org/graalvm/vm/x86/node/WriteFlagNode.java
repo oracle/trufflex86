@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.node;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -11,6 +12,7 @@ public class WriteFlagNode extends AMD64Node {
     }
 
     public void execute(VirtualFrame frame, boolean value) {
+        CompilerAsserts.partialEvaluationConstant(slot);
         frame.setBoolean(slot, value);
     }
 }
