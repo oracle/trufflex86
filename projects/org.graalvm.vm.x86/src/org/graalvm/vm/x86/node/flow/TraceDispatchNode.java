@@ -352,7 +352,7 @@ public class TraceDispatchNode extends AMD64Node {
             if (written.contains(r) && !read.contains(r)) {
                 // overwritten in first block
                 if (DEBUG_REGS) {
-                    System.out.printf("register %s was overwritten in first block\n");
+                    System.out.printf("register %s was overwritten in first block\n", r);
                 }
             } else {
                 result.add(r);

@@ -40,6 +40,8 @@ public class InterTraceDispatchNode extends AMD64Node {
     @CompilationFinal private AMD64Language language;
     @CompilationFinal private FrameDescriptor frameDescriptor;
 
+    @CompilationFinal public static boolean PRINT_STATS = false;
+
     private int noSuccessor = 0;
     private int hasSuccessor = 0;
 
@@ -92,7 +94,9 @@ public class InterTraceDispatchNode extends AMD64Node {
                 trace = next;
             }
         } catch (ProcessExitException e) {
-            printStats();
+            if (PRINT_STATS) {
+                printStats();
+            }
             return e.getCode();
         } catch (CpuRuntimeException e) {
             if (e.getCause() instanceof IllegalInstructionException) {
