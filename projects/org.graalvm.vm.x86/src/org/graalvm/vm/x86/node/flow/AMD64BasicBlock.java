@@ -248,6 +248,41 @@ public class AMD64BasicBlock extends AMD64Node {
         return regs;
     }
 
+    public Set<Integer> getAVXReads() {
+        Set<Integer> written = new HashSet<>();
+        return getAVXReads(written);
+    }
+
+    public Set<Integer> getAVXReads(Set<Integer> written) {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Integer> regs = new HashSet<>();
+        for (AMD64Instruction insn : instructions) {
+            int[] read = insn.getUsedAVXRead();
+            int[] write = insn.getUsedAVXWrite();
+            for (Integer r : read) {
+                if (!written.contains(r)) {
+                    regs.add(r);
+                }
+            }
+            for (int r : write) {
+                written.add(r);
+            }
+        }
+        return regs;
+    }
+
+    public Set<Integer> getAVXWrites() {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Integer> regs = new HashSet<>();
+        for (AMD64Instruction insn : instructions) {
+            int[] write = insn.getUsedAVXWrite();
+            for (Integer r : write) {
+                regs.add(r);
+            }
+        }
+        return regs;
+    }
+
     @Override
     public String toString() {
         CompilerAsserts.neverPartOfCompilation();

@@ -100,7 +100,7 @@ public class InitializeFromCpuStateNode extends AMD64Node {
     }
 
     @ExplodeLoop
-    public void execute(VirtualFrame frame, CpuState state, boolean[] gprMask) {
+    public void execute(VirtualFrame frame, CpuState state, boolean[] gprMask, boolean[] avxMask) {
         createChildrenIfNecessary();
         CompilerAsserts.partialEvaluationConstant(gprMask);
         CompilerAsserts.partialEvaluationConstant(gprMask[Register.RAX.getID()]);
@@ -171,8 +171,12 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         gs.executeI64(frame, state.gs);
         pc.executeI64(frame, state.rip);
         flags.executeI64(frame, state.rfl);
+        CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < zmm.length; i++) {
-            zmm[i].executeI512(frame, state.zmm[i]);
+            CompilerAsserts.partialEvaluationConstant(avxMask[i]);
+            if (avxMask[i]) {
+                zmm[i].executeI512(frame, state.zmm[i]);
+            }
         }
     }
 }

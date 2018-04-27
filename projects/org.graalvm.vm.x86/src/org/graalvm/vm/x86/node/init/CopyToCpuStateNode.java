@@ -95,7 +95,7 @@ public class CopyToCpuStateNode extends AMD64Node {
     }
 
     @ExplodeLoop
-    public CpuState execute(VirtualFrame frame, long pc, CpuState state, boolean[] gprMask) {
+    public CpuState execute(VirtualFrame frame, long pc, CpuState state, boolean[] gprMask, boolean[] avxMask) {
         createChildrenIfNecessary();
         CompilerAsserts.partialEvaluationConstant(gprMask);
         CompilerAsserts.partialEvaluationConstant(gprMask[Register.RAX.getID()]);
@@ -166,8 +166,12 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.gs = readGS.executeI64(frame);
         state.rip = pc;
         state.rfl = readFlags.executeI64(frame);
+        CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < readZMM.length; i++) {
-            state.zmm[i] = readZMM[i].executeI512(frame);
+            CompilerAsserts.partialEvaluationConstant(avxMask[i]);
+            if (avxMask[i]) {
+                state.zmm[i] = readZMM[i].executeI512(frame);
+            }
         }
         return state;
     }

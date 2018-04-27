@@ -57,11 +57,10 @@ public abstract class AMD64Instruction extends AMD64Node {
     }
 
     public Register[] getUsedGPRWrite() {
-        // only register operands can write to registers
         CompilerAsserts.neverPartOfCompilation();
         Set<Register> regs = new HashSet<>();
-        // gpr read operands
         for (Operand operand : gprWriteOperands) {
+            // only register operands can write to registers
             if (operand instanceof RegisterOperand) {
                 RegisterOperand op = (RegisterOperand) operand;
                 if (op.getRegister() == null) {
@@ -72,6 +71,42 @@ public abstract class AMD64Instruction extends AMD64Node {
             }
         }
         return regs.toArray(new Register[regs.size()]);
+    }
+
+    public int[] getUsedAVXRead() {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Integer> regs = new HashSet<>();
+        // avx read operands
+        for (Operand operand : gprReadOperands) {
+            if (operand instanceof AVXRegisterOperand) {
+                AVXRegisterOperand op = (AVXRegisterOperand) operand;
+                regs.add(op.getRegister());
+            }
+        }
+        int[] result = new int[regs.size()];
+        int i = 0;
+        for (int reg : regs) {
+            result[i++] = reg;
+        }
+        return result;
+    }
+
+    public int[] getUsedAVXWrite() {
+        // only register operands can write to registers
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Integer> regs = new HashSet<>();
+        for (Operand operand : gprWriteOperands) {
+            if (operand instanceof AVXRegisterOperand) {
+                AVXRegisterOperand op = (AVXRegisterOperand) operand;
+                regs.add(op.getRegister());
+            }
+        }
+        int[] result = new int[regs.size()];
+        int i = 0;
+        for (int reg : regs) {
+            result[i++] = reg;
+        }
+        return result;
     }
 
     public boolean isControlFlow() {

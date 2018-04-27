@@ -30,6 +30,7 @@ public abstract class Cmppd extends AMD64Instruction {
         this.name = name;
         this.type = type;
 
+        setGPRReadOperands(operand1, operand2);
         setGPRWriteOperands(operand1);
     }
 

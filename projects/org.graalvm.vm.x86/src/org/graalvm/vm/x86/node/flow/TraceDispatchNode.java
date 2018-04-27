@@ -338,9 +338,9 @@ public class TraceDispatchNode extends AMD64Node {
         for (int i = 1; i < usedBlocks; i++) {
             AMD64BasicBlock block = blocks[i];
             Set<Register> wr = new HashSet<>(written);
-            Set<Register> regs = block.getGPRReads(wr);
             allReads.addAll(block.getGPRReads(wr));
             if (DEBUG_REGS) {
+                Set<Register> regs = block.getGPRReads(wr);
                 System.out.printf("block @ 0x%016x:\n", block.getAddress());
                 System.out.print(block.toString());
                 System.out.printf("written[%s,0x%016x]=%s\n", i, block.getAddress(), wr.stream().map(Register::toString).collect(Collectors.joining(",")));
@@ -371,5 +371,45 @@ public class TraceDispatchNode extends AMD64Node {
             writes.addAll(block.getGPRWrites());
         }
         return writes.toArray(new Register[writes.size()]);
+    }
+
+    public int[] getAVXReads() {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Integer> written = new HashSet<>();
+        Set<Integer> read = new HashSet<>(blocks[0].getAVXReads(written));
+        Set<Integer> allReads = new HashSet<>(read);
+        for (int i = 1; i < usedBlocks; i++) {
+            AMD64BasicBlock block = blocks[i];
+            Set<Integer> wr = new HashSet<>(written);
+            allReads.addAll(block.getAVXReads(wr));
+        }
+        Set<Integer> result = new HashSet<>();
+        for (int r : allReads) {
+            if (written.contains(r) && !read.contains(r)) {
+                // overwritten in first block
+            } else {
+                result.add(r);
+            }
+        }
+        int[] regs = new int[result.size()];
+        int i = 0;
+        for (int reg : result) {
+            regs[i++] = reg;
+        }
+        return regs;
+    }
+
+    public int[] getAVXWrites() {
+        Set<Integer> writes = new HashSet<>();
+        for (int i = 0; i < usedBlocks; i++) {
+            AMD64BasicBlock block = blocks[i];
+            writes.addAll(block.getAVXWrites());
+        }
+        int[] regs = new int[writes.size()];
+        int i = 0;
+        for (int reg : writes) {
+            regs[i++] = reg;
+        }
+        return regs;
     }
 }

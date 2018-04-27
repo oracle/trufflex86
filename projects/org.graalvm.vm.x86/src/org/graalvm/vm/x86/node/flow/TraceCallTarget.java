@@ -30,6 +30,8 @@ public class TraceCallTarget extends AMD64RootNode {
 
     @CompilationFinal(dimensions = 1) private boolean[] gprReadMask = null;
     @CompilationFinal(dimensions = 1) private boolean[] gprWriteMask = null;
+    @CompilationFinal(dimensions = 1) private boolean[] avxReadMask = null;
+    @CompilationFinal(dimensions = 1) private boolean[] avxWriteMask = null;
 
     @CompilationFinal(dimensions = 1) private static final boolean[] allTrue = new boolean[16];
     static {
@@ -113,7 +115,7 @@ public class TraceCallTarget extends AMD64RootNode {
         }
         CpuState initialState = (CpuState) frame.getArguments()[0];
         if (gprReadMask != null) {
-            write.execute(frame, initialState, gprReadMask);
+            write.execute(frame, initialState, gprReadMask, avxReadMask);
         } else {
             write.execute(frame, initialState);
         }
@@ -135,8 +137,20 @@ public class TraceCallTarget extends AMD64RootNode {
                     gprWriteMask[r.getID()] = true;
                 }
             }
+
+            avxReadMask = new boolean[32];
+            avxWriteMask = new boolean[32];
+            int[] avxReads = dispatch.getAVXReads();
+            for (int r : avxReads) {
+                avxReadMask[r] = true;
+            }
+            int[] avxWrites = dispatch.getAVXWrites();
+            for (int r : avxWrites) {
+                avxReadMask[r] = true; // initialize frames
+                avxWriteMask[r] = true;
+            }
         }
-        CpuState result = read.execute(frame, pc, initialState, gprWriteMask);
+        CpuState result = read.execute(frame, pc, initialState, gprWriteMask, avxWriteMask);
         if (CHECK) {
             CpuState full = read.execute(frame, pc);
             check(full, result);

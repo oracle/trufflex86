@@ -8,10 +8,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
     @Child private InitializerNode initializer;
+    // @Child private DispatchNode interpreter;
     @Child private InterTraceDispatchNode interpreter;
 
     public InterpreterRootNode(ArchitecturalState state, String programName) {
         initializer = new InitializerNode(state, programName);
+        // interpreter = new DispatchNode(state);
         interpreter = new InterTraceDispatchNode(state);
     }
 
