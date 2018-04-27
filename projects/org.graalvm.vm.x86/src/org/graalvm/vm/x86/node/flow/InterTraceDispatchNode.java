@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
-import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
@@ -26,7 +25,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 
-public class InterTraceDispatchNode extends AMD64Node {
+public class InterTraceDispatchNode extends AbstractDispatchNode {
     @Child private ReadNode readPC;
     @Child private WriteNode writePC;
 
@@ -74,6 +73,7 @@ public class InterTraceDispatchNode extends AMD64Node {
         System.out.printf("No successor chain used: %d\n", noSuccessor);
     }
 
+    @Override
     public long execute(VirtualFrame frame) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         long pc = readPC.executeI64(frame);

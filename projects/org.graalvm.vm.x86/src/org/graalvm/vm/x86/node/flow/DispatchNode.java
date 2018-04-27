@@ -17,7 +17,6 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
-import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
@@ -31,7 +30,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public class DispatchNode extends AMD64Node {
+public class DispatchNode extends AbstractDispatchNode {
     private static final Logger log = Trace.create(DispatchNode.class);
 
     @CompilationFinal private static boolean DEBUG = false;
@@ -201,6 +200,7 @@ public class DispatchNode extends AMD64Node {
         }
     }
 
+    @Override
     public long execute(VirtualFrame frame) {
         long cnt = -1; // max execution steps (help debug infinite loops)
         long pc = readPC.executeI64(frame);
