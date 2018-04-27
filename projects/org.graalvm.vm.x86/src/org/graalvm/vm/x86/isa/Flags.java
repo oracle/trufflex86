@@ -1,7 +1,5 @@
 package org.graalvm.vm.x86.isa;
 
-import com.oracle.truffle.api.nodes.ExplodeLoop;
-
 public class Flags {
     public static final long CF = 0;
     public static final long PF = 2;
@@ -21,14 +19,7 @@ public class Flags {
     public static final long VIP = 20;
     public static final long ID = 21;
 
-    @ExplodeLoop
     public static boolean getParity(byte value) {
-        boolean result = true;
-        for (int i = 0; i < 8; i++) {
-            if ((value & (1 << i)) != 0) {
-                result = !result;
-            }
-        }
-        return result;
+        return (Integer.bitCount(Byte.toUnsignedInt(value)) & 0x01) == 0;
     }
 }
