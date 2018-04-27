@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -25,6 +26,8 @@ public abstract class Cxe extends AMD64Instruction {
         super(pc, instruction);
         this.size = size;
         this.name = name;
+        setGPRReadOperands(new RegisterOperand(Register.RAX));
+        setGPRWriteOperands(new RegisterOperand(Register.RDX));
     }
 
     protected void createChildrenIfNecessary() {

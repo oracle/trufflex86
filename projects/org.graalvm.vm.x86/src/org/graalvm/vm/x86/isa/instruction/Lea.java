@@ -24,6 +24,9 @@ public abstract class Lea extends AMD64Instruction {
         this.operand2 = operands.getOperand1(type);
 
         assert operand2 instanceof MemoryOperand;
+
+        setGPRReadOperands(operand2);
+        setGPRWriteOperands(operand1);
     }
 
     protected void createChildrenIfNecessary() {

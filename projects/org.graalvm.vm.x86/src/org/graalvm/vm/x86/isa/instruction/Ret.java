@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
@@ -18,6 +19,9 @@ public class Ret extends AMD64Instruction {
 
     public Ret(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        setGPRReadOperands(new RegisterOperand(Register.RSP));
+        setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
     private boolean needChildren() {

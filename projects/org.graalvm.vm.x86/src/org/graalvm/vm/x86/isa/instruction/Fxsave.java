@@ -24,6 +24,8 @@ public class Fxsave extends AMD64Instruction {
     private Fxsave(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = (MemoryOperand) operand;
+
+        setGPRWriteOperands(operand);
     }
 
     public Fxsave(long pc, byte[] instruction, OperandDecoder operands) {

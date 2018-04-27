@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagsNode;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -89,6 +90,83 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         r13.executeI64(frame, state.r13);
         r14.executeI64(frame, state.r14);
         r15.executeI64(frame, state.r15);
+        fs.executeI64(frame, state.fs);
+        gs.executeI64(frame, state.gs);
+        pc.executeI64(frame, state.rip);
+        flags.executeI64(frame, state.rfl);
+        for (int i = 0; i < zmm.length; i++) {
+            zmm[i].executeI512(frame, state.zmm[i]);
+        }
+    }
+
+    @ExplodeLoop
+    public void execute(VirtualFrame frame, CpuState state, boolean[] gprMask) {
+        createChildrenIfNecessary();
+        CompilerAsserts.partialEvaluationConstant(gprMask);
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RAX.getID()]);
+        if (gprMask[Register.RAX.getID()]) {
+            rax.executeI64(frame, state.rax);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RBX.getID()]);
+        if (gprMask[Register.RBX.getID()]) {
+            rbx.executeI64(frame, state.rbx);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RCX.getID()]);
+        if (gprMask[Register.RCX.getID()]) {
+            rcx.executeI64(frame, state.rcx);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RDX.getID()]);
+        if (gprMask[Register.RDX.getID()]) {
+            rdx.executeI64(frame, state.rdx);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RSI.getID()]);
+        if (gprMask[Register.RSI.getID()]) {
+            rsi.executeI64(frame, state.rsi);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RDI.getID()]);
+        if (gprMask[Register.RDI.getID()]) {
+            rdi.executeI64(frame, state.rdi);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RBP.getID()]);
+        if (gprMask[Register.RBP.getID()]) {
+            rbp.executeI64(frame, state.rbp);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RSP.getID()]);
+        if (gprMask[Register.RSP.getID()]) {
+            rsp.executeI64(frame, state.rsp);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R8.getID()]);
+        if (gprMask[Register.R8.getID()]) {
+            r8.executeI64(frame, state.r8);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R9.getID()]);
+        if (gprMask[Register.R9.getID()]) {
+            r9.executeI64(frame, state.r9);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R10.getID()]);
+        if (gprMask[Register.R10.getID()]) {
+            r10.executeI64(frame, state.r10);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R11.getID()]);
+        if (gprMask[Register.R11.getID()]) {
+            r11.executeI64(frame, state.r11);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R12.getID()]);
+        if (gprMask[Register.R12.getID()]) {
+            r12.executeI64(frame, state.r12);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R13.getID()]);
+        if (gprMask[Register.R13.getID()]) {
+            r13.executeI64(frame, state.r13);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R14.getID()]);
+        if (gprMask[Register.R14.getID()]) {
+            r14.executeI64(frame, state.r14);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R15.getID()]);
+        if (gprMask[Register.R15.getID()]) {
+            r15.executeI64(frame, state.r15);
+        }
         fs.executeI64(frame, state.fs);
         gs.executeI64(frame, state.gs);
         pc.executeI64(frame, state.rip);

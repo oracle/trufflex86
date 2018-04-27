@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -20,6 +21,9 @@ public abstract class Pushf extends AMD64Instruction {
 
     protected Pushf(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        setGPRReadOperands(new RegisterOperand(Register.RSP));
+        setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
     protected void createChildrenIfNecessary() {

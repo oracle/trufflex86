@@ -28,6 +28,9 @@ public abstract class Neg extends AMD64Instruction {
     protected Neg(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
+
+        setGPRReadOperands(operand);
+        setGPRWriteOperands(operand);
     }
 
     protected void createChildren() {

@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -16,6 +17,9 @@ public class Cdq extends AMD64Instruction {
 
     public Cdq(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        setGPRReadOperands(new RegisterOperand(Register.EAX));
+        setGPRWriteOperands(new RegisterOperand(Register.EDX));
     }
 
     @Override

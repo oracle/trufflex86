@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -16,6 +17,8 @@ public class Lahf extends AMD64Instruction {
 
     public Lahf(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        setGPRWriteOperands(new RegisterOperand(Register.RAX));
     }
 
     @Override

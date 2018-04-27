@@ -25,6 +25,9 @@ public abstract class Pcmpeq extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.type = type;
+
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
     }
 
     protected Pcmpeq(long pc, byte[] instruction, OperandDecoder operands, int size, char type) {

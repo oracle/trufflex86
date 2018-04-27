@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -33,6 +34,9 @@ public abstract class Cmps extends AMD64Instruction {
     protected Cmps(long pc, byte[] instruction, String name) {
         super(pc, instruction);
         this.name = name;
+
+        setGPRReadOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
+        setGPRWriteOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
     }
 
     protected void createChildrenIfNecessary() {

@@ -37,6 +37,9 @@ public abstract class Shrd extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.operand3 = operand3;
+
+        setGPRReadOperands(operand1, operand2, operand3);
+        setGPRWriteOperands(operand1);
     }
 
     protected void createChildrenIfNecessary() {

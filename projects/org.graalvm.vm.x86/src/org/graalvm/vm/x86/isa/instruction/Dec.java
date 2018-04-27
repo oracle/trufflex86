@@ -28,6 +28,9 @@ public abstract class Dec extends AMD64Instruction {
     protected Dec(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
+
+        setGPRReadOperands(operand);
+        setGPRWriteOperands(operand);
     }
 
     protected void createChildren() {

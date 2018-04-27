@@ -48,6 +48,8 @@ public abstract class Jmp extends AMD64Instruction {
         public JmpIndirect(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction);
             operand = operands.getOperand1(OperandDecoder.R64);
+
+            setGPRReadOperands(operand);
         }
 
         private void createChildrenIfNecessary() {

@@ -22,6 +22,9 @@ public class Mulss extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
     }
 
     public Mulss(long pc, byte[] instruction, OperandDecoder operands) {

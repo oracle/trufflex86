@@ -7,6 +7,7 @@ import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -47,6 +48,9 @@ public abstract class Mul extends AMD64Instruction {
 
         public Mulb(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX));
         }
 
         private void createChildrenIfNecessary() {
@@ -84,6 +88,9 @@ public abstract class Mul extends AMD64Instruction {
 
         public Mulw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {
@@ -125,6 +132,9 @@ public abstract class Mul extends AMD64Instruction {
 
         public Mull(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {
@@ -166,6 +176,9 @@ public abstract class Mul extends AMD64Instruction {
 
         public Mulq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {

@@ -4,10 +4,13 @@ import static org.graalvm.vm.x86.Options.getBoolean;
 import static org.graalvm.vm.x86.util.Debug.printf;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.instruction.Call;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
@@ -208,6 +211,41 @@ public class AMD64BasicBlock extends AMD64Node {
             }
         }
         return null;
+    }
+
+    public Set<Register> getGPRReads() {
+        Set<Register> written = new HashSet<>();
+        return getGPRReads(written);
+    }
+
+    public Set<Register> getGPRReads(Set<Register> written) {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Register> regs = new HashSet<>();
+        for (AMD64Instruction insn : instructions) {
+            Register[] read = insn.getUsedGPRRead();
+            Register[] write = insn.getUsedGPRWrite();
+            for (Register r : read) {
+                if (!written.contains(r)) {
+                    regs.add(r);
+                }
+            }
+            for (Register r : write) {
+                written.add(r);
+            }
+        }
+        return regs;
+    }
+
+    public Set<Register> getGPRWrites() {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Register> regs = new HashSet<>();
+        for (AMD64Instruction insn : instructions) {
+            Register[] write = insn.getUsedGPRWrite();
+            for (Register r : write) {
+                regs.add(r);
+            }
+        }
+        return regs;
     }
 
     @Override

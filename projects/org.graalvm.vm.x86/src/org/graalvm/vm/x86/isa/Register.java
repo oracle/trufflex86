@@ -102,6 +102,100 @@ public enum Register {
         return getSize(8);
     }
 
+    public Register getRegister() {
+        switch (this) {
+            case AL:
+            case AH:
+            case AX:
+            case EAX:
+            case RAX:
+                return RAX;
+            case CL:
+            case CH:
+            case CX:
+            case ECX:
+            case RCX:
+                return RCX;
+            case DL:
+            case DH:
+            case DX:
+            case EDX:
+            case RDX:
+                return RDX;
+            case BL:
+            case BH:
+            case BX:
+            case EBX:
+            case RBX:
+                return RBX;
+            case SPL:
+            case SP:
+            case ESP:
+            case RSP:
+                return RSP;
+            case BPL:
+            case BP:
+            case EBP:
+            case RBP:
+                return RBP;
+            case SIL:
+            case SI:
+            case ESI:
+            case RSI:
+                return RSI;
+            case DIL:
+            case DI:
+            case EDI:
+            case RDI:
+                return RDI;
+            case R8:
+            case R8D:
+            case R8W:
+            case R8B:
+                return R8;
+            case R9:
+            case R9D:
+            case R9W:
+            case R9B:
+                return R9;
+            case R10:
+            case R10D:
+            case R10W:
+            case R10B:
+                return R10;
+            case R11:
+            case R11D:
+            case R11W:
+            case R11B:
+                return R11;
+            case R12:
+            case R12D:
+            case R12W:
+            case R12B:
+                return R12;
+            case R13:
+            case R13D:
+            case R13W:
+            case R13B:
+                return R13;
+            case R14:
+            case R14D:
+            case R14W:
+            case R14B:
+                return R14;
+            case R15:
+            case R15D:
+            case R15W:
+            case R15B:
+                return R15;
+            case IP:
+            case EIP:
+            case RIP:
+                return RIP;
+        }
+        throw new AssertionError();
+    }
+
     public static Register get(int id) {
         return REGISTERS[id];
     }

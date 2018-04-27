@@ -24,6 +24,9 @@ public abstract class Movd extends AMD64Instruction {
         this.name = name;
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand2);
+        setGPRWriteOperands(operand1);
     }
 
     protected void createChildrenIfNecessary() {

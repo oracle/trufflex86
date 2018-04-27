@@ -24,6 +24,8 @@ public class Fxrstor extends AMD64Instruction {
     private Fxrstor(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = (MemoryOperand) operand;
+
+        setGPRWriteOperands(operand);
     }
 
     public Fxrstor(long pc, byte[] instruction, OperandDecoder operands) {

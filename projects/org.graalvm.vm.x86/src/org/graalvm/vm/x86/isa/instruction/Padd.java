@@ -25,6 +25,9 @@ public abstract class Padd extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.name = name;
+
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
     }
 
     protected void createChildrenIfNecessary() {

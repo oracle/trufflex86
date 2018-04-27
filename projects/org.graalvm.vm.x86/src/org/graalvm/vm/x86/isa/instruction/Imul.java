@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -57,6 +58,9 @@ public abstract class Imul extends AMD64Instruction {
 
         protected Imul1(long pc, byte[] instruction, OperandDecoder operands, int type) {
             super(pc, instruction, operands.getOperand1(type));
+
+            setGPRReadOperands(operand1, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         protected void createChildrenIfNecessary(Register ra, Register wa) {
@@ -82,6 +86,7 @@ public abstract class Imul extends AMD64Instruction {
     public static class Imul1b extends Imul1 {
         public Imul1b(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands, OperandDecoder.R8);
+            setGPRWriteOperands(new RegisterOperand(Register.RAX));
         }
 
         @Override
@@ -181,6 +186,9 @@ public abstract class Imul extends AMD64Instruction {
             this.dst = operand1;
             this.srcA = operand1;
             this.srcB = operand2;
+
+            setGPRReadOperands(srcA, srcB);
+            setGPRWriteOperands(dst);
         }
 
         protected Imul2(long pc, byte[] instruction, OperandDecoder operands, short imm, int type) {
@@ -188,6 +196,9 @@ public abstract class Imul extends AMD64Instruction {
             this.dst = operand1;
             this.srcA = operand2;
             this.srcB = operand3;
+
+            setGPRReadOperands(srcA, srcB);
+            setGPRWriteOperands(dst);
         }
 
         protected Imul2(long pc, byte[] instruction, OperandDecoder operands, int imm, int type) {
@@ -195,6 +206,9 @@ public abstract class Imul extends AMD64Instruction {
             this.dst = operand1;
             this.srcA = operand2;
             this.srcB = operand3;
+
+            setGPRReadOperands(srcA, srcB);
+            setGPRWriteOperands(dst);
         }
 
         protected Imul2(long pc, byte[] instruction, OperandDecoder operands, long imm, int type) {
@@ -202,6 +216,9 @@ public abstract class Imul extends AMD64Instruction {
             this.dst = operand1;
             this.srcA = operand2;
             this.srcB = operand3;
+
+            setGPRReadOperands(srcA, srcB);
+            setGPRWriteOperands(dst);
         }
 
         protected void createChildrenIfNecessary() {

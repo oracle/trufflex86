@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
@@ -35,6 +36,11 @@ public class Syscall extends AMD64Instruction {
 
     public Syscall(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        // Linux specific
+        setGPRReadOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDI), new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDX),
+                        new RegisterOperand(Register.R10), new RegisterOperand(Register.R8), new RegisterOperand(Register.R9));
+        setGPRWriteOperands(new RegisterOperand(Register.RAX));
     }
 
     private void createChildren() {

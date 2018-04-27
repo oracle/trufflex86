@@ -24,6 +24,9 @@ public class Pshufd extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.order = order;
+
+        setGPRReadOperands(operand2);
+        setGPRWriteOperands(operand1);
     }
 
     private int getOrder(int index) {

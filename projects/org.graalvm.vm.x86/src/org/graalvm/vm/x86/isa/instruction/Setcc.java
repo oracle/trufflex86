@@ -21,6 +21,8 @@ public abstract class Setcc extends AMD64Instruction {
         super(pc, instruction);
         this.name = name;
         this.operand = operand;
+
+        setGPRWriteOperands(operand);
     }
 
     protected void createOperandNodeIfNecessary() {

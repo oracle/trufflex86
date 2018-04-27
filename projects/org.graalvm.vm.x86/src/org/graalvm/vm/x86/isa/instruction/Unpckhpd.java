@@ -23,6 +23,9 @@ public class Unpckhpd extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
     }
 
     public Unpckhpd(long pc, byte[] instruction, OperandDecoder operands) {
@@ -34,7 +37,7 @@ public class Unpckhpd extends AMD64Instruction {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             readSrc1 = operand1.createRead(state, next());
-            readSrc2 = operand1.createRead(state, next());
+            readSrc2 = operand2.createRead(state, next());
             writeDst = operand1.createWrite(state, next());
         }
     }

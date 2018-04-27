@@ -4,6 +4,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadFlagNode;
@@ -27,6 +28,9 @@ public abstract class Movs extends AMD64Instruction {
     protected Movs(long pc, byte[] instruction, String name) {
         super(pc, instruction);
         this.name = name;
+
+        setGPRReadOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
+        setGPRWriteOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
     }
 
     protected void createChildrenIfNecessary() {

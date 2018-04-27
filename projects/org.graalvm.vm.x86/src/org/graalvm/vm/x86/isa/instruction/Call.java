@@ -7,6 +7,7 @@ import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -28,6 +29,9 @@ public abstract class Call extends AMD64Instruction {
         super(pc, instruction);
         this.operand = target;
         this.bta = bta;
+
+        setGPRReadOperands(operand, new RegisterOperand(Register.RSP));
+        setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
     protected boolean needChildren() {

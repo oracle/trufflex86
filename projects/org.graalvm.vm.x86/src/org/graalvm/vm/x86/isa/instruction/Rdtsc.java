@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.CompilerDirectives;
@@ -15,6 +16,8 @@ public class Rdtsc extends AMD64Instruction {
 
     public Rdtsc(long pc, byte[] instruction) {
         super(pc, instruction);
+
+        setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
     }
 
     private void createChildrenIfNecessary() {

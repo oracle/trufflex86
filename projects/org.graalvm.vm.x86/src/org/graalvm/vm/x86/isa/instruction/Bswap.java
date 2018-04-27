@@ -18,6 +18,9 @@ public abstract class Bswap extends AMD64Instruction {
     protected Bswap(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
+
+        setGPRReadOperands(operand);
+        setGPRWriteOperands(operand);
     }
 
     protected void createChildrenIfNecessary() {

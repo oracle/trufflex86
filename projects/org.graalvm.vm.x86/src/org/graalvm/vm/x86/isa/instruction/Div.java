@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.math.LongDivision;
 import org.graalvm.vm.x86.math.LongDivision.Result;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -29,6 +30,9 @@ public abstract class Div extends AMD64Instruction {
 
         public Divb(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R8));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
+            setGPRWriteOperands(operand, new RegisterOperand(Register.RAX));
         }
 
         private void createChildrenIfNecessary() {
@@ -70,6 +74,9 @@ public abstract class Div extends AMD64Instruction {
 
         public Divw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {
@@ -115,6 +122,9 @@ public abstract class Div extends AMD64Instruction {
 
         public Divl(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {
@@ -160,6 +170,9 @@ public abstract class Div extends AMD64Instruction {
 
         public Divq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         private void createChildrenIfNecessary() {

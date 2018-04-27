@@ -6,6 +6,7 @@ import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -62,6 +63,14 @@ public abstract class Xor extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        if (operand1 instanceof RegisterOperand && operand2 instanceof RegisterOperand && ((RegisterOperand) operand1).getRegister() == ((RegisterOperand) operand2).getRegister()) {
+            // xor r,r
+            setGPRWriteOperands(operand1);
+        } else {
+            setGPRReadOperands(operand1, operand2);
+            setGPRWriteOperands(operand1);
+        }
     }
 
     public static class Xorb extends Xor {

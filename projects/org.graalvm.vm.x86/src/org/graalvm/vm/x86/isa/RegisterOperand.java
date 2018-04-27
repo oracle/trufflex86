@@ -34,4 +34,9 @@ public class RegisterOperand extends Operand {
     public int getSize() {
         return register.getSize();
     }
+
+    @Override
+    public Register[] getRegisters() {
+        return new Register[]{register};
+    }
 }

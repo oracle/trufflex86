@@ -23,6 +23,8 @@ public class Stmxcsr extends AMD64Instruction {
     protected Stmxcsr(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
+
+        setGPRWriteOperands(operand);
     }
 
     public Stmxcsr(long pc, byte[] instruction, OperandDecoder operands) {

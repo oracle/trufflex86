@@ -23,6 +23,8 @@ public class Fnstcw extends AMD64Instruction {
     protected Fnstcw(long pc, byte[] instruction, Operand operand) {
         super(pc, instruction);
         this.operand = operand;
+
+        setGPRWriteOperands(operand);
     }
 
     public Fnstcw(long pc, byte[] instruction, OperandDecoder operands) {

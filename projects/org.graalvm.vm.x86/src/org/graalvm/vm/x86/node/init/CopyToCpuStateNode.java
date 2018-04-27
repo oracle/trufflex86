@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.ReadNode;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -83,6 +84,84 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.r13 = readR13.executeI64(frame);
         state.r14 = readR14.executeI64(frame);
         state.r15 = readR15.executeI64(frame);
+        state.fs = readFS.executeI64(frame);
+        state.gs = readGS.executeI64(frame);
+        state.rip = pc;
+        state.rfl = readFlags.executeI64(frame);
+        for (int i = 0; i < readZMM.length; i++) {
+            state.zmm[i] = readZMM[i].executeI512(frame);
+        }
+        return state;
+    }
+
+    @ExplodeLoop
+    public CpuState execute(VirtualFrame frame, long pc, CpuState state, boolean[] gprMask) {
+        createChildrenIfNecessary();
+        CompilerAsserts.partialEvaluationConstant(gprMask);
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RAX.getID()]);
+        if (gprMask[Register.RAX.getID()]) {
+            state.rax = readRAX.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RBX.getID()]);
+        if (gprMask[Register.RBX.getID()]) {
+            state.rbx = readRBX.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RCX.getID()]);
+        if (gprMask[Register.RCX.getID()]) {
+            state.rcx = readRCX.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RDX.getID()]);
+        if (gprMask[Register.RDX.getID()]) {
+            state.rdx = readRDX.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RSI.getID()]);
+        if (gprMask[Register.RSI.getID()]) {
+            state.rsi = readRSI.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RDI.getID()]);
+        if (gprMask[Register.RDI.getID()]) {
+            state.rdi = readRDI.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RBP.getID()]);
+        if (gprMask[Register.RBP.getID()]) {
+            state.rbp = readRBP.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.RSP.getID()]);
+        if (gprMask[Register.RSP.getID()]) {
+            state.rsp = readRSP.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R8.getID()]);
+        if (gprMask[Register.R8.getID()]) {
+            state.r8 = readR8.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R9.getID()]);
+        if (gprMask[Register.R9.getID()]) {
+            state.r9 = readR9.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R10.getID()]);
+        if (gprMask[Register.R10.getID()]) {
+            state.r10 = readR10.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R11.getID()]);
+        if (gprMask[Register.R11.getID()]) {
+            state.r11 = readR11.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R12.getID()]);
+        if (gprMask[Register.R12.getID()]) {
+            state.r12 = readR12.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R13.getID()]);
+        if (gprMask[Register.R13.getID()]) {
+            state.r13 = readR13.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R14.getID()]);
+        if (gprMask[Register.R14.getID()]) {
+            state.r14 = readR14.executeI64(frame);
+        }
+        CompilerAsserts.partialEvaluationConstant(gprMask[Register.R15.getID()]);
+        if (gprMask[Register.R15.getID()]) {
+            state.r15 = readR15.executeI64(frame);
+        }
         state.fs = readFS.executeI64(frame);
         state.gs = readGS.executeI64(frame);
         state.rip = pc;

@@ -1,8 +1,13 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -32,7 +37,13 @@ public class Rep extends AMD64Instruction {
         System.arraycopy(asm, 0, disasm, 1, asm.length);
     }
 
-    private static class RepBody extends AMD64Node implements RepeatingNode {
+    private static interface UsesRegisters {
+        public Operand[] getReadOperands();
+
+        public Operand[] getWriteOperands();
+    }
+
+    private static class RepBody extends AMD64Node implements RepeatingNode, UsesRegisters {
         @Child private ReadNode readRCX;
         @Child private WriteNode writeRCX;
         @Child private AMD64Instruction insn;
@@ -52,9 +63,41 @@ public class Rep extends AMD64Instruction {
             }
             return rcx != 0;
         }
+
+        @Override
+        public Operand[] getReadOperands() {
+            Register[] reads = insn.getUsedGPRRead();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : reads) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
+        }
+
+        @Override
+        public Operand[] getWriteOperands() {
+            Register[] writes = insn.getUsedGPRWrite();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : writes) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
+        }
     }
 
-    private static class RepzBody extends AMD64Node implements RepeatingNode {
+    private static class RepzBody extends AMD64Node implements RepeatingNode, UsesRegisters {
         @Child private ReadNode readRCX;
         @Child private ReadFlagNode readZF;
         @Child private WriteNode writeRCX;
@@ -77,9 +120,41 @@ public class Rep extends AMD64Instruction {
             boolean zf = readZF.execute(frame);
             return rcx != 0 && zf;
         }
+
+        @Override
+        public Operand[] getReadOperands() {
+            Register[] reads = insn.getUsedGPRRead();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : reads) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
+        }
+
+        @Override
+        public Operand[] getWriteOperands() {
+            Register[] writes = insn.getUsedGPRWrite();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : writes) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
+        }
     }
 
-    private static class RepnzBody extends AMD64Node implements RepeatingNode {
+    private static class RepnzBody extends AMD64Node implements RepeatingNode, UsesRegisters {
         @Child private ReadNode readRCX;
         @Child private ReadFlagNode readZF;
         @Child private WriteNode writeRCX;
@@ -101,6 +176,38 @@ public class Rep extends AMD64Instruction {
             }
             boolean zf = readZF.execute(frame);
             return rcx != 0 && !zf;
+        }
+
+        @Override
+        public Operand[] getReadOperands() {
+            Register[] reads = insn.getUsedGPRRead();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : reads) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
+        }
+
+        @Override
+        public Operand[] getWriteOperands() {
+            Register[] writes = insn.getUsedGPRWrite();
+            Set<Register> regs = new HashSet<>();
+            for (Register r : writes) {
+                regs.add(r);
+            }
+            regs.add(Register.RCX);
+            Operand[] ops = new Operand[regs.size()];
+            int i = 0;
+            for (Register r : regs) {
+                ops[i++] = new RegisterOperand(r);
+            }
+            return ops;
         }
     }
 
@@ -130,11 +237,26 @@ public class Rep extends AMD64Instruction {
         return new RepBody(state, body);
     }
 
+    @Override
+    public Register[] getUsedGPRRead() {
+        createChildrenIfNecessary();
+        return super.getUsedGPRRead();
+    }
+
+    @Override
+    public Register[] getUsedGPRWrite() {
+        createChildrenIfNecessary();
+        return super.getUsedGPRWrite();
+    }
+
     protected void createChildrenIfNecessary() {
         if (loop == null) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RepeatingNode body = createRepeatingNode(state, insn);
+            UsesRegisters r = (UsesRegisters) body;
+            setGPRReadOperands(r.getReadOperands());
+            setGPRWriteOperands(r.getWriteOperands());
             loop = insert(Truffle.getRuntime().createLoopNode(body));
         }
     }

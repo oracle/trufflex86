@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -24,6 +25,9 @@ public abstract class Push extends AMD64Instruction {
     protected Push(long pc, byte[] instruction, Operand src) {
         super(pc, instruction);
         this.operand = src;
+
+        setGPRReadOperands(operand, new RegisterOperand(Register.RSP));
+        setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
     protected void createChildrenIfNecessary() {

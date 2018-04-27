@@ -26,6 +26,9 @@ public class Pslldq extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = new ImmediateOperand(shift);
         this.shift = shift;
+
+        setGPRReadOperands(operand1);
+        setGPRWriteOperands(operand1);
     }
 
     public Pslldq(long pc, byte[] instruction, OperandDecoder operands, int shift) {

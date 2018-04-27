@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
@@ -24,6 +25,9 @@ public abstract class Pop extends AMD64Instruction {
     protected Pop(long pc, byte[] instruction, Operand src) {
         super(pc, instruction);
         this.operand = src;
+
+        setGPRReadOperands(new RegisterOperand(Register.RSP));
+        setGPRWriteOperands(operand, new RegisterOperand(Register.RSP));
     }
 
     protected void createChildrenIfNecessary() {

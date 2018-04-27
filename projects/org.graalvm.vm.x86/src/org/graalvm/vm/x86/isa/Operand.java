@@ -10,4 +10,8 @@ public abstract class Operand {
     public abstract WriteNode createWrite(ArchitecturalState state, long pc);
 
     public abstract int getSize();
+
+    public Register[] getRegisters() {
+        return new Register[0];
+    }
 }

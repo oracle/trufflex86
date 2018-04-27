@@ -6,6 +6,7 @@ import org.graalvm.vm.x86.isa.Flags;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -33,6 +34,9 @@ public abstract class Cmpxchg extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand1, operand2, new RegisterOperand(Register.RAX));
+        setGPRWriteOperands(operand1, new RegisterOperand(Register.RAX));
     }
 
     protected void createChildrenIfNecessary(int size) {

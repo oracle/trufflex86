@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CpuidBits;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -55,6 +56,9 @@ public class Cpuid extends AMD64Instruction {
     public Cpuid(long pc, byte[] instruction) {
         super(pc, instruction);
         profile = IntValueProfile.createIdentityProfile();
+
+        setGPRReadOperands(new RegisterOperand(Register.EAX), new RegisterOperand(Register.RCX));
+        setGPRWriteOperands(new RegisterOperand(Register.EAX), new RegisterOperand(Register.EBX), new RegisterOperand(Register.RCX), new RegisterOperand(Register.EDX));
     }
 
     private void createChildrenIfNecessary() {

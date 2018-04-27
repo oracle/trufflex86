@@ -3,11 +3,14 @@ package org.graalvm.vm.x86.node.flow;
 import static org.graalvm.vm.x86.util.Debug.printf;
 
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
@@ -18,6 +21,7 @@ import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
+import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
@@ -37,6 +41,7 @@ public class TraceDispatchNode extends AMD64Node {
     private static final Logger log = Trace.create(TraceDispatchNode.class);
 
     @CompilationFinal private boolean DEBUG = false;
+    @CompilationFinal private boolean DEBUG_REGS = false;
     @CompilationFinal private static boolean NO_INDIRECT = true;
 
     @CompilationFinal private int maxBlockCount = 1;
@@ -316,5 +321,55 @@ public class TraceDispatchNode extends AMD64Node {
             // dump();
             throw t;
         }
+    }
+
+    public Register[] getGPRReads() {
+        CompilerAsserts.neverPartOfCompilation();
+        Set<Register> written = new HashSet<>();
+        Set<Register> read = new HashSet<>(blocks[0].getGPRReads(written));
+        Set<Register> allReads = new HashSet<>(read);
+        if (DEBUG_REGS) {
+            System.out.println("getGPRReads()");
+            System.out.printf("block @ 0x%016x:\n", blocks[0].getAddress());
+            System.out.print(blocks[0].toString());
+            System.out.printf("written=%s\n", written.stream().map(Register::toString).collect(Collectors.joining(",")));
+            System.out.printf("read=%s\n", read.stream().map(Register::toString).collect(Collectors.joining(",")));
+        }
+        for (int i = 1; i < usedBlocks; i++) {
+            AMD64BasicBlock block = blocks[i];
+            Set<Register> wr = new HashSet<>(written);
+            Set<Register> regs = block.getGPRReads(wr);
+            allReads.addAll(block.getGPRReads(wr));
+            if (DEBUG_REGS) {
+                System.out.printf("block @ 0x%016x:\n", block.getAddress());
+                System.out.print(block.toString());
+                System.out.printf("written[%s,0x%016x]=%s\n", i, block.getAddress(), wr.stream().map(Register::toString).collect(Collectors.joining(",")));
+                System.out.printf("read[%s,0x%016x]=%s\n", i, block.getAddress(), regs.stream().map(Register::toString).collect(Collectors.joining(",")));
+            }
+        }
+        Set<Register> result = new HashSet<>();
+        for (Register r : allReads) {
+            if (written.contains(r) && !read.contains(r)) {
+                // overwritten in first block
+                if (DEBUG_REGS) {
+                    System.out.printf("register %s was overwritten in first block\n");
+                }
+            } else {
+                result.add(r);
+            }
+        }
+        if (DEBUG_REGS) {
+            System.out.printf("result=%s\n", result.stream().map(Register::toString).collect(Collectors.joining(",")));
+        }
+        return result.toArray(new Register[result.size()]);
+    }
+
+    public Register[] getGPRWrites() {
+        Set<Register> writes = new HashSet<>();
+        for (int i = 0; i < usedBlocks; i++) {
+            AMD64BasicBlock block = blocks[i];
+            writes.addAll(block.getGPRWrites());
+        }
+        return writes.toArray(new Register[writes.size()]);
     }
 }

@@ -5,6 +5,7 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.math.LongDivision;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -16,7 +17,7 @@ public abstract class Idiv extends AMD64Instruction {
     private static final String DIV_ZERO = "division by zero";
     private static final String DIV_RANGE = "quotient too large";
 
-    private final Operand operand;
+    protected final Operand operand;
 
     @Child protected ReadNode readOperand;
     @Child protected ReadNode readA;
@@ -53,8 +54,10 @@ public abstract class Idiv extends AMD64Instruction {
     }
 
     public static class Idivb extends Idiv {
-        public Idivb(long pc, byte[] instruction, OperandDecoder operand) {
-            super(pc, instruction, operand.getOperand1(OperandDecoder.R8));
+        public Idivb(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R8));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX));
         }
 
         @Override
@@ -79,8 +82,11 @@ public abstract class Idiv extends AMD64Instruction {
     }
 
     public static class Idivw extends Idiv {
-        public Idivw(long pc, byte[] instruction, OperandDecoder operand) {
-            super(pc, instruction, operand.getOperand1(OperandDecoder.R16));
+        public Idivw(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R16));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         @Override
@@ -107,8 +113,11 @@ public abstract class Idiv extends AMD64Instruction {
     }
 
     public static class Idivl extends Idiv {
-        public Idivl(long pc, byte[] instruction, OperandDecoder operand) {
-            super(pc, instruction, operand.getOperand1(OperandDecoder.R32));
+        public Idivl(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R32));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         @Override
@@ -135,8 +144,11 @@ public abstract class Idiv extends AMD64Instruction {
     }
 
     public static class Idivq extends Idiv {
-        public Idivq(long pc, byte[] instruction, OperandDecoder operand) {
-            super(pc, instruction, operand.getOperand1(OperandDecoder.R64));
+        public Idivq(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64));
+
+            setGPRReadOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
+            setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
         @Override

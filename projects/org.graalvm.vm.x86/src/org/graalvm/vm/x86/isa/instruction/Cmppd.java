@@ -29,6 +29,8 @@ public abstract class Cmppd extends AMD64Instruction {
         this.operand2 = operand2;
         this.name = name;
         this.type = type;
+
+        setGPRWriteOperands(operand1);
     }
 
     public static Cmppd create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {

@@ -27,6 +27,9 @@ public class Movhpd extends AMD64Instruction {
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.toMemory = operand2 instanceof AVXRegisterOperand;
+
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
     }
 
     private static Operand getOp1(OperandDecoder operands, boolean swap) {

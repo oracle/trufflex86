@@ -23,6 +23,9 @@ public abstract class Movsd extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand2);
+        setGPRWriteOperands(operand1);
     }
 
     protected void createChildrenIfNecessary() {

@@ -21,6 +21,9 @@ public class Movlpd extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
+        setGPRReadOperands(operand2);
+        setGPRWriteOperands(operand1);
     }
 
     private static Operand getOp1(OperandDecoder operands, boolean swap) {

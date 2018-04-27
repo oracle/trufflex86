@@ -162,4 +162,17 @@ public class MemoryOperand extends Operand {
     public int getSize() {
         return 0;
     }
+
+    @Override
+    public Register[] getRegisters() {
+        if (base != null && index != null) {
+            return new Register[]{base, index};
+        } else if (base != null && index == null) {
+            return new Register[]{base};
+        } else if (base == null && index != null) {
+            return new Register[]{index};
+        } else {
+            return new Register[0];
+        }
+    }
 }
