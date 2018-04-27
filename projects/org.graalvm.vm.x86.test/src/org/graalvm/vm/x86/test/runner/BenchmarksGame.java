@@ -570,4 +570,30 @@ public class BenchmarksGame {
                         "long lived tree of depth 10\t check: -1\n";
         TestRunner.run("binarytrees.gcc-2", new String[]{"10"}, "", stdout, "", 0);
     }
+
+    @Test
+    public void spectralnorm_cint() throws Exception {
+        TestRunner.run("spectralnorm.cint", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
+
+    @Test
+    public void spectralnorm_gcc() throws Exception {
+        TestRunner.run("spectralnorm.gcc", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
+
+    @Ignore("missing opcode")
+    @Test
+    public void spectralnorm_gcc2() throws Exception {
+        TestRunner.run("spectralnorm.gcc-2", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
+
+    @Test
+    public void spectralnorm_gcc3() throws Exception {
+        TestRunner.run("spectralnorm.gcc-3", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
+
+    @Test
+    public void spectralnorm_gcc5() throws Exception {
+        TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
 }

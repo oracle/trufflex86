@@ -14,7 +14,10 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/mandelbrot.gcc-2 bin/mandelbrot.gcc-4 bin/mandelbrot.gcc-8 \
 		bin/mandelbrot.gcc-9 bin/mandelbrot.gpp bin/mandelbrot.gpp-2 \
 		bin/mandelbrot.gpp-3 bin/mandelbrot.gpp-5 bin/mandelbrot.gpp-6 \
-		bin/mandelbrot.gpp-7 bin/mandelbrot.gpp-8 bin/mandelbrot.gpp-9
+		bin/mandelbrot.gpp-7 bin/mandelbrot.gpp-8 bin/mandelbrot.gpp-9 \
+		bin/spectralnorm.cint bin/spectralnorm.gcc \
+		bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
+		bin/spectralnorm.gcc-5
 
 clean:
 	rm -f bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint \
@@ -30,7 +33,10 @@ clean:
 			bin/mandelbrot.gpp-2 bin/mandelbrot.gpp-3 \
 			bin/mandelbrot.gpp-5 bin/mandelbrot.gpp-6 \
 			bin/mandelbrot.gpp-7 bin/mandelbrot.gpp-8 \
-			bin/mandelbrot.gpp-9
+			bin/mandelbrot.gpp-9 \
+			bin/spectralnorm.cint bin/spectralnorm.gcc \
+			bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
+			bin/spectralnorm.gcc-5
 
 bin:
 	mkdir bin
@@ -115,3 +121,18 @@ bin/mandelbrot.gpp-8: mandelbrot/mandelbrot.gpp-8.gpp.cpp bin
 
 bin/mandelbrot.gpp-9: mandelbrot/mandelbrot.gpp-9.gpp.cpp bin
 	$(CXX) $(CXXFLAGS) -o $@ $<
+
+bin/spectralnorm.cint: spectralnorm/spectralnorm.cint.c bin
+	$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/spectralnorm.gcc: spectralnorm/spectralnorm.gcc.c bin
+	$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/spectralnorm.gcc-2: spectralnorm/spectralnorm.gcc-2.gcc.c bin
+	$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/spectralnorm.gcc-3: spectralnorm/spectralnorm.gcc-3.gcc.c bin
+	$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/spectralnorm.gcc-5: spectralnorm/spectralnorm.gcc-5.gcc.c bin
+	$(CC) $(CFLAGS) -o $@ $< -lm

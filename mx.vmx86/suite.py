@@ -136,6 +136,11 @@ suite = {
         "bin/mandelbrot.gpp-7",
         "bin/mandelbrot.gpp-8",
         "bin/mandelbrot.gpp-9",
+        "bin/spectralnorm.cint",
+        "bin/spectralnorm.gcc",
+        "bin/spectralnorm.gcc-2",
+        "bin/spectralnorm.gcc-3",
+        "bin/spectralnorm.gcc-5",
       ],
       "license" : "GPLv3"
     },
