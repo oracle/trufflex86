@@ -539,13 +539,11 @@ public class BenchmarksGame {
         TestRunner.runBinary("mandelbrot.gpp-7", new String[]{"200"}, "", MANDELBROT, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void mandelbrot_gpp8() throws Exception {
         TestRunner.runBinary("mandelbrot.gpp-8", new String[]{"200"}, "", MANDELBROT, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void mandelbrot_gpp9() throws Exception {
         TestRunner.runBinary("mandelbrot.gpp-9", new String[]{"200"}, "", MANDELBROT, "", 0);
