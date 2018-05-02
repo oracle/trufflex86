@@ -12,7 +12,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
-    @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean("vmx86.debug.simpleDispatch", false);
+    @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean("vmx86.debug.simpleDispatch", false) || getBoolean("vmx86.debug.exec", false);
     @CompilationFinal private static boolean DEBUG_STATE = getBoolean("vmx86.debug.state", false);
 
     @Child private InitializerNode initializer;
