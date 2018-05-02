@@ -253,6 +253,7 @@ import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhwd;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklbw;
+import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpckldq;
 import org.graalvm.vm.x86.isa.instruction.Punpckl.Punpcklwd;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushq;
 import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
@@ -2662,6 +2663,14 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Punpcklwd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PUNPCKLDQ: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Punpckldq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
