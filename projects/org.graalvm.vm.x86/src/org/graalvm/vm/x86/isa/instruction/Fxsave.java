@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.AVXRegisterOperand;
 import org.graalvm.vm.x86.isa.MemoryOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
@@ -25,6 +26,11 @@ public class Fxsave extends AMD64Instruction {
         super(pc, instruction);
         this.operand = (MemoryOperand) operand;
 
+        Operand[] readOperands = new Operand[16];
+        for (int i = 0; i < readOperands.length; i++) {
+            readOperands[i] = new AVXRegisterOperand(i, 128);
+        }
+        setGPRReadOperands(readOperands);
         setGPRWriteOperands(operand);
     }
 

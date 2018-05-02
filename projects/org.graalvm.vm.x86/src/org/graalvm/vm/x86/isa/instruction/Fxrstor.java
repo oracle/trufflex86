@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.AVXRegisterOperand;
 import org.graalvm.vm.x86.isa.MemoryOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
@@ -25,7 +26,12 @@ public class Fxrstor extends AMD64Instruction {
         super(pc, instruction);
         this.operand = (MemoryOperand) operand;
 
-        setGPRWriteOperands(operand);
+        Operand[] writeOperands = new Operand[17];
+        for (int i = 0; i < 16; i++) {
+            writeOperands[i] = new AVXRegisterOperand(i, 128);
+        }
+        writeOperands[16] = operand;
+        setGPRWriteOperands(writeOperands);
     }
 
     public Fxrstor(long pc, byte[] instruction, OperandDecoder operands) {
