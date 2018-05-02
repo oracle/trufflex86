@@ -231,6 +231,8 @@ public class AMD64Opcode {
 
     public static final byte PMOVMSKB_R_X = (byte) 0xD7;
 
+    public static final byte PMULUDQ_X_XM = (byte) 0xF4;
+
     public static final byte POP_R = 0x58;
 
     public static final byte POPF = (byte) 0x9D;
