@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Adc.Adcl;
+import org.graalvm.vm.x86.isa.instruction.Adc.Adcq;
 import org.graalvm.vm.x86.isa.test.CodeArrayReader;
 import org.junit.Test;
 
@@ -17,6 +18,9 @@ public class AdcTest {
 
     public static final byte[] MACHINECODE2 = {0x41, 0x11, (byte) 0xf8};
     public static final String ASSEMBLY2 = "adc\tr8d,edi";
+
+    public static final byte[] MACHINECODE3 = {0x4c, 0x13, 0x02};
+    public static final String ASSEMBLY3 = "adc\tr8,[rdx]";
 
     @Test
     public void test1() {
@@ -36,5 +40,15 @@ public class AdcTest {
         assertTrue(insn instanceof Adcl);
         assertEquals(ASSEMBLY2, insn.toString());
         assertEquals(MACHINECODE2.length, reader.getPC());
+    }
+
+    @Test
+    public void test3() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE3, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Adcq);
+        assertEquals(ASSEMBLY3, insn.toString());
+        assertEquals(MACHINECODE3.length, reader.getPC());
     }
 }

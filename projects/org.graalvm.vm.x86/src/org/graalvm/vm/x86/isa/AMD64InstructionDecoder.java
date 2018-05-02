@@ -456,6 +456,16 @@ public class AMD64InstructionDecoder {
                     return new Adcl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.ADC_R_RM: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                if (rex != null && rex.w) {
+                    return new Adcq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else if (sizeOverride) {
+                    return new Adcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else {
+                    return new Adcl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                }
+            }
             case AMD64Opcode.ADD_A_I: {
                 if (rex != null && rex.w) {
                     int imm = code.read32();
