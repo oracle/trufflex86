@@ -447,6 +447,64 @@ public class Vector128 implements Cloneable {
         return new Vector128(shifted);
     }
 
+    public Vector128 shrPackedI16(int n) {
+        short[] shorts = getShorts();
+        short[] result = new short[shorts.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < shorts.length; i++) {
+            result[i] = (short) (shorts[i] >>> n);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 shrPackedI32(int n) {
+        int[] ints = getInts();
+        int[] result = new int[ints.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < ints.length; i++) {
+            result[i] = ints[i] >>> n;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 shrPackedI64(int n) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < data.length; i++) {
+            result[i] = data[i] >>> n;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 sarPackedI16(int n) {
+        short[] shorts = getShorts();
+        short[] result = new short[shorts.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < shorts.length; i++) {
+            result[i] = (short) (shorts[i] >> n);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 sarPackedI32(int n) {
+        int[] ints = getInts();
+        int[] result = new int[ints.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < ints.length; i++) {
+            result[i] = ints[i] >> n;
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 sarPackedI64(int n) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < data.length; i++) {
+            result[i] = data[i] >> n;
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 shlBytes(int n) {
         assert n > 0 && n < 16;
         byte[] bytes = getBytes();

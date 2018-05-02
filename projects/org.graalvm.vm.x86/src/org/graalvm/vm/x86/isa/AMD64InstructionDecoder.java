@@ -246,6 +246,7 @@ import org.graalvm.vm.x86.isa.instruction.Prefetch;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
 import org.graalvm.vm.x86.isa.instruction.Psll.Pslld;
 import org.graalvm.vm.x86.isa.instruction.Pslldq;
+import org.graalvm.vm.x86.isa.instruction.Psrl.Psrlq;
 import org.graalvm.vm.x86.isa.instruction.Psrldq;
 import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhbw;
@@ -2601,6 +2602,10 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.PSLLDQ: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         switch (args.modrm.getReg()) {
+                            case 2: {
+                                byte imm = code.read8();
+                                return new Psrlq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                            }
                             case 3: {
                                 byte imm = code.read8();
                                 return new Psrldq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
