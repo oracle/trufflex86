@@ -105,7 +105,7 @@ public abstract class Jcc extends AMD64Instruction {
         @Child private RegisterReadNode readRCX;
 
         public Jrcxz(long pc, byte[] instruction, int offset) {
-            super(pc, instruction, offset, "jrczx");
+            super(pc, instruction, offset, "jrcxz");
         }
 
         @Override
@@ -113,7 +113,7 @@ public abstract class Jcc extends AMD64Instruction {
             if (readRCX == null) {
                 CompilerDirectives.transferToInterpreterAndInvalidate();
                 RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readRCX = regs.getRegister(Register.RAX).createRead();
+                readRCX = regs.getRegister(Register.RCX).createRead();
             }
             long value = readRCX.executeI64(frame);
             return (value == 0) ? bta : next();
