@@ -42,6 +42,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_getcwd = 79;
     public static final int SYS_readlink = 89;
     public static final int SYS_gettimeofday = 96;
+    public static final int SYS_sysinfo = 99;
     public static final int SYS_getuid = 102;
     public static final int SYS_getgid = 104;
     public static final int SYS_setuid = 105;
@@ -183,6 +184,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.readlink(a1, a2, a3);
             case SYS_gettimeofday:
                 return posix.gettimeofday(a1, a2);
+            case SYS_sysinfo:
+                return posix.sysinfo(a1);
             case SYS_getuid:
                 return posix.getuid();
             case SYS_getgid:

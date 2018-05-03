@@ -26,6 +26,7 @@ import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
 import com.everyware.posix.api.io.Stat;
+import com.everyware.posix.api.linux.Sysinfo;
 import com.everyware.posix.api.mem.Mman;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.VFS;
@@ -525,6 +526,20 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "rt_sigaction failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int sysinfo(long info) throws SyscallException {
+        try {
+            Sysinfo sysinfo = new Sysinfo();
+            int result = posix.sysinfo(sysinfo);
+            sysinfo.write64(posixPointer(info));
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "sysinfo failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }
