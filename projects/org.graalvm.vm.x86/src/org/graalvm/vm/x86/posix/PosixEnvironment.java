@@ -392,6 +392,10 @@ public class PosixEnvironment {
         return posix.getuid();
     }
 
+    public long geteuid() {
+        return posix.getuid(); // TODO: implement euid
+    }
+
     public long setgid(long uid) throws SyscallException {
         try {
             return posix.setgid(uid);
@@ -405,6 +409,10 @@ public class PosixEnvironment {
 
     public long getgid() {
         return posix.getgid();
+    }
+
+    public long getegid() {
+        return posix.getgid(); // TODO: implement egid
     }
 
     public long getpid() {
