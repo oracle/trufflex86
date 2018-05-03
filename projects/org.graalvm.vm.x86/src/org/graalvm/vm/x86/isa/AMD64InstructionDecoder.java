@@ -178,6 +178,8 @@ import org.graalvm.vm.x86.isa.instruction.Movd.MovqToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqa.MovdqaToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqu.MovdquToReg;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
+import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToMem;
+import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToReg;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movmskpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
@@ -2340,7 +2342,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MOVHPD_X_M64: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new MovhpsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Movhpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
@@ -2348,7 +2352,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MOVHPD_M64_X: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new MovhpsToMem(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Movhpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
