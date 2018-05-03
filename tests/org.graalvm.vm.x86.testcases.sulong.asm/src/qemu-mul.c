@@ -62,7 +62,7 @@ static void test_s(void)
 
 	for(i = 0; i < ARRAY_SIZE(test_s_data); ++i) {
 		uint64_t rl, rh;
-		muls64(&rl, &rh, test_s_data[i].a, test_s_data[i].b);
+		muls64((int64_t*) &rl, (int64_t*) &rh, test_s_data[i].a, test_s_data[i].b);
 		assert(rl == test_s_data[i].rl);
 		assert(rh == test_s_data[i].rh);
 	}

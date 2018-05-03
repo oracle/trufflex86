@@ -5,6 +5,8 @@
  * Modified by Jorge Peixoto de Morais Neto
  */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

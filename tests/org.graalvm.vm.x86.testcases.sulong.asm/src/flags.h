@@ -8,7 +8,12 @@
 #define CC_S 0x0080
 #define CC_O 0x0800
 
+#ifndef CC_MASK
 #define CC_MASK (CC_C | CC_P | CC_Z | CC_S | CC_O | CC_A)
+#endif
+
+#ifndef CC_MASK8
 #define CC_MASK8 (CC_C | CC_P | CC_Z | CC_S | CC_A)
+#endif
 
 #endif

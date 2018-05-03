@@ -62,12 +62,12 @@ mandelbrot(int N, byte* data)
       {
          byte* row_output = data + y * (N >> 3);
          
-         v2d Civ = {y, y};
+         v2d Civ = {(double) y, (double) y};
          Civ = Civ * inv_2n - v10;
 
             for (int x = 0; x < N; x += 2)
             {
-            v2d   Crv = {x+1, x};
+            v2d   Crv = {(double) (x+1), (double) x};
             Crv = Crv * inv_2n - v15;
             v2d Zrv = Crv;
             v2d Ziv = Civ;

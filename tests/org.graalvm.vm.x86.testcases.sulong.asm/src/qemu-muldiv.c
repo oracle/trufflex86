@@ -140,6 +140,7 @@ int main(void) {
 #include "flags.h"
 #define FMTLX "%016lx"
 
+#undef CC_MASK
 #define CC_MASK (CC_C | CC_P | CC_Z | CC_S | CC_O | CC_A)
 	TEST_IMUL_IM("l", "k", -45, 23);
 	TEST_IMUL_IM("l", "k", 0x8000, 0x80000000);

@@ -66,7 +66,7 @@ public:
    // C.img = Coordinate.y * 2 / N -1.0
    MB_Element(int r, v2d cimg)
    {
-      double tmp[2] = {r+1, r};
+      double tmp[2] = {(double) r+1, (double) r};
       Crv = __builtin_ia32_loadupd(tmp);
       
       Crv = Crv * inv_2n - v15;
@@ -129,7 +129,7 @@ mandelbrot(int N, char* data)
       for (int y = 0; y < N; ++y, data += (N >> 3)) 
       {
          // Calculate C.img = y*2/N -1.0
-         v2d Civ = {y, y};
+         v2d Civ = {(double) y, (double) y};
          Civ = Civ * inv_2n - v10;
 
          // Divide task for each thread here:
