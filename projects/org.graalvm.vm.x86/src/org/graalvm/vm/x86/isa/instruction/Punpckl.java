@@ -101,11 +101,11 @@ public abstract class Punpckl extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
-            int la = a.getI32(3);
-            int ha = a.getI32(2);
-            int lb = b.getI32(3);
-            int hb = b.getI32(2);
-            Vector128 out = new Vector128(hb, ha, lb, la);
+            int h0 = a.getI32(0);
+            int h1 = a.getI32(1);
+            int ha = a.getI32(3);
+            int hb = b.getI32(3);
+            Vector128 out = new Vector128(h0, h1, hb, ha);
             writeDst.executeI128(frame, out);
             return next();
         }
