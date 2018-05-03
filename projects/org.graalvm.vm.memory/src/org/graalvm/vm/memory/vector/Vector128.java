@@ -530,6 +530,15 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 shlPackedI64(int n) {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            result[i] = data[i] << n;
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 addPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();

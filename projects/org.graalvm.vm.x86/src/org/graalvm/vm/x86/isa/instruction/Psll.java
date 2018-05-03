@@ -57,6 +57,22 @@ public abstract class Psll extends AMD64Instruction {
         }
     }
 
+    public static class Psllq extends Psll {
+        public Psllq(long pc, byte[] instruction, OperandDecoder operands, int imm) {
+            super(pc, instruction, "psllq", operands.getAVXOperand1(128), new ImmediateOperand(imm));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 val = readSrc.executeI128(frame);
+            int n = readShift.executeI32(frame);
+            Vector128 result = val.shlPackedI64(n);
+            writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
     @Override
     protected String[] disassemble() {
         return new String[]{name, operand1.toString(), operand2.toString()};
