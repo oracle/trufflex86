@@ -141,6 +141,9 @@ suite = {
         "bin/spectralnorm.gcc-2",
         "bin/spectralnorm.gcc-3",
         "bin/spectralnorm.gcc-5",
+        "bin/pidigits.cint-4",
+        "bin/pidigits.gcc",
+        "bin/pidigits.gcc-4",
       ],
       "license" : "GPLv3"
     },

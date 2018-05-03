@@ -1,5 +1,8 @@
 package org.graalvm.vm.x86.test.runner;
 
+import static org.junit.Assume.assumeTrue;
+
+import org.graalvm.vm.x86.test.platform.HostTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -423,6 +426,92 @@ public class BenchmarksGame {
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
 
+    public static final String PIDIGITS = "3141592653\t:10\n" +
+                    "5897932384\t:20\n" +
+                    "6264338327\t:30\n" +
+                    "9502884197\t:40\n" +
+                    "1693993751\t:50\n" +
+                    "0582097494\t:60\n" +
+                    "4592307816\t:70\n" +
+                    "4062862089\t:80\n" +
+                    "9862803482\t:90\n" +
+                    "5342117067\t:100\n" +
+                    "9821480865\t:110\n" +
+                    "1328230664\t:120\n" +
+                    "7093844609\t:130\n" +
+                    "5505822317\t:140\n" +
+                    "2535940812\t:150\n" +
+                    "8481117450\t:160\n" +
+                    "2841027019\t:170\n" +
+                    "3852110555\t:180\n" +
+                    "9644622948\t:190\n" +
+                    "9549303819\t:200\n" +
+                    "6442881097\t:210\n" +
+                    "5665933446\t:220\n" +
+                    "1284756482\t:230\n" +
+                    "3378678316\t:240\n" +
+                    "5271201909\t:250\n" +
+                    "1456485669\t:260\n" +
+                    "2346034861\t:270\n" +
+                    "0454326648\t:280\n" +
+                    "2133936072\t:290\n" +
+                    "6024914127\t:300\n" +
+                    "3724587006\t:310\n" +
+                    "6063155881\t:320\n" +
+                    "7488152092\t:330\n" +
+                    "0962829254\t:340\n" +
+                    "0917153643\t:350\n" +
+                    "6789259036\t:360\n" +
+                    "0011330530\t:370\n" +
+                    "5488204665\t:380\n" +
+                    "2138414695\t:390\n" +
+                    "1941511609\t:400\n" +
+                    "4330572703\t:410\n" +
+                    "6575959195\t:420\n" +
+                    "3092186117\t:430\n" +
+                    "3819326117\t:440\n" +
+                    "9310511854\t:450\n" +
+                    "8074462379\t:460\n" +
+                    "9627495673\t:470\n" +
+                    "5188575272\t:480\n" +
+                    "4891227938\t:490\n" +
+                    "1830119491\t:500\n" +
+                    "2983367336\t:510\n" +
+                    "2440656643\t:520\n" +
+                    "0860213949\t:530\n" +
+                    "4639522473\t:540\n" +
+                    "7190702179\t:550\n" +
+                    "8609437027\t:560\n" +
+                    "7053921717\t:570\n" +
+                    "6293176752\t:580\n" +
+                    "3846748184\t:590\n" +
+                    "6766940513\t:600\n" +
+                    "2000568127\t:610\n" +
+                    "1452635608\t:620\n" +
+                    "2778577134\t:630\n" +
+                    "2757789609\t:640\n" +
+                    "1736371787\t:650\n" +
+                    "2146844090\t:660\n" +
+                    "1224953430\t:670\n" +
+                    "1465495853\t:680\n" +
+                    "7105079227\t:690\n" +
+                    "9689258923\t:700\n" +
+                    "5420199561\t:710\n" +
+                    "1212902196\t:720\n" +
+                    "0864034418\t:730\n" +
+                    "1598136297\t:740\n" +
+                    "7477130996\t:750\n" +
+                    "0518707211\t:760\n" +
+                    "3499999983\t:770\n" +
+                    "7297804995\t:780\n" +
+                    "1059731732\t:790\n" +
+                    "8160963185\t:800\n" +
+                    "9502445945\t:810\n" +
+                    "5346908302\t:820\n" +
+                    "6425223082\t:830\n" +
+                    "5334468503\t:840\n" +
+                    "5261931188\t:850\n";
+
     @Test
     public void fasta_cint() throws Exception {
         TestRunner.run("fasta.cint", new String[]{"1000"}, "", FASTA, "", 0);
@@ -595,5 +684,25 @@ public class BenchmarksGame {
     @Test
     public void spectralnorm_gcc5() throws Exception {
         TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", "1.274219991\n", "", 0);
+    }
+
+    @Ignore("dynamically linked")
+    @Test
+    public void pidigits_cint4() throws Exception {
+        assumeTrue(HostTest.isX86);
+        TestRunner.run("pidigits.cint-4", new String[]{"850"}, "", PIDIGITS, "", 0);
+    }
+
+    @Test
+    public void pidigits_gcc() throws Exception {
+        assumeTrue(HostTest.isX86);
+        TestRunner.run("pidigits.gcc", new String[]{"850"}, "", PIDIGITS, "", 0);
+    }
+
+    @Ignore("dynamically linked")
+    @Test
+    public void pidigits_gcc4() throws Exception {
+        assumeTrue(HostTest.isX86);
+        TestRunner.run("pidigits.gcc-4", new String[]{"850"}, "", PIDIGITS, "", 0);
     }
 }

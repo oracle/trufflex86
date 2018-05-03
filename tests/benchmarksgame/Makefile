@@ -2,6 +2,7 @@ CC	:=	gcc
 CXX	:=	g++
 CFLAGS	:=	-static -O3
 CXXFLAGS:=	-static -O3
+CFLAGSD	:=	-O3
 
 .PHONY: all clean
 
@@ -17,7 +18,8 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/mandelbrot.gpp-7 bin/mandelbrot.gpp-8 bin/mandelbrot.gpp-9 \
 		bin/spectralnorm.cint bin/spectralnorm.gcc \
 		bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
-		bin/spectralnorm.gcc-5
+		bin/spectralnorm.gcc-5 \
+		bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4
 
 clean:
 	rm -f bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint \
@@ -36,7 +38,8 @@ clean:
 			bin/mandelbrot.gpp-9 \
 			bin/spectralnorm.cint bin/spectralnorm.gcc \
 			bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
-			bin/spectralnorm.gcc-5
+			bin/spectralnorm.gcc-5 \
+			bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4
 
 bin:
 	mkdir bin
@@ -136,3 +139,12 @@ bin/spectralnorm.gcc-3: spectralnorm/spectralnorm.gcc-3.gcc.c bin
 
 bin/spectralnorm.gcc-5: spectralnorm/spectralnorm.gcc-5.gcc.c bin
 	$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/pidigits.cint-4: pidigits/pidigits.cint-4.cint.c bin
+	$(CC) $(CFLAGSD) -o $@ $< -lgmp
+
+bin/pidigits.gcc: pidigits/pidigits.gcc.c bin
+	$(CC) $(CFLAGSD) -o $@ $< -lgmp
+
+bin/pidigits.gcc-4: pidigits/pidigits.gcc-4.gcc.c bin
+	$(CC) $(CFLAGSD) -o $@ $< -lgmp

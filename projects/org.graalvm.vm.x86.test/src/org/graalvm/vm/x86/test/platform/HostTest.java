@@ -25,7 +25,7 @@ import com.everyware.util.log.Trace;
 
 public class HostTest {
     private static final Logger log = Trace.create(HostTest.class);
-    private static final boolean isX86 = isx86();
+    public static final boolean isX86 = isx86();
 
     private static class Result {
         public final String stdout;
@@ -39,7 +39,7 @@ public class HostTest {
         }
     }
 
-    private static final boolean isx86() {
+    public static final boolean isx86() {
         String arch = System.getProperty("os.arch");
         return arch.equalsIgnoreCase("amd64");
     }
