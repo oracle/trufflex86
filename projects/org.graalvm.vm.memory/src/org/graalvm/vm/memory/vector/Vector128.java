@@ -563,6 +563,11 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 addPackedI64(Vector128 vec) {
+        long[] result = {data[0] + vec.data[0], data[1] + vec.data[1]};
+        return new Vector128(result);
+    }
+
     public Vector128 subPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -571,6 +576,33 @@ public class Vector128 implements Cloneable {
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) (a[i] - b[i]);
         }
+        return new Vector128(result);
+    }
+
+    public Vector128 subPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) (a[i] - b[i]);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 subPackedI32(Vector128 vec) {
+        int[] a = getInts();
+        int[] b = vec.getInts();
+        int[] result = new int[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] - b[i];
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 subPackedI64(Vector128 vec) {
+        long[] result = {data[0] - vec.data[0], data[1] - vec.data[1]};
         return new Vector128(result);
     }
 
