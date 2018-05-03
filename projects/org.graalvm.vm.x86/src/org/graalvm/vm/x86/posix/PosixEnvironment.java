@@ -19,6 +19,7 @@ import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
+import com.everyware.posix.api.Sigaction;
 import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.Fcntl;
@@ -496,6 +497,29 @@ public class PosixEnvironment {
         PosixPointer ptr = posixPointer(tp);
         t.write64(ptr);
         return val;
+    }
+
+    public int rt_sigaction(int sig, long act, long oact) throws SyscallException {
+        try {
+            PosixPointer pact = posixPointer(act);
+            PosixPointer poact = posixPointer(oact);
+            Sigaction newact = null;
+            if (pact != null) {
+                newact = new Sigaction();
+                newact.read32(pact);
+            }
+            Sigaction oldact = poact != null ? new Sigaction() : null;
+            int result = posix.sigaction(sig, newact, oldact);
+            if (poact != null) {
+                oldact.write64(poact);
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "rt_sigaction failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
     }
 
     public Posix getPosix() {
