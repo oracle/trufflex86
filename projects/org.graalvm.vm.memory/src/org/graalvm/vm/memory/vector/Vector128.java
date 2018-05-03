@@ -212,6 +212,15 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 not() {
+        long[] result = new long[SIZE];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            result[i] = ~data[i];
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 addDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
