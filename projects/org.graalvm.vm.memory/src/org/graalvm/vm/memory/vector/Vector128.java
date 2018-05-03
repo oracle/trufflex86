@@ -588,6 +588,37 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    private static byte saturateU8(int x) {
+        if (x < 0) {
+            return 0;
+        } else if (x > 0xFF) {
+            return (byte) 0xFF;
+        } else {
+            return (byte) x;
+        }
+    }
+
+    private static short saturateU16(int x) {
+        if (x < 0) {
+            return 0;
+        } else if (x > 0xFF) {
+            return (byte) 0xFF;
+        } else {
+            return (byte) x;
+        }
+    }
+
+    public Vector128 subPackedI8SaturateUnsigned(Vector128 vec) {
+        byte[] a = getBytes();
+        byte[] b = vec.getBytes();
+        byte[] result = new byte[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = saturateU8(Byte.toUnsignedInt(a[i]) - Byte.toUnsignedInt(b[i]));
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 subPackedI16(Vector128 vec) {
         short[] a = getShorts();
         short[] b = vec.getShorts();
@@ -595,6 +626,17 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (a[i] - b[i]);
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 subPackedI16SaturateUnsigned(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = saturateU16(Short.toUnsignedInt(a[i]) - Short.toUnsignedInt(b[i]));
         }
         return new Vector128(result);
     }

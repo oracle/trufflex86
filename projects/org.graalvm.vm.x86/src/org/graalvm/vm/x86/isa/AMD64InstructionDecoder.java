@@ -252,6 +252,8 @@ import org.graalvm.vm.x86.isa.instruction.Pslldq;
 import org.graalvm.vm.x86.isa.instruction.Psrl.Psrlq;
 import org.graalvm.vm.x86.isa.instruction.Psrldq;
 import org.graalvm.vm.x86.isa.instruction.Psub.Psubb;
+import org.graalvm.vm.x86.isa.instruction.Psubus.Psubusb;
+import org.graalvm.vm.x86.isa.instruction.Psubus.Psubusw;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhbw;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhdq;
 import org.graalvm.vm.x86.isa.instruction.Punpckh.Punpckhwd;
@@ -2656,6 +2658,22 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             Args args = new Args(code, rex, segment, addressOverride);
                             return new Psubb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PSUBUSB: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Psubusb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PSUBUSW: {
+                        if (sizeOverride) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            return new Psubusw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }

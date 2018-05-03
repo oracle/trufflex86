@@ -251,6 +251,9 @@ public class AMD64Opcode {
 
     public static final byte PSUBB = (byte) 0xF8;
 
+    public static final byte PSUBUSB = (byte) 0xD8;
+    public static final byte PSUBUSW = (byte) 0xD9;
+
     public static final byte PUNPCKHBW = 0x68;
     public static final byte PUNPCKHWD = 0x69;
     public static final byte PUNPCKHDQ = 0x6A;
