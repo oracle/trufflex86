@@ -51,16 +51,16 @@ public abstract class Punpckh extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
-            long ha = a.getI64(0);
-            long la = a.getI64(1);
-            long lb = b.getI64(1);
-            byte[] ba = new byte[4];
-            byte[] bb = new byte[4];
-            Endianess.set32bitBE(ba, 0, (int) (la >> 32));
-            Endianess.set32bitBE(bb, 0, (int) (lb >> 32));
-            byte[] merged = new byte[]{bb[0], ba[0], bb[1], ba[1], bb[2], ba[2], bb[3], ba[3]};
-            long result = Endianess.get64bitBE(merged);
-            Vector128 out = new Vector128(ha, result);
+            long la = a.getI64(0);
+            long lb = b.getI64(0);
+            byte[] ba = new byte[8];
+            byte[] bb = new byte[8];
+            Endianess.set64bitBE(ba, 0, la);
+            Endianess.set64bitBE(bb, 0, lb);
+            byte[] merged = {bb[0], ba[0], bb[1], ba[1], bb[2], ba[2], bb[3], ba[3], bb[4], ba[4], bb[5], ba[5], bb[6], ba[6], bb[7], ba[7]};
+            long resultH = Endianess.get64bitBE(merged);
+            long resultL = Endianess.get64bitBE(merged, 8);
+            Vector128 out = new Vector128(resultH, resultL);
             writeDst.executeI128(frame, out);
             return next();
         }
@@ -76,16 +76,10 @@ public abstract class Punpckh extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
-            long ha = a.getI64(0);
-            long la = a.getI64(1);
-            long lb = b.getI64(1);
-            byte[] ba = new byte[4];
-            byte[] bb = new byte[4];
-            Endianess.set32bitBE(ba, 0, (int) (la >> 32));
-            Endianess.set32bitBE(bb, 0, (int) (lb >> 32));
-            byte[] merged = new byte[]{bb[0], bb[1], ba[0], ba[1], bb[2], bb[3], ba[2], ba[3]};
-            long result = Endianess.get64bitBE(merged);
-            Vector128 out = new Vector128(ha, result);
+            short[] sa = a.getShorts();
+            short[] sb = b.getShorts();
+            short[] merged = {sb[0], sa[0], sb[1], sa[1], sb[2], sa[2], sb[3], sa[3]};
+            Vector128 out = new Vector128(merged);
             writeDst.executeI128(frame, out);
             return next();
         }
