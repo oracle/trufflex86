@@ -44,6 +44,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_gettimeofday = 96;
     public static final int SYS_getuid = 102;
     public static final int SYS_getgid = 104;
+    public static final int SYS_setuid = 105;
+    public static final int SYS_setgid = 106;
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
@@ -183,6 +185,10 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getuid();
             case SYS_getgid:
                 return posix.getgid();
+            case SYS_setuid:
+                return posix.setuid(a1);
+            case SYS_setgid:
+                return posix.setgid(a1);
             case SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));
