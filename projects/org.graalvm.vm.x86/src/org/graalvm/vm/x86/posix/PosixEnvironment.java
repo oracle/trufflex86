@@ -545,6 +545,18 @@ public class PosixEnvironment {
         }
     }
 
+    public long time(long tloc) {
+        if (strace) {
+            log.log(Level.INFO, () -> String.format("time(0x%016x)", tloc));
+        }
+        long time = System.currentTimeMillis();
+        if (tloc != 0) {
+            PosixPointer ptr = posixPointer(tloc);
+            ptr.setI64(time);
+        }
+        return time;
+    }
+
     public Posix getPosix() {
         return posix;
     }
