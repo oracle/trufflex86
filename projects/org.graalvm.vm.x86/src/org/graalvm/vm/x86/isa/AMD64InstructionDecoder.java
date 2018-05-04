@@ -98,6 +98,7 @@ import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
+import org.graalvm.vm.x86.isa.instruction.Cvtpd2ps;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2ss;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdl;
@@ -179,6 +180,7 @@ import org.graalvm.vm.x86.isa.instruction.Movd.MovqToRM;
 import org.graalvm.vm.x86.isa.instruction.Movd.MovqToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqa.MovdqaToReg;
 import org.graalvm.vm.x86.isa.instruction.Movdqu.MovdquToReg;
+import org.graalvm.vm.x86.isa.instruction.Movhlps;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToMem;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToReg;
@@ -2093,6 +2095,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
                             return new Cvtps2pd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Cvtpd2ps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPZ) {
                             return new Cvtss2sd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
@@ -2368,7 +2372,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MOVLPD_X_M64: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Movhlps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Movlpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));

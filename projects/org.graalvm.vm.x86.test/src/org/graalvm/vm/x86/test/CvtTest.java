@@ -8,6 +8,7 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
+import org.graalvm.vm.x86.isa.instruction.Cvtpd2ps;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2ss;
 import org.graalvm.vm.x86.isa.instruction.Cvtss2sd;
@@ -30,6 +31,9 @@ public class CvtTest {
 
     public static final byte[] MACHINECODE5 = {0x0f, 0x5a, (byte) 0xd0};
     public static final String ASSEMBLY5 = "cvtps2pd\txmm2,xmm0";
+
+    public static final byte[] MACHINECODE6 = {0x66, 0x0f, 0x5a, (byte) 0xd2};
+    public static final String ASSEMBLY6 = "cvtpd2ps\txmm2,xmm2";
 
     @Test
     public void test1() {
@@ -79,5 +83,15 @@ public class CvtTest {
         assertTrue(insn instanceof Cvtps2pd);
         assertEquals(ASSEMBLY5, insn.toString());
         assertEquals(MACHINECODE5.length, reader.getPC());
+    }
+
+    @Test
+    public void test6() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE6, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Cvtpd2ps);
+        assertEquals(ASSEMBLY6, insn.toString());
+        assertEquals(MACHINECODE6.length, reader.getPC());
     }
 }
