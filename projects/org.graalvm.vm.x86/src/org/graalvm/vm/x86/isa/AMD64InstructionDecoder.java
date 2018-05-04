@@ -166,6 +166,7 @@ import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
 import org.graalvm.vm.x86.isa.instruction.Leave.Leaveq;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
+import org.graalvm.vm.x86.isa.instruction.Maxps;
 import org.graalvm.vm.x86.isa.instruction.Maxsd;
 import org.graalvm.vm.x86.isa.instruction.Maxss;
 import org.graalvm.vm.x86.isa.instruction.Minsd;
@@ -2278,7 +2279,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MAXSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPZ) {
+                        if (np) {
+                            return new Maxps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
                             return new Maxss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new Maxsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
