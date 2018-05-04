@@ -56,6 +56,38 @@ public abstract class Psub extends AMD64Instruction {
         }
     }
 
+    public static class Psubw extends Psub {
+        public Psubw(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "psubw");
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 a = readA.executeI128(frame);
+            Vector128 b = readB.executeI128(frame);
+            Vector128 result = a.subPackedI16(b);
+            writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
+    public static class Psubd extends Psub {
+        public Psubd(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), "psubd");
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 a = readA.executeI128(frame);
+            Vector128 b = readB.executeI128(frame);
+            Vector128 result = a.subPackedI32(b);
+            writeDst.executeI128(frame, result);
+            return next();
+        }
+    }
+
     @Override
     protected String[] disassemble() {
         return new String[]{name, operand1.toString(), operand2.toString()};
