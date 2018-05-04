@@ -98,6 +98,7 @@ import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
+import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2ss;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdl;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdq;
@@ -2072,50 +2073,50 @@ public class AMD64InstructionDecoder {
                         }
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                     case AMD64Opcode.CVTSI2SD: {
+                        Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             if (rex != null && rex.w) {
                                 return new Cvtsi2sdq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvtsi2sdl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         } else if (isREPZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             if (rex != null && rex.w) {
                                 return new Cvtsi2ssq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvtsi2ssl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         }
-                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                     }
-                    case AMD64Opcode.CVTSS2SD:
-                        if (isREPZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
+                    case AMD64Opcode.CVTSS2SD: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (np) {
+                            return new Cvtps2pd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
                             return new Cvtss2sd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             return new Cvtsd2ss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
-                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
+                    }
                     case AMD64Opcode.CVTTSD2SI: {
+                        Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPNZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             if (rex != null && rex.w) {
                                 return new Cvttsd2siq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvttsd2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         } else if (isREPZ) {
-                            Args args = new Args(code, rex, segment, addressOverride);
                             if (rex != null && rex.w) {
                                 return new Cvttss2siq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvttss2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         }
-                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                     }
                     case AMD64Opcode.DIVSD_X_XM: {
                         if (isREPNZ) {
