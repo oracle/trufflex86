@@ -18,6 +18,7 @@ import org.graalvm.vm.x86.isa.instruction.And.Andq;
 import org.graalvm.vm.x86.isa.instruction.And.Andw;
 import org.graalvm.vm.x86.isa.instruction.Andnpd;
 import org.graalvm.vm.x86.isa.instruction.Andpd;
+import org.graalvm.vm.x86.isa.instruction.Andps;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfl;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfq;
 import org.graalvm.vm.x86.isa.instruction.Bsf.Bsfw;
@@ -366,6 +367,7 @@ import org.graalvm.vm.x86.isa.instruction.Xor.Xorl;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorq;
 import org.graalvm.vm.x86.isa.instruction.Xor.Xorw;
 import org.graalvm.vm.x86.isa.instruction.Xorpd;
+import org.graalvm.vm.x86.isa.instruction.Xorps;
 
 public class AMD64InstructionDecoder {
     private static final Register[] REG8N = {Register.AL, Register.CL, Register.DL, Register.BL, Register.AH, Register.CH, Register.DH,
@@ -1838,7 +1840,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.ANDPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Andps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Andpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
@@ -2975,7 +2979,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.XORPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Xorps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Xorpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
