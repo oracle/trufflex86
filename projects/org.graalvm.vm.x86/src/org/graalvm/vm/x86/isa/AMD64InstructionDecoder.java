@@ -327,6 +327,7 @@ import org.graalvm.vm.x86.isa.instruction.Shr.Shrw;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdl;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdq;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdw;
+import org.graalvm.vm.x86.isa.instruction.Shufps;
 import org.graalvm.vm.x86.isa.instruction.Sqrtsd;
 import org.graalvm.vm.x86.isa.instruction.Stmxcsr;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosb;
@@ -2853,6 +2854,11 @@ public class AMD64InstructionDecoder {
                         } else {
                             return new Shrdl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), cl);
                         }
+                    }
+                    case AMD64Opcode.SHUFPS_X_XM_I8: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        byte imm = code.read8();
+                        return new Shufps(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                     }
                     case AMD64Opcode.SQRTSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
