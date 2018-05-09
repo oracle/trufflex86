@@ -70,9 +70,8 @@ public abstract class Sar extends AMD64Instruction {
             if (shift > 0) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
-                boolean of = src < 0;
                 writeCF.execute(frame, cf);
-                writeOF.execute(frame, of);
+                writeOF.execute(frame, false);
                 writeZF.execute(frame, result == 0);
                 writeSF.execute(frame, result < 0);
                 writePF.execute(frame, Flags.getParity(result));
@@ -100,9 +99,8 @@ public abstract class Sar extends AMD64Instruction {
             if (shift > 0) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
-                boolean of = src < 0;
                 writeCF.execute(frame, cf);
-                writeOF.execute(frame, of);
+                writeOF.execute(frame, false);
                 writeZF.execute(frame, result == 0);
                 writeSF.execute(frame, result < 0);
                 writePF.execute(frame, Flags.getParity((byte) result));
@@ -130,9 +128,8 @@ public abstract class Sar extends AMD64Instruction {
             if (shift > 0) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
-                boolean of = src < 0;
                 writeCF.execute(frame, cf);
-                writeOF.execute(frame, of);
+                writeOF.execute(frame, false);
                 writeZF.execute(frame, result == 0);
                 writeSF.execute(frame, result < 0);
                 writePF.execute(frame, Flags.getParity((byte) result));
@@ -160,9 +157,8 @@ public abstract class Sar extends AMD64Instruction {
             if (shift > 0) {
                 long bit = 1L << (shift - 1);
                 boolean cf = (src & bit) != 0;
-                boolean of = src < 0;
                 writeCF.execute(frame, cf);
-                writeOF.execute(frame, of);
+                writeOF.execute(frame, false);
                 writeZF.execute(frame, result == 0);
                 writeSF.execute(frame, result < 0);
                 writePF.execute(frame, Flags.getParity((byte) result));
