@@ -159,7 +159,7 @@ public abstract class Shl extends AMD64Instruction {
             writeDst.executeI64(frame, result);
             if (shift > 0) {
                 long bit = 1L << (64 - shift);
-                boolean cf = (result & bit) != 0;
+                boolean cf = (src & bit) != 0;
                 boolean of = cf ^ (result < 0);
                 writeCF.execute(frame, cf);
                 writeOF.execute(frame, of);
