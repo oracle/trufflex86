@@ -21,6 +21,7 @@ import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Rlimit;
 import com.everyware.posix.api.Sigaction;
+import com.everyware.posix.api.Timespec;
 import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.Fcntl;
@@ -367,6 +368,12 @@ public class PosixEnvironment {
         }
     }
 
+    @SuppressWarnings("unused")
+    public int fsync(int fildes) throws SyscallException {
+        // TODO: implement!
+        return 0;
+    }
+
     public int uname(long buf) throws SyscallException {
         PosixPointer ptr = posixPointer(buf);
         Utsname uname = new Utsname();
@@ -503,6 +510,21 @@ public class PosixEnvironment {
             throw new SyscallException(Errno.ENOMEM);
         }
         return 0;
+    }
+
+    public int clock_gettime(int clk_id, long tp) throws SyscallException {
+        try {
+            Timespec t = new Timespec();
+            int val = posix.clock_gettime(clk_id, t);
+            PosixPointer ptr = posixPointer(tp);
+            t.write64(ptr);
+            return val;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "clock_gettime failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
     }
 
     public int gettimeofday(long tp, @SuppressWarnings("unused") long tzp) {

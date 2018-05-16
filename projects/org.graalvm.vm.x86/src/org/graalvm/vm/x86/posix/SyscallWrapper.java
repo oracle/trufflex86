@@ -38,6 +38,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_fcntl = 72;
+    public static final int SYS_fsync = 74;
     public static final int SYS_getdents = 78;
     public static final int SYS_getcwd = 79;
     public static final int SYS_readlink = 89;
@@ -51,6 +52,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_getegid = 108;
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_time = 201;
+    public static final int SYS_clock_gettime = 228;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
@@ -178,6 +180,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.uname(a1);
             case SYS_fcntl:
                 return posix.fcntl((int) a1, (int) a2, a3);
+            case SYS_fsync:
+                return posix.fsync((int) a1);
             case SYS_getdents:
                 return posix.getdents((int) a1, a2, (int) a3);
             case SYS_getcwd:
@@ -202,6 +206,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getegid();
             case SYS_time:
                 return posix.time(a1);
+            case SYS_clock_gettime:
+                return posix.clock_gettime((int) a1, a2);
             case SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));
