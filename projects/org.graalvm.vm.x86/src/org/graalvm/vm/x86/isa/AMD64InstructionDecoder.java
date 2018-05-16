@@ -1216,6 +1216,19 @@ public class AMD64InstructionDecoder {
                     return new Popq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
                 }
             }
+            case AMD64Opcode.POP_RM: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                switch (args.modrm.getReg()) {
+                    case 0:
+                        if (sizeOverride) {
+                            return new Popw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder().getOperand1(OperandDecoder.R16));
+                        } else {
+                            return new Popq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder().getOperand1(OperandDecoder.R16));
+                        }
+                    default:
+                        return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                }
+            }
             case AMD64Opcode.POPF:
                 if (sizeOverride) {
                     return new Popfw(pc, Arrays.copyOf(instruction, instructionLength));
