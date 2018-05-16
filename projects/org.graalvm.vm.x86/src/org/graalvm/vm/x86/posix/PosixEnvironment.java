@@ -19,6 +19,7 @@ import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
+import com.everyware.posix.api.Rlimit;
 import com.everyware.posix.api.Sigaction;
 import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Utsname;
@@ -78,7 +79,11 @@ public class PosixEnvironment {
     }
 
     private PosixPointer posixPointer(long addr) {
-        return mem.getPosixPointer(addr);
+        if (addr == 0) {
+            return null;
+        } else {
+            return mem.getPosixPointer(addr);
+        }
     }
 
     private long getPointer(PosixPointer ptr, boolean r, boolean w, boolean x, long offset) {
@@ -506,6 +511,33 @@ public class PosixEnvironment {
         PosixPointer ptr = posixPointer(tp);
         t.write64(ptr);
         return val;
+    }
+
+    public int prlimit64(int pid, int resource, long newLimit, long oldLimit) throws SyscallException {
+        if (pid != 0) {
+            if (strace) {
+                log.log(Level.INFO, "prlimit64 failed: " + Errno.toString(Errno.ESRCH));
+            }
+            throw new SyscallException(Errno.ESRCH);
+        }
+        try {
+            Rlimit rlim = new Rlimit();
+            int result = 0;
+            if (oldLimit != 0) {
+                result = posix.getrlimit(resource, rlim);
+                rlim.write64(posixPointer(oldLimit));
+            }
+            if (newLimit != 0) {
+                rlim.read64(posixPointer(newLimit));
+                // result = posix.setrlimit(resource, rlim);
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "prlimit64 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
     }
 
     public int rt_sigaction(int sig, long act, long oact) throws SyscallException {
