@@ -12,8 +12,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Mov extends AMD64Instruction {
-    private final Operand operand1;
-    private final Operand operand2;
+    protected final Operand operand1;
+    protected final Operand operand2;
 
     @Child protected ReadNode read;
     @Child protected WriteNode write;
@@ -170,6 +170,15 @@ public abstract class Mov extends AMD64Instruction {
             long val = read.executeI64(frame);
             write.executeI64(frame, val);
             return next();
+        }
+
+        @Override
+        protected String[] disassemble() {
+            if (operand2 instanceof ImmediateOperand && ((ImmediateOperand) operand2).getSize() == 8) {
+                return new String[]{"movabs", operand1.toString(), operand2.toString()};
+            } else {
+                return super.disassemble();
+            }
         }
     }
 
