@@ -1,5 +1,7 @@
 package org.graalvm.vm.memory.vector;
 
+import org.graalvm.vm.memory.util.HexFormatter;
+
 import com.everyware.util.BitTest;
 import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerAsserts;
@@ -728,6 +730,10 @@ public class Vector128 implements Cloneable {
     @Override
     public Vector128 clone() {
         return new Vector128(data);
+    }
+
+    public String hex() {
+        return HexFormatter.tohex(data[0], 16) + HexFormatter.tohex(data[1], 16);
     }
 
     @Override

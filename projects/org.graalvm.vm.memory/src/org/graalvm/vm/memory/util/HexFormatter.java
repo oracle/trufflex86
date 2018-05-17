@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86.util;
+package org.graalvm.vm.memory.util;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.nodes.ExplodeLoop;

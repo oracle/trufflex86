@@ -1,7 +1,7 @@
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.memory.vector.Vector512;
-import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.util.BitTest;
 
@@ -29,6 +29,7 @@ import com.everyware.util.BitTest;
 */
 public class CpuState {
     public boolean printAVX = false;
+    public boolean printSSE = true;
 
     public long rax;
     public long rbx;
@@ -113,6 +114,20 @@ public class CpuState {
                 buf.append("=");
                 buf.append(zmm[i].getI128(3));
                 buf.append('\n');
+            }
+        } else if (printSSE) {
+            for (int i = 0; i < 16; i++) {
+                buf.append("XMM").append(i);
+                if (i < 10) {
+                    buf.append(' ');
+                }
+                buf.append('=');
+                buf.append(zmm[i].getI128(3).hex());
+                if (i % 2 == 0) {
+                    buf.append(' ');
+                } else {
+                    buf.append('\n');
+                }
             }
         }
         return buf.toString();

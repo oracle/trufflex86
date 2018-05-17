@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -18,7 +19,6 @@ import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
-import org.graalvm.vm.x86.util.HexFormatter;
 
 import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerAsserts;
