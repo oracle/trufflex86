@@ -670,7 +670,6 @@ public class BenchmarksGame {
         TestRunner.run("spectralnorm.gcc", new String[]{"100"}, "", "1.274219991\n", "", 0);
     }
 
-    @Ignore("missing opcode")
     @Test
     public void spectralnorm_gcc2() throws Exception {
         TestRunner.run("spectralnorm.gcc-2", new String[]{"100"}, "", "1.274219991\n", "", 0);
