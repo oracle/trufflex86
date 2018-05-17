@@ -190,6 +190,7 @@ import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToMem;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToReg;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
+import org.graalvm.vm.x86.isa.instruction.Movlps;
 import org.graalvm.vm.x86.isa.instruction.Movmskpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsb;
@@ -2427,7 +2428,11 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.MOVLPD_X_M64: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
-                            return new Movhlps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (args.getOperandDecoder().getAVXOperand1(128) instanceof AVXRegisterOperand) {
+                                return new Movhlps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Movlps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else if (sizeOverride) {
                             return new Movlpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
@@ -2436,7 +2441,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MOVLPD_M64_X: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Movlps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                        } else if (sizeOverride) {
                             return new Movlpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
