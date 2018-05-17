@@ -17,7 +17,10 @@ public class XorTest {
     public static final String ASSEMBLY1 = "xor\teax,0x1";
 
     public static final byte[] MACHINECODE2 = {0x34, (byte) 0xff};
-    public static final String ASSEMBLY2 = "xor\tal,0xff";
+    public static final String ASSEMBLY2 = "xor\tal,-0x1";
+
+    public static final byte[] MACHINECODE3 = {(byte) 0x80, (byte) 0xf2, (byte) 0xff};
+    public static final String ASSEMBLY3 = "xor\tdl,-0x1";
 
     @Test
     public void test1() {
@@ -37,5 +40,15 @@ public class XorTest {
         assertTrue(insn instanceof Xorb);
         assertEquals(ASSEMBLY2, insn.toString());
         assertEquals(MACHINECODE2.length, reader.getPC());
+    }
+
+    @Test
+    public void test3() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE3, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Xorb);
+        assertEquals(ASSEMBLY3, insn.toString());
+        assertEquals(MACHINECODE3.length, reader.getPC());
     }
 }

@@ -658,6 +658,10 @@ public class AMD64InstructionDecoder {
                         byte imm = code.read8();
                         return new Subb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                     }
+                    case 6: {
+                        byte imm = code.read8();
+                        return new Xorb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                    }
                     case 7: {
                         byte imm = code.read8();
                         return new Cmpb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
@@ -1786,7 +1790,7 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.XOR_A_I8: {
                 byte imm = code.read8();
                 instruction[instructionLength++] = imm;
-                return new Xorb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new ImmediateOperand(imm));
+                return new Xorb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), new ImmediateOperand(imm));
             }
             case AMD64Opcode.XOR_A_I: {
                 if (rex != null && rex.w) {
