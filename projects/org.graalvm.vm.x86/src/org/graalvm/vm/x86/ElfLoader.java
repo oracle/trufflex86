@@ -1,6 +1,10 @@
 package org.graalvm.vm.x86;
 
+import static org.graalvm.vm.x86.Options.getLong;
+import static org.graalvm.vm.x86.Options.getString;
+
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
@@ -103,6 +107,8 @@ public class ElfLoader {
     public static final int AT_HWCAP2 = 26;
     public static final int AT_EXECFN = 31;
 
+    public static final long LOAD_BIAS = getLong("vmx86.elf.load_bias", 0);
+
     private Elf elf;
     private long load_addr;
     private long load_bias;
@@ -182,7 +188,7 @@ public class ElfLoader {
         amd64 = elf.ei_class == Elf.ELFCLASS64;
         ptrsz = elf.ei_class == Elf.ELFCLASS64 ? 8 : 4;
         base = 0;
-        load_bias = 0;
+        load_bias = LOAD_BIAS;
         load_addr = getLowAddress(elf);
 
         symbols = new TreeMap<>();
@@ -271,7 +277,7 @@ public class ElfLoader {
                 }
             }
 
-            pc = base + interpelf.e_entry;
+            pc = base + interpelf.getEntryPoint();
 
             symtab = interpelf.getSymbolTable();
             if (symtab != null) {
@@ -291,7 +297,10 @@ public class ElfLoader {
 
         memory.setBrk(brk);
 
-        if (elf.ei_class == Elf.ELFCLASS32) {
+        String stackvalue = getString("vmx86.elf.stack");
+        if (stackvalue != null) {
+            buildStack(stackvalue);
+        } else if (elf.ei_class == Elf.ELFCLASS32) {
             buildArgs32();
         } else if (elf.ei_class == Elf.ELFCLASS64) {
             buildArgs64();
@@ -570,6 +579,15 @@ public class ElfLoader {
         ptr = setPair64(mem, ptr, AT_NULL, 0);
 
         assert ptr - r1 <= pointersSize;
+    }
+
+    private void buildStack(String b64stack) {
+        byte[] stack = Base64.getDecoder().decode(b64stack);
+        sp = 0x00007fffffffffffL - stack.length + 1;
+        System.out.printf("stack: 0x%016x", sp);
+        for (int i = 0; i < stack.length; i++) {
+            memory.setI8(sp + i, stack[i]);
+        }
     }
 
     public void setProgramName(String progname) {
