@@ -1783,6 +1783,11 @@ public class AMD64InstructionDecoder {
                     return new Xchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.XOR_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Xorb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new ImmediateOperand(imm));
+            }
             case AMD64Opcode.XOR_A_I: {
                 if (rex != null && rex.w) {
                     int imm = code.read32();
