@@ -52,7 +52,7 @@ public class Pslldq extends AMD64Instruction {
         if (shift > 15) {
             result = Vector128.ZERO;
         } else {
-            result = value.shrBytes(shift);
+            result = value.shlBytes(shift);
         }
         writeDst.executeI128(frame, result);
         return next();
