@@ -12,6 +12,8 @@ import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.instruction.Call;
+import org.graalvm.vm.x86.isa.instruction.Rdtsc;
+import org.graalvm.vm.x86.isa.instruction.Rep;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
@@ -23,6 +25,8 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -41,6 +45,8 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @Children private AMD64Instruction[] instructions;
     @CompilationFinal(dimensions = 1) private AMD64BasicBlock[] successors;
+
+    @CompilationFinal private FrameSlot instructionCount;
 
     private boolean visited = false;
 
@@ -151,6 +157,21 @@ public class AMD64BasicBlock extends AMD64Node {
         }
     }
 
+    private FrameSlot getInstructionCountSlot() {
+        if (instructionCount == null) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            instructionCount = getContextReference().get().getInstructionCount();
+        }
+        return instructionCount;
+    }
+
+    private void updateInstructionCount(VirtualFrame frame, long n) {
+        FrameSlot slot = getInstructionCountSlot();
+        long cnt = FrameUtil.getLongSafe(frame, slot);
+        cnt += n;
+        frame.setLong(slot, cnt);
+    }
+
     @ExplodeLoop
     public long execute(VirtualFrame frame) {
         if (DEBUG_COMPILER) {
@@ -161,12 +182,20 @@ public class AMD64BasicBlock extends AMD64Node {
             }
         }
         long pc = getAddress();
+        long n = 0;
         try {
             for (AMD64Instruction insn : instructions) {
                 if (DEBUG) {
                     debug(frame, pc, insn);
                 }
+                if (insn instanceof Rdtsc) { // rdtsc needs current instruction count
+                    updateInstructionCount(frame, n);
+                    n = 0;
+                }
                 pc = insn.executeInstruction(frame);
+                if (!(insn instanceof Rep)) {
+                    n++;
+                }
                 if (DEBUG && PRINT_ARGS && insn instanceof Call) {
                     if (printArgs == null) {
                         CompilerDirectives.transferToInterpreterAndInvalidate();
@@ -176,14 +205,17 @@ public class AMD64BasicBlock extends AMD64Node {
                 }
             }
         } catch (ProcessExitException e) {
+            updateInstructionCount(frame, n);
             throw e;
         } catch (Throwable t) {
+            updateInstructionCount(frame, n);
             CompilerDirectives.transferToInterpreter();
             throw new CpuRuntimeException(pc, t);
         }
         if (DEBUG && PRINT_ONCE) {
             visited = true;
         }
+        updateInstructionCount(frame, n);
         return pc;
     }
 

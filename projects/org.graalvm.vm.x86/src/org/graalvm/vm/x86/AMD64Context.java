@@ -34,6 +34,8 @@ public class AMD64Context {
     private final FrameSlot df;
     private final FrameSlot of;
 
+    private final FrameSlot instructionCount;
+
     private final ArchitecturalState state;
 
     private NavigableMap<Long, Symbol> symbols;
@@ -65,6 +67,7 @@ public class AMD64Context {
         sf = frameDescriptor.addFrameSlot("sf", FrameSlotKind.Boolean);
         df = frameDescriptor.addFrameSlot("df", FrameSlotKind.Boolean);
         of = frameDescriptor.addFrameSlot("of", FrameSlotKind.Boolean);
+        instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
     }
@@ -147,6 +150,10 @@ public class AMD64Context {
 
     public FrameSlot getOF() {
         return of;
+    }
+
+    public FrameSlot getInstructionCount() {
+        return instructionCount;
     }
 
     public ArchitecturalState getState() {

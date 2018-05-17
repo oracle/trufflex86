@@ -16,6 +16,8 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -35,6 +37,8 @@ public class InitializerNode extends AMD64Node {
     @Child private WriteFlagNode writeSF;
     @Child private WriteFlagNode writeDF;
     @Child private WriteFlagNode writeOF;
+
+    @CompilationFinal private FrameSlot instructionCount;
 
     public InitializerNode(ArchitecturalState state, String programName) {
         this.setup = new LoaderNode(state);
@@ -58,6 +62,8 @@ public class InitializerNode extends AMD64Node {
         writeSF = state.getRegisters().getSF().createWrite();
         writeDF = state.getRegisters().getDF().createWrite();
         writeOF = state.getRegisters().getOF().createWrite();
+
+        instructionCount = state.getInstructionCount();
     }
 
     @ExplodeLoop
@@ -91,6 +97,8 @@ public class InitializerNode extends AMD64Node {
         writeSF.execute(frame, false);
         writeDF.execute(frame, false);
         writeOF.execute(frame, false);
+
+        frame.setLong(instructionCount, 0);
 
         String[] args = ctx.getArguments();
         setup.execute(frame, programName, args);

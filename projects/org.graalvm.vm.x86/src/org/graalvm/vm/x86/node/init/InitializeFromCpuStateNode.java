@@ -12,6 +12,8 @@ import org.graalvm.vm.x86.node.WriteFlagsNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -37,6 +39,8 @@ public class InitializeFromCpuStateNode extends AMD64Node {
     @Child private RegisterWriteNode gs;
     @Child private WriteFlagsNode flags;
     @Child private RegisterWriteNode pc;
+
+    @CompilationFinal private FrameSlot instructionCount;
 
     private void createChildrenIfNecessary() {
         if (flags == null) {
@@ -68,6 +72,7 @@ public class InitializeFromCpuStateNode extends AMD64Node {
                 zmm[i] = reg.createWrite();
             }
             pc = regs.getPC().createWrite();
+            instructionCount = state.getInstructionCount();
         }
     }
 
@@ -97,6 +102,7 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         for (int i = 0; i < zmm.length; i++) {
             zmm[i].executeI512(frame, state.zmm[i]);
         }
+        frame.setLong(instructionCount, state.instructionCount);
     }
 
     @ExplodeLoop
@@ -178,5 +184,6 @@ public class InitializeFromCpuStateNode extends AMD64Node {
                 zmm[i].executeI512(frame, state.zmm[i]);
             }
         }
+        frame.setLong(instructionCount, state.instructionCount);
     }
 }

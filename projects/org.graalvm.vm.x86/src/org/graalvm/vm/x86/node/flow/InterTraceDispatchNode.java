@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.node.flow;
 
+import static org.graalvm.vm.x86.Options.getBoolean;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +19,7 @@ import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.api.Signal;
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -39,10 +42,12 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     @CompilationFinal private AMD64Language language;
     @CompilationFinal private FrameDescriptor frameDescriptor;
 
-    @CompilationFinal public static boolean PRINT_STATS = false;
+    @CompilationFinal public static boolean PRINT_STATS = getBoolean("vmx86.stats.exec", false);
 
     private int noSuccessor = 0;
     private int hasSuccessor = 0;
+
+    private long insncnt = 0;
 
     public InterTraceDispatchNode(ArchitecturalState state) {
         readPC = state.getRegisters().getPC().createRead();
@@ -68,9 +73,10 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
 
     @TruffleBoundary
     private void printStats() {
-        System.out.printf("Traces: %d\n", traces.size());
-        System.out.printf("Successor chain used: %d\n", hasSuccessor);
-        System.out.printf("No successor chain used: %d\n", noSuccessor);
+        Trace.log.printf("Traces: %d\n", traces.size());
+        Trace.log.printf("Successor chain used: %d\n", hasSuccessor);
+        Trace.log.printf("No successor chain used: %d\n", noSuccessor);
+        Trace.log.printf("Executed instructions: %d\n", insncnt);
     }
 
     @Override
@@ -92,6 +98,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                     hasSuccessor++;
                 }
                 trace = next;
+                insncnt = state.instructionCount;
             }
         } catch (ProcessExitException e) {
             if (PRINT_STATS) {
@@ -107,7 +114,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                 return 127;
             }
         } catch (Throwable t) {
-            t.printStackTrace();
+            t.printStackTrace(Trace.log);
             return 127;
         }
     }

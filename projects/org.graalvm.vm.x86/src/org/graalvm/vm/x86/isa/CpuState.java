@@ -54,6 +54,8 @@ public class CpuState {
 
     public Vector512[] zmm = new Vector512[32];
 
+    public long instructionCount;
+
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {
         for (int i = 0; i < names.length; i++) {
             if (i > 0) {
