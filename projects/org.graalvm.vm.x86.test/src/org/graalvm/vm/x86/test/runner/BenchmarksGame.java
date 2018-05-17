@@ -686,7 +686,7 @@ public class BenchmarksGame {
         TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", "1.274219991\n", "", 0);
     }
 
-    @Ignore("dynamically linked")
+    @Ignore("missing opcodes")
     @Test
     public void pidigits_cint4() throws Exception {
         assumeTrue(HostTest.isX86);
@@ -699,7 +699,7 @@ public class BenchmarksGame {
         TestRunner.run("pidigits.gcc", new String[]{"850"}, "", PIDIGITS, "", 0);
     }
 
-    @Ignore("dynamically linked")
+    @Ignore("missing opcodes")
     @Test
     public void pidigits_gcc4() throws Exception {
         assumeTrue(HostTest.isX86);
