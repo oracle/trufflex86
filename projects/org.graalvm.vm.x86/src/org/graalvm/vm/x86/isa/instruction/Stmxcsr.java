@@ -40,7 +40,7 @@ public class Stmxcsr extends AMD64Instruction {
             writeDst = operand.createWrite(state, next());
         }
         // TODO: write MXCSR
-        writeDst.executeI32(frame, 0);
+        writeDst.executeI32(frame, 0x1F80);
         return next();
     }
 
