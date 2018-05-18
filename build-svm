@@ -1,0 +1,19 @@
+#!/bin/sh
+
+ROOT=$HOME/git
+GRAAL=$ROOT/graal
+TRUFFLE=$ROOT/graal/truffle
+SVM=$GRAAL/substratevm
+VMX86=$ROOT/vmx86
+
+$SVM/native-image --no-server \
+		--tool:truffle \
+		-H:MaxRuntimeCompileMethods=10000 \
+		-H:Name=vmx86-svm \
+		-Djvmci.class.path.append=$GRAAL/compiler/mxbuild/dists/graal.jar \
+		-Dgraal.TruffleCompilationExceptionsArePrinted=true \
+		-Dgraal.ExitVMOnException=true \
+		-cp $GRAAL/sdk/mxbuild/dists/graal-sdk.jar:$TRUFFLE/mxbuild/dists/truffle-api.jar:$TRUFFLE/mxbuild/dists/truffle-nfi.jar:$VMX86/lib/core.jar:$VMX86/lib/posix.jar:$VMX86/build/vmx86.jar \
+		org.graalvm.vm.x86.AMD64VM
+		#-Dtruffle.nfi.library=$TRUFFLE/mxbuild/linux-amd64/truffle-nfi-native/bin/libtrufflenfi.so \
+		#org.graalvm.vm.x86.AMD64VM
