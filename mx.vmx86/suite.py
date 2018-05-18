@@ -48,7 +48,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
       ],
-      "sha1" : "535e5700ba0f041218e124f49c078854d3d23300",
+      "sha1" : "bb727575890976b1e196278c763370468f743d53",
     },
   },
 
