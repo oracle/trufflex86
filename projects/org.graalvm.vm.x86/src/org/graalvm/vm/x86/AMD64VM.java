@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86;
 
+import static org.graalvm.vm.x86.Options.getBoolean;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -13,6 +15,8 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 
 public class AMD64VM {
+    private static final boolean PRINT_VM_BANNER = getBoolean("vmx86.startup.banner", false);
+
     public static void main(String[] args) throws IOException {
         Trace.setupConsoleApplication(Levels.INFO);
         if (args.length == 0) {
@@ -24,7 +28,9 @@ public class AMD64VM {
     }
 
     private static int executeSource(Source source, String[] args) {
-        Trace.println("== running on " + Truffle.getRuntime().getName());
+        if (PRINT_VM_BANNER) {
+            Trace.println("== running on " + Truffle.getRuntime().getName());
+        }
 
         Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, args).build();
 
