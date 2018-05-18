@@ -1302,6 +1302,16 @@ public class AMD64InstructionDecoder {
                     return new Sbbl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.SBB_R_RM: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                if (rex != null && rex.w) {
+                    return new Sbbq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else if (sizeOverride) {
+                    return new Sbbw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                } else {
+                    return new Sbbl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+                }
+            }
             case AMD64Opcode.SCASB: {
                 AMD64Instruction scas = new Scasb(pc, Arrays.copyOf(instruction, instructionLength));
                 if (isREPNZ) {
