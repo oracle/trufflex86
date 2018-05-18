@@ -13,6 +13,7 @@ import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
+import org.graalvm.vm.x86.posix.SyscallNames;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
 import com.everyware.posix.api.Errno;
@@ -88,7 +89,12 @@ public class Syscall extends AMD64Instruction {
 
     @TruffleBoundary
     private static void log(long nr) {
-        log.log(Level.WARNING, "Unsupported syscall " + nr);
+        String name = SyscallNames.getName(nr);
+        if (name != null) {
+            log.log(Level.WARNING, "Unsupported syscall " + name + " (#" + nr + ")");
+        } else {
+            log.log(Level.WARNING, "Unsupported syscall " + nr);
+        }
     }
 
     @Override
