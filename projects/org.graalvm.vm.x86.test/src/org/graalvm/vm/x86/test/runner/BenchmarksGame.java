@@ -426,6 +426,81 @@ public class BenchmarksGame {
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
 
+    public static final String MANDELBROT_GPP = "UDQKMjAwIDIwMAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAHoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAv4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/4AAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAABf/+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//0AAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAD///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//8AAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAD///gAAAAAAAAAAAAAAAAAAAAAAAAAAAAF///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///+AAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAD///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAC///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///5" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//gAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAD//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/8AAAAAAAAAAAAAAAAAAAAAAAABAAEAAH/+AAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAwAf+ARggAAAAAAAAAAAAAAAAAAAAAAACQY////WAAAAAAAAAAAAAAAAAAAAAAAAAAGjP////sAgAAA" +
+                    "AAAAAAAAAAAAAAAAAAAgF6//////p4AAAAAAAAAAAAAAAAAAAAAUIB///////+fAAAAAAAAAAAAAAAAAAAAALGAP///" +
+                    "////3gAQAAAAAAAAAAAAAAAAAAC/w2////////wAAAAAAAAAAAAAAAAAAAAAH8H/////////AAAAAAAAAAAAAAAAAAA" +
+                    "AAD/l/////////2AYkAAAAAAAAAAAAAAAAAE/7//////////gfuAAAAAAAAAAAAAAAAAB/9//////////6H/AAAAAAA" +
+                    "AAAAAAAAAAAP////////////j/gAAAAAAAAAAAAAAAAAB////////////9/4AAAAAAAAAAAAAAAAAAH////////////" +
+                    "v+AAAAAAAAAAAAAAAAAAAP/////////////wAAAAAAAAAAAAAAAAAAP/////////////+AAAAAAAAAAAAAAAAAAf///" +
+                    "//////////8AAAAAAAAAAAAAAAAAAz/////////////+gAAAAAAAAAAAAAAAAAP/////////////8AAAAAAAAAAAAAA" +
+                    "AACAB//////////////wAAAAAAAAAAAAAAAAEcv/////////////6AAAAAAAAAAAAAAAAB/f//////////////YAAAA" +
+                    "AAAAAAAAAAAAn///////////////8AAAAAAAAAAAAAAAAI////////////////QAAAAAAAAAAAAAAAAv///////////" +
+                    "////3AAAAAAAAAAAAAAAAD////////////////gAAAAAAAAAAAAAAAAf///////////////oAAAAAAAAAAAAAAAAH//" +
+                    "/////////////8AAAAAAAAAAAAAAABF////////////////hAAAAAAAAAAAAAAAB////////////////9AAAAAAAAAA" +
+                    "AAAAAKf////////////////cAAAAAAAAAAAAAAH//////////////////gAAAAAAAAAAAAAAf/////////////////+" +
+                    "AAAAAAAAAAAAAAH/////////////////+AAAAAAAAAAAAAAAf/////////////////AAAAAAAAAAAAAABX/////////" +
+                    "///////+gAAAAAAAAAEAAAAD/////////////////wAAAAAAAgACBgAA+/////////////////4AAAAAAAAAB4AAAD/" +
+                    "/////////////////AAAAAAAHoA8AAAAf/////////////////8AAAAAAA/GHMyAAD/////////////////+AAAAAAA" +
+                    "fi//cAAA//////////////////gAAAAAAX9///AAB//////////////////4AAAAAAA////5AAP////////////////" +
+                    "//gAAAAAAP////wAD//////////////////4AAAAAAC////+QD///////////////////wAAAAAA/////4AP///////" +
+                    "//////////8AAAAAABf/////AH//////////////////gAAAAAAP/////4D//////////////////8AAAAADX//////" +
+                    "g//////////////////8AAAAAAP//////wH//////////////////gAAAAAH///////j//////////////////4AAAA" +
+                    "AAf//////w///////////////////gAAAAAP//////+P/////////////////+gAAAAAP///////j//////////////" +
+                    "////wAAAAAD///////8//////////////////8AAAAAAf///////P//////////////////AAAAAAP///////z/////" +
+                    "////////////+wAAAAAD///////+//////////////////gAAAAZB////////v/////////////////8AAAAH+f////" +
+                    "/////////////////////8AAAAB/j/////////////////////////+gAAAA////////////////////////////gAA" +
+                    "AAP///////////////////////////wAAAAH///////////////////////////wAAAAH//////////////////////" +
+                    "/////wAAA/////////////////////////////wAAAAAf///////////////////////////AAAAAB/////////////" +
+                    "//////////////8AAAAAP///////////////////////////wAAAAD///////////////////////////+AAAAAf4//" +
+                    "////////////////////////oAAAAH+f/////////////////////////8AAAABkH///////+//////////////////" +
+                    "wAAAAAA////////v/////////////////4AAAAAAP///////z/////////////////+wAAAAAB///////8/////////" +
+                    "/////////8AAAAAA////////P//////////////////AAAAAAP///////j//////////////////wAAAAAA///////4" +
+                    "//////////////////6AAAAAAH//////8P//////////////////4AAAAAH///////j//////////////////4AAAAA" +
+                    "A///////Af/////////////////+AAAAAA1//////4P//////////////////AAAAAAAP/////4D///////////////" +
+                    "///8AAAAAAF/////8Af/////////////////+AAAAAAAP////+AD//////////////////AAAAAAAC////+QD//////" +
+                    "/////////////wAAAAAA/////AAP//////////////////gAAAAAAP///+QAD//////////////////4AAAAAAX9///" +
+                    "AAB//////////////////4AAAAAAB+L/9wAAD/////////////////+AAAAAAAPxhzMgAA//////////////////gAA" +
+                    "AAAAHoA8AAAAf/////////////////8AAAAAAAAAHgAAAP/////////////////8AAAAAAAIAAgYAAPv///////////" +
+                    "/////+AAAAAAAAAAEAAAAD/////////////////wAAAAAAAAAAAAAAFf////////////////6AAAAAAAAAAAAAAAH//" +
+                    "///////////////wAAAAAAAAAAAAAAH/////////////////+AAAAAAAAAAAAAAB//////////////////4AAAAAAAA" +
+                    "AAAAAB//////////////////4AAAAAAAAAAAAAAKf////////////////cAAAAAAAAAAAAAAAH////////////////0" +
+                    "AAAAAAAAAAAAAAARf///////////////4QAAAAAAAAAAAAAAAH///////////////8AAAAAAAAAAAAAAAAB////////" +
+                    "///////+gAAAAAAAAAAAAAAAA////////////////4AAAAAAAAAAAAAAAAv///////////////3AAAAAAAAAAAAAAAA" +
+                    "j///////////////9AAAAAAAAAAAAAAAAJ////////////////AAAAAAAAAAAAAAAAB/f//////////////YAAAAAAA" +
+                    "AAAAAAAAARy//////////////oAAAAAAAAAAAAAAAAgAf/////////////8AAAAAAAAAAAAAAAAAAP/////////////" +
+                    "8AAAAAAAAAAAAAAAAAADP/////////////6AAAAAAAAAAAAAAAAAAH//////////////AAAAAAAAAAAAAAAAAAAP///" +
+                    "//////////+AAAAAAAAAAAAAAAAAAA//////////////AAAAAAAAAAAAAAAAAAB////////////7/gAAAAAAAAAAAAA" +
+                    "AAAAB////////////9/4AAAAAAAAAAAAAAAAAA////////////+P+AAAAAAAAAAAAAAAAAAf/f/////////+h/wAAAA" +
+                    "AAAAAAAAAAAAAE/7//////////gfuAAAAAAAAAAAAAAAAAAP+X/////////YBiQAAAAAAAAAAAAAAAAAB/B////////" +
+                    "/wAAAAAAAAAAAAAAAAAAAAC/w2////////wAAAAAAAAAAAAAAAAAAAAAsYA////////eABAAAAAAAAAAAAAAAAAAAFC" +
+                    "Af///////nwAAAAAAAAAAAAAAAAAAAAAAgF6//////p4AAAAAAAAAAAAAAAAAAAAAAAAaM////+wCAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAkGP///1gAAAAAAAAAAAAAAAAAAAAAAAAAAAwAf+ARggAAAAAAAAAAAAAAAAAAAAAEAAQAAf/4AAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAH//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//" +
+                    "+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA///5AAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAL///AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA///+AAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAX///AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//8AAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAB///gAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "P//0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAF//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+AAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAv4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAF8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+
     public static final String PIDIGITS = "3141592653\t:10\n" +
                     "5897932384\t:20\n" +
                     "6264338327\t:30\n" +
@@ -597,10 +672,9 @@ public class BenchmarksGame {
         TestRunner.runBinary("mandelbrot.gcc-9", new String[]{"200"}, "", MANDELBROT, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void mandelbrot_gpp() throws Exception {
-        TestRunner.runBinary("mandelbrot.gpp", new String[]{"200"}, "", MANDELBROT, "", 0);
+        TestRunner.runBinary("mandelbrot.gpp", new String[]{"200"}, "", MANDELBROT_GPP, "", 0);
     }
 
     @Test
@@ -685,7 +759,7 @@ public class BenchmarksGame {
         TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", "1.274219991\n", "", 0);
     }
 
-    @Ignore("missing opcodes")
+    @Ignore("interpreter bug")
     @Test
     public void pidigits_cint4() throws Exception {
         assumeTrue(HostTest.isX86);
@@ -698,7 +772,7 @@ public class BenchmarksGame {
         TestRunner.run("pidigits.gcc", new String[]{"850"}, "", PIDIGITS, "", 0);
     }
 
-    @Ignore("missing opcodes")
+    @Ignore("interpreter bug")
     @Test
     public void pidigits_gcc4() throws Exception {
         assumeTrue(HostTest.isX86);
