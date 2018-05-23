@@ -599,6 +599,8 @@ public class BenchmarksGame {
     public static final String NBODY = "-0.169075164\n" +
                     "-0.169023077\n";
 
+    public static final String SPECTRALNORM = "1.274219991\n";
+
     @Test
     public void fasta_cint() throws Exception {
         TestRunner.run("fasta.cint", new String[]{"1000"}, "", FASTA, "", 0);
@@ -736,27 +738,27 @@ public class BenchmarksGame {
 
     @Test
     public void spectralnorm_cint() throws Exception {
-        TestRunner.run("spectralnorm.cint", new String[]{"100"}, "", "1.274219991\n", "", 0);
+        TestRunner.run("spectralnorm.cint", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Test
     public void spectralnorm_gcc() throws Exception {
-        TestRunner.run("spectralnorm.gcc", new String[]{"100"}, "", "1.274219991\n", "", 0);
+        TestRunner.run("spectralnorm.gcc", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Test
     public void spectralnorm_gcc2() throws Exception {
-        TestRunner.run("spectralnorm.gcc-2", new String[]{"100"}, "", "1.274219991\n", "", 0);
+        TestRunner.run("spectralnorm.gcc-2", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Test
     public void spectralnorm_gcc3() throws Exception {
-        TestRunner.run("spectralnorm.gcc-3", new String[]{"100"}, "", "1.274219991\n", "", 0);
+        TestRunner.run("spectralnorm.gcc-3", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Test
     public void spectralnorm_gcc5() throws Exception {
-        TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", "1.274219991\n", "", 0);
+        TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Ignore("interpreter bug")
