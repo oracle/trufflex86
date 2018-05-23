@@ -230,64 +230,64 @@ bin/pidigits.gcc-4: pidigits/pidigits.gcc-4.gcc.c
 bin/nbody.cint: nbody/nbody.cint.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gcc: nbody/nbody.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gcc-2: nbody/nbody.gcc-2.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gcc-3: nbody/nbody.gcc-3.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gcc-4: nbody/nbody.gcc-4.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gcc-6: nbody/nbody.gcc-6.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp: nbody/nbody.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-2: nbody/nbody.gpp-2.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-3: nbody/nbody.gpp-3.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-5: nbody/nbody.gpp-5.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-6: nbody/nbody.gpp-6.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-7: nbody/nbody.gpp-7.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-8: nbody/nbody.gpp-8.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
-	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
