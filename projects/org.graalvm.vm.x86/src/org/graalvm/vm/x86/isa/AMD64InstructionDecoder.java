@@ -1429,7 +1429,12 @@ public class AMD64InstructionDecoder {
                         byte imm = code.read8();
                         return new Shrb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                     }
+                    case 7: { // SAR rm8,i8
+                        byte imm = code.read8();
+                        return new Sarb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                    }
                 }
+                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
             }
             case AMD64Opcode.SHL_RM_I: {
                 Args args = new Args(code, rex, segment, addressOverride);
