@@ -298,6 +298,7 @@ import org.graalvm.vm.x86.isa.instruction.Sar.Sarb;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarq;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarw;
+import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbb;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbl;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbq;
 import org.graalvm.vm.x86.isa.instruction.Sbb.Sbbw;
@@ -1293,6 +1294,33 @@ public class AMD64InstructionDecoder {
                 return new Ret(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.SAHF:
                 return new Sahf(pc, Arrays.copyOf(instruction, instructionLength));
+            case AMD64Opcode.SBB_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Sbbb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
+            }
+            case AMD64Opcode.SBB_A_I: {
+                if (rex != null && rex.w) {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Sbbq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), imm);
+                } else if (sizeOverride) {
+                    short imm = code.read16();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    return new Sbbw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), imm);
+                } else {
+                    int imm = code.read32();
+                    instruction[instructionLength++] = (byte) imm;
+                    instruction[instructionLength++] = (byte) (imm >> 8);
+                    instruction[instructionLength++] = (byte) (imm >> 16);
+                    instruction[instructionLength++] = (byte) (imm >> 24);
+                    return new Sbbl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), imm);
+                }
+            }
             case AMD64Opcode.SBB_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {

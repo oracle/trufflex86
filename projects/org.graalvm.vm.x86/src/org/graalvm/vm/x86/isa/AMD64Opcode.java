@@ -292,6 +292,8 @@ public class AMD64Opcode {
 
     public static final byte SAHF = (byte) 0x9E;
 
+    public static final byte SBB_A_I8 = 0x1C;
+    public static final byte SBB_A_I = 0x1D;
     public static final byte SBB_RM_R = 0x19;
     public static final byte SBB_R_RM = 0x1B;
 
