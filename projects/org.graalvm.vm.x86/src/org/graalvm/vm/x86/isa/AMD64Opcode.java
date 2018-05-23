@@ -34,7 +34,9 @@ public class AMD64Opcode {
     public static final byte BSWAP = (byte) 0xC8;
 
     public static final byte BT_RM_R = (byte) 0xA3;
+
     public static final byte BTS_RM_R = (byte) 0xAB;
+    public static final byte BTS_RM_I8 = (byte) 0xBA;
 
     public static final byte CALL_REL = (byte) 0xE8;
     public static final byte CALL_RM = (byte) 0xFF;

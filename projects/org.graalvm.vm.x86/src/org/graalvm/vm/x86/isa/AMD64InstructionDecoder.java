@@ -1969,6 +1969,23 @@ public class AMD64InstructionDecoder {
                             return new Btsl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         }
                     }
+                    case AMD64Opcode.BTS_RM_I8: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        switch (args.modrm.getReg()) {
+                            case 5: { // BTS RM,I8
+                                byte imm = code.read8();
+                                if (rex != null && rex.w) {
+                                    return new Btsq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else if (sizeOverride) {
+                                    return new Btsw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else {
+                                    return new Btsl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                }
+                            }
+                            default:
+                                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.CMOVA: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (rex != null && rex.w) {
