@@ -21,7 +21,11 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/spectralnorm.cint bin/spectralnorm.gcc \
 		bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
 		bin/spectralnorm.gcc-5 \
-		bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4
+		bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4 \
+		bin/nbody.cint bin/nbody.gcc-2 bin/nbody.gcc-3 bin/nbody.gcc-4 \
+		bin/nbody.gcc-6 bin/nbody.gcc bin/nbody.gpp-2 bin/nbody.gpp-3 \
+		bin/nbody.gpp-5 bin/nbody.gpp-6 bin/nbody.gpp-7 bin/nbody.gpp-8\
+		bin/nbody.gpp
 
 clean:
 	rm -f bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint \
@@ -41,179 +45,249 @@ clean:
 			bin/spectralnorm.cint bin/spectralnorm.gcc \
 			bin/spectralnorm.gcc-2 bin/spectralnorm.gcc-3 \
 			bin/spectralnorm.gcc-5 \
-			bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4
+			bin/pidigits.cint-4 bin/pidigits.gcc bin/pidigits.gcc-4\
+			bin/nbody.cint bin/nbody.gcc-2 bin/nbody.gcc-3 \
+			bin/nbody.gcc-4 bin/nbody.gcc-6 bin/nbody.gcc \
+			bin/nbody.gpp-2 bin/nbody.gpp-3 bin/nbody.gpp-5 \
+			bin/nbody.gpp-6 bin/nbody.gpp-7 bin/nbody.gpp-8 \
+			bin/nbody.gpp
 
 bin/binarytrees.gcc: binarytrees/binarytrees.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/binarytrees.gcc-2: binarytrees/binarytrees.gcc-2.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fasta.cint: fasta/fasta.cint.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fasta.gcc: fasta/fasta.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fasta.gcc-4: fasta/fasta.gcc-4.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fastaredux.gcc-2: fastaredux/fastaredux.gcc-2.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fastaredux.gcc-3: fastaredux/fastaredux.gcc-3.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fastaredux.gcc-5: fastaredux/fastaredux.gcc-5.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fastaredux.gpp: fastaredux/fastaredux.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/fastaredux.gpp-2: fastaredux/fastaredux.gpp-2.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/fastaredux.gpp-5: fastaredux/fastaredux.gpp-5.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/fannkuchredux.cint: fannkuchredux/fannkuchredux.cint.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fannkuchredux.gcc: fannkuchredux/fannkuchredux.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/fannkuchredux.gcc-3: fannkuchredux/fannkuchredux.gcc-3.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.cint: mandelbrot/mandelbrot.cint-2.cint.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.gcc-2: mandelbrot/mandelbrot.gcc-2.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.gcc-4: mandelbrot/mandelbrot.gcc-4.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.gcc-8: mandelbrot/mandelbrot.gcc-8.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.gcc-9: mandelbrot/mandelbrot.gcc-9.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp: mandelbrot/mandelbrot.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-2: mandelbrot/mandelbrot.gpp-2.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-3: mandelbrot/mandelbrot.gpp-3.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-5: mandelbrot/mandelbrot.gpp-5.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-6: mandelbrot/mandelbrot.gpp-6.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-7: mandelbrot/mandelbrot.gpp-7.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-8: mandelbrot/mandelbrot.gpp-8.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/mandelbrot.gpp-9: mandelbrot/mandelbrot.gpp-9.gpp.cpp
-	$(QUIET)[ ! -d bin ] && mkdir bin
-	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
 
 bin/spectralnorm.cint: spectralnorm/spectralnorm.cint.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/spectralnorm.gcc: spectralnorm/spectralnorm.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/spectralnorm.gcc-2: spectralnorm/spectralnorm.gcc-2.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/spectralnorm.gcc-3: spectralnorm/spectralnorm.gcc-3.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/spectralnorm.gcc-5: spectralnorm/spectralnorm.gcc-5.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
 
 bin/pidigits.cint-4: pidigits/pidigits.cint-4.cint.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lgmp
 
 bin/pidigits.gcc: pidigits/pidigits.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lgmp
 
 bin/pidigits.gcc-4: pidigits/pidigits.gcc-4.gcc.c
-	$(QUIET)[ ! -d bin ] && mkdir bin
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lgmp
+
+bin/nbody.cint: nbody/nbody.cint.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gcc: nbody/nbody.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gcc-2: nbody/nbody.gcc-2.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gcc-3: nbody/nbody.gcc-3.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gcc-4: nbody/nbody.gcc-4.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gcc-6: nbody/nbody.gcc-6.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp: nbody/nbody.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-2: nbody/nbody.gpp-2.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-3: nbody/nbody.gpp-3.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-5: nbody/nbody.gpp-5.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-6: nbody/nbody.gpp-6.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-7: nbody/nbody.gpp-7.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
+
+bin/nbody.gpp-8: nbody/nbody.gpp-8.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGSD) -o $@ $< -lm
