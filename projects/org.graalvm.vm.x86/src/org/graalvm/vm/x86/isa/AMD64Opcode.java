@@ -288,6 +288,8 @@ public class AMD64Opcode {
     public static final byte RET_FAR = (byte) 0xCB;
     public static final byte RET_NEAR = (byte) 0xC3;
 
+    public static final byte RSQRTPS_X_XM = (byte) 0x52;
+
     public static final byte SAHF = (byte) 0x9E;
 
     public static final byte SBB_RM_R = 0x19;

@@ -292,6 +292,7 @@ import org.graalvm.vm.x86.isa.instruction.Rol.Rolw;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorl;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorq;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorw;
+import org.graalvm.vm.x86.isa.instruction.Rsqrtps;
 import org.graalvm.vm.x86.isa.instruction.Sahf;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarb;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
@@ -2886,6 +2887,14 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.RDTSC:
                         return new Rdtsc(pc, Arrays.copyOf(instruction, instructionLength));
+                    case AMD64Opcode.RSQRTPS_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (np) {
+                            return new Rsqrtps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.SETA: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         return new Seta(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
