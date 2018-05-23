@@ -587,6 +587,18 @@ public class BenchmarksGame {
                     "5334468503\t:840\n" +
                     "5261931188\t:850\n";
 
+    public static final String FANNKUCH = "228\nPfannkuchen(7) = 16\n";
+
+    public static final String BINARYTREES = "stretch tree of depth 11\t check: -1\n" +
+                    "2048\t trees of depth 4\t check: -2048\n" +
+                    "512\t trees of depth 6\t check: -512\n" +
+                    "128\t trees of depth 8\t check: -128\n" +
+                    "32\t trees of depth 10\t check: -32\n" +
+                    "long lived tree of depth 10\t check: -1\n";
+
+    public static final String NBODY = "-0.169075164\n" +
+                    "-0.169023077\n";
+
     @Test
     public void fasta_cint() throws Exception {
         TestRunner.run("fasta.cint", new String[]{"1000"}, "", FASTA, "", 0);
@@ -634,17 +646,17 @@ public class BenchmarksGame {
 
     @Test
     public void fannkuchredux_cint() throws Exception {
-        TestRunner.run("fannkuchredux.cint", new String[]{"7"}, "", "228\nPfannkuchen(7) = 16\n", "", 0);
+        TestRunner.run("fannkuchredux.cint", new String[]{"7"}, "", FANNKUCH, "", 0);
     }
 
     @Test
     public void fannkuchredux_gcc() throws Exception {
-        TestRunner.run("fannkuchredux.gcc", new String[]{"7"}, "", "228\nPfannkuchen(7) = 16\n", "", 0);
+        TestRunner.run("fannkuchredux.gcc", new String[]{"7"}, "", FANNKUCH, "", 0);
     }
 
     @Test
     public void fannkuchredux_gcc3() throws Exception {
-        TestRunner.run("fannkuchredux.gcc-3", new String[]{"7"}, "", "228\nPfannkuchen(7) = 16\n", "", 0);
+        TestRunner.run("fannkuchredux.gcc-3", new String[]{"7"}, "", FANNKUCH, "", 0);
     }
 
     @Test
@@ -714,24 +726,12 @@ public class BenchmarksGame {
 
     @Test
     public void binarytrees_gcc() throws Exception {
-        String stdout = "stretch tree of depth 11\t check: -1\n" +
-                        "2048\t trees of depth 4\t check: -2048\n" +
-                        "512\t trees of depth 6\t check: -512\n" +
-                        "128\t trees of depth 8\t check: -128\n" +
-                        "32\t trees of depth 10\t check: -32\n" +
-                        "long lived tree of depth 10\t check: -1\n";
-        TestRunner.run("binarytrees.gcc", new String[]{"10"}, "", stdout, "", 0);
+        TestRunner.run("binarytrees.gcc", new String[]{"10"}, "", BINARYTREES, "", 0);
     }
 
     @Test
     public void binarytrees_gcc2() throws Exception {
-        String stdout = "stretch tree of depth 11\t check: -1\n" +
-                        "2048\t trees of depth 4\t check: -2048\n" +
-                        "512\t trees of depth 6\t check: -512\n" +
-                        "128\t trees of depth 8\t check: -128\n" +
-                        "32\t trees of depth 10\t check: -32\n" +
-                        "long lived tree of depth 10\t check: -1\n";
-        TestRunner.run("binarytrees.gcc-2", new String[]{"10"}, "", stdout, "", 0);
+        TestRunner.run("binarytrees.gcc-2", new String[]{"10"}, "", BINARYTREES, "", 0);
     }
 
     @Test
@@ -777,5 +777,70 @@ public class BenchmarksGame {
     public void pidigits_gcc4() throws Exception {
         assumeTrue(HostTest.isX86);
         TestRunner.run("pidigits.gcc-4", new String[]{"850"}, "", PIDIGITS, "", 0);
+    }
+
+    @Test
+    public void nbody_cint() throws Exception {
+        TestRunner.run("nbody.cint", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gcc() throws Exception {
+        TestRunner.run("nbody.gcc", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gcc2() throws Exception {
+        TestRunner.run("nbody.gcc-2", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gcc3() throws Exception {
+        TestRunner.run("nbody.gcc-3", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gcc4() throws Exception {
+        TestRunner.run("nbody.gcc-4", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gcc6() throws Exception {
+        TestRunner.run("nbody.gcc-6", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp() throws Exception {
+        TestRunner.run("nbody.gpp", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp2() throws Exception {
+        TestRunner.run("nbody.gpp-2", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp3() throws Exception {
+        TestRunner.run("nbody.gpp-3", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp5() throws Exception {
+        TestRunner.run("nbody.gpp-5", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp6() throws Exception {
+        TestRunner.run("nbody.gpp-6", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp7() throws Exception {
+        TestRunner.run("nbody.gpp-7", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void nbody_gpp8() throws Exception {
+        TestRunner.run("nbody.gpp-8", new String[]{"80000"}, "", NBODY, "", 0);
     }
 }
