@@ -195,6 +195,7 @@ import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movlps;
 import org.graalvm.vm.x86.isa.instruction.Movmskpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
+import org.graalvm.vm.x86.isa.instruction.Movq.MovqToXM;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsb;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsd;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsq;
@@ -2542,6 +2543,14 @@ public class AMD64InstructionDecoder {
                             } else {
                                 return new MovdToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.MOVQ_XM_X: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new MovqToXM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
