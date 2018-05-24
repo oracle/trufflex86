@@ -93,13 +93,13 @@ public abstract class Punpckh extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            Vector128 a = readOp1.executeI128(frame);
-            Vector128 b = readOp2.executeI128(frame);
-            int h0 = a.getI32(0);
-            int h1 = a.getI32(1);
-            int ha = a.getI32(2);
-            int hb = b.getI32(2);
-            Vector128 out = new Vector128(h0, h1, hb, ha);
+            Vector128 dst = readOp1.executeI128(frame);
+            Vector128 src = readOp2.executeI128(frame);
+            int h0 = src.getI32(0);
+            int h1 = dst.getI32(0);
+            int h2 = src.getI32(1);
+            int h3 = dst.getI32(1);
+            Vector128 out = new Vector128(h0, h1, h2, h3);
             writeDst.executeI128(frame, out);
             return next();
         }
