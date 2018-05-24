@@ -1997,6 +1997,16 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.BTS_RM_I8: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         switch (args.modrm.getReg()) {
+                            case 4: { // BT RM,I8
+                                byte imm = code.read8();
+                                if (rex != null && rex.w) {
+                                    return new Btq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else if (sizeOverride) {
+                                    return new Btw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else {
+                                    return new Btl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                }
+                            }
                             case 5: { // BTS RM,I8
                                 byte imm = code.read8();
                                 if (rex != null && rex.w) {

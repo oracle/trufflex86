@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.ImmediateOperand;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
@@ -41,6 +42,10 @@ public abstract class Bt extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R16), operands.getOperand2(OperandDecoder.R16));
         }
 
+        public Btw(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R16), new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -57,6 +62,10 @@ public abstract class Bt extends AMD64Instruction {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R32), operands.getOperand2(OperandDecoder.R32));
         }
 
+        public Btl(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R32), new ImmediateOperand(imm));
+        }
+
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
@@ -71,6 +80,10 @@ public abstract class Bt extends AMD64Instruction {
     public static class Btq extends Bt {
         public Btq(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand1(OperandDecoder.R64), operands.getOperand2(OperandDecoder.R64));
+        }
+
+        public Btq(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+            super(pc, instruction, operands.getOperand1(OperandDecoder.R64), new ImmediateOperand(imm));
         }
 
         @Override
