@@ -79,6 +79,8 @@ public class AMD64Opcode {
 
     public static final byte CMPXCHG_RM_R = (byte) 0xB1;
 
+    public static final byte COMISD_X_XM = (byte) 0x2F;
+
     public static final byte CPUID = (byte) 0xA2;
 
     public static final byte CVTDQ2PD = (byte) 0xE6;

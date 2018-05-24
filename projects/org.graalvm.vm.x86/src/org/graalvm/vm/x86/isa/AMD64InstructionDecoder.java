@@ -97,6 +97,7 @@ import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsw;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgl;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgq;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
+import org.graalvm.vm.x86.isa.instruction.Comisd;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
@@ -2168,6 +2169,14 @@ public class AMD64InstructionDecoder {
                             return new Cmpxchgw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new Cmpxchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
+                    case AMD64Opcode.COMISD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Comisd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.CPUID:
