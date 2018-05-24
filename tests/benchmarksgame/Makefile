@@ -25,7 +25,11 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/nbody.cint bin/nbody.gcc-2 bin/nbody.gcc-3 bin/nbody.gcc-4 \
 		bin/nbody.gcc-6 bin/nbody.gcc bin/nbody.gpp-2 bin/nbody.gpp-3 \
 		bin/nbody.gpp-5 bin/nbody.gpp-6 bin/nbody.gpp-7 bin/nbody.gpp-8\
-		bin/nbody.gpp
+		bin/nbody.gpp \
+		bin/meteor.cint bin/meteor.gcc bin/meteor.gpp bin/meteor.gpp-2 \
+		bin/meteor.gpp-3 bin/meteor.gpp-4 bin/meteor.gpp-5 \
+		bin/meteor.gpp-6
+
 
 clean:
 	rm -f bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint \
@@ -50,7 +54,10 @@ clean:
 			bin/nbody.gcc-4 bin/nbody.gcc-6 bin/nbody.gcc \
 			bin/nbody.gpp-2 bin/nbody.gpp-3 bin/nbody.gpp-5 \
 			bin/nbody.gpp-6 bin/nbody.gpp-7 bin/nbody.gpp-8 \
-			bin/nbody.gpp
+			bin/nbody.gpp \
+			bin/meteor.cint bin/meteor.gcc bin/meteor.gpp \
+			bin/meteor.gpp-2 bin/meteor.gpp-3 bin/meteor.gpp-4 \
+			bin/meteor.gpp-5 bin/meteor.gpp-6
 
 bin/binarytrees.gcc: binarytrees/binarytrees.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
@@ -288,6 +295,46 @@ bin/nbody.gpp-7: nbody/nbody.gpp-7.gpp.cpp
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
 
 bin/nbody.gpp-8: nbody/nbody.gpp-8.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.cint: meteor/meteor.cint.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/meteor.gcc: meteor/meteor.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp: meteor/meteor.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp-2: meteor/meteor.gpp-2.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp-3: meteor/meteor.gpp-3.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp-4: meteor/meteor.gpp-4.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp-5: meteor/meteor.gpp-5.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/meteor.gpp-6: meteor/meteor.gpp-6.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm

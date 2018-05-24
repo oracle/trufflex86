@@ -601,6 +601,31 @@ public class BenchmarksGame {
 
     public static final String SPECTRALNORM = "1.274219991\n";
 
+    public static final String METEOR = "2098 solutions found\n" +
+                    "\n" +
+                    "0 0 0 0 1 \n" +
+                    " 2 2 2 0 1 \n" +
+                    "2 6 6 1 1 \n" +
+                    " 2 6 1 5 5 \n" +
+                    "8 6 5 5 5 \n" +
+                    " 8 6 3 3 3 \n" +
+                    "4 8 8 9 3 \n" +
+                    " 4 4 8 9 3 \n" +
+                    "4 7 4 7 9 \n" +
+                    " 7 7 7 9 9 \n" +
+                    "\n" +
+                    "9 9 9 9 8 \n" +
+                    " 9 6 6 8 5 \n" +
+                    "6 6 8 8 5 \n" +
+                    " 6 8 2 5 5 \n" +
+                    "7 7 7 2 5 \n" +
+                    " 7 4 7 2 0 \n" +
+                    "1 4 2 2 0 \n" +
+                    " 1 4 4 0 3 \n" +
+                    "1 4 0 0 3 \n" +
+                    " 1 1 3 3 3 \n" +
+                    "\n";
+
     @Test
     public void fasta_cint() throws Exception {
         TestRunner.run("fasta.cint", new String[]{"1000"}, "", FASTA, "", 0);
@@ -844,5 +869,45 @@ public class BenchmarksGame {
     @Test
     public void nbody_gpp8() throws Exception {
         TestRunner.run("nbody.gpp-8", new String[]{"80000"}, "", NBODY, "", 0);
+    }
+
+    @Test
+    public void meteor_cint() throws Exception {
+        TestRunner.run("meteor.cint", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gcc() throws Exception {
+        TestRunner.run("meteor.gcc", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp() throws Exception {
+        TestRunner.run("meteor.gpp", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp2() throws Exception {
+        TestRunner.run("meteor.gpp-2", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp3() throws Exception {
+        TestRunner.run("meteor.gpp-3", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp4() throws Exception {
+        TestRunner.run("meteor.gpp-4", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp5() throws Exception {
+        TestRunner.run("meteor.gpp-5", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void meteor_gpp6() throws Exception {
+        TestRunner.run("meteor.gpp-6", new String[0], "", METEOR, "", 0);
     }
 }
