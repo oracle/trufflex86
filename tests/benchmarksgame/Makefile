@@ -2,9 +2,9 @@ QUIET	:= @
 
 CC	:=	gcc
 CXX	:=	g++
-CFLAGS	:=	-static -O3
-CXXFLAGS:=	-static -O3
-CFLAGSD	:=	-O3
+CFLAGS	:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
+CXXFLAGS:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
+CFLAGSD	:=	-O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 .PHONY: all clean
 
