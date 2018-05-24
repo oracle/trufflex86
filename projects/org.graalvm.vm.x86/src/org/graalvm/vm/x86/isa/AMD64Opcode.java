@@ -276,6 +276,7 @@ public class AMD64Opcode {
     public static final byte PUNPCKLBW = 0x60;
     public static final byte PUNPCKLWD = 0x61;
     public static final byte PUNPCKLDQ = 0x62;
+    public static final byte PUNPCKLQDQ = 0x6C;
 
     public static final byte PUSH_R = 0x50;
     public static final byte PUSH_FS = (byte) 0xA0;
