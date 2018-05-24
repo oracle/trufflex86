@@ -654,6 +654,10 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.CMP_RM_I8: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
+                    case 0: {
+                        byte imm = code.read8();
+                        return new Addb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                    }
                     case 1: {
                         byte imm = code.read8();
                         return new Orb(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
