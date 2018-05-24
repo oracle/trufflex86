@@ -1763,6 +1763,21 @@ public class AMD64InstructionDecoder {
                             return new Subl(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
                         }
                     }
+                    case 6: { // XOR r/m32 i
+                        if (rex != null && rex.w) {
+                            int imm = code.read32();
+                            byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)};
+                            return new Xorq(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
+                            short imm = code.read16();
+                            byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8)};
+                            return new Xorw(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
+                        } else {
+                            int imm = code.read32();
+                            byte[] suffix = new byte[]{(byte) imm, (byte) (imm >> 8), (byte) (imm >> 16), (byte) (imm >> 24)};
+                            return new Xorl(pc, args.getOp2(instruction, instructionLength, suffix, suffix.length), args.getOperandDecoder(), imm);
+                        }
+                    }
                     case 7: { // CMP r/m32 i
                         if (rex != null && rex.w) {
                             int imm = code.read32();
