@@ -48,7 +48,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
       ],
-      "sha1" : "087f1b5f81990103241e9f80534ead65cc8e9162",
+      "sha1" : "e47d4e667bd08dbb11d3bbcb5a0469aa65b8a2d4",
     },
   },
 
@@ -156,7 +156,16 @@ suite = {
         "bin/nbody.gpp-5",
         "bin/nbody.gpp-6",
         "bin/nbody.gpp-7",
-        "bin/nbody.gpp-8"
+        "bin/nbody.gpp-8",
+        "bin/meteor.cint",
+        "bin/meteor.gcc",
+        "bin/meteor.gpp",
+        "bin/meteor.gpp-2",
+        "bin/meteor.gpp-3",
+        "bin/meteor.gpp-4",
+        "bin/meteor.gpp-5",
+        "bin/meteor.gpp-6"
+
       ],
       "license" : "GPLv3"
     },
