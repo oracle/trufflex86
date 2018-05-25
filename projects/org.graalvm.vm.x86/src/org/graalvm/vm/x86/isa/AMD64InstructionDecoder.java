@@ -1504,6 +1504,15 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.SHL_RM_C: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
+                    case 0: {
+                        if (rex != null && rex.w) {
+                            return new Rolq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                        } else if (sizeOverride) {
+                            return new Rolw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                        } else {
+                            return new Roll(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                        }
+                    }
                     case 4: {
                         if (rex != null && rex.w) {
                             return new Shlq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
