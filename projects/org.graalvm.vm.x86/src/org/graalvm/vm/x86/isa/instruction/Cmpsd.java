@@ -12,7 +12,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public abstract class Cmpps extends AMD64Instruction {
+public abstract class Cmpsd extends AMD64Instruction {
     private final Operand operand1;
     private final Operand operand2;
 
@@ -23,7 +23,7 @@ public abstract class Cmpps extends AMD64Instruction {
     @Child protected ReadNode readSrc2;
     @Child protected WriteNode writeDst;
 
-    protected Cmpps(long pc, byte[] instruction, Operand operand1, Operand operand2, String name, byte type) {
+    protected Cmpsd(long pc, byte[] instruction, Operand operand1, Operand operand2, String name, byte type) {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
@@ -34,14 +34,14 @@ public abstract class Cmpps extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    public static Cmpps create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+    public static Cmpsd create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
         switch (imm & 0x7) {
             case 1:
-                return new Cmpltps(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+                return new Cmpltsd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
-                return new Cmpleps(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+                return new Cmplesd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 6:
-                return new Cmpnleps(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+                return new Cmpnlesd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
         throw new IllegalInstructionException(pc, instruction, "unknown type " + imm);
     }
@@ -56,50 +56,56 @@ public abstract class Cmpps extends AMD64Instruction {
         }
     }
 
-    public static class Cmpltps extends Cmpps {
-        protected Cmpltps(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpltps", (byte) 2);
+    public static class Cmpltsd extends Cmpsd {
+        protected Cmpltsd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpltsd", (byte) 2);
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            Vector128 a = readSrc1.executeI128(frame);
-            Vector128 b = readSrc2.executeI128(frame);
-            Vector128 le = a.ltF32(b);
-            writeDst.executeI128(frame, le);
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            double a = dst.getF64(1);
+            double b = src.getF64(1);
+            dst.setI64(1, a < b ? 0xFFFFFFFFFFFFFFFFL : 0x0000000000000000);
+            writeDst.executeI128(frame, dst);
             return next();
         }
     }
 
-    public static class Cmpleps extends Cmpps {
-        protected Cmpleps(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpleps", (byte) 2);
+    public static class Cmplesd extends Cmpsd {
+        protected Cmplesd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmplesd", (byte) 2);
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            Vector128 a = readSrc1.executeI128(frame);
-            Vector128 b = readSrc2.executeI128(frame);
-            Vector128 le = a.leF32(b);
-            writeDst.executeI128(frame, le);
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            double a = dst.getF64(1);
+            double b = src.getF64(1);
+            dst.setI64(1, a <= b ? 0xFFFFFFFFFFFFFFFFL : 0x0000000000000000);
+            writeDst.executeI128(frame, dst);
             return next();
         }
     }
 
-    public static class Cmpnleps extends Cmpps {
-        protected Cmpnleps(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmnleps", (byte) 2);
+    public static class Cmpnlesd extends Cmpsd {
+        protected Cmpnlesd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpnlesd", (byte) 2);
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
             createChildrenIfNecessary();
-            Vector128 a = readSrc1.executeI128(frame);
-            Vector128 b = readSrc2.executeI128(frame);
-            Vector128 le = a.gtF32(b);
-            writeDst.executeI128(frame, le);
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            double a = dst.getF64(1);
+            double b = src.getF64(1);
+            dst.setI64(1, a > b ? 0xFFFFFFFFFFFFFFFFL : 0x0000000000000000);
+            writeDst.executeI128(frame, dst);
             return next();
         }
     }
@@ -107,7 +113,7 @@ public abstract class Cmpps extends AMD64Instruction {
     @Override
     protected String[] disassemble() {
         if (name == null) {
-            return new String[]{"cmpps", operand1.toString(), operand2.toString(), Byte.toString(type)};
+            return new String[]{"cmpsd", operand1.toString(), operand2.toString(), Byte.toString(type)};
         } else {
             return new String[]{name, operand1.toString(), operand2.toString()};
         }

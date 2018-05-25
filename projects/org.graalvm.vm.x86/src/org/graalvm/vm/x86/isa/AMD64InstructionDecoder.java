@@ -2218,6 +2218,9 @@ public class AMD64InstructionDecoder {
                         } else if (isREPZ) {
                             byte imm = code.read8();
                             return Cmpss.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (isREPNZ) {
+                            byte imm = code.read8();
+                            return org.graalvm.vm.x86.isa.instruction.Cmpsd.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else if (sizeOverride) {
                             byte imm = code.read8();
                             return Cmppd.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);

@@ -449,6 +449,40 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 geF32(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        int[] result = new int[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = a[i] >= b[i];
+            int inv = a.length - i - 1;
+            if (val) {
+                result[inv] = 0xFFFFFFFF;
+            } else {
+                result[inv] = 0x00000000;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 gtF32(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        int[] result = new int[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = a[i] > b[i];
+            int inv = a.length - i - 1;
+            if (val) {
+                result[inv] = 0xFFFFFFFF;
+            } else {
+                result[inv] = 0x00000000;
+            }
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 leF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -473,6 +507,40 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] < b[i];
+            int inv = a.length - i - 1;
+            if (val) {
+                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+            } else {
+                result[inv] = 0x0000000000000000L;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 geF64(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        long[] result = new long[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = a[i] >= b[i];
+            int inv = a.length - i - 1;
+            if (val) {
+                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+            } else {
+                result[inv] = 0x0000000000000000L;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    public Vector128 gtF64(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        long[] result = new long[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = a[i] > b[i];
             int inv = a.length - i - 1;
             if (val) {
                 result[inv] = 0xFFFFFFFFFFFFFFFFL;
