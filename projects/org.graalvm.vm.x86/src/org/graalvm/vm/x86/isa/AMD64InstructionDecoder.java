@@ -374,6 +374,7 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testw;
 import org.graalvm.vm.x86.isa.instruction.Ucomisd;
 import org.graalvm.vm.x86.isa.instruction.Ucomiss;
 import org.graalvm.vm.x86.isa.instruction.Unpckhpd;
+import org.graalvm.vm.x86.isa.instruction.Unpckhps;
 import org.graalvm.vm.x86.isa.instruction.Unpcklpd;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddb;
 import org.graalvm.vm.x86.isa.instruction.Xadd.Xaddl;
@@ -3196,7 +3197,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.UNPCKHPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Unpckhps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Unpckhpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
