@@ -23,6 +23,7 @@ import com.everyware.posix.api.Rlimit;
 import com.everyware.posix.api.Sigaction;
 import com.everyware.posix.api.Timespec;
 import com.everyware.posix.api.Timeval;
+import com.everyware.posix.api.Tms;
 import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.FileDescriptorManager;
@@ -533,6 +534,21 @@ public class PosixEnvironment {
         PosixPointer ptr = posixPointer(tp);
         t.write64(ptr);
         return val;
+    }
+
+    public long times(long buffer) throws SyscallException {
+        try {
+            Tms buf = new Tms();
+            long val = posix.times(buf);
+            PosixPointer ptr = posixPointer(buffer);
+            buf.write64(ptr);
+            return val;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "times failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
     }
 
     public int prlimit64(int pid, int resource, long newLimit, long oldLimit) throws SyscallException {
