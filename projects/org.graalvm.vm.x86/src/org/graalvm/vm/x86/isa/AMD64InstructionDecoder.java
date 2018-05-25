@@ -246,6 +246,7 @@ import org.graalvm.vm.x86.isa.instruction.Or.Orl;
 import org.graalvm.vm.x86.isa.instruction.Or.Orq;
 import org.graalvm.vm.x86.isa.instruction.Or.Orw;
 import org.graalvm.vm.x86.isa.instruction.Orpd;
+import org.graalvm.vm.x86.isa.instruction.Orps;
 import org.graalvm.vm.x86.isa.instruction.Padd.Paddb;
 import org.graalvm.vm.x86.isa.instruction.Padd.Paddd;
 import org.graalvm.vm.x86.isa.instruction.Padd.Paddq;
@@ -2700,7 +2701,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.ORPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            return new Orps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
                             return new Orpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
