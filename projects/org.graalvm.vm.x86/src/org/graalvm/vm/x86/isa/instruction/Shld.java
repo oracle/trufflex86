@@ -30,7 +30,7 @@ public abstract class Shld extends AMD64Instruction {
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writeOF;
 
-    protected ConditionProfile countGt0Profile = ConditionProfile.createCountingProfile();
+    protected final ConditionProfile countGt0Profile = ConditionProfile.createCountingProfile();
 
     protected Shld(long pc, byte[] instruction, Operand operand1, Operand operand2, Operand operand3) {
         super(pc, instruction);
