@@ -650,4 +650,18 @@ public class FloatTest {
                         "8010000000000000:ffefffffffffffff:7fefffffffffffff\n";
         TestRunner.run("double-sub.elf", new String[0], "", stdout, "", 0);
     }
+
+    @Test
+    public void printf() throws Exception {
+        String stdout = "values[0] = 0.000000\n" +
+                        "values[1] = 1.000000\n" +
+                        "values[2] = 3.141593\n" +
+                        "values[3] = 4.200000\n" +
+                        "values[4] = 8.920000\n" +
+                        "values[5] = 10.000000\n" +
+                        "values[6] = 12.240000\n" +
+                        "values[7] = 25.570000\n" +
+                        "values[8] = 1997.977100\n";
+        TestRunner.run("float-printf.elf", new String[0], "", stdout, "", 0);
+    }
 }
