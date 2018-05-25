@@ -224,6 +224,7 @@ import org.graalvm.vm.x86.isa.instruction.Mul.Mull;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mulq;
 import org.graalvm.vm.x86.isa.instruction.Mul.Mulw;
 import org.graalvm.vm.x86.isa.instruction.Mulpd;
+import org.graalvm.vm.x86.isa.instruction.Mulps;
 import org.graalvm.vm.x86.isa.instruction.Mulsd;
 import org.graalvm.vm.x86.isa.instruction.Mulss;
 import org.graalvm.vm.x86.isa.instruction.Neg.Negb;
@@ -2664,7 +2665,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.MULSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPZ) {
+                        if (np) {
+                            return new Mulps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
                             return new Mulss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new Mulsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());

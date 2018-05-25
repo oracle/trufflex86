@@ -223,6 +223,50 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 addFloat(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        float[] sum = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(sum.length);
+        for (int i = 0; i < sum.length; i++) {
+            sum[i] = a[i] + b[i];
+        }
+        return new Vector128(sum);
+    }
+
+    public Vector128 subFloat(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        float[] diff = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(diff.length);
+        for (int i = 0; i < diff.length; i++) {
+            diff[i] = a[i] - b[i];
+        }
+        return new Vector128(diff);
+    }
+
+    public Vector128 mulFloat(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        float[] prod = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(prod.length);
+        for (int i = 0; i < prod.length; i++) {
+            prod[i] = a[i] * b[i];
+        }
+        return new Vector128(prod);
+    }
+
+    public Vector128 divFloat(Vector128 x) {
+        float[] a = getFloats();
+        float[] b = x.getFloats();
+        float[] quot = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(quot.length);
+        for (int i = 0; i < quot.length; i++) {
+            quot[i] = a[i] / b[i];
+        }
+        return new Vector128(quot);
+    }
+
     public Vector128 addDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
