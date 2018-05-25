@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.isa.instruction.Add.Addl;
 import org.graalvm.vm.x86.isa.instruction.Add.Addq;
 import org.graalvm.vm.x86.isa.instruction.Add.Addw;
 import org.graalvm.vm.x86.isa.instruction.Addpd;
+import org.graalvm.vm.x86.isa.instruction.Addps;
 import org.graalvm.vm.x86.isa.instruction.Addsd;
 import org.graalvm.vm.x86.isa.instruction.Addss;
 import org.graalvm.vm.x86.isa.instruction.And.Andb;
@@ -1929,7 +1930,9 @@ public class AMD64InstructionDecoder {
                 switch (op2) {
                     case AMD64Opcode.ADDSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPNZ) {
+                        if (np) {
+                            return new Addps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
                             return new Addsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPZ) {
                             return new Addss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
