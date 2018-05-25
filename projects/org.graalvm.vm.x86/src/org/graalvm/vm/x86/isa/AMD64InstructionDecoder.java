@@ -350,6 +350,7 @@ import org.graalvm.vm.x86.isa.instruction.Shr.Shrw;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdl;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdq;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdw;
+import org.graalvm.vm.x86.isa.instruction.Shufpd;
 import org.graalvm.vm.x86.isa.instruction.Shufps;
 import org.graalvm.vm.x86.isa.instruction.Sqrtsd;
 import org.graalvm.vm.x86.isa.instruction.Stmxcsr;
@@ -3152,6 +3153,8 @@ public class AMD64InstructionDecoder {
                         byte imm = code.read8();
                         if (np) {
                             return new Shufps(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
+                            return new Shufpd(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new IllegalInstruction(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1));
                         }
