@@ -15,6 +15,9 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Div extends AMD64Instruction {
+    private static final String DIV_ZERO = "Division by zero";
+    private static final String DIV_RANGE = "Integer overflow";
+
     protected final Operand operand;
 
     @Child protected ReadNode readOp;
@@ -52,13 +55,13 @@ public abstract class Div extends AMD64Instruction {
             int op = Byte.toUnsignedInt(readOp.executeI8(frame));
             if (op == 0) {
                 CompilerDirectives.transferToInterpreter();
-                throw new ArithmeticException("Division by zero"); // TODO: #DE
+                throw new ArithmeticException(DIV_ZERO); // TODO: #DE
             }
             int q = ax / op;
             int r = ax % op;
             if (q > 0xFF) {
                 CompilerDirectives.transferToInterpreter();
-                throw new RuntimeException("Integer overflow"); // TODO: #DE
+                throw new RuntimeException(DIV_RANGE); // TODO: #DE
             }
             short result = (short) ((q & 0xFF) | ((r & 0xFF) << 8));
             writeAX.executeI16(frame, result);
@@ -100,13 +103,13 @@ public abstract class Div extends AMD64Instruction {
             int op = Short.toUnsignedInt(readOp.executeI16(frame));
             if (op == 0) {
                 CompilerDirectives.transferToInterpreter();
-                throw new ArithmeticException("Division by zero"); // TODO: #DE
+                throw new ArithmeticException(DIV_ZERO); // TODO: #DE
             }
             int q = Integer.divideUnsigned(input, op);
             int r = Integer.remainderUnsigned(input, op);
             if (q > 0xFFFF) {
                 CompilerDirectives.transferToInterpreter();
-                throw new RuntimeException("Integer overflow"); // TODO: #DE
+                throw new RuntimeException(DIV_RANGE); // TODO: #DE
             }
             writeAX.executeI16(frame, (short) q);
             writeDX.executeI16(frame, (short) r);
@@ -148,13 +151,13 @@ public abstract class Div extends AMD64Instruction {
             long op = Integer.toUnsignedLong(readOp.executeI32(frame));
             if (op == 0) {
                 CompilerDirectives.transferToInterpreter();
-                throw new ArithmeticException("Division by zero"); // TODO: #DE
+                throw new ArithmeticException(DIV_ZERO); // TODO: #DE
             }
             long q = Long.divideUnsigned(input, op);
             long r = Long.remainderUnsigned(input, op);
             if (q > 0xFFFFFFFFL) {
                 CompilerDirectives.transferToInterpreter();
-                throw new RuntimeException("Integer overflow"); // TODO: #DE
+                throw new RuntimeException(DIV_RANGE); // TODO: #DE
             }
             writeEAX.executeI32(frame, (int) q);
             writeEDX.executeI32(frame, (int) r);
@@ -195,12 +198,16 @@ public abstract class Div extends AMD64Instruction {
             long op = readOp.executeI64(frame);
             if (op == 0) {
                 CompilerDirectives.transferToInterpreter();
-                throw new ArithmeticException("Division by zero"); // TODO: #DE
+                throw new ArithmeticException(DIV_ZERO); // TODO: #DE
             }
             long q;
             long r;
             if (rdx != 0) {
-                Result result = LongDivision.divs128by64(rdx, rax, op);
+                Result result = LongDivision.divu128by64(rdx, rax, op);
+                if (result.isInvalid()) {
+                    CompilerDirectives.transferToInterpreter();
+                    throw new ArithmeticException(DIV_RANGE); // TODO: #DE
+                }
                 q = result.quotient;
                 r = result.remainder;
             } else {
