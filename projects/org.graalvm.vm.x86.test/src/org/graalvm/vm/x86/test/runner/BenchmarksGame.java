@@ -3,7 +3,6 @@ package org.graalvm.vm.x86.test.runner;
 import static org.junit.Assume.assumeTrue;
 
 import org.graalvm.vm.x86.test.platform.HostTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class BenchmarksGame {
@@ -786,7 +785,6 @@ public class BenchmarksGame {
         TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void pidigits_cint4() throws Exception {
         assumeTrue(HostTest.isX86);
@@ -799,7 +797,6 @@ public class BenchmarksGame {
         TestRunner.run("pidigits.gcc", new String[]{"850"}, "", PIDIGITS, "", 0);
     }
 
-    @Ignore("interpreter bug")
     @Test
     public void pidigits_gcc4() throws Exception {
         assumeTrue(HostTest.isX86);
