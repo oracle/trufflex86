@@ -853,6 +853,17 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    public Vector128 minPackedF32(Vector128 vec) {
+        float[] a = getFloats();
+        float[] b = vec.getFloats();
+        float[] result = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = Math.min(a[i], b[i]);
+        }
+        return new Vector128(result);
+    }
+
     public Vector128 maxPackedF32(Vector128 vec) {
         float[] a = getFloats();
         float[] b = vec.getFloats();
