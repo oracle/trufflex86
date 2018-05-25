@@ -203,13 +203,48 @@ public class VirtualMemory {
         try {
             for (long p = address; Long.compareUnsigned(p, address + length) < 0;) {
                 MemoryPage page = get(p);
-                if (p != page.base) {
-                    // TODO: split
-                    throw new AssertionError("split not yet implemented");
+                if (p != page.base) { // split page and remove mapping in the middle
+                    assert p > page.base;
+                    if (DEBUG) {
+                        CompilerDirectives.transferToInterpreter();
+                        System.out.printf("Splitting old page: 0x%016X-0x%016X, removed page is 0x%016X-0x%016X\n", page.base, page.end, addr, addr + length);
+                    }
+                    pages.remove(page.base);
+                    allocator.free(page.base, page.size);
+                    long size1 = addr - page.base;
+                    long size2 = page.size - length;
+                    if (DEBUG) {
+                        CompilerDirectives.transferToInterpreter();
+                        System.out.printf("size1 = 0x%016X, size2 = 0x%016X\n", size1, size2);
+                    }
+                    if (size1 > 0) {
+                        MemoryPage pag = new MemoryPage(page, page.base, size1);
+                        pages.put(page.base, pag);
+                        allocator.allocat(page.base, size1);
+                        cache = null;
+                        cache2 = null;
+                        if (DEBUG) {
+                            CompilerDirectives.transferToInterpreter();
+                            System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X]\n", page.base, pages.get(page.base).base, pages.get(page.base).end);
+                        }
+                    }
+                    if (size2 > 0) {
+                        MemoryPage pag = new MemoryPage(page, addr + length, size2);
+                        pages.put(addr + length, pag);
+                        allocator.allocat(addr + length, size2);
+                        cache = null;
+                        cache2 = null;
+                        if (DEBUG) {
+                            CompilerDirectives.transferToInterpreter();
+                            System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X]\n", addr + length, pages.get(addr + length).base, pages.get(addr + length).end);
+                        }
+                    }
+                    p = page.end;
+                } else {
+                    pages.remove(page.base);
+                    allocator.free(page.base, page.size);
+                    p = page.end;
                 }
-                pages.remove(page.base);
-                allocator.free(page.base, page.size);
-                p = page.end;
             }
         } catch (SegmentationViolation e) {
             // swallow
