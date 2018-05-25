@@ -222,6 +222,8 @@ public class AMD64Opcode {
 
     public static final byte ORPD_X_XM = 0x56;
 
+    public static final byte PACKUSWB_X_XM = (byte) 0x67;
+
     public static final byte PADDB_X_XM = (byte) 0xFC;
     public static final byte PADDW_X_XM = (byte) 0xFD;
     public static final byte PADDD_X_XM = (byte) 0xFE;
