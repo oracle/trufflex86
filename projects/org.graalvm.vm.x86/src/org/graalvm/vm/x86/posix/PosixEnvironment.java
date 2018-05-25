@@ -566,7 +566,7 @@ public class PosixEnvironment {
                 rlim.write64(posixPointer(oldLimit));
             }
             if (newLimit != 0) {
-                rlim.read64(posixPointer(newLimit));
+                // rlim.read64(posixPointer(newLimit));
                 // result = posix.setrlimit(resource, rlim);
             }
             return result;
