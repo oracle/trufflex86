@@ -619,7 +619,7 @@ public class PosixEnvironment {
         if (strace) {
             log.log(Level.INFO, () -> String.format("time(0x%016x)", tloc));
         }
-        long time = System.currentTimeMillis();
+        long time = System.currentTimeMillis() / 1000;
         if (tloc != 0) {
             PosixPointer ptr = posixPointer(tloc);
             ptr.setI64(time);
