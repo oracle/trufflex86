@@ -12,7 +12,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public abstract class Cmppd extends AMD64Instruction {
+public abstract class Cmpps extends AMD64Instruction {
     private final Operand operand1;
     private final Operand operand2;
 
@@ -23,7 +23,7 @@ public abstract class Cmppd extends AMD64Instruction {
     @Child protected ReadNode readSrc2;
     @Child protected WriteNode writeDst;
 
-    protected Cmppd(long pc, byte[] instruction, Operand operand1, Operand operand2, String name, byte type) {
+    protected Cmpps(long pc, byte[] instruction, Operand operand1, Operand operand2, String name, byte type) {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
@@ -34,12 +34,12 @@ public abstract class Cmppd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    public static Cmppd create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
+    public static Cmpps create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
         switch (imm & 0x7) {
             case 1:
-                return new Cmpltpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+                return new Cmpltps(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
-                return new Cmplepd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+                return new Cmpleps(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
         throw new IllegalInstructionException(pc, instruction, "unknown type " + imm);
     }
@@ -54,9 +54,9 @@ public abstract class Cmppd extends AMD64Instruction {
         }
     }
 
-    public static class Cmpltpd extends Cmppd {
-        protected Cmpltpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpltpd", (byte) 2);
+    public static class Cmpltps extends Cmpps {
+        protected Cmpltps(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpltps", (byte) 2);
         }
 
         @Override
@@ -64,15 +64,15 @@ public abstract class Cmppd extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readSrc1.executeI128(frame);
             Vector128 b = readSrc2.executeI128(frame);
-            Vector128 le = a.ltF64(b);
+            Vector128 le = a.ltF32(b);
             writeDst.executeI128(frame, le);
             return next();
         }
     }
 
-    public static class Cmplepd extends Cmppd {
-        protected Cmplepd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmplepd", (byte) 2);
+    public static class Cmpleps extends Cmpps {
+        protected Cmpleps(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpleps", (byte) 2);
         }
 
         @Override
@@ -80,7 +80,7 @@ public abstract class Cmppd extends AMD64Instruction {
             createChildrenIfNecessary();
             Vector128 a = readSrc1.executeI128(frame);
             Vector128 b = readSrc2.executeI128(frame);
-            Vector128 le = a.leF64(b);
+            Vector128 le = a.leF32(b);
             writeDst.executeI128(frame, le);
             return next();
         }
@@ -89,7 +89,7 @@ public abstract class Cmppd extends AMD64Instruction {
     @Override
     protected String[] disassemble() {
         if (name == null) {
-            return new String[]{"cmppd", operand1.toString(), operand2.toString(), Byte.toString(type)};
+            return new String[]{"cmpps", operand1.toString(), operand2.toString(), Byte.toString(type)};
         } else {
             return new String[]{name, operand1.toString(), operand2.toString()};
         }

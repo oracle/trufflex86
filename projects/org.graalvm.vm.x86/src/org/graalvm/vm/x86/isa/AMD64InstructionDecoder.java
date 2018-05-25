@@ -91,10 +91,12 @@ import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpl;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpq;
 import org.graalvm.vm.x86.isa.instruction.Cmp.Cmpw;
 import org.graalvm.vm.x86.isa.instruction.Cmppd;
+import org.graalvm.vm.x86.isa.instruction.Cmpps;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsb;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsd;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsq;
 import org.graalvm.vm.x86.isa.instruction.Cmps.Cmpsw;
+import org.graalvm.vm.x86.isa.instruction.Cmpss;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgl;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgq;
 import org.graalvm.vm.x86.isa.instruction.Cmpxchg.Cmpxchgw;
@@ -2206,7 +2208,13 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.CMPPD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (sizeOverride) {
+                        if (np) {
+                            byte imm = code.read8();
+                            return Cmpps.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (isREPZ) {
+                            byte imm = code.read8();
+                            return Cmpss.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (sizeOverride) {
                             byte imm = code.read8();
                             return Cmppd.create(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
