@@ -373,6 +373,9 @@ import org.graalvm.vm.x86.isa.instruction.Test.Testb;
 import org.graalvm.vm.x86.isa.instruction.Test.Testl;
 import org.graalvm.vm.x86.isa.instruction.Test.Testq;
 import org.graalvm.vm.x86.isa.instruction.Test.Testw;
+import org.graalvm.vm.x86.isa.instruction.Tzcnt.Tzcntl;
+import org.graalvm.vm.x86.isa.instruction.Tzcnt.Tzcntq;
+import org.graalvm.vm.x86.isa.instruction.Tzcnt.Tzcntw;
 import org.graalvm.vm.x86.isa.instruction.Ucomisd;
 import org.graalvm.vm.x86.isa.instruction.Ucomiss;
 import org.graalvm.vm.x86.isa.instruction.Unpckhpd;
@@ -1975,12 +1978,22 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.BSF_R_RM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (rex != null && rex.w) {
-                            return new Bsfq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else if (sizeOverride) {
-                            return new Bsfw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (isREPZ) {
+                            if (rex != null && rex.w) {
+                                return new Tzcntq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new Tzcntw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Tzcntl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else {
-                            return new Bsfl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (rex != null && rex.w) {
+                                return new Bsfq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new Bsfw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Bsfl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         }
                     }
                     case AMD64Opcode.BSR_R_RM: {
