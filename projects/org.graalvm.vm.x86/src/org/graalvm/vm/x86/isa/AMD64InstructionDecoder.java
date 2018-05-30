@@ -513,6 +513,11 @@ public class AMD64InstructionDecoder {
                     return new Adcl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
                 }
             }
+            case AMD64Opcode.ADD_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Addb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
+            }
             case AMD64Opcode.ADD_A_I: {
                 if (rex != null && rex.w) {
                     int imm = code.read32();

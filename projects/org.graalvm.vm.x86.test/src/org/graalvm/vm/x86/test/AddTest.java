@@ -19,6 +19,9 @@ public class AddTest {
     public static final byte[] MACHINECODE2 = {(byte) 0x80, 0x47, 0x18, 0x01};
     public static final String ASSEMBLY2 = "add\t[rdi+0x18],0x1";
 
+    public static final byte[] MACHINECODE3 = {0x04, 0x01};
+    public static final String ASSEMBLY3 = "add\tal,0x1";
+
     @Test
     public void test1() {
         CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
@@ -37,5 +40,15 @@ public class AddTest {
         assertTrue(insn instanceof Addb);
         assertEquals(ASSEMBLY2, insn.toString());
         assertEquals(MACHINECODE2.length, reader.getPC());
+    }
+
+    @Test
+    public void test3() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE3, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Addb);
+        assertEquals(ASSEMBLY3, insn.toString());
+        assertEquals(MACHINECODE3.length, reader.getPC());
     }
 }
