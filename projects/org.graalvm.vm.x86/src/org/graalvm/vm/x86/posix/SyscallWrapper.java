@@ -41,6 +41,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_fsync = 74;
     public static final int SYS_getdents = 78;
     public static final int SYS_getcwd = 79;
+    public static final int SYS_unlink = 87;
     public static final int SYS_readlink = 89;
     public static final int SYS_gettimeofday = 96;
     public static final int SYS_sysinfo = 99;
@@ -187,6 +188,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getdents((int) a1, a2, (int) a3);
             case SYS_getcwd:
                 return posix.getcwd(a1, a2);
+            case SYS_unlink:
+                return posix.unlink(a1);
             case SYS_readlink:
                 return posix.readlink(a1, a2, a3);
             case SYS_gettimeofday:

@@ -227,6 +227,18 @@ public class PosixEnvironment {
         }
     }
 
+    public int unlink(long pathname) throws SyscallException {
+        String path = cstr(pathname);
+        try {
+            return posix.unlink(path);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "unlink failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long stat(long pathname, long statbuf) throws SyscallException {
         PosixPointer ptr = posixPointer(statbuf);
         Stat stat = new Stat();
