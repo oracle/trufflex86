@@ -170,6 +170,7 @@ import org.graalvm.vm.x86.isa.instruction.Jcc.Js;
 import org.graalvm.vm.x86.isa.instruction.Jmp.JmpDirect;
 import org.graalvm.vm.x86.isa.instruction.Jmp.JmpIndirect;
 import org.graalvm.vm.x86.isa.instruction.Lahf;
+import org.graalvm.vm.x86.isa.instruction.Ldmxcsr;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
@@ -3278,6 +3279,8 @@ public class AMD64InstructionDecoder {
                                     return new Fxsave(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 1:
                                     return new Fxrstor(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 2:
+                                    return new Ldmxcsr(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 3:
                                     return new Stmxcsr(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 7:
