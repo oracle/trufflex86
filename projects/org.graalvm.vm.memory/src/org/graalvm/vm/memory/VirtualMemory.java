@@ -350,6 +350,7 @@ public class VirtualMemory {
         return page.contains(addr);
     }
 
+    @TruffleBoundary
     public byte getI8(long address) {
         long ptr = addr(address);
         try {
@@ -363,6 +364,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public short getI16(long address) {
         long ptr = addr(address);
         try {
@@ -388,6 +390,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public int getI32(long address) {
         long ptr = addr(address);
         try {
@@ -413,6 +416,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public long getI64(long address) {
         long ptr = addr(address);
         try {
@@ -438,6 +442,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public Vector128 getI128(long address) {
         long ptr = addr(address);
         try {
@@ -462,6 +467,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public Vector256 getI256(long address) {
         long ptr = addr(address);
         try {
@@ -486,6 +492,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public Vector512 getI512(long address) {
         long ptr = addr(address);
         try {
@@ -510,6 +517,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI8(long address, byte val) {
         logMemoryWrite(address, 1, val);
         long ptr = addr(address);
@@ -517,6 +525,7 @@ public class VirtualMemory {
         page.setI8(ptr, val);
     }
 
+    @TruffleBoundary
     public void setI16(long address, short val) {
         logMemoryWrite(address, 2, val);
         long ptr = addr(address);
@@ -536,6 +545,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI32(long address, int val) {
         logMemoryWrite(address, 4, val);
         long ptr = addr(address);
@@ -556,6 +566,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI64(long address, long val) {
         logMemoryWrite(address, 8, val);
         long ptr = addr(address);
@@ -576,6 +587,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI128(long address, Vector128 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
@@ -594,6 +606,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI256(long address, Vector256 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
@@ -612,6 +625,7 @@ public class VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     public void setI512(long address, Vector512 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
