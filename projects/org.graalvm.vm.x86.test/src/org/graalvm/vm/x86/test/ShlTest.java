@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
+import org.graalvm.vm.x86.isa.instruction.Shl.Shlb;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
 import org.graalvm.vm.x86.isa.test.CodeArrayReader;
 import org.graalvm.vm.x86.test.runner.TestRunner;
@@ -16,6 +17,9 @@ public class ShlTest {
     public static final byte[] MACHINECODE1 = {0x48, (byte) 0xc1, (byte) 0xe2, 0x20};
     public static final String ASSEMBLY1 = "shl\trdx,0x20";
 
+    public static final byte[] MACHINECODE2 = {(byte) 0xc0, (byte) 0xe2, 0x02};
+    public static final String ASSEMBLY2 = "shl\tdl,0x2";
+
     @Test
     public void test1() {
         CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
@@ -24,6 +28,16 @@ public class ShlTest {
         assertTrue(insn instanceof Shlq);
         assertEquals(ASSEMBLY1, insn.toString());
         assertEquals(MACHINECODE1.length, reader.getPC());
+    }
+
+    @Test
+    public void test2() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE2, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Shlb);
+        assertEquals(ASSEMBLY2, insn.toString());
+        assertEquals(MACHINECODE2.length, reader.getPC());
     }
 
     @Test
