@@ -74,7 +74,7 @@ public class TraceDispatchNode extends AMD64Node {
     public AMD64BasicBlock get(long address) {
         CompilerDirectives.transferToInterpreter();
         if (DEBUG) {
-            System.out.printf("resolving block at 0x%016x\n", address);
+            printf("resolving block at 0x%016x\n", address);
         }
         AMD64BasicBlock block = blockLookup.get(address);
         if (block == null) {
@@ -92,7 +92,7 @@ public class TraceDispatchNode extends AMD64Node {
         if (block == null) {
             if (usedBlocks >= maxBlockCount) {
                 if (DEBUG) {
-                    System.out.printf("cannot parse block at 0x%016x: size limit reached\n", address);
+                    printf("cannot parse block at 0x%016x: size limit reached\n", address);
                 }
                 throw new TraceTooLargeException(address);
             } else {
@@ -108,7 +108,7 @@ public class TraceDispatchNode extends AMD64Node {
     private void parse(long start) {
         CompilerDirectives.transferToInterpreter();
         if (DEBUG) {
-            System.out.printf("starting parsing process at 0x%016x\n", start);
+            printf("starting parsing process at 0x%016x\n", start);
         }
         Deque<Long> parseQueue = new LinkedList<>();
         Deque<AMD64BasicBlock> newBlocks = new LinkedList<>();
@@ -122,7 +122,7 @@ public class TraceDispatchNode extends AMD64Node {
                 if (block.getAddress() != address) {
                     // split
                     if (DEBUG) {
-                        System.out.printf("splitting block at 0x%016x\n", address);
+                        printf("splitting block at 0x%016x\n", address);
                     }
                     AMD64BasicBlock split = block.split(address);
                     addBlock(split);
@@ -131,7 +131,7 @@ public class TraceDispatchNode extends AMD64Node {
                 continue;
             }
             if (DEBUG) {
-                System.out.printf("parsing block at 0x%016x\n", address);
+                printf("parsing block at 0x%016x\n", address);
             }
             AMD64BasicBlock block = AMD64BasicBlockParser.parse(reader);
             addBlock(block);
@@ -146,7 +146,7 @@ public class TraceDispatchNode extends AMD64Node {
         while (!newBlocks.isEmpty()) {
             AMD64BasicBlock block = newBlocks.removeLast();
             if (DEBUG) {
-                System.out.printf("computing successors of 0x%016x\n", block.getAddress());
+                printf("computing successors of 0x%016x\n", block.getAddress());
             }
             computeSuccessors(block);
         }
@@ -158,21 +158,21 @@ public class TraceDispatchNode extends AMD64Node {
             AMD64BasicBlock[] next = new AMD64BasicBlock[bta.length];
             for (int i = 0; i < bta.length; i++) {
                 if (DEBUG) {
-                    System.out.printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), bta[i]);
+                    printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), bta[i]);
                 }
                 next[i] = get(bta[i]);
             }
         }
         if (DEBUG) {
-            System.out.printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
+            printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
         }
     }
 
     private void addBlock(AMD64BasicBlock block) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         if (DEBUG) {
-            System.out.printf("registering block at 0x%016x (%d successors)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
-            System.out.printf("Block content:\n%s\n", block.toString());
+            printf("registering block at 0x%016x (%d successors)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
+            printf("Block content:\n%s\n", block.toString());
         }
         blockLookup.put(block.getAddress(), block);
         if (usedBlocks == blocks.length) {
@@ -199,7 +199,7 @@ public class TraceDispatchNode extends AMD64Node {
                 if (!first) {
                     System.out.println();
                 }
-                System.out.printf("%s:\n", sym.getName());
+                printf("%s:\n", sym.getName());
             }
             System.out.print(entry.getValue());
             if (first) {
