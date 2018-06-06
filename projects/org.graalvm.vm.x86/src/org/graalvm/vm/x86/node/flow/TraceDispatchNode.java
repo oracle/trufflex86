@@ -162,6 +162,7 @@ public class TraceDispatchNode extends AMD64Node {
                 }
                 next[i] = get(bta[i]);
             }
+            block.setSuccessors(next);
         }
         if (DEBUG) {
             printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
