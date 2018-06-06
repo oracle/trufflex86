@@ -12,6 +12,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
+import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
@@ -27,6 +28,8 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.nodes.LoopNode;
+import com.oracle.truffle.api.nodes.RepeatingNode;
 
 public class InterTraceDispatchNode extends AbstractDispatchNode {
     @Child private ReadNode readPC;
@@ -43,11 +46,17 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     @CompilationFinal private FrameDescriptor frameDescriptor;
 
     @CompilationFinal public static boolean PRINT_STATS = getBoolean("vmx86.stats.exec", false);
+    @CompilationFinal public static boolean USE_LOOP_NODE = getBoolean("vmx86.dispatch.loop", true);
 
     private int noSuccessor = 0;
     private int hasSuccessor = 0;
 
     private long insncnt = 0;
+
+    @Child private LoopNode loop = Truffle.getRuntime().createLoopNode(new LoopBody());
+
+    private CpuState state;
+    private CompiledTrace currentTrace;
 
     public InterTraceDispatchNode(ArchitecturalState state) {
         readPC = state.getRegisters().getPC().createRead();
@@ -79,26 +88,49 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         Trace.log.printf("Executed instructions: %d\n", insncnt);
     }
 
+    private class LoopBody extends AMD64Node implements RepeatingNode {
+        @Override
+        public boolean executeRepeating(VirtualFrame frame) {
+            state = (CpuState) currentTrace.callTarget.call(state);
+            CompiledTrace next = currentTrace.getNext(state.rip);
+            if (next == null) {
+                noSuccessor++;
+                next = get(state.rip);
+                currentTrace.setNext(next);
+            } else {
+                hasSuccessor++;
+            }
+            currentTrace = next;
+            insncnt = state.instructionCount;
+            return true;
+        }
+    }
+
     @Override
     public long execute(VirtualFrame frame) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         long pc = readPC.executeI64(frame);
-        CpuState state = readState.execute(frame, pc);
+        state = readState.execute(frame, pc);
         try {
-            CompiledTrace trace = get(state.rip);
-            while (true) {
-                pc = state.rip;
-                state = (CpuState) trace.callTarget.call(state);
-                CompiledTrace next = trace.getNext(state.rip);
-                if (next == null) {
-                    noSuccessor++;
-                    next = get(state.rip);
-                    trace.setNext(next);
-                } else {
-                    hasSuccessor++;
+            currentTrace = get(state.rip);
+            if (USE_LOOP_NODE) {
+                loop.executeLoop(frame);
+                throw new AssertionError("loop node must not return");
+            } else {
+                while (true) {
+                    pc = state.rip;
+                    state = (CpuState) currentTrace.callTarget.call(state);
+                    CompiledTrace next = currentTrace.getNext(state.rip);
+                    if (next == null) {
+                        noSuccessor++;
+                        next = get(state.rip);
+                        currentTrace.setNext(next);
+                    } else {
+                        hasSuccessor++;
+                    }
+                    currentTrace = next;
+                    insncnt = state.instructionCount;
                 }
-                trace = next;
-                insncnt = state.instructionCount;
             }
         } catch (ProcessExitException e) {
             if (PRINT_STATS) {
