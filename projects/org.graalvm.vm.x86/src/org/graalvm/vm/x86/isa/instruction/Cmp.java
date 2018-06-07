@@ -25,24 +25,19 @@ public abstract class Cmp extends AMD64Instruction {
     @Child protected WriteFlagNode writePF;
     @Child protected WriteFlagNode writeAF;
 
-    protected void createChildren() {
-        assert srcA == null;
-        assert srcB == null;
-
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
-        srcA = operand1.createRead(state, next());
-        srcB = operand2.createRead(state, next());
-        writeCF = state.getRegisters().getCF().createWrite();
-        writeOF = state.getRegisters().getOF().createWrite();
-        writeSF = state.getRegisters().getSF().createWrite();
-        writeZF = state.getRegisters().getZF().createWrite();
-        writePF = state.getRegisters().getPF().createWrite();
-        writeAF = state.getRegisters().getAF().createWrite();
-    }
-
-    protected boolean needsChildren() {
-        return srcA == null;
+    protected void createChildrenIfNecessary() {
+        if (srcA == null) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            ArchitecturalState state = getContextReference().get().getState();
+            srcA = operand1.createRead(state, next());
+            srcB = operand2.createRead(state, next());
+            writeCF = state.getRegisters().getCF().createWrite();
+            writeOF = state.getRegisters().getOF().createWrite();
+            writeSF = state.getRegisters().getSF().createWrite();
+            writeZF = state.getRegisters().getZF().createWrite();
+            writePF = state.getRegisters().getPF().createWrite();
+            writeAF = state.getRegisters().getAF().createWrite();
+        }
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -88,9 +83,7 @@ public abstract class Cmp extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
             byte result = (byte) (a - b);
@@ -128,9 +121,7 @@ public abstract class Cmp extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             short result = (short) (a - b);
@@ -168,9 +159,7 @@ public abstract class Cmp extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             int result = a - b;
@@ -208,9 +197,7 @@ public abstract class Cmp extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             long result = a - b;

@@ -18,18 +18,13 @@ public abstract class Mov extends AMD64Instruction {
     @Child protected ReadNode read;
     @Child protected WriteNode write;
 
-    protected void createChildren() {
-        assert read == null;
-        assert write == null;
-
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
-        write = operand1.createWrite(state, next());
-        read = operand2.createRead(state, next());
-    }
-
-    protected boolean needsChildren() {
-        return read == null;
+    protected void createChildrenIfNecessary() {
+        if (read == null) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            ArchitecturalState state = getContextReference().get().getState();
+            write = operand1.createWrite(state, next());
+            read = operand2.createRead(state, next());
+        }
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -76,9 +71,7 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             byte val = read.executeI8(frame);
             write.executeI8(frame, val);
             return next();
@@ -104,9 +97,7 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             short val = read.executeI16(frame);
             write.executeI16(frame, val);
             return next();
@@ -132,9 +123,7 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             int val = read.executeI32(frame);
             write.executeI32(frame, val);
             return next();
@@ -164,9 +153,7 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
+            createChildrenIfNecessary();
             long val = read.executeI64(frame);
             write.executeI64(frame, val);
             return next();
