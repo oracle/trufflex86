@@ -40,7 +40,7 @@ public class AMD64Language extends TruffleLanguage<AMD64Context> {
 
     @Override
     protected AMD64Context createContext(Env env) {
-        return new AMD64Context(env, fd);
+        return new AMD64Context(this, env, fd);
     }
 
     @Override

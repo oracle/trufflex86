@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
@@ -119,7 +120,12 @@ public class TraceCallTarget extends AMD64RootNode {
         } else {
             write.execute(frame, initialState);
         }
-        long pc = dispatch.execute(frame);
+        long pc;
+        try {
+            pc = dispatch.execute(frame);
+        } catch (ReturnException e) {
+            pc = e.getBTA();
+        }
         if (gprReadMask == null) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             gprReadMask = new boolean[16];

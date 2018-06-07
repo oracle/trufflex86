@@ -187,6 +187,7 @@ public class Vector128 implements Cloneable {
         return (byte) (val >>> shift);
     }
 
+    @ExplodeLoop
     public Vector128 and(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -196,6 +197,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 or(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -205,6 +207,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 xor(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -214,6 +217,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 not() {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -223,6 +227,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 addFloat(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -234,6 +239,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(sum);
     }
 
+    @ExplodeLoop
     public Vector128 subFloat(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -245,6 +251,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(diff);
     }
 
+    @ExplodeLoop
     public Vector128 mulFloat(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -256,6 +263,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(prod);
     }
 
+    @ExplodeLoop
     public Vector128 divFloat(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -267,6 +275,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(quot);
     }
 
+    @ExplodeLoop
     public Vector128 addDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -278,6 +287,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(sum);
     }
 
+    @ExplodeLoop
     public Vector128 subDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -289,6 +299,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(diff);
     }
 
+    @ExplodeLoop
     public Vector128 mulDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -300,6 +311,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(prod);
     }
 
+    @ExplodeLoop
     public Vector128 divDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -327,6 +339,7 @@ public class Vector128 implements Cloneable {
         }
     }
 
+    @ExplodeLoop
     public Vector128 eq8(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -345,6 +358,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 eq16(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -359,6 +373,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 eq32(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -371,6 +386,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 gt8(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -389,6 +405,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 gt16(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -403,6 +420,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 gt32(Vector128 x) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -415,6 +433,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 leF32(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -432,6 +451,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 ltF32(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -449,6 +469,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 geF32(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -466,6 +487,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 gtF32(Vector128 x) {
         float[] a = getFloats();
         float[] b = x.getFloats();
@@ -483,6 +505,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 leF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -500,6 +523,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 ltF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -517,6 +541,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 geF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -534,6 +559,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 gtF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -551,6 +577,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public int signsF64() {
         int result = 0;
         for (int i = 0; i < SIZE; i++) {
@@ -606,6 +633,7 @@ public class Vector128 implements Cloneable {
         }
     }
 
+    @ExplodeLoop
     public Vector128 shrBytes(int n) {
         assert n > 0 && n < 16;
         byte[] bytes = getBytes();
@@ -621,6 +649,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(shifted);
     }
 
+    @ExplodeLoop
     public Vector128 shrPackedI16(int n) {
         short[] shorts = getShorts();
         short[] result = new short[shorts.length];
@@ -631,6 +660,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 shrPackedI32(int n) {
         int[] ints = getInts();
         int[] result = new int[ints.length];
@@ -641,6 +671,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 shrPackedI64(int n) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -650,6 +681,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 sarPackedI16(int n) {
         short[] shorts = getShorts();
         short[] result = new short[shorts.length];
@@ -660,6 +692,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 sarPackedI32(int n) {
         int[] ints = getInts();
         int[] result = new int[ints.length];
@@ -670,6 +703,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 sarPackedI64(int n) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -679,6 +713,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 shlBytes(int n) {
         assert n > 0 && n < 16;
         byte[] bytes = getBytes();
@@ -694,6 +729,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(shifted);
     }
 
+    @ExplodeLoop
     public Vector128 shlPackedI32(int n) {
         int[] ints = getInts();
         int[] result = new int[ints.length];
@@ -704,6 +740,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 shlPackedI64(int n) {
         long[] result = new long[SIZE];
         CompilerAsserts.partialEvaluationConstant(result.length);
@@ -713,6 +750,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 addPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -724,6 +762,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 addPackedI16(Vector128 vec) {
         short[] a = getShorts();
         short[] b = vec.getShorts();
@@ -735,6 +774,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 addPackedI32(Vector128 vec) {
         int[] a = getInts();
         int[] b = vec.getInts();
@@ -751,6 +791,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 subPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -782,6 +823,7 @@ public class Vector128 implements Cloneable {
         }
     }
 
+    @ExplodeLoop
     public Vector128 subPackedI8SaturateUnsigned(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -793,6 +835,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 subPackedI16(Vector128 vec) {
         short[] a = getShorts();
         short[] b = vec.getShorts();
@@ -804,6 +847,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 subPackedI16SaturateUnsigned(Vector128 vec) {
         short[] a = getShorts();
         short[] b = vec.getShorts();
@@ -815,6 +859,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 subPackedI32(Vector128 vec) {
         int[] a = getInts();
         int[] b = vec.getInts();
@@ -831,6 +876,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 minUnsignedPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -842,6 +888,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 maxUnsignedPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
@@ -853,6 +900,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 minPackedF32(Vector128 vec) {
         float[] a = getFloats();
         float[] b = vec.getFloats();
@@ -864,6 +912,7 @@ public class Vector128 implements Cloneable {
         return new Vector128(result);
     }
 
+    @ExplodeLoop
     public Vector128 maxPackedF32(Vector128 vec) {
         float[] a = getFloats();
         float[] b = vec.getFloats();

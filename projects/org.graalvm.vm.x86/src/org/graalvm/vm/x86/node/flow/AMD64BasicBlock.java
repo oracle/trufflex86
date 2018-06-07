@@ -8,14 +8,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.IndirectException;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.isa.instruction.Call;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
 import org.graalvm.vm.x86.node.AMD64Node;
+import org.graalvm.vm.x86.node.ReadNode;
+import org.graalvm.vm.x86.node.RegisterReadNode;
+import org.graalvm.vm.x86.node.RegisterWriteNode;
+import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
@@ -26,9 +33,9 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
 
 public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal private static boolean DEBUG = getBoolean("vmx86.debug.exec", false);
@@ -43,6 +50,9 @@ public class AMD64BasicBlock extends AMD64Node {
     @Child private PrintArgumentsNode printArgs;
     @CompilationFinal private SymbolResolver symbolResolver;
 
+    @Child private ReadNode readInstructionCount;
+    @Child private WriteNode writeInstructionCount;
+
     @Children private AMD64Instruction[] instructions;
     @CompilationFinal(dimensions = 1) private AMD64BasicBlock[] successors;
 
@@ -50,7 +60,14 @@ public class AMD64BasicBlock extends AMD64Node {
 
     private boolean visited = false;
 
-    public long index;
+    @CompilationFinal public long index;
+
+    public final boolean indirect;
+    @CompilationFinal public long pc1;
+    @CompilationFinal public long pc2;
+
+    @CompilationFinal public int successor1;
+    @CompilationFinal public int successor2;
 
     public AMD64BasicBlock(AMD64Instruction[] instructions) {
         assert instructions.length > 0;
@@ -58,6 +75,27 @@ public class AMD64BasicBlock extends AMD64Node {
         if (DEBUG_COMPILER) {
             printf("0x%016x: SIZE=%d\n", instructions[0].getPC(), instructions.length);
         }
+        AMD64Instruction insn = getLastInstruction();
+        indirect = insn.isControlFlow() && insn.getBTA() == null;
+        if (insn.isControlFlow() && !indirect) {
+            long[] bta = insn.getBTA();
+            assert bta != null;
+            assert bta.length > 0;
+            assert bta.length <= 2;
+            pc1 = bta[0];
+            if (bta.length > 1) {
+                pc2 = bta[1];
+            } else {
+                pc2 = pc1;
+            }
+        } else {
+            pc1 = insn.next();
+            pc2 = insn.next();
+        }
+    }
+
+    public boolean isIndirect() {
+        return indirect;
     }
 
     public boolean contains(long address) {
@@ -77,13 +115,14 @@ public class AMD64BasicBlock extends AMD64Node {
         return successors;
     }
 
-    @ExplodeLoop
+    @ExplodeLoop(kind = LoopExplosionKind.FULL_EXPLODE_UNTIL_RETURN)
     public AMD64BasicBlock getSuccessor(long pc) {
         if (successors == null) {
             return null;
         }
         for (AMD64BasicBlock block : successors) {
             if (block.getAddress() == pc) {
+                CompilerAsserts.partialEvaluationConstant(block);
                 return block;
             }
         }
@@ -103,7 +142,12 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     public long getAddress() {
-        return instructions[0].getPC();
+        CompilerAsserts.partialEvaluationConstant(this);
+        CompilerAsserts.partialEvaluationConstant(instructions);
+        CompilerAsserts.partialEvaluationConstant(instructions[0]);
+        long addr = instructions[0].getPC();
+        CompilerAsserts.partialEvaluationConstant(addr);
+        return addr;
     }
 
     public int getInstructionCount() {
@@ -157,19 +201,36 @@ public class AMD64BasicBlock extends AMD64Node {
         }
     }
 
-    private FrameSlot getInstructionCountSlot() {
+    private void updateInstructionCount(VirtualFrame frame, long n) {
         if (instructionCount == null) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            instructionCount = getContextReference().get().getInstructionCount();
+            ArchitecturalState state = getContextReference().get().getState();
+            instructionCount = state.getInstructionCount();
+            readInstructionCount = new RegisterReadNode(instructionCount);
+            writeInstructionCount = new RegisterWriteNode(instructionCount);
         }
-        return instructionCount;
+        long cnt = readInstructionCount.executeI64(frame);
+        cnt += n;
+        writeInstructionCount.executeI64(frame, cnt);
     }
 
-    private void updateInstructionCount(VirtualFrame frame, long n) {
-        FrameSlot slot = getInstructionCountSlot();
-        long cnt = FrameUtil.getLongSafe(frame, slot);
-        cnt += n;
-        frame.setLong(slot, cnt);
+    @TruffleBoundary
+    private void dump() {
+        System.out.println(this);
+    }
+
+    public boolean executeBlock(VirtualFrame frame) {
+        long pc = execute(frame);
+        if (isIndirect()) {
+            throw new IndirectException(pc);
+        } else if (pc == pc1) {
+            return true;
+        } else if (pc == pc2) {
+            return false;
+        } else {
+            CompilerDirectives.transferToInterpreter();
+            throw new AssertionError();
+        }
     }
 
     @ExplodeLoop
@@ -180,15 +241,20 @@ public class AMD64BasicBlock extends AMD64Node {
             } else {
                 printf("0x%016x: compiled code (%d insns)\n", instructions[0].getPC(), instructions.length);
             }
+            if (getAddress() == 0xf801a8d0L) {
+                dump();
+            }
         }
         long pc = getAddress();
         long n = 0;
+        CompilerAsserts.partialEvaluationConstant(pc);
         try {
             for (AMD64Instruction insn : instructions) {
                 if (DEBUG) {
                     debug(frame, pc, insn);
                 }
-                if (insn instanceof Rdtsc) { // rdtsc needs current instruction count
+                // rdtsc/call needs current instruction count
+                if (insn instanceof Rdtsc || insn instanceof Call) {
                     updateInstructionCount(frame, n);
                     n = 0;
                 }
@@ -204,7 +270,7 @@ public class AMD64BasicBlock extends AMD64Node {
                     printArgs.execute(frame, pc);
                 }
             }
-        } catch (ProcessExitException e) {
+        } catch (ProcessExitException | ReturnException e) {
             updateInstructionCount(frame, n);
             throw e;
         } catch (Throwable t) {
@@ -238,6 +304,12 @@ public class AMD64BasicBlock extends AMD64Node {
                 instructions = head;
                 AMD64BasicBlock result = new AMD64BasicBlock(tail);
                 result.setSuccessors(successors);
+                result.successor1 = successor1;
+                result.successor2 = successor2;
+                pc1 = result.getAddress();
+                pc2 = result.getAddress();
+                successor1 = -1;
+                successor2 = -1;
                 successors = new AMD64BasicBlock[]{result};
                 return result;
             }

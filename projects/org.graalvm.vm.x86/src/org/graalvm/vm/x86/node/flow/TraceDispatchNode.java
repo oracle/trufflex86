@@ -21,7 +21,9 @@ import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
+import org.graalvm.vm.x86.isa.IndirectException;
 import org.graalvm.vm.x86.isa.Register;
+import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
@@ -36,6 +38,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
 
 public class TraceDispatchNode extends AMD64Node {
     private static final Logger log = Trace.create(TraceDispatchNode.class);
@@ -86,7 +89,7 @@ public class TraceDispatchNode extends AMD64Node {
         return block;
     }
 
-    private AMD64BasicBlock find(long address) {
+    protected AMD64BasicBlock find(long address) {
         CompilerDirectives.transferToInterpreter();
         AMD64BasicBlock block = blockLookup.get(address);
         if (block == null) {
@@ -164,6 +167,12 @@ public class TraceDispatchNode extends AMD64Node {
             }
             block.setSuccessors(next);
         }
+        if (!block.isIndirect()) {
+            AMD64BasicBlock successor1 = get(block.pc1);
+            AMD64BasicBlock successor2 = get(block.pc2);
+            block.successor1 = (int) successor1.getIndex();
+            block.successor2 = (int) successor2.getIndex();
+        }
         if (DEBUG) {
             printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
         }
@@ -209,7 +218,7 @@ public class TraceDispatchNode extends AMD64Node {
         }
     }
 
-    @ExplodeLoop
+    @ExplodeLoop(kind = LoopExplosionKind.MERGE_EXPLODE)
     public long execute(VirtualFrame frame) {
         long pc = readPC.executeI64(frame);
         if (startPC == -1) { // cache entry point
@@ -222,42 +231,31 @@ public class TraceDispatchNode extends AMD64Node {
         } else {
             pc = startPC;
         }
+        CompilerAsserts.partialEvaluationConstant(startPC);
+        CompilerAsserts.partialEvaluationConstant(blocks);
         CompilerAsserts.partialEvaluationConstant(pc);
         try {
             if (usedBlocks == 0) {
                 get(pc);
             }
-            AMD64BasicBlock block = blocks[0];
-            assert block.getAddress() == pc;
-            if (block.getAddress() != pc) {
-                block = find(pc);
-            }
+            assert blocks[0].getAddress() == pc : "trace execution must start with first instruction";
+            CompilerAsserts.partialEvaluationConstant(blocks[0]);
+
+            int index = 0;
             while (true) {
                 if (DEBUG) {
                     printf("==> EXECUTING pc=0x%016x\n", pc);
                 }
-                pc = block.execute(frame);
-                AMD64BasicBlock successor = block.getSuccessor(pc);
-                if (successor == null) {
-                    if (NO_INDIRECT) {
-                        writePC.executeI64(frame, pc);
-                        return pc;
+                try {
+                    CompilerAsserts.partialEvaluationConstant(index);
+                    boolean result = blocks[index].executeBlock(frame);
+                    if (result) {
+                        index = blocks[index].successor1;
+                    } else {
+                        index = blocks[index].successor2;
                     }
-                    // indirect branch?
-                    if (DEBUG) {
-                        printf("indirect branch?\n");
-                    }
-                    block = find(pc);
-                    // assert block.getAddress() == pc : String.format("block.address=0x%x,
-                    // pc=0x%x", block.getAddress(), pc);
-                    if (DEBUG) {
-                        printf("resolved successor (pc=0x%016x)\n", block.getAddress());
-                    }
-                } else {
-                    if (DEBUG) {
-                        printf("successor: pc=0x%016x\n", successor.getAddress());
-                    }
-                    block = successor;
+                } catch (IndirectException e) {
+                    return e.getBTA();
                 }
             }
         } catch (TraceTooLargeException e) {
@@ -267,6 +265,9 @@ public class TraceDispatchNode extends AMD64Node {
             if (DEBUG) {
                 printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
+            writePC.executeI64(frame, pc);
+            throw e;
+        } catch (ReturnException e) {
             writePC.executeI64(frame, pc);
             throw e;
         } catch (CpuRuntimeException e) {

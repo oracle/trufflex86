@@ -2,16 +2,12 @@ package org.graalvm.vm.x86.node.flow;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.graalvm.vm.memory.exception.SegmentationViolation;
-import org.graalvm.vm.x86.AMD64Context;
-import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
+import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
@@ -25,9 +21,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.RepeatingNode;
 
@@ -38,12 +32,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     @Child private CopyToCpuStateNode readState = new CopyToCpuStateNode();
     @Child private InitializeFromCpuStateNode writeState = new InitializeFromCpuStateNode();
 
-    @Child private IndirectCallNode node = Truffle.getRuntime().createIndirectCallNode();
-
-    private Map<Long, CompiledTrace> traces;
-
-    @CompilationFinal private AMD64Language language;
-    @CompilationFinal private FrameDescriptor frameDescriptor;
+    private final TraceRegistry traces;
 
     @CompilationFinal public static boolean PRINT_STATS = getBoolean("vmx86.stats.exec", false);
     @CompilationFinal public static boolean USE_LOOP_NODE = getBoolean("vmx86.dispatch.loop", true);
@@ -61,23 +50,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     public InterTraceDispatchNode(ArchitecturalState state) {
         readPC = state.getRegisters().getPC().createRead();
         writePC = state.getRegisters().getPC().createWrite();
-        traces = new HashMap<>();
-    }
-
-    @TruffleBoundary
-    private CompiledTrace get(long pc) {
-        if (language == null) {
-            AMD64Context ctx = getContextReference().get();
-            language = getRootNode().getLanguage(AMD64Language.class);
-            frameDescriptor = ctx.getFrameDescriptor();
-        }
-        CompiledTrace trace = traces.get(pc);
-        if (trace == null) {
-            TraceCallTarget target = new TraceCallTarget(language, frameDescriptor);
-            trace = new CompiledTrace(target);
-            traces.put(pc, trace);
-        }
-        return trace;
+        traces = state.getTraceRegistry();
     }
 
     @TruffleBoundary
@@ -95,7 +68,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
             CompiledTrace next = currentTrace.getNext(state.rip);
             if (next == null) {
                 noSuccessor++;
-                next = get(state.rip);
+                next = traces.get(state.rip);
                 currentTrace.setNext(next);
             } else {
                 hasSuccessor++;
@@ -112,7 +85,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         long pc = readPC.executeI64(frame);
         state = readState.execute(frame, pc);
         try {
-            currentTrace = get(state.rip);
+            currentTrace = traces.get(state.rip);
             if (USE_LOOP_NODE) {
                 loop.executeLoop(frame);
                 throw new AssertionError("loop node must not return");
@@ -123,7 +96,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                     CompiledTrace next = currentTrace.getNext(state.rip);
                     if (next == null) {
                         noSuccessor++;
-                        next = get(state.rip);
+                        next = traces.get(state.rip);
                         currentTrace.setNext(next);
                     } else {
                         hasSuccessor++;
@@ -137,6 +110,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                 printStats();
             }
             return e.getCode();
+        } catch (ReturnException e) {
+            throw e;
         } catch (CpuRuntimeException e) {
             if (e.getCause() instanceof IllegalInstructionException) {
                 return 128 + Signal.SIGILL;

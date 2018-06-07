@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.NavigableMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.elf.Symbol;
@@ -40,7 +41,9 @@ public class AMD64Context {
 
     private NavigableMap<Long, Symbol> symbols;
 
-    public AMD64Context(Env env, FrameDescriptor fd) {
+    private TraceRegistry traces;
+
+    public AMD64Context(AMD64Language language, Env env, FrameDescriptor fd) {
         frameDescriptor = fd;
         memory = new VirtualMemory();
         posix = new PosixEnvironment(memory, ARCH_NAME);
@@ -68,6 +71,7 @@ public class AMD64Context {
         df = frameDescriptor.addFrameSlot("df", FrameSlotKind.Boolean);
         of = frameDescriptor.addFrameSlot("of", FrameSlotKind.Boolean);
         instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
+        traces = new TraceRegistry(language, frameDescriptor);
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
     }
@@ -162,5 +166,9 @@ public class AMD64Context {
 
     public SymbolResolver getSymbolResolver() {
         return new SymbolResolver(symbols);
+    }
+
+    public TraceRegistry getTraceRegistry() {
+        return traces;
     }
 }
