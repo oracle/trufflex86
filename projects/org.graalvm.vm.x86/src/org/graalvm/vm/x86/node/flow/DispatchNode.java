@@ -155,6 +155,7 @@ public class DispatchNode extends AbstractDispatchNode {
                 }
                 next[i] = get(bta[i]);
             }
+            block.setSuccessors(next);
         }
         if (DEBUG) {
             System.out.printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
