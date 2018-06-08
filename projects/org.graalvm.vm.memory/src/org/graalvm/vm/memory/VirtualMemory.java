@@ -50,6 +50,8 @@ public class VirtualMemory {
     private long cacheHits;
     private long cacheMisses;
 
+    private boolean bigEndian;
+
     public VirtualMemory() {
         pages = new TreeMap<>(Long::compareUnsigned);
         allocator = new MemoryAllocator(POINTER_BASE, POINTER_END - POINTER_BASE);
@@ -62,6 +64,7 @@ public class VirtualMemory {
         cacheHits = 0;
         cacheMisses = 0;
         set64bit();
+        setLE();
     }
 
     public static boolean getBoolean(String name, boolean fallback) {
@@ -75,6 +78,14 @@ public class VirtualMemory {
 
     public void set64bit() {
         mask = 0xFFFFFFFFFFFFFFFFL;
+    }
+
+    public void setLE() {
+        bigEndian = false;
+    }
+
+    public void setBE() {
+        bigEndian = true;
     }
 
     public long addr(long addr) {
@@ -93,7 +104,7 @@ public class VirtualMemory {
     public long brk(long addr) {
         if (Long.compareUnsigned(addr, brk) > 0 && Long.compareUnsigned(addr, POINTER_BASE) <= 0) {
             long sz = addr - brk;
-            Memory mem = new ByteMemory(sz, false);
+            Memory mem = new ByteMemory(sz, bigEndian);
             MemoryPage page = new MemoryPage(mem, brk, sz, "[heap]");
             add(page);
             brk = addr;
@@ -180,7 +191,7 @@ public class VirtualMemory {
             try {
                 get(base);
             } catch (SegmentationViolation e) {
-                Memory buf = new ByteMemory(size, false);
+                Memory buf = new ByteMemory(size, bigEndian);
                 MemoryPage bufpage = new MemoryPage(buf, base, size, page.name);
                 pages.put(base, bufpage);
                 cache = null;
@@ -257,7 +268,7 @@ public class VirtualMemory {
         if (base == 0) {
             return null;
         } else {
-            Memory mem = new ByteMemory(size, false);
+            Memory mem = new ByteMemory(size, bigEndian);
             MemoryPage page = new MemoryPage(mem, base, size);
             add(page);
             return page;
