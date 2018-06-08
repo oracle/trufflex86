@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Pand;
 import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128b;
 import org.graalvm.vm.x86.isa.instruction.Pmaxub;
-import org.graalvm.vm.x86.isa.test.CodeArrayReader;
 import org.junit.Test;
 
 public class SseTest {
