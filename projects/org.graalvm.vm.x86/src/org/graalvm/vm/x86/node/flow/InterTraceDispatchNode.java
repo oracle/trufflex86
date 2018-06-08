@@ -2,20 +2,15 @@ package org.graalvm.vm.x86.node.flow;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
-import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
-import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.CpuState;
-import org.graalvm.vm.x86.isa.IllegalInstructionException;
-import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 
-import com.everyware.posix.api.Signal;
 import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -34,8 +29,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
 
     private final TraceRegistry traces;
 
-    @CompilationFinal public static boolean PRINT_STATS = getBoolean("vmx86.stats.exec", false);
-    @CompilationFinal public static boolean USE_LOOP_NODE = getBoolean("vmx86.dispatch.loop", true);
+    @CompilationFinal public static boolean PRINT_STATS = getBoolean(Options.PRINT_DISPATCH_STATS);
+    @CompilationFinal public static boolean USE_LOOP_NODE = getBoolean(Options.USE_LOOP_NODE);
 
     private int noSuccessor = 0;
     private int hasSuccessor = 0;
@@ -46,6 +41,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
 
     private CpuState state;
     private CompiledTrace currentTrace;
+
+    @CompilationFinal private CompiledTrace startTrace;
 
     public InterTraceDispatchNode(ArchitecturalState state) {
         readPC = state.getRegisters().getPC().createRead();
@@ -61,10 +58,19 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         Trace.log.printf("Executed instructions: %d\n", insncnt);
     }
 
+    public CompiledTrace getStartTrace() {
+        return startTrace;
+    }
+
     private class LoopBody extends AMD64Node implements RepeatingNode {
         @Override
         public boolean executeRepeating(VirtualFrame frame) {
-            state = (CpuState) currentTrace.callTarget.call(state);
+            try {
+                state = (CpuState) currentTrace.callTarget.call(state);
+            } catch (RetException e) {
+                state = e.getState();
+                throw e;
+            }
             CompiledTrace next = currentTrace.getNext(state.rip);
             if (next == null) {
                 noSuccessor++;
@@ -79,50 +85,52 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         }
     }
 
+    public CpuState execute(VirtualFrame frame, CpuState cpuState) {
+        this.state = cpuState;
+        currentTrace = startTrace;
+        if (currentTrace == null || currentTrace.trace.getStartAddress() != state.rip) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            currentTrace = traces.get(state.rip);
+            startTrace = currentTrace;
+        }
+
+        try {
+            loop.executeLoop(frame);
+        } catch (RetException e) {
+            return e.getState();
+        }
+        throw new AssertionError("loop node must not return");
+    }
+
     @Override
     public long execute(VirtualFrame frame) {
-        CompilerDirectives.transferToInterpreterAndInvalidate();
         long pc = readPC.executeI64(frame);
         state = readState.execute(frame, pc);
-        try {
+        currentTrace = startTrace;
+        if (currentTrace == null || currentTrace.trace.getStartAddress() != state.rip) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             currentTrace = traces.get(state.rip);
-            if (USE_LOOP_NODE) {
-                loop.executeLoop(frame);
-                throw new AssertionError("loop node must not return");
-            } else {
-                while (true) {
-                    pc = state.rip;
-                    state = (CpuState) currentTrace.callTarget.call(state);
-                    CompiledTrace next = currentTrace.getNext(state.rip);
-                    if (next == null) {
-                        noSuccessor++;
-                        next = traces.get(state.rip);
-                        currentTrace.setNext(next);
-                    } else {
-                        hasSuccessor++;
-                    }
-                    currentTrace = next;
-                    insncnt = state.instructionCount;
+            startTrace = currentTrace;
+        }
+
+        if (USE_LOOP_NODE) {
+            loop.executeLoop(frame);
+            throw new AssertionError("loop node must not return");
+        } else {
+            while (true) {
+                pc = state.rip;
+                state = (CpuState) currentTrace.callTarget.call(state);
+                CompiledTrace next = currentTrace.getNext(state.rip);
+                if (next == null) {
+                    noSuccessor++;
+                    next = traces.get(state.rip);
+                    currentTrace.setNext(next);
+                } else {
+                    hasSuccessor++;
                 }
+                currentTrace = next;
+                insncnt = state.instructionCount;
             }
-        } catch (ProcessExitException e) {
-            if (PRINT_STATS) {
-                printStats();
-            }
-            return e.getCode();
-        } catch (ReturnException e) {
-            throw e;
-        } catch (CpuRuntimeException e) {
-            if (e.getCause() instanceof IllegalInstructionException) {
-                return 128 + Signal.SIGILL;
-            } else if (e.getCause() instanceof SegmentationViolation) {
-                return 128 + Signal.SIGSEGV;
-            } else {
-                return 127;
-            }
-        } catch (Throwable t) {
-            t.printStackTrace(Trace.log);
-            return 127;
         }
     }
 }

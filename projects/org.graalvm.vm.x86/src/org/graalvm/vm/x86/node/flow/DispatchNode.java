@@ -16,12 +16,10 @@ import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
-import org.graalvm.vm.x86.isa.IllegalInstructionException;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
-import com.everyware.posix.api.Signal;
 import com.everyware.posix.elf.Symbol;
 import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
@@ -247,7 +245,7 @@ public class DispatchNode extends AbstractDispatchNode {
                 System.out.printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
             writePC.executeI64(frame, pc);
-            return e.getCode();
+            throw e;
         } catch (CpuRuntimeException e) {
             CompilerDirectives.transferToInterpreter();
             SymbolResolver symbols = getContextReference().get().getSymbolResolver();
@@ -284,13 +282,7 @@ public class DispatchNode extends AbstractDispatchNode {
                 memory.printLayout(Trace.log);
             }
             writePC.executeI64(frame, pc);
-            if (e.getCause() instanceof IllegalInstructionException) {
-                return 128 + Signal.SIGILL;
-            } else if (e.getCause() instanceof SegmentationViolation) {
-                return 128 + Signal.SIGSEGV;
-            } else {
-                return 127;
-            }
+            throw e;
             // dump();
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
@@ -305,7 +297,7 @@ public class DispatchNode extends AbstractDispatchNode {
             }
             memory.printLayout(Trace.log);
             // dump();
-            return 127;
+            throw t;
         }
         writePC.executeI64(frame, pc);
         return pc;

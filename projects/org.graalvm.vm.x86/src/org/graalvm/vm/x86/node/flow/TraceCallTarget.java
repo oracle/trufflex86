@@ -1,9 +1,12 @@
 package org.graalvm.vm.x86.node.flow;
 
+import static org.graalvm.vm.x86.Options.getBoolean;
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.ReturnException;
@@ -19,6 +22,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class TraceCallTarget extends AMD64RootNode {
+    @CompilationFinal public static boolean TRUFFLE_CALLS = getBoolean(Options.TRUFFLE_CALLS);
+
     @Child private InitializeFromCpuStateNode write = new InitializeFromCpuStateNode();
     @Child private CopyToCpuStateNode read = new CopyToCpuStateNode();
     @Child private TraceDispatchNode dispatch;
@@ -115,18 +120,20 @@ public class TraceCallTarget extends AMD64RootNode {
             dispatch = insert(new TraceDispatchNode(state));
         }
         CpuState initialState = (CpuState) frame.getArguments()[0];
-        if (gprReadMask != null) {
+        if (gprReadMask != null && !TRUFFLE_CALLS) {
             write.execute(frame, initialState, gprReadMask, avxReadMask);
         } else {
             write.execute(frame, initialState);
         }
         long pc;
+        boolean ret = false;
         try {
             pc = dispatch.execute(frame);
         } catch (ReturnException e) {
             pc = e.getBTA();
+            ret = true;
         }
-        if (gprReadMask == null) {
+        if (gprReadMask == null && !TRUFFLE_CALLS) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             gprReadMask = new boolean[16];
             gprWriteMask = new boolean[16];
@@ -156,12 +163,26 @@ public class TraceCallTarget extends AMD64RootNode {
                 avxWriteMask[r] = true;
             }
         }
-        CpuState result = read.execute(frame, pc, initialState, gprWriteMask, avxWriteMask);
-        if (CHECK) {
-            CpuState full = read.execute(frame, pc);
-            check(full, result);
+        CpuState result;
+        if (TRUFFLE_CALLS) {
+            result = read.execute(frame, pc);
+            if (ret) {
+                throw new RetException(result);
+            } else {
+                return result;
+            }
+        } else {
+            result = read.execute(frame, pc, initialState, gprWriteMask, avxWriteMask);
+            if (CHECK) {
+                CpuState full = read.execute(frame, pc);
+                check(full, result);
+            }
+            if (ret) {
+                CompilerDirectives.transferToInterpreter();
+                throw new AssertionError("ret must not happen without TRUFFLE_CALLS");
+            }
+            return result;
         }
-        return result;
     }
 
     public long getStartAddress() {

@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import static org.graalvm.vm.x86.Options.getBoolean;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
@@ -20,7 +21,7 @@ public class Rdtsc extends AMD64Instruction {
     @Child private WriteNode writeEDX;
 
     @CompilationFinal private FrameSlot insncntslot;
-    private static final boolean useInstructionCount = getBoolean("vmx86.rdtsc.insncnt", false);
+    private static final boolean useInstructionCount = getBoolean(Options.RDTSC_USE_INSTRUCTION_COUNT);
 
     public Rdtsc(long pc, byte[] instruction) {
         super(pc, instruction);
