@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import static org.graalvm.vm.x86.Options.getString;
 
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CpuidBits;
@@ -19,10 +20,10 @@ import com.oracle.truffle.api.profiles.IntValueProfile;
 
 public class Cpuid extends AMD64Instruction {
     // at most 48 characters
-    public static final String BRAND = getString("vmx86.cpuid.brand", "VMX86 on Graal/Truffle");
+    public static final String BRAND = getString(Options.CPUID_BRAND);
 
     // exactly 12 characters
-    public static final String VENDOR_ID = getString("vmx86.cpuid.vendor", "VMX86onGraal");
+    public static final String VENDOR_ID = getString(Options.VENDOR_ID);
 
     @CompilationFinal(dimensions = 1) public static final int[] BRAND_I32 = getI32(BRAND, 12);
     @CompilationFinal(dimensions = 1) public static final int[] VENDOR_ID_I32 = getI32(VENDOR_ID, 3);

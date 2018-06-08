@@ -5,6 +5,7 @@ import static org.graalvm.vm.x86.Options.getBoolean;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
 import org.graalvm.vm.x86.node.flow.AbstractDispatchNode;
 import org.graalvm.vm.x86.node.flow.DispatchNode;
@@ -20,8 +21,8 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
-    @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean("vmx86.debug.simpleDispatch", false) || getBoolean("vmx86.debug.exec", false);
-    @CompilationFinal private static boolean DEBUG_STATE = getBoolean("vmx86.debug.state", false);
+    @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean(Options.SIMPLE_DISPATCH) || getBoolean(Options.DEBUG_EXEC);
+    @CompilationFinal private static boolean DEBUG_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
 
     @Child private InitializerNode initializer;
     @Child private AbstractDispatchNode interpreter;

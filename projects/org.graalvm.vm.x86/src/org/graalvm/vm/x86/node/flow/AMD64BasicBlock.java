@@ -10,6 +10,7 @@ import java.util.Set;
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.IndirectException;
@@ -38,11 +39,11 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
 
 public class AMD64BasicBlock extends AMD64Node {
-    @CompilationFinal private static boolean DEBUG = getBoolean("vmx86.debug.exec", false);
-    @CompilationFinal private static boolean PRINT_SYMBOL = getBoolean("vmx86.debug.symbols", true);
-    @CompilationFinal private static boolean PRINT_STATE = getBoolean("vmx86.debug.state", true);
-    @CompilationFinal private static boolean PRINT_ONCE = getBoolean("vmx86.debug.once", false);
-    @CompilationFinal private static boolean PRINT_ARGS = getBoolean("vmx86.debug.args", true);
+    @CompilationFinal private static boolean DEBUG = getBoolean(Options.DEBUG_EXEC);
+    @CompilationFinal private static boolean PRINT_SYMBOL = getBoolean(Options.DEBUG_PRINT_SYMBOLS);
+    @CompilationFinal private static boolean PRINT_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
+    @CompilationFinal private static boolean PRINT_ONCE = getBoolean(Options.DEBUG_PRINT_ONCE);
+    @CompilationFinal private static boolean PRINT_ARGS = getBoolean(Options.DEBUG_PRINT_ARGS);
 
     @CompilationFinal private static boolean DEBUG_COMPILER = false;
 

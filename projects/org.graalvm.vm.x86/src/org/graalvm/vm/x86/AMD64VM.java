@@ -15,7 +15,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 
 public class AMD64VM {
-    private static final boolean PRINT_VM_BANNER = getBoolean("vmx86.startup.banner", false);
+    private static final boolean PRINT_VM_BANNER = getBoolean(Options.STARTUP_BANNER);
 
     public static void main(String[] args) throws IOException {
         Trace.setupConsoleApplication(Levels.INFO);

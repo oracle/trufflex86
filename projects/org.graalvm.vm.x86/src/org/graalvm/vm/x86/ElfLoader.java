@@ -107,7 +107,7 @@ public class ElfLoader {
     public static final int AT_HWCAP2 = 26;
     public static final int AT_EXECFN = 31;
 
-    public static final long LOAD_BIAS = getLong("vmx86.elf.load_bias", 0);
+    public static final long LOAD_BIAS = getLong(Options.LOAD_BIAS);
 
     private Elf elf;
     private long load_addr;
@@ -297,7 +297,7 @@ public class ElfLoader {
 
         memory.setBrk(brk);
 
-        String stackvalue = getString("vmx86.elf.stack");
+        String stackvalue = getString(Options.STACK_CONTENT);
         if (stackvalue != null) {
             buildStack(stackvalue);
         } else if (elf.ei_class == Elf.ELFCLASS32) {
