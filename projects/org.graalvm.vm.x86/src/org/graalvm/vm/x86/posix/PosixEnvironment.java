@@ -445,6 +445,10 @@ public class PosixEnvironment {
         return posix.getpid();
     }
 
+    public long gettid() {
+        return posix.getpid(); // TODO: implement tid
+    }
+
     public long mmap(long addr, long length, int pr, int fl, int fildes, long offset) throws SyscallException {
         int flags = fl | Mman.MAP_PRIVATE;
         int prot = pr | Mman.PROT_WRITE;

@@ -53,6 +53,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_geteuid = 107;
     public static final int SYS_getegid = 108;
     public static final int SYS_arch_prctl = 158;
+    public static final int SYS_gettid = 186;
     public static final int SYS_time = 201;
     public static final int SYS_clock_gettime = 228;
     public static final int SYS_exit_group = 231;
@@ -210,6 +211,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.geteuid();
             case SYS_getegid:
                 return posix.getegid();
+            case SYS_gettid:
+                return posix.gettid();
             case SYS_time:
                 return posix.time(a1);
             case SYS_clock_gettime:
