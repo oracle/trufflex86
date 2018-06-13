@@ -32,6 +32,9 @@ import org.graalvm.vm.x86.isa.instruction.Bswap.Bswapq;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btl;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btq;
 import org.graalvm.vm.x86.isa.instruction.Bt.Btw;
+import org.graalvm.vm.x86.isa.instruction.Btr.Btrl;
+import org.graalvm.vm.x86.isa.instruction.Btr.Btrq;
+import org.graalvm.vm.x86.isa.instruction.Btr.Btrw;
 import org.graalvm.vm.x86.isa.instruction.Bts.Btsl;
 import org.graalvm.vm.x86.isa.instruction.Bts.Btsq;
 import org.graalvm.vm.x86.isa.instruction.Bts.Btsw;
@@ -2074,6 +2077,16 @@ public class AMD64InstructionDecoder {
                                     return new Btsw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
                                 } else {
                                     return new Btsl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                }
+                            }
+                            case 6: { // BTR RM,I8
+                                byte imm = code.read8();
+                                if (rex != null && rex.w) {
+                                    return new Btrq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else if (sizeOverride) {
+                                    return new Btrw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                } else {
+                                    return new Btrl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
                                 }
                             }
                             default:
