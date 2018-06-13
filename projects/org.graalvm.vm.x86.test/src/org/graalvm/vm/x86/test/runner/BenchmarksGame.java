@@ -625,6 +625,34 @@ public class BenchmarksGame {
                     " 1 1 3 3 3 \n" +
                     "\n";
 
+    public static final String KNUCLEOTIDE = "T 31.520\n" +
+                    "A 29.600\n" +
+                    "C 19.480\n" +
+                    "G 19.400\n" +
+                    "\n" +
+                    "AT 9.922\n" +
+                    "TT 9.602\n" +
+                    "TA 9.402\n" +
+                    "AA 8.402\n" +
+                    "GA 6.321\n" +
+                    "TC 6.301\n" +
+                    "TG 6.201\n" +
+                    "GT 6.041\n" +
+                    "CT 5.961\n" +
+                    "AG 5.841\n" +
+                    "CA 5.461\n" +
+                    "AC 5.441\n" +
+                    "CC 4.041\n" +
+                    "CG 4.021\n" +
+                    "GC 3.701\n" +
+                    "GG 3.341\n" +
+                    "\n" +
+                    "54\tGGT\n" +
+                    "24\tGGTA\n" +
+                    "4\tGGTATT\n" +
+                    "0\tGGTATTTTAATT\n" +
+                    "0\tGGTATTTTAATTTATAGT\n";
+
     @Test
     public void fasta_cint() throws Exception {
         TestRunner.run("fasta.cint", new String[]{"1000"}, "", FASTA, "", 0);
@@ -906,5 +934,15 @@ public class BenchmarksGame {
     @Test
     public void meteor_gpp6() throws Exception {
         TestRunner.run("meteor.gpp-6", new String[0], "", METEOR, "", 0);
+    }
+
+    @Test
+    public void knucleotide_cint() throws Exception {
+        TestRunner.run("knucleotide.cint", new String[0], FASTA, KNUCLEOTIDE, "", 0);
+    }
+
+    @Test
+    public void knucleotide_gcc8() throws Exception {
+        TestRunner.run("knucleotide.gcc-8", new String[0], FASTA, KNUCLEOTIDE, "", 0);
     }
 }

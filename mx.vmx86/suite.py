@@ -164,8 +164,9 @@ suite = {
         "bin/meteor.gpp-3",
         "bin/meteor.gpp-4",
         "bin/meteor.gpp-5",
-        "bin/meteor.gpp-6"
-
+        "bin/meteor.gpp-6",
+        "bin/knucleotide.cint",
+        "bin/knucleotide.gcc-8"
       ],
       "license" : "GPLv3"
     },

@@ -2,8 +2,10 @@ QUIET	:= @
 
 CC	:=	gcc
 CXX	:=	g++
-CFLAGS	:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
-CXXFLAGS:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
+CFLAGS	:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections \
+		-I$(PWD)/tests/benchmarksgame
+CXXFLAGS:=	-static -O3 -fdata-sections -ffunction-sections -Wl,--gc-sections \
+		-I$(PWD)/tests/benchmarksgame
 CFLAGSD	:=	-O3 -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 .PHONY: all clean
@@ -28,7 +30,8 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/nbody.gpp \
 		bin/meteor.cint bin/meteor.gcc bin/meteor.gpp bin/meteor.gpp-2 \
 		bin/meteor.gpp-3 bin/meteor.gpp-4 bin/meteor.gpp-5 \
-		bin/meteor.gpp-6
+		bin/meteor.gpp-6 \
+		bin/knucleotide.cint bin/knucleotide.gcc-8
 
 
 clean:
@@ -57,7 +60,8 @@ clean:
 			bin/nbody.gpp \
 			bin/meteor.cint bin/meteor.gcc bin/meteor.gpp \
 			bin/meteor.gpp-2 bin/meteor.gpp-3 bin/meteor.gpp-4 \
-			bin/meteor.gpp-5 bin/meteor.gpp-6
+			bin/meteor.gpp-5 bin/meteor.gpp-6 \
+			bin/knucleotide.cint bin/knucleotide.gcc-8
 
 bin/binarytrees.gcc: binarytrees/binarytrees.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
@@ -338,3 +342,13 @@ bin/meteor.gpp-6: meteor/meteor.gpp-6.gpp.cpp
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CXXLD]     $@"
 	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $< -lm
+
+bin/knucleotide.cint: knucleotide/knucleotide.cint.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/knucleotide.gcc-8: knucleotide/knucleotide.gcc-8.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
