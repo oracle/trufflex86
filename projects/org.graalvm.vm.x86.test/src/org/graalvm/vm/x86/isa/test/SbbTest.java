@@ -23,6 +23,9 @@ public class SbbTest {
     public static final byte[] MACHINECODE3 = {0x1c, 0x00};
     public static final String ASSEMBLY3 = "sbb\tal,0x0";
 
+    public static final byte[] MACHINECODE4 = {0x41, (byte) 0x80, (byte) 0xd8, 0x00};
+    public static final String ASSEMBLY4 = "sbb\tr8b,0x0";
+
     @Test
     public void test1() {
         CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
@@ -51,5 +54,15 @@ public class SbbTest {
         assertTrue(insn instanceof Sbbb);
         assertEquals(ASSEMBLY3, insn.toString());
         assertEquals(MACHINECODE3.length, reader.getPC());
+    }
+
+    @Test
+    public void test4() {
+        CodeReader reader = new CodeArrayReader(MACHINECODE4, 0);
+        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
+        assertNotNull(insn);
+        assertTrue(insn instanceof Sbbb);
+        assertEquals(ASSEMBLY4, insn.toString());
+        assertEquals(MACHINECODE4.length, reader.getPC());
     }
 }
