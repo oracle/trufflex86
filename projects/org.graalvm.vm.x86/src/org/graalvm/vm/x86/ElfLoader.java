@@ -188,8 +188,17 @@ public class ElfLoader {
         amd64 = elf.ei_class == Elf.ELFCLASS64;
         ptrsz = elf.ei_class == Elf.ELFCLASS64 ? 8 : 4;
         base = 0;
-        load_bias = LOAD_BIAS;
-        load_addr = getLowAddress(elf);
+
+        if (elf.e_type == Elf.ET_DYN) {
+            load_bias = 0x40000; // avoid mapping things to zero page
+        } else {
+            load_bias = 0;
+        }
+
+        if (LOAD_BIAS != 0) {
+            load_bias = LOAD_BIAS;
+        }
+        load_addr = load_bias + getLowAddress(elf);
 
         symbols = new TreeMap<>();
 
