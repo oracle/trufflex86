@@ -9,6 +9,8 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.everyware.posix.api.PosixException;
+
 public class VirtualMemoryTest {
     private VirtualMemory vm;
     private MemoryPage page;
@@ -94,4 +96,29 @@ public class VirtualMemoryTest {
         assertEquals(0xCAFEBABE, m1.getI32(0x2042));
     }
 
+    @Test
+    public void unmap001() throws PosixException {
+        vm.set64bit();
+        Memory m = new ByteMemory(4190208);
+        MemoryPage p = new MemoryPage(m, 0x7f0000e2a000L, 4190208);
+        vm.add(p);
+
+        vm.setI32(0x7f0000e2af00L, 0xDEADBEEF);
+        assertEquals(0xDEADBEEF, m.getI32(0xf00));
+
+        vm.remove(0x00007f0000e2a000L, 1925120);
+
+        vm.setI32(0x7f0001000000L, 0xDEADBEEF);
+        assertEquals(0xDEADBEEF, m.getI32(0x1d6000));
+
+        vm.remove(0x7f0001200000L, 167936);
+
+        vm.setI32(0x7f0001000010L, 0xC0DEBABE);
+        assertEquals(0xDEADBEEF, m.getI32(0x1d6000));
+
+        vm.setI32(0x7f0001000000L, 0xDEADCAFE);
+        assertEquals(0xDEADCAFE, m.getI32(0x1d6000));
+
+        assertEquals(0xC0DEBABE, m.getI32(0x1d6010));
+    }
 }

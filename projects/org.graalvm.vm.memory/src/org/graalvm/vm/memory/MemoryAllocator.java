@@ -402,7 +402,9 @@ public class MemoryAllocator {
                     Block split = new Block(b.base + remaining, b.size - remaining);
                     split.prevBlock = b;
                     split.nextBlock = b.nextBlock;
-                    b.nextBlock = b;
+                    split.nextBlock.prevBlock = split;
+                    split.free = false;
+                    b.nextBlock = split;
                     b.size = remaining;
                     b.free = true;
                     if (lastFree != null) {
@@ -418,7 +420,7 @@ public class MemoryAllocator {
                         free = b;
                     }
 
-                    usedMemory -= b.size;
+                    usedMemory -= remaining;
 
                     check(b);
                     check(split);
@@ -500,7 +502,7 @@ public class MemoryAllocator {
         while (b.prevBlock != null && b.prevBlock.free) {
             b = b.prevBlock;
         }
-        assert b.prev == null || free == b;
+        assert b.prev != null || free == b;
         assert b.free;
         while (b.nextBlock != null && b.nextBlock.free) {
             Block blk = b.nextBlock;
@@ -535,12 +537,12 @@ public class MemoryAllocator {
         }
         assert !b.free || b.prev == null || Long.compareUnsigned(b.prev.base, b.base) < 0 : String.format("prev=0x%016x, this=0x%016x", b.prev.base, b.base);
         assert !b.free || b.next == null || Long.compareUnsigned(b.base, b.next.base) < 0 : String.format("this=0x%016x, next=0x%016x", b.base, b.next.base);
-        assert !b.free || b.prev == null || b.prev.next == b;
-        assert !b.free || b.next == null || b.next.prev == b;
+        assert !b.free || b.prev == null || b.prev.next == b : String.format("this=0x%016x, this.prev.next=0x%016x", b.base, b.prev.next.base);
+        assert !b.free || b.next == null || b.next.prev == b : String.format("this=0x%016x, this.next.prev=0x%016x", b.base, b.next.prev.base);
         assert b.prevBlock == null || Long.compareUnsigned(b.prevBlock.base, b.base) < 0 : String.format("prev=0x%016x, this=0x%016x", b.prevBlock.base, b.base);
         assert b.nextBlock == null || Long.compareUnsigned(b.base, b.nextBlock.base) < 0 : String.format("this=0x%016x, next=0x%016x", b.base, b.nextBlock.base);
-        assert b.prevBlock == null || b.prevBlock.nextBlock == b;
-        assert b.nextBlock == null || b.nextBlock.prevBlock == b;
+        assert b.prevBlock == null || b.prevBlock.nextBlock == b : String.format("this=0x%016x, this.prevBlock.nextBlock=0x%016x", b.base, b.prevBlock.nextBlock.base);
+        assert b.nextBlock == null || b.nextBlock.prevBlock == b : String.format("this=0x%016x, this.nextBlock.prevBlock=0x%016x", b.base, b.nextBlock.prevBlock.base);
     }
 
     private static void __assert(boolean b) {

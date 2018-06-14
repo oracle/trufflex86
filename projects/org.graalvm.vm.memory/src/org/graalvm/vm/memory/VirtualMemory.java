@@ -204,16 +204,17 @@ public class VirtualMemory {
     }
 
     @TruffleBoundary
-    public void remove(long addr, long length) throws PosixException {
+    public void remove(long addr, long len) throws PosixException {
         cache = null;
         cache2 = null;
+        long length = roundToPageSize(len);
         long address = addr(addr);
         if ((address & ~PAGE_MASK) != 0) {
             throw new PosixException(Errno.EINVAL);
         }
         try {
             for (long p = address; Long.compareUnsigned(p, address + length) < 0;) {
-                MemoryPage page = get(p);
+                MemoryPage page = getFloorEntry(p);
                 if (p != page.base) { // split page and remove mapping in the middle
                     assert p > page.base;
                     if (DEBUG) {
@@ -223,7 +224,7 @@ public class VirtualMemory {
                     pages.remove(page.base);
                     allocator.free(page.base, page.size);
                     long size1 = addr - page.base;
-                    long size2 = page.size - length;
+                    long size2 = page.end - (addr + length);
                     if (DEBUG) {
                         CompilerDirectives.transferToInterpreter();
                         System.out.printf("size1 = 0x%016X, size2 = 0x%016X\n", size1, size2);
@@ -236,7 +237,7 @@ public class VirtualMemory {
                         cache2 = null;
                         if (DEBUG) {
                             CompilerDirectives.transferToInterpreter();
-                            System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X]\n", page.base, pages.get(page.base).base, pages.get(page.base).end);
+                            System.out.printf("Added new page: 0x%016X[0x%016X;0x%016X] (off=0x%x)\n", page.base, pages.get(page.base).base, pages.get(page.base).end, pag.getOffset(pag.base));
                         }
                     }
                     if (size2 > 0) {
@@ -251,6 +252,14 @@ public class VirtualMemory {
                         }
                     }
                     p = page.end;
+                } else if (page.size > length) {
+                    long sz = page.size - length;
+                    MemoryPage tail = new MemoryPage(page, page.base + length, sz);
+                    pages.remove(page.base);
+                    allocator.free(page.base, length);
+                    pages.put(page.base + length, tail);
+                    allocator.allocat(page.base + length, sz);
+                    p = page.end;
                 } else {
                     pages.remove(page.base);
                     allocator.free(page.base, page.size);
@@ -259,6 +268,9 @@ public class VirtualMemory {
             }
         } catch (SegmentationViolation e) {
             // swallow
+        }
+        if (DEBUG) {
+            printLayout();
         }
     }
 

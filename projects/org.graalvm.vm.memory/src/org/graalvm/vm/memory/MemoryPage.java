@@ -87,7 +87,7 @@ public class MemoryPage {
         this.r = page.r;
         this.w = page.w;
         this.x = page.x;
-        this.offset = address - page.base;
+        this.offset = page.offset + address - page.base;
         this.name = page.name;
         this.fileOffset = page.fileOffset + (address - page.base);
     }
