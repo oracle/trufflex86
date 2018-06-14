@@ -190,7 +190,7 @@ public class ElfLoader {
         base = 0;
 
         if (elf.e_type == Elf.ET_DYN) {
-            load_bias = 0x40000; // avoid mapping things to zero page
+            load_bias = 0x4000000000L; // avoid mapping things to zero page
         } else {
             load_bias = 0;
         }
