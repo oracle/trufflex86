@@ -31,9 +31,13 @@ public class InterTraceCallTarget extends AMD64RootNode {
 
     @Override
     public String toString() {
+        String unknown = "InterTraceCallTarget[???]";
+        if (dispatch.getStartTrace() == null) {
+            return unknown;
+        }
         long addr = dispatch.getStartTrace().trace.getStartAddress();
         if (addr == -1) {
-            return "InterTraceCallTarget[???]";
+            return unknown;
         } else {
             return String.format("InterTraceCallTarget[0x%016x]", addr);
         }
