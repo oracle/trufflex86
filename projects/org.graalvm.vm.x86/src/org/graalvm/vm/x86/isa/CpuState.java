@@ -48,7 +48,14 @@ public class CpuState {
     public long r14;
     public long r15;
     public long rip;
-    public long rfl;
+
+    public boolean cf;
+    public boolean pf;
+    public boolean af;
+    public boolean zf;
+    public boolean sf;
+    public boolean df;
+    public boolean of;
 
     public long fs;
     public long gs;
@@ -56,6 +63,16 @@ public class CpuState {
     public Vector512[] zmm = new Vector512[32];
 
     public long instructionCount;
+
+    private static final long RESERVED = bit(1, true) | bit(Flags.IF, true);
+
+    private static long bit(long shift, boolean value) {
+        return value ? (1L << shift) : 0;
+    }
+
+    private long getRFL() {
+        return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | RESERVED;
+    }
 
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {
         for (int i = 0; i < names.length; i++) {
@@ -87,6 +104,7 @@ public class CpuState {
 
     @Override
     public String toString() {
+        long rfl = getRFL();
         StringBuilder buf = new StringBuilder();
         formatRegLine(buf, new String[]{"RAX", "RBX", "RCX", "RDX"}, new long[]{rax, rbx, rcx, rdx});
         formatRegLine(buf, new String[]{"RSI", "RDI", "RBP", "RSP"}, new long[]{rsi, rdi, rbp, rsp});

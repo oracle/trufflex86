@@ -5,7 +5,7 @@ import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
-import org.graalvm.vm.x86.node.ReadFlagsNode;
+import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
@@ -34,7 +34,13 @@ public class CopyToCpuStateNode extends AMD64Node {
     @Child private ReadNode readR15;
     @Child private ReadNode readFS;
     @Child private ReadNode readGS;
-    @Child private ReadFlagsNode readFlags;
+    @Child private ReadFlagNode readCF;
+    @Child private ReadFlagNode readPF;
+    @Child private ReadFlagNode readAF;
+    @Child private ReadFlagNode readZF;
+    @Child private ReadFlagNode readSF;
+    @Child private ReadFlagNode readDF;
+    @Child private ReadFlagNode readOF;
     @Children private ReadNode[] readZMM;
 
     @CompilationFinal private FrameSlot instructionCount;
@@ -61,7 +67,13 @@ public class CopyToCpuStateNode extends AMD64Node {
             this.readR15 = regs.getRegister(Register.R15).createRead();
             this.readFS = regs.getFS().createRead();
             this.readGS = regs.getGS().createRead();
-            this.readFlags = insert(regs.createReadFlags());
+            this.readCF = regs.getCF().createRead();
+            this.readPF = regs.getPF().createRead();
+            this.readAF = regs.getAF().createRead();
+            this.readZF = regs.getZF().createRead();
+            this.readSF = regs.getSF().createRead();
+            this.readDF = regs.getDF().createRead();
+            this.readOF = regs.getOF().createRead();
             this.readZMM = new ReadNode[32];
             for (int i = 0; i < readZMM.length; i++) {
                 readZMM[i] = regs.getAVXRegister(i).createRead();
@@ -93,7 +105,13 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.fs = readFS.executeI64(frame);
         state.gs = readGS.executeI64(frame);
         state.rip = pc;
-        state.rfl = readFlags.executeI64(frame);
+        state.cf = readCF.execute(frame);
+        state.pf = readPF.execute(frame);
+        state.af = readAF.execute(frame);
+        state.zf = readZF.execute(frame);
+        state.sf = readSF.execute(frame);
+        state.df = readDF.execute(frame);
+        state.of = readOF.execute(frame);
         for (int i = 0; i < readZMM.length; i++) {
             state.zmm[i] = readZMM[i].executeI512(frame);
         }
@@ -172,7 +190,13 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.fs = readFS.executeI64(frame);
         state.gs = readGS.executeI64(frame);
         state.rip = pc;
-        state.rfl = readFlags.executeI64(frame);
+        state.cf = readCF.execute(frame);
+        state.pf = readPF.execute(frame);
+        state.af = readAF.execute(frame);
+        state.zf = readZF.execute(frame);
+        state.sf = readSF.execute(frame);
+        state.df = readDF.execute(frame);
+        state.of = readOF.execute(frame);
         CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < readZMM.length; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);

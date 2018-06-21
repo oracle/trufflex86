@@ -8,7 +8,7 @@ import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
-import org.graalvm.vm.x86.node.WriteFlagsNode;
+import org.graalvm.vm.x86.node.WriteFlagNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -37,13 +37,19 @@ public class InitializeFromCpuStateNode extends AMD64Node {
     @Children private AVXRegisterWriteNode[] zmm;
     @Child private RegisterWriteNode fs;
     @Child private RegisterWriteNode gs;
-    @Child private WriteFlagsNode flags;
+    @Child private WriteFlagNode cf;
+    @Child private WriteFlagNode pf;
+    @Child private WriteFlagNode af;
+    @Child private WriteFlagNode zf;
+    @Child private WriteFlagNode sf;
+    @Child private WriteFlagNode df;
+    @Child private WriteFlagNode of;
     @Child private RegisterWriteNode pc;
 
     @CompilationFinal private FrameSlot instructionCount;
 
     private void createChildrenIfNecessary() {
-        if (flags == null) {
+        if (pc == null) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
             RegisterAccessFactory regs = state.getRegisters();
@@ -65,7 +71,13 @@ public class InitializeFromCpuStateNode extends AMD64Node {
             r15 = regs.getRegister(Register.R15).createWrite();
             fs = regs.getFS().createWrite();
             gs = regs.getGS().createWrite();
-            flags = insert(new WriteFlagsNode());
+            cf = regs.getCF().createWrite();
+            pf = regs.getPF().createWrite();
+            af = regs.getAF().createWrite();
+            zf = regs.getZF().createWrite();
+            sf = regs.getSF().createWrite();
+            df = regs.getDF().createWrite();
+            of = regs.getOF().createWrite();
             zmm = new AVXRegisterWriteNode[32];
             for (int i = 0; i < zmm.length; i++) {
                 AVXRegister reg = regs.getAVXRegister(i);
@@ -98,7 +110,13 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         fs.executeI64(frame, state.fs);
         gs.executeI64(frame, state.gs);
         pc.executeI64(frame, state.rip);
-        flags.executeI64(frame, state.rfl);
+        cf.execute(frame, state.cf);
+        pf.execute(frame, state.pf);
+        af.execute(frame, state.af);
+        zf.execute(frame, state.zf);
+        sf.execute(frame, state.sf);
+        df.execute(frame, state.df);
+        of.execute(frame, state.of);
         for (int i = 0; i < zmm.length; i++) {
             zmm[i].executeI512(frame, state.zmm[i]);
         }
@@ -176,7 +194,13 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         fs.executeI64(frame, state.fs);
         gs.executeI64(frame, state.gs);
         pc.executeI64(frame, state.rip);
-        flags.executeI64(frame, state.rfl);
+        cf.execute(frame, state.cf);
+        pf.execute(frame, state.pf);
+        af.execute(frame, state.af);
+        zf.execute(frame, state.zf);
+        sf.execute(frame, state.sf);
+        df.execute(frame, state.df);
+        of.execute(frame, state.of);
         CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < zmm.length; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);
