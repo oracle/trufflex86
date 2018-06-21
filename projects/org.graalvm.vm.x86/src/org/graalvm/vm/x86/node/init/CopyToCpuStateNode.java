@@ -201,7 +201,7 @@ public class CopyToCpuStateNode extends AMD64Node {
         for (int i = 0; i < readZMM.length; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);
             if (avxMask[i]) {
-                state.zmm[i] = readZMM[i].executeI512(frame);
+                state.zmm[i] = readZMM[i].executeI512(frame).clone();
             }
         }
         state.instructionCount = FrameUtil.getLongSafe(frame, instructionCount);
