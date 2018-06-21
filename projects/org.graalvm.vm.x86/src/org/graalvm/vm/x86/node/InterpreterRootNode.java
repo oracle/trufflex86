@@ -2,6 +2,8 @@ package org.graalvm.vm.x86.node;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
+import java.util.logging.Logger;
+
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
@@ -21,6 +23,8 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
+    private static final Logger log = Trace.create(InterpreterRootNode.class);
+
     @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean(Options.SIMPLE_DISPATCH) || getBoolean(Options.DEBUG_EXEC);
     @CompilationFinal private static boolean DEBUG_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
 
@@ -30,7 +34,8 @@ public class InterpreterRootNode extends AMD64Node {
 
     public InterpreterRootNode(ArchitecturalState state, String programName) {
         initializer = new InitializerNode(state, programName);
-        if (DEBUG_STATE || SIMPLE_DISPATCH) {
+        if (SIMPLE_DISPATCH) {
+            log.warning("Using old and slow dispatch node");
             interpreter = new DispatchNode(state);
         } else {
             interpreter = new InterTraceDispatchNode(state);
