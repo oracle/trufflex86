@@ -115,7 +115,7 @@ public class Vector128 implements Cloneable {
 
     public void setF64(int i, double val) {
         assert i >= 0 && i < 2;
-        data[i] = Double.doubleToLongBits(val);
+        data[i] = Double.doubleToRawLongBits(val);
     }
 
     public long getI64(int i) {
