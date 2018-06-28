@@ -29,7 +29,7 @@ public class MemoryWriteNode extends AMD64Node {
     }
 
     public void executeI128(long address, Vector128 value) {
-        memory.setI128(address, value);
+        memory.setI128(address, value.getI64(0), value.getI64(1));
     }
 
     public void executeI256(long address, Vector256 value) {

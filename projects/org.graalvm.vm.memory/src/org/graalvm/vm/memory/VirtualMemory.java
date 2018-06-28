@@ -630,6 +630,11 @@ public class VirtualMemory {
     }
 
     @TruffleBoundary
+    public void setI128(long address, long hi, long lo) {
+        setI128(address, new Vector128(hi, lo));
+    }
+
+    @TruffleBoundary
     public void setI256(long address, Vector256 val) {
         logMemoryWrite(address, val);
         long ptr = addr(address);
