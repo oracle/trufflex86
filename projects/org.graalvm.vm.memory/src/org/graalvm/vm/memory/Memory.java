@@ -6,7 +6,6 @@ import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
-import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public abstract class Memory {
@@ -353,10 +352,5 @@ public abstract class Memory {
         if (free) {
             throw new SegmentationViolation(this, pos);
         }
-    }
-
-    public PosixPointer getPosixPointer(long off) {
-        check(off);
-        return null; // TODO
     }
 }

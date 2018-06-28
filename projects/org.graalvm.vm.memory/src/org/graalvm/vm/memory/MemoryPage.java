@@ -27,6 +27,13 @@ public class MemoryPage {
     public final String name;
     public final long fileOffset;
 
+    private final long id = nextID();
+    private static long seq = 0;
+
+    private final static long nextID() {
+        return seq++;
+    }
+
     public MemoryPage(Memory memory, long base, long size) {
         this.memory = memory;
         this.base = base;
@@ -301,6 +308,20 @@ public class MemoryPage {
     @TruffleBoundary
     private static void invalidateCodeCache(long addr) {
         log.log(Levels.DEBUG, () -> String.format("Invalidate code cache: write to 0x%016x", addr));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof MemoryPage)) {
+            return false;
+        }
+        MemoryPage p = (MemoryPage) o;
+        return p.id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) id;
     }
 
     @Override

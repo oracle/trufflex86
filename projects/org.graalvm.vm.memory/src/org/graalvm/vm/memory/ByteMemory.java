@@ -2,8 +2,6 @@ package org.graalvm.vm.memory;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 
-import com.everyware.posix.api.BytePosixPointer;
-import com.everyware.posix.api.PosixPointer;
 import com.everyware.util.io.Endianess;
 
 public class ByteMemory extends Memory {
@@ -195,13 +193,6 @@ public class ByteMemory extends Memory {
     public void memcpy(byte[] dst, long off) {
         assert off == (int) off : String.format("Invalid offset 0x%016X", off);
         System.arraycopy(data, (int) off, dst, 0, dst.length);
-    }
-
-    @Override
-    public PosixPointer getPosixPointer(long off) {
-        check(off);
-        assert off == (int) off : String.format("Invalid offset 0x%016X", off);
-        return new BytePosixPointer(data, (int) off);
     }
 
     @Override
