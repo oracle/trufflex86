@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.isa;
 
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector512;
 
 import com.everyware.util.BitTest;
@@ -60,6 +61,7 @@ public class CpuState {
     public long fs;
     public long gs;
 
+    public Vector128[] xmm = new Vector128[16];
     public Vector512[] zmm = new Vector512[32];
 
     public long instructionCount;
@@ -140,7 +142,11 @@ public class CpuState {
                     buf.append(' ');
                 }
                 buf.append('=');
-                buf.append(zmm[i].getI128(3).hex());
+                if (xmm[i] != null) {
+                    buf.append(xmm[i].hex());
+                } else {
+                    buf.append(zmm[i].getI128(3).hex());
+                }
                 if (i % 2 == 0) {
                     buf.append(' ');
                 } else {

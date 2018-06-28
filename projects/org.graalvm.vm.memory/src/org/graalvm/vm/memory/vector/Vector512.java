@@ -30,6 +30,17 @@ public class Vector512 implements Cloneable {
         this.data[7] = low.getI64(3);
     }
 
+    public Vector512(Vector128 v0, Vector128 v1, Vector128 v2, Vector128 v3) {
+        this.data[0] = v0.getI64(0);
+        this.data[1] = v0.getI64(1);
+        this.data[2] = v1.getI64(0);
+        this.data[3] = v1.getI64(1);
+        this.data[4] = v2.getI64(0);
+        this.data[5] = v2.getI64(1);
+        this.data[6] = v3.getI64(0);
+        this.data[7] = v3.getI64(1);
+    }
+
     @ExplodeLoop
     public void setI512(Vector512 val) {
         for (int i = 0; i < 8; i++) {

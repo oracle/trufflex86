@@ -24,6 +24,10 @@ public class AMD64Context {
     private final FrameDescriptor frameDescriptor;
     private final FrameSlot[] gpr;
     private final FrameSlot[] zmm;
+    private final FrameSlot[] xmm;
+    private final FrameSlot[] xmmF32;
+    private final FrameSlot[] xmmF64;
+    private final FrameSlot[] xmmType;
     private final FrameSlot fs;
     private final FrameSlot gs;
     private final FrameSlot pc;
@@ -57,8 +61,16 @@ public class AMD64Context {
             gpr[i] = frameDescriptor.addFrameSlot(REGISTER_NAMES[i], FrameSlotKind.Long);
         }
         zmm = new FrameSlot[32];
+        xmm = new FrameSlot[32];
+        xmmF32 = new FrameSlot[32];
+        xmmF64 = new FrameSlot[32];
+        xmmType = new FrameSlot[32];
         for (int i = 0; i < zmm.length; i++) {
             zmm[i] = frameDescriptor.addFrameSlot("zmm" + i, FrameSlotKind.Object);
+            xmm[i] = frameDescriptor.addFrameSlot("xmm" + i, FrameSlotKind.Object);
+            xmmF32[i] = frameDescriptor.addFrameSlot("xmm" + i + "F32", FrameSlotKind.Float);
+            xmmF64[i] = frameDescriptor.addFrameSlot("xmm" + i + "F64", FrameSlotKind.Double);
+            xmmType[i] = frameDescriptor.addFrameSlot("xmm" + i + "Type", FrameSlotKind.Int);
         }
         fs = frameDescriptor.addFrameSlot("fs", FrameSlotKind.Long);
         gs = frameDescriptor.addFrameSlot("gs", FrameSlotKind.Long);
@@ -126,6 +138,22 @@ public class AMD64Context {
 
     public FrameSlot[] getZMMs() {
         return zmm;
+    }
+
+    public FrameSlot[] getXMMs() {
+        return xmm;
+    }
+
+    public FrameSlot[] getXMMF32() {
+        return xmmF32;
+    }
+
+    public FrameSlot[] getXMMF64() {
+        return xmmF64;
+    }
+
+    public FrameSlot[] getXMMType() {
+        return xmmType;
     }
 
     public FrameSlot getCF() {

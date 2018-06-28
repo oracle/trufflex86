@@ -112,8 +112,8 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.sf = readSF.execute(frame);
         state.df = readDF.execute(frame);
         state.of = readOF.execute(frame);
-        for (int i = 0; i < readZMM.length; i++) {
-            state.zmm[i] = readZMM[i].executeI512(frame);
+        for (int i = 0; i < 16; i++) {
+            state.xmm[i] = readZMM[i].executeI128(frame);
         }
         state.instructionCount = FrameUtil.getLongSafe(frame, instructionCount);
         return state;
@@ -198,10 +198,10 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.df = readDF.execute(frame);
         state.of = readOF.execute(frame);
         CompilerAsserts.partialEvaluationConstant(avxMask);
-        for (int i = 0; i < readZMM.length; i++) {
+        for (int i = 0; i < 16; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);
             if (avxMask[i]) {
-                state.zmm[i] = readZMM[i].executeI512(frame).clone();
+                state.xmm[i].setI128(readZMM[i].executeI128(frame));
             }
         }
         state.instructionCount = FrameUtil.getLongSafe(frame, instructionCount);

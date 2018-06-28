@@ -117,8 +117,9 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         sf.execute(frame, state.sf);
         df.execute(frame, state.df);
         of.execute(frame, state.of);
-        for (int i = 0; i < zmm.length; i++) {
-            zmm[i].executeI512(frame, state.zmm[i]);
+        for (int i = 0; i < 16; i++) {
+            zmm[i].executeClear(frame);
+            zmm[i].executeI128(frame, state.xmm[i]);
         }
         frame.setLong(instructionCount, state.instructionCount);
     }
@@ -202,10 +203,11 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         df.execute(frame, state.df);
         of.execute(frame, state.of);
         CompilerAsserts.partialEvaluationConstant(avxMask);
-        for (int i = 0; i < zmm.length; i++) {
+        for (int i = 0; i < 16; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);
             if (avxMask[i]) {
-                zmm[i].executeI512(frame, state.zmm[i]);
+                zmm[i].executeClear(frame);
+                zmm[i].executeI128(frame, state.xmm[i]);
             }
         }
         frame.setLong(instructionCount, state.instructionCount);

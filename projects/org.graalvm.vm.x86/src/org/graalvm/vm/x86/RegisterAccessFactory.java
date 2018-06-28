@@ -9,6 +9,10 @@ import com.oracle.truffle.api.frame.FrameSlot;
 public class RegisterAccessFactory {
     private final FrameSlot[] gpr;
     private final FrameSlot[] zmm;
+    private final FrameSlot[] xmm;
+    private final FrameSlot[] xmmF32;
+    private final FrameSlot[] xmmF64;
+    private final FrameSlot[] xmmType;
     private final FrameSlot fs;
     private final FrameSlot gs;
     private final FrameSlot pc;
@@ -21,10 +25,14 @@ public class RegisterAccessFactory {
     private final FrameSlot df;
     private final FrameSlot of;
 
-    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot pc, FrameSlot fs, FrameSlot gs, FrameSlot cf, FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df,
-                    FrameSlot of) {
+    public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot[] xmm, FrameSlot[] xmmF32, FrameSlot[] xmmF64, FrameSlot[] xmmType, FrameSlot pc, FrameSlot fs, FrameSlot gs, FrameSlot cf,
+                    FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
         this.gpr = gpr;
         this.zmm = zmm;
+        this.xmm = xmm;
+        this.xmmF32 = xmmF32;
+        this.xmmF64 = xmmF64;
+        this.xmmType = xmmType;
         this.fs = fs;
         this.gs = gs;
         this.pc = pc;
@@ -50,7 +58,7 @@ public class RegisterAccessFactory {
     }
 
     public AVXRegister getAVXRegister(int i) {
-        return new AVXRegister(zmm[i]);
+        return new AVXRegister(zmm[i], xmm[i], xmmF32[i], xmmF64[i], xmmType[i]);
     }
 
     public AMD64Register getFS() {

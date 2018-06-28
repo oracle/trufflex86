@@ -4,7 +4,6 @@ import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
-import org.graalvm.vm.memory.vector.Vector512;
 import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Register;
@@ -73,7 +72,7 @@ public class InitializerNode extends AMD64Node {
         }
 
         for (AVXRegisterWriteNode register : zmm) {
-            register.executeI512(frame, Vector512.ZERO.clone());
+            register.executeClear(frame);
         }
 
         AMD64Context ctx = getContextReference().get();
