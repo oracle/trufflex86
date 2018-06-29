@@ -4,18 +4,17 @@ all: bin/${LIBMEMORY}
 
 OBJECTS		=	mem.o
 
-LIBXED_ILD	=	lib/$(XED_VERSION)/lib/libxed-ild.a
+LIBXED_ILD	=	$(XED_VERSION)/lib/libxed-ild.a
 
 OBJECTFILES	=	${OBJECTS:%.o=bin/%.o}
-CFLAGS		+=	-I$(VPATH)/include -Isrc_gen "-I$(JAVA_HOME)/include" "-I$(JAVA_HOME)/include/$(OS)" -Ilib/$(XED_VERSION)/include
+CFLAGS		+=	-I$(VPATH)/include -Isrc_gen "-I$(JAVA_HOME)/include" "-I$(JAVA_HOME)/include/$(OS)" -I$(XED_VERSION)/include
 CFLAGS		+=	-O3 -g -fPIC
-LDFLAGS		=	-g -Llib/$(XED_VERSION)/lib
+LDFLAGS		=	-g -L$(XED_VERSION)/lib
 LIBS		=	-lxed-ild
 
-$(LIBXED_ILD):
-	@echo "[UNTAR] xed"
-	@[ ! -d lib ] && mkdir lib
-	@[ ! -d lib/$(XED_VERSION) ] && tar xf $(XED) -C lib
+$(LIBXED_ILD): $(XED)
+	@echo "[UNTAR] $(XED)"
+	@tar xf $(XED)
 
 bin/$(LIBMEMORY): $(OBJECTFILES) $(LIBXED_ILD)
 	@echo "[LD]    $@"
