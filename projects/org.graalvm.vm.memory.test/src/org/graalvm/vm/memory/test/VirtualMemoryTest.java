@@ -3,6 +3,7 @@ package org.graalvm.vm.memory.test;
 import static org.junit.Assert.assertEquals;
 
 import org.graalvm.vm.memory.ByteMemory;
+import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
@@ -19,7 +20,7 @@ public class VirtualMemoryTest {
 
     @Before
     public void setup() {
-        vm = new VirtualMemory();
+        vm = new JavaVirtualMemory();
         bytes = new byte[32];
         mem = new ByteMemory(bytes);
         page = new MemoryPage(mem, 0, bytes.length);

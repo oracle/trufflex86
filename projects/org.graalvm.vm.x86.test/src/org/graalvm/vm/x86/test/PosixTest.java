@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 
+import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
@@ -22,7 +23,7 @@ public class PosixTest {
     @Before
     public void setup() {
         stdout = new ByteArrayOutputStream();
-        vm = new VirtualMemory();
+        vm = new JavaVirtualMemory();
         posix = new PosixEnvironment(vm, "x86_64");
         posix.setStandardOut(stdout);
     }

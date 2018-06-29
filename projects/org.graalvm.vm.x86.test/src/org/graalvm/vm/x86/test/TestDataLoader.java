@@ -10,6 +10,7 @@ import com.everyware.util.ResourceLoader;
 
 public class TestDataLoader {
     public static byte[] loadFile(String name) throws IOException {
+        TestOptions.init();
         try (InputStream in = ResourceLoader.loadResource(TestDataLoader.class, name);
                         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             byte[] buf = new byte[256];

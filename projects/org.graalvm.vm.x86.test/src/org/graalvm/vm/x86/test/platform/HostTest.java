@@ -17,6 +17,7 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import org.graalvm.vm.x86.AMD64Language;
+import org.graalvm.vm.x86.test.TestOptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,6 +72,8 @@ public class HostTest {
     }
 
     private static void run(String filename, String[] args, String stdin, Result res) throws Exception {
+        TestOptions.init();
+
         Source source = Source.newBuilder(AMD64Language.NAME, new File(filename)).build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();

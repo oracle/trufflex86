@@ -49,7 +49,7 @@ public class AMD64Context {
 
     public AMD64Context(AMD64Language language, Env env, FrameDescriptor fd) {
         frameDescriptor = fd;
-        memory = new VirtualMemory();
+        memory = VirtualMemory.create();
         posix = new PosixEnvironment(memory, ARCH_NAME);
         posix.setStandardIn(env.in());
         posix.setStandardOut(env.out());

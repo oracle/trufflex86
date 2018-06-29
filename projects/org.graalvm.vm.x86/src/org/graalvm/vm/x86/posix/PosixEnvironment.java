@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
+import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixMemory;
@@ -40,10 +41,10 @@ import com.everyware.util.log.Trace;
 public class PosixEnvironment {
     private static final Logger log = Trace.create(PosixEnvironment.class);
 
-    private VirtualMemory mem;
-    private Posix posix;
+    private final VirtualMemory mem;
+    private final Posix posix;
     private boolean strace;
-    private String arch;
+    private final String arch;
 
     public PosixEnvironment(VirtualMemory mem, String arch) {
         this.mem = mem;
@@ -515,13 +516,16 @@ public class PosixEnvironment {
             log.log(Level.INFO, () -> String.format("mprotect(0x%016x, %d, %s)", addr, size, Mman.prot(prot)));
         }
         try {
-            MemoryPage page = mem.get(addr);
-            // TODO: handle length properly
-            if (page.base == mem.addr(addr)) {
-                // TODO: this is a hack because the length is not handled properly
-                page.r |= BitTest.test(prot, Mman.PROT_READ);
-                page.w |= BitTest.test(prot, Mman.PROT_WRITE);
-                page.x |= BitTest.test(prot, Mman.PROT_EXEC);
+            if (mem instanceof JavaVirtualMemory) {
+                JavaVirtualMemory jmem = (JavaVirtualMemory) mem;
+                MemoryPage page = jmem.get(addr);
+                // TODO: handle length properly
+                if (page.base == mem.addr(addr)) {
+                    // TODO: this is a hack because the length is not handled properly
+                    page.r |= BitTest.test(prot, Mman.PROT_READ);
+                    page.w |= BitTest.test(prot, Mman.PROT_WRITE);
+                    page.x |= BitTest.test(prot, Mman.PROT_EXEC);
+                }
             }
         } catch (SegmentationViolation e) {
             throw new SyscallException(Errno.ENOMEM);

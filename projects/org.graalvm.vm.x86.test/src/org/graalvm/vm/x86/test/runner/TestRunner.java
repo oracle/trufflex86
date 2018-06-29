@@ -30,6 +30,7 @@ public class TestRunner {
     }
 
     public static void run(String filename, String[] args, byte[] stdin, byte[] stdout, byte[] stderr, int code) throws Exception {
+        TestOptions.init();
         String path = getPath(filename);
 
         Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();
@@ -56,6 +57,7 @@ public class TestRunner {
     }
 
     public static void run(String filename, String[] args, String stdin, String stdout, String stderr, int code) throws Exception {
+        TestOptions.init();
         String path = getPath(filename);
 
         Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();
@@ -82,6 +84,7 @@ public class TestRunner {
     }
 
     public static void runBinary(String filename, String[] args, String stdin, String stdout, String stderr, int code) throws Exception {
+        TestOptions.init();
         String path = getPath(filename);
 
         Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();

@@ -1,7 +1,4 @@
-package org.graalvm.vm.x86;
-
-import static org.graalvm.vm.x86.Options.getLong;
-import static org.graalvm.vm.x86.Options.getString;
+package org.graalvm.vm.x86.emu;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -107,7 +104,7 @@ public class ElfLoader {
     public static final int AT_HWCAP2 = 26;
     public static final int AT_EXECFN = 31;
 
-    public static final long LOAD_BIAS = getLong(Options.LOAD_BIAS);
+    public static final long LOAD_BIAS = 0;
 
     private Elf elf;
     private long load_addr;
@@ -195,9 +192,7 @@ public class ElfLoader {
             load_bias = 0;
         }
 
-        if (LOAD_BIAS != 0) {
-            load_bias = LOAD_BIAS;
-        }
+        load_bias = LOAD_BIAS;
         load_addr = load_bias + getLowAddress(elf);
 
         symbols = new TreeMap<>();
@@ -278,7 +273,7 @@ public class ElfLoader {
 
                     segment = new byte[(int) size];
                     hdr.load(segment);
-                    MemoryPage p = new MemoryPage(new ByteMemory(segment, false), base + hdr.getVirtualAddress(), segment.length, interpreter, fileOffset);
+                    MemoryPage p = new MemoryPage(new ByteMemory(segment, false), base + hdr.getVirtualAddress(), memory.roundToPageSize(segment.length), interpreter, fileOffset);
                     p.r = hdr.getFlag(Elf.PF_R);
                     p.w = hdr.getFlag(Elf.PF_W);
                     p.x = hdr.getFlag(Elf.PF_X);
@@ -306,10 +301,7 @@ public class ElfLoader {
 
         memory.setBrk(brk);
 
-        String stackvalue = getString(Options.STACK_CONTENT);
-        if (stackvalue != null) {
-            buildStack(stackvalue);
-        } else if (elf.ei_class == Elf.ELFCLASS32) {
+        if (elf.ei_class == Elf.ELFCLASS32) {
             buildArgs32();
         } else if (elf.ei_class == Elf.ELFCLASS64) {
             buildArgs64();

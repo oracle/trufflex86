@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.graalvm.vm.memory.ByteMemory;
+import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
-import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.ElfLoader;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.junit.Before;
@@ -27,7 +27,7 @@ import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.Tmpfs;
 
 public class ElfLoaderTest {
-    private VirtualMemory mem;
+    private JavaVirtualMemory mem;
     private PosixEnvironment env;
     private ElfLoader loader;
 
@@ -37,7 +37,7 @@ public class ElfLoaderTest {
     public void setup() throws Exception {
         byte[] program = TestDataLoader.loadFile("bin/helloworld.elf");
 
-        mem = new VirtualMemory();
+        mem = new JavaVirtualMemory();
         Memory stackMemory = new ByteMemory(4 * 1024, false);
         MemoryPage stack = new MemoryPage(stackMemory, 0x7ffff000, stackMemory.size(), "[stack]");
         mem.add(stack);

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
@@ -281,9 +282,12 @@ public class TraceDispatchNode extends AMD64Node {
             }
             if (!(e.getCause() instanceof SegmentationViolation)) {
                 try {
-                    MemoryPage page = memory.get(e.getPC());
-                    if (page != null && page.name != null) {
-                        Trace.log.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
+                    if (memory instanceof JavaVirtualMemory) {
+                        JavaVirtualMemory jmem = (JavaVirtualMemory) memory;
+                        MemoryPage page = jmem.get(e.getPC());
+                        if (page != null && page.name != null) {
+                            Trace.log.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
+                        }
                     }
                 } catch (Throwable t) {
                     Trace.log.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
@@ -312,9 +316,12 @@ public class TraceDispatchNode extends AMD64Node {
             CompilerDirectives.transferToInterpreter();
             log.log(Levels.ERROR, String.format("Exception at address 0x%016x: %s", pc, t.getMessage()), t);
             try {
-                MemoryPage page = memory.get(pc);
-                if (page != null && page.name != null) {
-                    Trace.log.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                if (memory instanceof JavaVirtualMemory) {
+                    JavaVirtualMemory jmem = (JavaVirtualMemory) memory;
+                    MemoryPage page = jmem.get(pc);
+                    if (page != null && page.name != null) {
+                        Trace.log.printf("Memory region name: '%s', base = 0x%016x\n", page.name, page.base);
+                    }
                 }
             } catch (Throwable th) {
                 Trace.log.printf("Error while retrieving associated page of 0x%016x\n", pc);

@@ -40,7 +40,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/core.jar"
       ],
-      "sha1" : "64ca3c098ed977e1d46b0381454c63a8aebdc8ac",
+      "sha1" : "a01bac8dfe4a20f172e833c8e0b2a451dd0df99a",
     },
 
     "POSIX" : {
@@ -50,6 +50,14 @@ suite = {
       ],
       "sha1" : "20924881f86c7eeac20d9d9bd9040b10c0249dea",
     },
+
+    "XED" : {
+      "path" : "lib/xed.tar.gz",
+      "urls" : [
+        "https://orakel.has.enough.coffee/repo/xed-install-base-2018-06-29-lin-x86-64.tar.gz"
+      ],
+      "sha1" : "ec6ada3f0f3c8c71b57724b3d841d21d6c57fa67",
+    },
   },
 
   "defaultLicense" : "GPLv3",
@@ -58,6 +66,7 @@ suite = {
     "org.graalvm.vm.memory" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
+      "jniHeaders" : True,
       "dependencies" : [
         "CORE",
         "POSIX",
@@ -67,6 +76,27 @@ suite = {
       "javaCompliance" : "1.8",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "GPLv3",
+    },
+
+    "org.graalvm.vm.memory.native" : {
+      "subDir" : "projects",
+      "native" : True,
+      "vpath" : True,
+      "results" : [
+        "bin/<lib:memory>",
+      ],
+      "buildDependencies" : [
+        "org.graalvm.vm.memory",
+        "XED"
+      ],
+      "buildEnv" : {
+        "CFLAGS" : "-I<jnigen:org.graalvm.vm.memory>",
+        "LIBMEMORY" : "<lib:memory>",
+        "XED" : "<path:XED>",
+        "XED_VERSION" : "xed-install-base-2018-06-29-lin-x86-64",
+        "OS" : "<os>",
+      },
       "license" : "GPLv3",
     },
 
@@ -197,7 +227,42 @@ suite = {
       "javaCompliance" : "1.8",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
-    }
+    },
+
+    "org.graalvm.vm.x86.emu" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "jniHeaders" : True,
+      "dependencies" : [
+        "org.graalvm.vm.memory",
+        "org.graalvm.vm.x86",
+        "CORE",
+        "POSIX"
+      ],
+      "javaCompliance" : "1.8",
+      "workingSets" : "vmx86",
+      "license" : "GPLv3",
+      "testProject" : True,
+    },
+
+    "org.graalvm.vm.x86.emu.native" : {
+      "subDir" : "projects",
+      "native" : True,
+      "vpath" : True,
+      "results" : [
+        "bin/<lib:emu86>",
+      ],
+      "buildDependencies" : [
+        "org.graalvm.vm.x86.emu",
+      ],
+      "buildEnv" : {
+        "CFLAGS" : "-I<jnigen:org.graalvm.vm.x86.emu>",
+        "LIBEMU86" : "<lib:emu86>",
+        "OS" : "<os>",
+      },
+      "license" : "GPLv3",
+      "testProject" : True,
+    },
   },
 
   "distributions" : {
@@ -216,6 +281,15 @@ suite = {
       ]
     },
 
+    "VM_MEMORY_NATIVE" : {
+      "native" : True,
+      "platformDependent" : True,
+      "output" : "build",
+      "dependencies" : [
+        "org.graalvm.vm.memory.native"
+      ],
+    },
+
     "VM_TESTCASES" : {
       "native" : True,
       "platformDependent" : True,
@@ -226,6 +300,9 @@ suite = {
         "org.graalvm.vm.x86.testcases.sulong.asm",
         "benchmarksgame",
       ],
+      "javaProperties" : {
+        "library.path" : "<path:VM_MEMORY_NATIVE>/<lib:memory>"
+      },
     },
 
     "VM_TEST" : {
@@ -250,6 +327,29 @@ suite = {
       "javaProperties" : {
         "vmx86test.testSuitePath" : "<path:VM_TESTCASES>"
       },
+    },
+
+    "VM_EMU86_NATIVE" : {
+      "native" : True,
+      "platformDependent" : True,
+      "output" : "build",
+      "dependencies" : [
+        "org.graalvm.vm.x86.emu.native"
+      ],
+    },
+
+    "VM_EMU86" : {
+      "path" : "build/vmx86emu.jar",
+      "subDir" : "vmx86",
+      "sourcesPath" : "build/vmx86emu.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.x86.emu"
+      ],
+      "distDependencies" : [
+        "CORE",
+        "POSIX",
+        "VM"
+      ],
     }
   }
 }
