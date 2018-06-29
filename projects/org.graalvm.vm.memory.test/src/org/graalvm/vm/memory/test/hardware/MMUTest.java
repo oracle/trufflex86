@@ -9,7 +9,6 @@ import static org.junit.Assert.fail;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.NativeMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
-import org.graalvm.vm.memory.hardware.MMU;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,7 +25,7 @@ public class MMUTest {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
-        assertTrue(MMU.init(NativeVirtualMemory.LOW, NativeVirtualMemory.HIGH));
+        assertTrue(NativeVirtualMemory.isSupported());
     }
 
     @Before
