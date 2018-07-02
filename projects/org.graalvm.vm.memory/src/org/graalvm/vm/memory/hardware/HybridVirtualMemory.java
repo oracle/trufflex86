@@ -21,6 +21,14 @@ public class HybridVirtualMemory extends VirtualMemory {
         nmem = new NativeVirtualMemory(NativeVirtualMemory.LOW, NativeVirtualMemory.HIGH, 0, NativeVirtualMemory.SIZE);
     }
 
+    public NativeVirtualMemory getNativeVirtualMemory() {
+        return nmem;
+    }
+
+    public JavaVirtualMemory getJavaVirtualMemory() {
+        return jmem;
+    }
+
     @Override
     public void add(MemoryPage page) {
         if (page.base < nmem.getVirtualHigh()) {
