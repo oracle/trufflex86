@@ -3,6 +3,8 @@ package org.graalvm.vm.memory.hardware;
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.PosixException;
 import com.everyware.util.UnsafeHolder;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 
 import sun.misc.Unsafe;
 
@@ -11,17 +13,19 @@ public class MMU {
     // int munmap(void *addr, size_t len);
     // int mprotect(void *addr, size_t len, int prot);
 
-    private static boolean initialized = false;
+    @CompilationFinal private static boolean initialized = false;
     private static final Unsafe unsafe = UnsafeHolder.getUnsafe();
-    private static long ptr;
+    @CompilationFinal private static long ptr;
 
     public static boolean init(long lo, long hi) {
+        CompilerDirectives.transferToInterpreter();
         if (initialized) {
             throw new IllegalStateException("already initialized");
         }
         try {
             System.loadLibrary("memory");
             ptr = setup(lo, hi);
+            initialized = true;
             return true;
         } catch (UnsatisfiedLinkError e) {
             System.out.println("cannot load libmemory");
@@ -33,6 +37,10 @@ public class MMU {
     }
 
     public static long getSegfaultAddress() {
+        if (!initialized) {
+            CompilerDirectives.transferToInterpreter();
+            throw new IllegalStateException("native code not initialized");
+        }
         long val = unsafe.getLong(ptr);
         if (val != 0) {
             unsafe.putLong(ptr, 0);
