@@ -242,9 +242,6 @@ public class AMD64BasicBlock extends AMD64Node {
             } else {
                 printf("0x%016x: compiled code (%d insns)\n", instructions[0].getPC(), instructions.length);
             }
-            if (getAddress() == 0xf801a8d0L) {
-                dump();
-            }
         }
         long pc = getAddress();
         long n = 0;
