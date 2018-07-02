@@ -35,7 +35,8 @@ public class NativeVirtualMemory extends VirtualMemory {
     private final long virtualLo;
     private final long virtualHi;
 
-    private static final boolean supported = MMU.init(LOW, HIGH) && checkMemoryMap();
+    private static boolean initialized = false;
+    private static boolean supported;
 
     private static boolean checkMemoryMap() {
         try {
@@ -53,6 +54,10 @@ public class NativeVirtualMemory extends VirtualMemory {
     }
 
     public static boolean isSupported() {
+        if (!initialized) {
+            supported = checkMemoryMap() && MMU.init(LOW, HIGH);
+            initialized = true;
+        }
         return supported;
     }
 

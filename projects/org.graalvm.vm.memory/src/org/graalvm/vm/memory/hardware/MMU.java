@@ -9,10 +9,6 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import sun.misc.Unsafe;
 
 public class MMU {
-    // void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
-    // int munmap(void *addr, size_t len);
-    // int mprotect(void *addr, size_t len, int prot);
-
     @CompilationFinal private static boolean initialized = false;
     private static final Unsafe unsafe = UnsafeHolder.getUnsafe();
     @CompilationFinal private static long ptr;

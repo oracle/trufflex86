@@ -1,0 +1,7 @@
+[
+	{
+		"name" : "com.everyware.posix.api.PosixException",
+		"allDeclaredConstructors" : true,
+		"allPublicConstructors" : true
+	}
+]
