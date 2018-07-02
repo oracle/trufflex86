@@ -89,6 +89,7 @@ public class NativeVirtualMemory extends VirtualMemory {
         if (Long.compareUnsigned(address, virtualLo) >= 0 && Long.compareUnsigned(address, virtualHi) <= 0) {
             return;
         } else {
+            CompilerDirectives.transferToInterpreter();
             throw new SegmentationViolation(address);
         }
     }
@@ -103,6 +104,7 @@ public class NativeVirtualMemory extends VirtualMemory {
     private static void checkSegfault(long address, long phy) {
         long segfault = MMU.getSegfaultAddress();
         if (segfault == phy) {
+            CompilerDirectives.transferToInterpreter();
             throw new SegmentationViolation(address);
         }
     }
