@@ -27,10 +27,14 @@ import com.everyware.util.log.Trace;
 public class Interpreter {
     private static final Logger log = Trace.create(Interpreter.class);
 
-    private static boolean TRACE = Options.getBoolean(Options.DEBUG_EXEC);
+    private static final boolean TRACE = Options.getBoolean(Options.DEBUG_EXEC);
+    private static final boolean useInstructionCount = Options.getBoolean(Options.RDTSC_USE_INSTRUCTION_COUNT);
 
     private static final long SYSCALL = 0x050F;
     private static final long CPUID = 0xA20F;
+    private static final long RDTSC = 0x310F;
+    private static final long REP_STOSB = 0xAAF3;
+    private static final long REP_STOSQ = 0xAB48F3;
 
     private Ptrace ptrace;
     private Registers regs;
@@ -39,12 +43,15 @@ public class Interpreter {
 
     private SymbolResolver symbolResolver;
 
+    private long insncnt;
+
     public Interpreter(Ptrace ptrace, PosixEnvironment posix, VirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
         this.ptrace = ptrace;
         this.posix = posix;
         this.memory = memory;
         regs = ptrace.getRegisters();
         symbolResolver = new SymbolResolver(symbols);
+        insncnt = 0;
     }
 
     private long brk(long addr) {
@@ -310,10 +317,10 @@ public class Interpreter {
                 c = 0;
                 d = 0;
         }
-        regs.rax = a;
-        regs.rbx = b;
-        regs.rcx = c;
-        regs.rdx = d;
+        regs.rax = Integer.toUnsignedLong(a);
+        regs.rbx = Integer.toUnsignedLong(b);
+        regs.rcx = Integer.toUnsignedLong(c);
+        regs.rdx = Integer.toUnsignedLong(d);
     }
 
     public void step() throws ProcessExitException, PosixException {
@@ -340,11 +347,31 @@ public class Interpreter {
             cpuid();
             regs.rip += 2;
             ptrace.setRegisters(regs);
+        } else if (useInstructionCount && (insn & 0xFFFF) == RDTSC) {
+            long time = insncnt;
+            int high = (int) (time >> 32);
+            int low = (int) time;
+            regs.rax = Integer.toUnsignedLong(low);
+            regs.rdx = Integer.toUnsignedLong(high);
+            regs.rip += 2;
+            ptrace.setRegisters(regs);
+        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFFFF) == REP_STOSQ)) {
+            // step next
+            long rip = regs.rip;
+            do {
+                if (!ptrace.step()) {
+                    throw new ProcessExitException(-1);
+                }
+                insncnt++;
+                regs = ptrace.getRegisters();
+            } while (regs.rip == rip);
+            insncnt--;
         } else {
             if (!ptrace.step()) {
                 throw new ProcessExitException(-1);
             }
         }
+        insncnt++;
     }
 
     public int execute() throws PosixException {

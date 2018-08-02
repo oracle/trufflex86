@@ -127,7 +127,18 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public void add(MemoryPage page) {
         Memory mem = page.getMemory();
-        if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
+        if (mem instanceof PosixMemory) {
+            // copy
+            long size = mem.size();
+            Memory memory = new ByteMemory(size, false);
+            long sz = mem.size();
+            for (int i = 0; i < sz; i++) {
+                memory.setI8(i, mem.getI8(i));
+            }
+            MemoryPage pag = new MemoryPage(memory, page.base, page.size, page.name, page.fileOffset);
+            add(pag);
+            return;
+        } else if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
             throw new IllegalArgumentException("not a ByteMemory");
         }
         boolean ok = Long.compareUnsigned(page.end, pointerBase) <= 0 || Long.compareUnsigned(page.end, pointerEnd) > 0;
@@ -150,14 +161,22 @@ public class PtraceVirtualMemory extends VirtualMemory {
 
         // copy page content to native memory
         if (mem instanceof ByteMemory) {
-            int i;
-            for (i = 0; i < page.size - 8; i += 8) {
-                long val = page.getI64(page.base + i);
-                setI64(page.base + i, val);
+            int i = 0;
+            try {
+                for (i = 0; i < page.size - 8; i += 8) {
+                    long val = page.getI64(page.base + i);
+                    setI64(page.base + i, val);
+                }
+            } catch (SegmentationViolation e) {
+                // ignore
             }
-            for (; i < page.size; i++) {
-                byte val = page.getI8(page.base + i);
-                setI8(page.base + i, val);
+            try {
+                for (; i < page.size; i++) {
+                    byte val = page.getI8(page.base + i);
+                    setI8(page.base + i, val);
+                }
+            } catch (SegmentationViolation e) {
+                // ignore
             }
         }
 
@@ -188,9 +207,9 @@ public class PtraceVirtualMemory extends VirtualMemory {
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
         if (memory instanceof PosixMemory) {
             // copy
-            Memory mem = new ByteMemory(size);
+            Memory mem = new ByteMemory(size, false);
             long sz = memory.size();
-            for (int i = 0; i < sz; i += 8) {
+            for (int i = 0; i < sz; i++) {
                 mem.setI8(i, memory.getI8(i));
             }
             return allocate(mem, size, name, offset);
