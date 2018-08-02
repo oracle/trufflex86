@@ -248,7 +248,12 @@ public class NativeVirtualMemory extends VirtualMemory {
 
         // copy page content to native memory
         if (mem instanceof ByteMemory) {
-            for (int i = 0; i < page.size; i++) {
+            int i;
+            for (i = 0; i < page.size - 8; i += 8) {
+                long val = page.getI64(page.base + i);
+                setI64(page.base + i, val);
+            }
+            for (; i < page.size; i++) {
                 byte val = page.getI8(page.base + i);
                 setI8(page.base + i, val);
             }
