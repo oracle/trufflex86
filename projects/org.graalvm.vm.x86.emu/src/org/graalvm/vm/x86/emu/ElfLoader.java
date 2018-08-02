@@ -1,7 +1,6 @@
 package org.graalvm.vm.x86.emu;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
@@ -163,6 +162,9 @@ public class ElfLoader {
 
     private static long pad(long addr) {
         long offset = addr % PAGE_SIZE;
+        if (offset == 0) {
+            return 0;
+        }
         return PAGE_SIZE - offset;
     }
 
@@ -294,9 +296,11 @@ public class ElfLoader {
         }
 
         long pad = pad(brk);
-        MemoryPage padding = new MemoryPage(new ByteMemory(pad, false), brk, pad, "[heap]");
-        memory.add(padding);
-        brk += pad;
+        if (pad > 0) {
+            MemoryPage padding = new MemoryPage(new ByteMemory(pad, false), brk, pad, "[heap]");
+            memory.add(padding);
+            brk += pad;
+        }
         assert brk % PAGE_SIZE == 0 : String.format("unaligned: 0x%016X", brk);
 
         memory.setBrk(brk);
@@ -580,15 +584,6 @@ public class ElfLoader {
         ptr = setPair64(mem, ptr, AT_NULL, 0);
 
         assert ptr - r1 <= pointersSize;
-    }
-
-    private void buildStack(String b64stack) {
-        byte[] stack = Base64.getDecoder().decode(b64stack);
-        sp = 0x00007fffffffffffL - stack.length + 1;
-        System.out.printf("stack: 0x%016x", sp);
-        for (int i = 0; i < stack.length; i++) {
-            memory.setI8(sp + i, stack[i]);
-        }
     }
 
     public void setProgramName(String progname) {

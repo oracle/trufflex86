@@ -166,7 +166,11 @@ public class ElfLoader {
 
     private static long pad(long addr) {
         long offset = addr % PAGE_SIZE;
-        return PAGE_SIZE - offset;
+        if (offset == 0) {
+            return 0;
+        } else {
+            return PAGE_SIZE - offset;
+        }
     }
 
     private static long getLowAddress(Elf elf) {
@@ -299,9 +303,11 @@ public class ElfLoader {
         }
 
         long pad = pad(brk);
-        MemoryPage padding = new MemoryPage(new ByteMemory(pad, false), brk, pad, "[heap]");
-        memory.add(padding);
-        brk += pad;
+        if (pad > 0) {
+            MemoryPage padding = new MemoryPage(new ByteMemory(pad, false), brk, pad, "[heap]");
+            memory.add(padding);
+            brk += pad;
+        }
         assert brk % PAGE_SIZE == 0 : String.format("unaligned: 0x%016X", brk);
 
         memory.setBrk(brk);
