@@ -22,7 +22,46 @@
 #include <jni.h>
 #include "org_graalvm_vm_x86_emu_Ptrace.h"
 
-int wait_for_signal(pid_t pid)
+#define JNI_CHECK(x) \
+	x; \
+	if((*env)->ExceptionCheck(env)) { \
+		return; \
+	}
+
+#define POSIX_CHECK(x) \
+	if((x) == -1) { \
+		throw_posix_exception(env, errno); \
+		return; \
+	}
+
+#define POSIX_CHECK_Z(x) \
+	if((x) == -1) { \
+		throw_posix_exception(env, errno); \
+		return 0; \
+	}
+
+static void throw_posix_exception(JNIEnv* env, int err)
+{
+	jclass cls = (*env)->FindClass(env, "com/everyware/posix/api/PosixException");
+	jmethodID ctor = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
+	jobject exc = (*env)->NewObject(env, cls, ctor, err);
+	(*env)->Throw(env, exc);
+}
+
+static void throw_sigsegv(JNIEnv* env, void* addr)
+{
+	jclass cls = (*env)->FindClass(env, "org/graalvm/vm/memory/exception/SegmentationViolation");
+	jmethodID ctor = (*env)->GetMethodID(env, cls, "<init>", "(J)V");
+	jobject exc = (*env)->NewObject(env, cls, ctor, (long) addr);
+	(*env)->Throw(env, exc);
+}
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+	return JNI_VERSION_1_4;
+}
+
+int wait_for_signal(JNIEnv* env, pid_t pid)
 {
 	int status;
 	int options = 0;
@@ -30,7 +69,7 @@ int wait_for_signal(pid_t pid)
 
 	waitpid(pid, &status, options);
 
-	ptrace(PTRACE_GETSIGINFO, pid, NULL, &info);
+	POSIX_CHECK_Z(ptrace(PTRACE_GETSIGINFO, pid, NULL, &info));
 	switch (info.si_signo) {
 		case SIGTRAP:
 			switch(info.si_code) {
@@ -47,7 +86,8 @@ int wait_for_signal(pid_t pid)
 			break;
 		case SIGSEGV:
 			printf("SIGSEGV: %d\n", info.si_code);
-			break;
+			throw_sigsegv(env, info.si_addr);
+			return 0;
 		default:
 			printf("Got signal %s\n", strsignal(info.si_signo));
 	}
@@ -70,8 +110,10 @@ JNIEXPORT jint JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_fork
 		kill(getpid(), SIGSTOP);
 		// never reached
 		execvp(args[0], args);
+	} else if(pid == -1) {
+		throw_posix_exception(env, errno);
 	} else {
-		wait_for_signal(pid);
+		wait_for_signal(env, pid);
 		free(cmd);
 		return pid;
 	}
@@ -80,7 +122,7 @@ JNIEXPORT jint JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_fork
 JNIEXPORT jint JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_waitForSignal
   (JNIEnv* env, jclass self, jint pid)
 {
-	return wait_for_signal(pid);
+	return wait_for_signal(env, pid);
 }
 
 JNIEXPORT jlong JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_syscall
@@ -92,11 +134,11 @@ JNIEXPORT jlong JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_syscall
 	uint64_t rip;
 
 	// patch current insn to syscall
-	ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+	POSIX_CHECK_Z(ptrace(PTRACE_GETREGS, pid, NULL, &regs));
 	saved_regs = regs;
 	rip = regs.rip;
 	insn = ptrace(PTRACE_PEEKDATA, pid, rip, NULL);
-	ptrace(PTRACE_POKEDATA, pid, rip, 0xCCCCCCCCCCCC050FL);
+	POSIX_CHECK_Z(ptrace(PTRACE_POKEDATA, pid, rip, 0xCCCCCCCCCCCC050FL));
 
 	// set regs
 	regs.rax = nr;
@@ -106,22 +148,210 @@ JNIEXPORT jlong JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_syscall
 	regs.r10 = a4;
 	regs.r8 = a5;
 	regs.r9 = a6;
-	ptrace(PTRACE_SETREGS, pid, NULL, &regs);
+	POSIX_CHECK_Z(ptrace(PTRACE_SETREGS, pid, NULL, &regs));
 
 	// execute syscall
-	ptrace(PTRACE_SINGLESTEP, pid, NULL, NULL);
-	wait_for_signal(pid);
+	POSIX_CHECK_Z(ptrace(PTRACE_SINGLESTEP, pid, NULL, NULL));
+	wait_for_signal(env, pid);
 
 	// get regs
-	ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+	POSIX_CHECK_Z(ptrace(PTRACE_GETREGS, pid, NULL, &regs));
 
 	// restore regs
-	ptrace(PTRACE_SETREGS, pid, NULL, &saved_regs);
+	POSIX_CHECK_Z(ptrace(PTRACE_SETREGS, pid, NULL, &saved_regs));
 
 	// restore insn
-	ptrace(PTRACE_POKEDATA, pid, rip, insn);
+	POSIX_CHECK_Z(ptrace(PTRACE_POKEDATA, pid, rip, insn));
 
 	return regs.rax;
+}
+
+JNIEXPORT jint JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_step
+  (JNIEnv* env, jclass self, jint pid)
+{
+	// execute instruction
+	POSIX_CHECK_Z(ptrace(PTRACE_SINGLESTEP, pid, NULL, NULL));
+	return wait_for_signal(env, pid);
+}
+
+JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_readRegisters
+  (JNIEnv* env, jclass self, jint pid, jobject o)
+{
+	struct user_regs_struct regs;
+	struct user_fpregs_struct fpregs;
+
+	POSIX_CHECK(ptrace(PTRACE_GETREGS, pid, NULL, &regs));
+	POSIX_CHECK(ptrace(PTRACE_GETFPREGS, pid, NULL, &fpregs));
+
+	jclass clazz = (*env)->GetObjectClass(env, o);
+
+	jfieldID rax = (*env)->GetFieldID(env, clazz, "rax", "J");
+	(*env)->SetLongField(env, o, rax, regs.rax);
+
+	jfieldID rbx = (*env)->GetFieldID(env, clazz, "rbx", "J");
+	(*env)->SetLongField(env, o, rbx, regs.rbx);
+
+	jfieldID rcx = (*env)->GetFieldID(env, clazz, "rcx", "J");
+	(*env)->SetLongField(env, o, rcx, regs.rcx);
+
+	jfieldID rdx = (*env)->GetFieldID(env, clazz, "rdx", "J");
+	(*env)->SetLongField(env, o, rdx, regs.rdx);
+
+	jfieldID rsi = (*env)->GetFieldID(env, clazz, "rsi", "J");
+	(*env)->SetLongField(env, o, rsi, regs.rsi);
+
+	jfieldID rdi = (*env)->GetFieldID(env, clazz, "rdi", "J");
+	(*env)->SetLongField(env, o, rdi, regs.rdi);
+
+	jfieldID rbp = (*env)->GetFieldID(env, clazz, "rbp", "J");
+	(*env)->SetLongField(env, o, rbp, regs.rbp);
+
+	jfieldID rsp = (*env)->GetFieldID(env, clazz, "rsp", "J");
+	(*env)->SetLongField(env, o, rsp, regs.rsp);
+
+	jfieldID r8 = (*env)->GetFieldID(env, clazz, "r8", "J");
+	(*env)->SetLongField(env, o, r8, regs.r8);
+
+	jfieldID r9 = (*env)->GetFieldID(env, clazz, "r9", "J");
+	(*env)->SetLongField(env, o, r9, regs.r9);
+
+	jfieldID r10 = (*env)->GetFieldID(env, clazz, "r10", "J");
+	(*env)->SetLongField(env, o, r10, regs.r10);
+
+	jfieldID r11 = (*env)->GetFieldID(env, clazz, "r11", "J");
+	(*env)->SetLongField(env, o, r11, regs.r11);
+
+	jfieldID r12 = (*env)->GetFieldID(env, clazz, "r12", "J");
+	(*env)->SetLongField(env, o, r12, regs.r12);
+
+	jfieldID r13 = (*env)->GetFieldID(env, clazz, "r13", "J");
+	(*env)->SetLongField(env, o, r13, regs.r13);
+
+	jfieldID r14 = (*env)->GetFieldID(env, clazz, "r14", "J");
+	(*env)->SetLongField(env, o, r14, regs.r14);
+
+	jfieldID r15 = (*env)->GetFieldID(env, clazz, "r15", "J");
+	(*env)->SetLongField(env, o, r15, regs.r15);
+
+	jfieldID rflags = (*env)->GetFieldID(env, clazz, "rflags", "J");
+	(*env)->SetLongField(env, o, rflags, regs.eflags);
+
+	jfieldID rip = (*env)->GetFieldID(env, clazz, "rip", "J");
+	(*env)->SetLongField(env, o, rip, regs.rip);
+
+	jfieldID fs_base = (*env)->GetFieldID(env, clazz, "fs_base", "J");
+	(*env)->SetLongField(env, o, fs_base, regs.fs_base);
+
+	jfieldID gs_base = (*env)->GetFieldID(env, clazz, "gs_base", "J");
+	(*env)->SetLongField(env, o, gs_base, regs.gs_base);
+
+	jfieldID mxcsr = (*env)->GetFieldID(env, clazz, "mxcsr", "J");
+	(*env)->SetLongField(env, o, mxcsr, fpregs.mxcsr);
+
+	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
+	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
+
+	JNI_CHECK(jbyte* xmm_data = (*env)->GetPrimitiveArrayCritical(env, xmms, NULL));
+	if(!xmm_data) {
+		jclass clazz = (*env)->FindClass(env, "java/lang/RuntimeException");
+		(*env)->ThrowNew(env, clazz, "error while locking array");
+		return;
+	}
+
+	memcpy(xmm_data, fpregs.xmm_space, 256);
+
+	(*env)->ReleasePrimitiveArrayCritical(env, xmms, xmm_data, 0);
+}
+
+JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_writeRegisters
+  (JNIEnv* env, jclass self, jint pid, jobject o)
+{
+	struct user_regs_struct regs;
+	struct user_fpregs_struct fpregs;
+
+	POSIX_CHECK(ptrace(PTRACE_GETREGS, pid, NULL, &regs));
+	POSIX_CHECK(ptrace(PTRACE_GETFPREGS, pid, NULL, &fpregs));
+
+	JNI_CHECK(jclass clazz = (*env)->GetObjectClass(env, o));
+
+	jfieldID rax = (*env)->GetFieldID(env, clazz, "rax", "J");
+	regs.rax = (*env)->GetLongField(env, o, rax);
+
+	jfieldID rbx = (*env)->GetFieldID(env, clazz, "rbx", "J");
+	regs.rbx = (*env)->GetLongField(env, o, rbx);
+
+	jfieldID rcx = (*env)->GetFieldID(env, clazz, "rcx", "J");
+	regs.rcx = (*env)->GetLongField(env, o, rcx);
+
+	jfieldID rdx = (*env)->GetFieldID(env, clazz, "rdx", "J");
+	regs.rdx = (*env)->GetLongField(env, o, rdx);
+
+	jfieldID rsi = (*env)->GetFieldID(env, clazz, "rsi", "J");
+	regs.rsi = (*env)->GetLongField(env, o, rsi);
+
+	jfieldID rdi = (*env)->GetFieldID(env, clazz, "rdi", "J");
+	regs.rdi = (*env)->GetLongField(env, o, rdi);
+
+	jfieldID rbp = (*env)->GetFieldID(env, clazz, "rbp", "J");
+	regs.rbp = (*env)->GetLongField(env, o, rbp);
+
+	jfieldID rsp = (*env)->GetFieldID(env, clazz, "rsp", "J");
+	regs.rsp = (*env)->GetLongField(env, o, rsp);
+
+	jfieldID r8 = (*env)->GetFieldID(env, clazz, "r8", "J");
+	regs.r8 = (*env)->GetLongField(env, o, r8);
+
+	jfieldID r9 = (*env)->GetFieldID(env, clazz, "r9", "J");
+	regs.r9 = (*env)->GetLongField(env, o, r9);
+
+	jfieldID r10 = (*env)->GetFieldID(env, clazz, "r10", "J");
+	regs.r10 = (*env)->GetLongField(env, o, r10);
+
+	jfieldID r11 = (*env)->GetFieldID(env, clazz, "r11", "J");
+	regs.r11 = (*env)->GetLongField(env, o, r11);
+
+	jfieldID r12 = (*env)->GetFieldID(env, clazz, "r12", "J");
+	regs.r12 = (*env)->GetLongField(env, o, r12);
+
+	jfieldID r13 = (*env)->GetFieldID(env, clazz, "r13", "J");
+	regs.r13 = (*env)->GetLongField(env, o, r13);
+
+	jfieldID r14 = (*env)->GetFieldID(env, clazz, "r14", "J");
+	regs.r14 = (*env)->GetLongField(env, o, r14);
+
+	jfieldID r15 = (*env)->GetFieldID(env, clazz, "r15", "J");
+	regs.r15 = (*env)->GetLongField(env, o, r15);
+
+	jfieldID rflags = (*env)->GetFieldID(env, clazz, "rflags", "J");
+	regs.eflags = (int) (*env)->GetLongField(env, o, rflags);
+
+	jfieldID rip = (*env)->GetFieldID(env, clazz, "rip", "J");
+	regs.rip = (*env)->GetLongField(env, o, rip);
+
+	jfieldID fs_base = (*env)->GetFieldID(env, clazz, "fs_base", "J");
+	regs.fs_base = (*env)->GetLongField(env, o, fs_base);
+
+	jfieldID gs_base = (*env)->GetFieldID(env, clazz, "gs_base", "J");
+	regs.gs_base = (*env)->GetLongField(env, o, gs_base);
+
+	jfieldID mxcsr = (*env)->GetFieldID(env, clazz, "mxcsr", "J");
+	fpregs.mxcsr = (*env)->GetLongField(env, o, mxcsr);
+
+	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
+	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
+
+	JNI_CHECK(jbyte* xmm_data = (*env)->GetPrimitiveArrayCritical(env, xmms, NULL));
+	if(!xmm_data) {
+		jclass clazz = (*env)->FindClass(env, "java/lang/RuntimeException");
+		(*env)->ThrowNew(env, clazz, "error while locking array");
+		return;
+	}
+
+	memcpy(fpregs.xmm_space, xmm_data, 256);
+	JNI_CHECK((*env)->ReleasePrimitiveArrayCritical(env, xmms, xmm_data, 0));
+
+	POSIX_CHECK(ptrace(PTRACE_SETFPREGS, pid, NULL, &fpregs));
+	POSIX_CHECK(ptrace(PTRACE_SETREGS, pid, NULL, &regs));
 }
 
 JNIEXPORT jlong JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_read
@@ -133,11 +363,11 @@ JNIEXPORT jlong JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_read
 JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_write
   (JNIEnv* env, jclass self, jint pid, jlong addr, jlong value)
 {
-	ptrace(PTRACE_POKEDATA, pid, addr, value);
+	POSIX_CHECK(ptrace(PTRACE_POKEDATA, pid, addr, value));
 }
 
 JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_kill
   (JNIEnv* env, jclass self, jint pid, jint sig)
 {
-	kill(pid, sig);
+	POSIX_CHECK(kill(pid, sig));
 }

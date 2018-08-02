@@ -7,7 +7,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 public class NullMemory extends Memory {
     private final long size;
 
-    protected NullMemory(boolean isBE, long size) {
+    public NullMemory(boolean isBE, long size) {
         super(isBE);
         this.size = size;
     }
