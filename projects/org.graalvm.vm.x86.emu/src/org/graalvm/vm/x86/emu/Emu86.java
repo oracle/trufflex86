@@ -108,7 +108,6 @@ public class Emu86 {
         regs.rip = loader.getPC();
         ptrace.setRegisters(regs);
 
-        System.out.println("Starting interpreter...");
         Interpreter interp = new Interpreter(ptrace, posix, mem);
         int code = interp.execute();
         System.exit(code);
@@ -126,7 +125,6 @@ public class Emu86 {
         int pid = -1;
         try (Ptrace ptrace = new Ptrace()) {
             pid = ptrace.getPid();
-            System.out.println("pid: " + pid);
 
             try {
                 run(ptrace, args);

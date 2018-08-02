@@ -71,6 +71,9 @@ int wait_for_signal(JNIEnv* env, pid_t pid)
 
 	POSIX_CHECK_Z(ptrace(PTRACE_GETSIGINFO, pid, NULL, &info));
 	switch (info.si_signo) {
+		case SIGSTOP:
+			// ignore sigstop
+			break;
 		case SIGTRAP:
 			switch(info.si_code) {
 				case 0:
@@ -81,15 +84,15 @@ int wait_for_signal(JNIEnv* env, pid_t pid)
 					// single step completed
 					break;
 				default:
-					printf("unknown SIGTRAP code: %d\n", info.si_code);
+					fprintf(stderr, "unknown SIGTRAP code: %d\n", info.si_code);
 			}
 			break;
 		case SIGSEGV:
-			printf("SIGSEGV: %d\n", info.si_code);
+			fprintf(stderr, "SIGSEGV: %d\n", info.si_code);
 			throw_sigsegv(env, info.si_addr);
 			return 0;
 		default:
-			printf("Got signal %s\n", strsignal(info.si_signo));
+			fprintf(stderr, "Got signal %s\n", strsignal(info.si_signo));
 	}
 	return !WIFEXITED(status);
 }

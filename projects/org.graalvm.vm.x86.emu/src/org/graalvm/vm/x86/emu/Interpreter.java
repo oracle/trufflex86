@@ -4,6 +4,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.isa.CpuidBits;
+import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.posix.ArchPrctl;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
@@ -217,6 +219,88 @@ public class Interpreter {
     }
 
     private void cpuid() {
+        int level = (int) regs.rax;
+
+        int a;
+        int b;
+        int c;
+        int d;
+
+        switch (level) {
+            case 0:
+                // Get Vendor ID/Highest Function Parameter
+                a = 7; // max supported function
+                b = Cpuid.VENDOR_ID_I32[0];
+                d = Cpuid.VENDOR_ID_I32[1];
+                c = Cpuid.VENDOR_ID_I32[2];
+                break;
+            case 1:
+                // Processor Info and Feature Bits
+                // EAX:
+                // 3:0 - Stepping
+                // 7:4 - Model
+                // 11:8 - Family
+                // 13:12 - Processor Type
+                // 19:16 - Extended Model
+                // 27:20 - Extended Family
+                a = 0;
+                b = 0;
+                c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.SSE42 | CpuidBits.POPCNT | CpuidBits.RDRND;
+                d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
+                break;
+            case 7:
+                // Extended Features (FIXME: assumption is ECX=0)
+                a = 0;
+                b = CpuidBits.RDSEED;
+                c = 0;
+                d = 0;
+                break;
+            case 0x80000000:
+                // Get Highest Extended Function Supported
+                a = 0x80000004;
+                b = 0;
+                c = 0;
+                d = 0;
+                break;
+            case 0x80000001:
+                // Extended Processor Info and Feature Bits
+                a = 0;
+                b = 0;
+                c = CpuidBits.LAHF;
+                d = CpuidBits.LM;
+                break;
+            case 0x80000002:
+                // Processor Brand String
+                a = Cpuid.BRAND_I32[0];
+                b = Cpuid.BRAND_I32[1];
+                c = Cpuid.BRAND_I32[2];
+                d = Cpuid.BRAND_I32[3];
+                break;
+            case 0x80000003:
+                // Processor Brand String
+                a = Cpuid.BRAND_I32[4];
+                b = Cpuid.BRAND_I32[5];
+                c = Cpuid.BRAND_I32[6];
+                d = Cpuid.BRAND_I32[7];
+                break;
+            case 0x80000004:
+                // Processor Brand String
+                a = Cpuid.BRAND_I32[8];
+                b = Cpuid.BRAND_I32[9];
+                c = Cpuid.BRAND_I32[10];
+                d = Cpuid.BRAND_I32[11];
+                break;
+            default:
+                // Fallback: bits cleared = feature(s) not available
+                a = 0;
+                b = 0;
+                c = 0;
+                d = 0;
+        }
+        regs.rax = a;
+        regs.rbx = b;
+        regs.rcx = c;
+        regs.rdx = d;
     }
 
     public void step() throws ProcessExitException, PosixException {
