@@ -13,6 +13,7 @@ import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.x86.Options;
 
 import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.CString;
@@ -41,6 +42,8 @@ import com.everyware.util.log.Trace;
 
 public class PosixEnvironment {
     private static final Logger log = Trace.create(PosixEnvironment.class);
+
+    private static final boolean STATIC_TIME = Options.getBoolean(Options.USE_STATIC_TIME);
 
     private final VirtualMemory mem;
     private final Posix posix;
@@ -515,7 +518,7 @@ public class PosixEnvironment {
         }
         try {
             // return posix.munmap(posixPointer(addr), length);
-            mem.remove(addr, length);
+            mem.remove(addr, mem.roundToPageSize(length));
             return 0;
         } catch (PosixException e) {
             if (strace) {
@@ -551,6 +554,9 @@ public class PosixEnvironment {
         try {
             Timespec t = new Timespec();
             int val = posix.clock_gettime(clk_id, t);
+            if (STATIC_TIME) {
+                t = new Timespec();
+            }
             PosixPointer ptr = posixPointer(tp);
             t.write64(ptr);
             return val;
@@ -565,6 +571,9 @@ public class PosixEnvironment {
     public int gettimeofday(long tp, @SuppressWarnings("unused") long tzp) {
         Timeval t = new Timeval();
         int val = posix.gettimeofday(t, null);
+        if (STATIC_TIME) {
+            t = new Timeval();
+        }
         PosixPointer ptr = posixPointer(tp);
         t.write64(ptr);
         return val;
@@ -574,6 +583,9 @@ public class PosixEnvironment {
         try {
             Tms buf = new Tms();
             long val = posix.times(buf);
+            if (STATIC_TIME) {
+                buf = new Tms();
+            }
             PosixPointer ptr = posixPointer(buffer);
             buf.write64(ptr);
             return val;
@@ -654,6 +666,9 @@ public class PosixEnvironment {
             log.log(Level.INFO, () -> String.format("time(0x%016x)", tloc));
         }
         long time = System.currentTimeMillis() / 1000;
+        if (STATIC_TIME) {
+            time = 0;
+        }
         if (tloc != 0) {
             PosixPointer ptr = posixPointer(tloc);
             ptr.setI64(time);

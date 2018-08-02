@@ -30,6 +30,9 @@ public class Options {
     // Instructions
     public static final BooleanOption RDTSC_USE_INSTRUCTION_COUNT = new BooleanOption("vmx86.rdtsc.insncnt", false);
 
+    // POSIX functions
+    public static final BooleanOption USE_STATIC_TIME = new BooleanOption("posix.time.static", false);
+
     // CPUID
     public static final StringOption CPUID_BRAND = new StringOption("vmx86.cpuid.brand", "VMX86 on Graal/Truffle");
     public static final StringOption VENDOR_ID = new StringOption("vmx86.cpuid.vendor", "VMX86onGraal");
