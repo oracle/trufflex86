@@ -17,6 +17,7 @@ import com.everyware.posix.api.PosixException;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.NativeFileSystem;
 import com.everyware.posix.vfs.VFS;
+import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
 
 public class Emu86 {
@@ -114,7 +115,7 @@ public class Emu86 {
     }
 
     public static void main(String[] args) throws PosixException, IOException {
-        Trace.setupConsoleApplication();
+        Trace.setupConsoleApplication(Levels.INFO);
         System.loadLibrary("emu86");
 
         if (args.length == 0) {
