@@ -11,6 +11,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
+import org.graalvm.vm.x86.ElfLoader;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.PosixException;
@@ -28,8 +29,6 @@ public class Emu86 {
     public static final long STACK_BASE = STACK_ADDRESS - STACK_SIZE;
 
     private static void run(Ptrace ptrace, String[] args) throws PosixException, IOException {
-        String execfn = args[0];
-
         VirtualMemory mem = new PtraceVirtualMemory(ptrace);
         PosixEnvironment posix = new PosixEnvironment(mem, "x86_64");
 
@@ -43,7 +42,6 @@ public class Emu86 {
         loader.setVirtualMemory(mem);
         loader.setEnvironment(System.getenv());
         loader.setArguments(args);
-        loader.setProgramName(execfn);
 
         long stackbase = mem.pageStart(STACK_BASE);
         long stacksize = mem.roundToPageSize(STACK_SIZE);
@@ -83,8 +81,11 @@ public class Emu86 {
         }
         posix.getPosix().chdir(posixPath.toString());
 
-        String path = vfs.resolve(execfn);
-        loader.load(path);
+        String execfn = vfs.resolve(args[0]); // get absolute path
+        posix.setExecfn(execfn);
+
+        loader.setProgramName(execfn);
+        loader.load(execfn);
 
         Registers regs = ptrace.getRegisters();
         regs.rax = 0;
@@ -107,9 +108,12 @@ public class Emu86 {
         regs.gs_base = 0;
         regs.rflags = 0;
         regs.rip = loader.getPC();
+        for (int i = 0; i < regs.xmm_space.length; i++) {
+            regs.xmm_space[i] = 0;
+        }
         ptrace.setRegisters(regs);
 
-        Interpreter interp = new Interpreter(ptrace, posix, mem);
+        Interpreter interp = new Interpreter(ptrace, posix, mem, loader.getSymbols());
         int code = interp.execute();
         System.exit(code);
     }

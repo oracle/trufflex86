@@ -30,7 +30,7 @@ public class Registers {
     public long mxcsr;
     public final byte[] xmm_space = new byte[256];
 
-    public boolean printSSE = false;
+    public boolean printSSE = true;
 
     private Vector128 getXMM(int i) {
         byte[] data = new byte[16];

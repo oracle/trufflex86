@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
+import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.NullMemory;
@@ -185,7 +186,15 @@ public class PtraceVirtualMemory extends VirtualMemory {
 
     @Override
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
-        if (!(memory instanceof ByteMemory)) {
+        if (memory instanceof PosixMemory) {
+            // copy
+            Memory mem = new ByteMemory(size);
+            long sz = memory.size();
+            for (int i = 0; i < sz; i += 8) {
+                mem.setI8(i, memory.getI8(i));
+            }
+            return allocate(mem, size, name, offset);
+        } else if (!(memory instanceof ByteMemory)) {
             throw new IllegalArgumentException("not a ByteMemory");
         }
 

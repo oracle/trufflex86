@@ -1,9 +1,16 @@
 package org.graalvm.vm.x86.emu;
 
+import java.util.NavigableMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.Options;
+import org.graalvm.vm.x86.SymbolResolver;
+import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
+import org.graalvm.vm.x86.isa.CodeMemoryReader;
+import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.CpuidBits;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.posix.ArchPrctl;
@@ -14,10 +21,13 @@ import org.graalvm.vm.x86.posix.SyscallNames;
 
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.PosixException;
+import com.everyware.posix.elf.Symbol;
 import com.everyware.util.log.Trace;
 
 public class Interpreter {
     private static final Logger log = Trace.create(Interpreter.class);
+
+    private static boolean TRACE = Options.getBoolean(Options.DEBUG_EXEC);
 
     private static final long SYSCALL = 0x050F;
     private static final long CPUID = 0xA20F;
@@ -27,11 +37,14 @@ public class Interpreter {
     private PosixEnvironment posix;
     private VirtualMemory memory;
 
-    public Interpreter(Ptrace ptrace, PosixEnvironment posix, VirtualMemory memory) throws PosixException {
+    private SymbolResolver symbolResolver;
+
+    public Interpreter(Ptrace ptrace, PosixEnvironment posix, VirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
         this.ptrace = ptrace;
         this.posix = posix;
         this.memory = memory;
         regs = ptrace.getRegisters();
+        symbolResolver = new SymbolResolver(symbols);
     }
 
     private long brk(long addr) {
@@ -305,6 +318,15 @@ public class Interpreter {
 
     public void step() throws ProcessExitException, PosixException {
         regs = ptrace.getRegisters();
+        if (TRACE) {
+            Symbol sym = symbolResolver.getSymbol(regs.rip);
+            String func = sym == null ? "" : sym.getName();
+            CodeReader reader = new CodeMemoryReader(memory, regs.rip);
+            String insn = AMD64InstructionDecoder.decode(regs.rip, reader).getDisassembly();
+            System.out.println("----------------\nIN: " + func);
+            System.out.println("0x" + HexFormatter.tohex(regs.rip, 8) + ":\t" + insn + "\n");
+            System.out.println(regs);
+        }
         long insn = ptrace.read(regs.rip);
         if ((insn & 0xFFFF) == SYSCALL) {
             try {

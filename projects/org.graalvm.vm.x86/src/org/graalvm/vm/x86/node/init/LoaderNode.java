@@ -45,6 +45,7 @@ public class LoaderNode extends AMD64Node {
     @TruffleBoundary
     private void setup(String execfn, ElfLoader loader) throws PosixException, IOException {
         PosixEnvironment posix = getContextReference().get().getPosixEnvironment();
+        posix.setExecfn(execfn);
         VFS vfs = posix.getVFS();
         Path cwd = Paths.get(".").toAbsolutePath().normalize();
         FileSystem fs;

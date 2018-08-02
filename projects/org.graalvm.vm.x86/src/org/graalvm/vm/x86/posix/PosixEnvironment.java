@@ -15,6 +15,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.BytePosixPointer;
+import com.everyware.posix.api.CString;
 import com.everyware.posix.api.Dirent;
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Posix;
@@ -46,6 +47,8 @@ public class PosixEnvironment {
     private boolean strace;
     private final String arch;
 
+    private String execfn;
+
     public PosixEnvironment(VirtualMemory mem, String arch) {
         this.mem = mem;
         this.arch = arch;
@@ -60,6 +63,10 @@ public class PosixEnvironment {
 
     public boolean isStrace() {
         return strace;
+    }
+
+    public void setExecfn(String execfn) {
+        this.execfn = execfn;
     }
 
     private String cstr(long buf) {
@@ -218,6 +225,13 @@ public class PosixEnvironment {
     public long readlink(long path, long buf, long bufsize) throws SyscallException {
         String p = cstr(path);
         PosixPointer ptr = posixPointer(buf);
+        if (p.equals("/proc/self/exe")) {
+            if (strace) {
+                log.log(Level.INFO, () -> String.format("readlink(\"%s\", 0x%x, %d)", p, buf, bufsize));
+            }
+            CString.strcpy(ptr, execfn);
+            return execfn.length();
+        }
         try {
             return posix.readlink(p, ptr, bufsize);
         } catch (PosixException e) {
