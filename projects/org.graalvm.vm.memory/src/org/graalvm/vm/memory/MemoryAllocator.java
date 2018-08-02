@@ -9,15 +9,16 @@ public class MemoryAllocator {
     private long usedMemory;
 
     private final long memoryBase;
+    private final long memorySize;
 
     private static class Block {
         public long base;
         public long size;
         public boolean free;
-        public Block prev;
-        public Block next;
-        public Block prevBlock;
-        public Block nextBlock;
+        public Block prev; // link to previous free block
+        public Block next; // link to next free block
+        public Block prevBlock; // link to previous block according to memory layout
+        public Block nextBlock; // link to next block according to memory layout
 
         Block(long base, long size) {
             this.base = base;
@@ -45,6 +46,7 @@ public class MemoryAllocator {
 
     public MemoryAllocator(long base, long size) {
         memoryBase = base;
+        memorySize = size;
         memory = new Block(base, size);
         free = memory;
         usedMemory = 0;
@@ -414,10 +416,15 @@ public class MemoryAllocator {
                         if (b.next != null) {
                             b.next.prev = b;
                         }
+                        lastFree = b;
                     } else {
                         b.prev = null;
                         b.next = free;
+                        if (free != null) {
+                            free.prev = b;
+                        }
                         free = b;
+                        lastFree = b;
                     }
 
                     usedMemory -= remaining;
@@ -479,11 +486,118 @@ public class MemoryAllocator {
                     }
                     return;
                 } else {
-                    assert false;
+                    throw new AssertionError();
                 }
             } else if (b.contains(p)) {
+                // split block, mark center as free
                 start = b;
-                assert false;
+                Block head = new Block(start.base, p - start.base);
+                Block tail = new Block(p, start.size - head.size);
+                b = head;
+                if (start == memory) {
+                    memory = head;
+                }
+                if (Long.compareUnsigned(tail.size, remaining) > 0) {
+                    Block center = new Block(tail.base, remaining);
+                    tail = new Block(tail.base + remaining, tail.size - remaining);
+
+                    head.free = false;
+                    head.prevBlock = start.prevBlock;
+                    if (head.prevBlock != null) {
+                        head.prevBlock.nextBlock = head;
+                    }
+                    head.nextBlock = center;
+                    head.nextBlock.prevBlock = head;
+                    center.nextBlock = tail;
+                    center.nextBlock.prevBlock = center;
+                    center.free = true;
+                    tail.nextBlock = start.nextBlock;
+                    tail.nextBlock.prevBlock = tail;
+                    tail.free = false;
+
+                    if (lastFree != null) {
+                        center.next = lastFree.next;
+                        center.prev = lastFree;
+                        lastFree.next = center;
+                        if (center.next != null) {
+                            center.next.prev = center;
+                        }
+                        lastFree = center;
+                    } else {
+                        center.prev = null;
+                        center.next = free;
+                        if (free != null) {
+                            free.prev = center;
+                        }
+                        free = center;
+                        lastFree = center;
+                    }
+
+                    usedMemory -= remaining;
+
+                    check(free);
+
+                    if (debug) {
+                        check();
+                    }
+
+                    return;
+                } else if (tail.size == remaining) { // mark tail as free
+                    head.free = false;
+                    head.prevBlock = start.prevBlock;
+                    if (head.prevBlock != null) {
+                        head.prevBlock.nextBlock = head;
+                    }
+                    head.nextBlock = tail;
+                    head.nextBlock.prevBlock = head;
+                    tail.nextBlock = start.nextBlock;
+                    tail.nextBlock.prevBlock = tail;
+                    tail.free = true;
+
+                    if (lastFree != null) {
+                        tail.next = lastFree.next;
+                        tail.prev = lastFree;
+                        lastFree.next = tail;
+                        if (tail.next != null) {
+                            tail.next.prev = tail;
+                        }
+                        lastFree = tail;
+                    } else {
+                        tail.prev = null;
+                        tail.next = free;
+                        if (free != null) {
+                            free.prev = tail;
+                        }
+                        free = tail;
+                        lastFree = tail;
+                    }
+
+                    usedMemory -= remaining;
+
+                    check(free);
+
+                    if (debug) {
+                        check();
+                    }
+
+                    compact(tail);
+
+                    if (debug) {
+                        check();
+                    }
+
+                    return;
+                } else {
+                    assert false;
+                }
+
+                check(free);
+
+                if (debug) {
+                    check();
+                }
+
+                throw new AssertionError();
             }
         }
         // TODO: unreachable?
@@ -592,5 +706,6 @@ public class MemoryAllocator {
         }
         __assert(usedmem == usedMemory, String.format("used memory: 0x%x vs 0x%x", usedmem, usedMemory));
         __assert(freemem == freeMemory, String.format("free memory: 0x%x vs 0x%x", freemem, freeMemory));
+        __assert((usedmem + freemem) == memorySize, String.format("0x%dx bytes in blocks vs 0x%dx memory region", usedmem + freemem, memorySize));
     }
 }
