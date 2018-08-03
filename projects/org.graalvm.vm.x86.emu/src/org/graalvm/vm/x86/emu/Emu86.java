@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
-import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
@@ -29,8 +28,11 @@ public class Emu86 {
     public static final long STACK_BASE = STACK_ADDRESS - STACK_SIZE;
 
     private static void run(Ptrace ptrace, String[] args) throws PosixException, IOException {
-        VirtualMemory mem = new PtraceVirtualMemory(ptrace);
+        PtraceVirtualMemory mem = new PtraceVirtualMemory(ptrace);
         PosixEnvironment posix = new PosixEnvironment(mem, "x86_64");
+        posix.setStandardIn(System.in);
+        posix.setStandardOut(System.out);
+        posix.setStandardErr(System.err);
 
         // long addr = ptrace.mmap(0, 4096, true, true, false, false, true, false, -1, 0);
         // ptrace.write(addr, 0x0A46454542L); // "BEEF\n"

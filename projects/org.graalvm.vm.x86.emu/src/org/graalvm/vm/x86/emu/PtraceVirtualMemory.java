@@ -29,7 +29,15 @@ public class PtraceVirtualMemory extends VirtualMemory {
 
     public PtraceVirtualMemory(Ptrace ptrace) {
         this.ptrace = ptrace;
-        this.setLE();
+        setLE();
+    }
+
+    public boolean getDebug() {
+        return debugMemory;
+    }
+
+    public void setDebug(boolean debug) {
+        debugMemory = debug;
     }
 
     private static long a64(long addr) {
@@ -44,14 +52,18 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public byte getI8(long addr) {
         try {
-            return (byte) ptrace.read(addr);
+            byte val = (byte) ptrace.read(addr);
+            logMemoryRead(addr, 1, val);
+            return val;
         } catch (PosixException e) {
+            logMemoryRead(addr, 1);
             throw new SegmentationViolation(addr);
         }
     }
 
     @Override
     public void setI8(long addr, byte value) {
+        logMemoryWrite(addr, 1, value);
         try {
             long a = a64(addr);
             long s = s64(addr);
@@ -69,14 +81,18 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public short getI16(long addr) {
         try {
-            return (short) ptrace.read(addr);
+            short val = (short) ptrace.read(addr);
+            logMemoryRead(addr, 2, val);
+            return val;
         } catch (PosixException e) {
+            logMemoryRead(addr, 2);
             throw new SegmentationViolation(addr);
         }
     }
 
     @Override
     public void setI16(long addr, short value) {
+        logMemoryWrite(addr, 2, value);
         try {
             long val = ptrace.read(addr);
             val = (val & ~0xFFFF) | Short.toUnsignedLong(value);
@@ -89,14 +105,18 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public int getI32(long addr) {
         try {
-            return (int) ptrace.read(addr);
+            int val = (int) ptrace.read(addr);
+            logMemoryRead(addr, 4, val);
+            return val;
         } catch (PosixException e) {
+            logMemoryRead(addr, 4);
             throw new SegmentationViolation(addr);
         }
     }
 
     @Override
     public void setI32(long addr, int value) {
+        logMemoryWrite(addr, 4, value);
         try {
             long val = ptrace.read(addr);
             val = (val & ~0xFFFFFFFFL) | Integer.toUnsignedLong(value);
@@ -109,19 +129,28 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public long getI64(long addr) {
         try {
-            return ptrace.read(addr);
+            long val = ptrace.read(addr);
+            logMemoryRead(addr, 8, val);
+            return val;
         } catch (PosixException e) {
+            logMemoryRead(addr, 8);
             throw new SegmentationViolation(addr);
         }
     }
 
     @Override
     public void setI64(long addr, long value) {
+        logMemoryWrite(addr, 8, value);
         try {
             ptrace.write(addr, value);
         } catch (PosixException e) {
             throw new SegmentationViolation(addr);
         }
+    }
+
+    @Override
+    public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
+        ptrace.mprotect(address, len, r, w, x);
     }
 
     @Override

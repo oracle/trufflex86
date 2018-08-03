@@ -598,6 +598,48 @@ public class JavaVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
+        long remaining = len;
+        long p = address;
+        while (remaining > 0) {
+            MemoryPage page = get(p);
+            if (page.base == addr(p) && Long.compareUnsigned(page.size, remaining) <= 0) {
+                // whole "page"
+                page.r = r;
+                page.w = w;
+                page.x = x;
+                p = page.end;
+                remaining -= page.size;
+            } else if (page.base == addr(p) && Long.compareUnsigned(page.size, remaining) > 0) {
+                // split, modify first part
+                MemoryPage p1 = new MemoryPage(page, page.base, remaining);
+                MemoryPage p2 = new MemoryPage(page, page.base + remaining, page.size - remaining);
+                p1.r = r;
+                p1.w = w;
+                p1.x = x;
+                pages.remove(page.base);
+                pages.put(p1.base, p1);
+                pages.put(p2.base, p2);
+                return;
+            } else {
+                // split, modify second part
+                assert Long.compareUnsigned(page.base, p) < 0;
+                long off = p - page.base;
+                MemoryPage p1 = new MemoryPage(page, page.base, off);
+                MemoryPage p2 = new MemoryPage(page, page.base + off, page.size - off);
+                p2.r = r;
+                p2.w = w;
+                p2.x = x;
+                pages.remove(page.base);
+                pages.put(p1.base, p1);
+                pages.put(p2.base, p2);
+                p = page.end;
+                remaining -= page.size;
+            }
+        }
+    }
+
+    @Override
     public void printLayout(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
         out.println("Memory map:");

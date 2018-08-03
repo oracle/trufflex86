@@ -213,6 +213,8 @@ public abstract class VirtualMemory {
 
     public abstract void setI512(long address, Vector512 val);
 
+    public abstract void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException;
+
     public void dump(long p, int size) {
         CompilerAsserts.neverPartOfCompilation();
         // disable memory access log during dump

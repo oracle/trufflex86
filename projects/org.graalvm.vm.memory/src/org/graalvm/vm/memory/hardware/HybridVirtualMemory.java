@@ -210,6 +210,15 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
+        if (address < nmem.getVirtualHigh()) {
+            nmem.mprotect(address, len, r, w, x);
+        } else {
+            jmem.mprotect(address, len, r, w, x);
+        }
+    }
+
+    @Override
     public void printLayout(PrintStream out) {
         nmem.printLayout(out);
         jmem.printLayout(out);

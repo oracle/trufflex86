@@ -4,7 +4,6 @@ import java.util.NavigableMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
@@ -39,13 +38,13 @@ public class Interpreter {
     private Ptrace ptrace;
     private Registers regs;
     private PosixEnvironment posix;
-    private VirtualMemory memory;
+    private PtraceVirtualMemory memory;
 
     private SymbolResolver symbolResolver;
 
     private long insncnt;
 
-    public Interpreter(Ptrace ptrace, PosixEnvironment posix, VirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
+    public Interpreter(Ptrace ptrace, PosixEnvironment posix, PtraceVirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
         this.ptrace = ptrace;
         this.posix = posix;
         this.memory = memory;
@@ -326,6 +325,8 @@ public class Interpreter {
     public void step() throws ProcessExitException, PosixException {
         regs = ptrace.getRegisters();
         if (TRACE) {
+            boolean wasDebug = memory.getDebug();
+            memory.setDebug(false);
             Symbol sym = symbolResolver.getSymbol(regs.rip);
             String func = sym == null ? "" : sym.getName();
             CodeReader reader = new CodeMemoryReader(memory, regs.rip);
@@ -333,6 +334,7 @@ public class Interpreter {
             System.out.println("----------------\nIN: " + func);
             System.out.println("0x" + HexFormatter.tohex(regs.rip, 8) + ":\t" + insn + "\n");
             System.out.println(regs);
+            memory.setDebug(wasDebug);
         }
         long insn = ptrace.read(regs.rip);
         if ((insn & 0xFFFF) == SYSCALL) {

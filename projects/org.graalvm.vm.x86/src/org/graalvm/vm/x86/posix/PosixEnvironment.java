@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
-import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixMemory;
@@ -533,17 +532,12 @@ public class PosixEnvironment {
             log.log(Level.INFO, () -> String.format("mprotect(0x%016x, %d, %s)", addr, size, Mman.prot(prot)));
         }
         try {
-            if (mem instanceof JavaVirtualMemory) {
-                JavaVirtualMemory jmem = (JavaVirtualMemory) mem;
-                MemoryPage page = jmem.get(addr);
-                // TODO: handle length properly
-                if (page.base == mem.addr(addr)) {
-                    // TODO: this is a hack because the length is not handled properly
-                    page.r |= BitTest.test(prot, Mman.PROT_READ);
-                    page.w |= BitTest.test(prot, Mman.PROT_WRITE);
-                    page.x |= BitTest.test(prot, Mman.PROT_EXEC);
-                }
-            }
+            boolean r = BitTest.test(prot, Mman.PROT_READ);
+            boolean w = BitTest.test(prot, Mman.PROT_WRITE);
+            boolean x = BitTest.test(prot, Mman.PROT_EXEC);
+            mem.mprotect(addr, size, r, w, x);
+        } catch (PosixException e) {
+            throw new SyscallException(e.getErrno());
         } catch (SegmentationViolation e) {
             throw new SyscallException(Errno.ENOMEM);
         }

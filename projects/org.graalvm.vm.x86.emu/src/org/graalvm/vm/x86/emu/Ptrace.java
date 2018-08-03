@@ -127,13 +127,13 @@ public class Ptrace implements Closeable {
         }
     }
 
-    private static final int PROT_READ = 0x00000001;
-    private static final int PROT_WRITE = 0x00000002;
-    private static final int PROT_EXEC = 0x00000004;
-    private static final int MAP_FIXED = 0x00000010;
-    private static final int MAP_ANONYMOUS = 0x00000020;
-    private static final int MAP_SHARED = 0x00000001;
-    private static final int MAP_PRIVATE = 0x00000002;
+    public static final int PROT_READ = 0x00000001;
+    public static final int PROT_WRITE = 0x00000002;
+    public static final int PROT_EXEC = 0x00000004;
+    public static final int MAP_FIXED = 0x00000010;
+    public static final int MAP_ANONYMOUS = 0x00000020;
+    public static final int MAP_SHARED = 0x00000001;
+    public static final int MAP_PRIVATE = 0x00000002;
 
     private long sc(int nr, long a1, long a2, long a3, long a4, long a5, long a6) throws PosixException {
         long result = syscall(nr, a1, a2, a3, a4, a5, a6);
@@ -142,6 +142,10 @@ public class Ptrace implements Closeable {
         } else {
             return result;
         }
+    }
+
+    public long mmap(long addr, long len, int prot, int flags, int fildes, long off) throws PosixException {
+        return sc(Syscalls.SYS_mmap, addr, len, prot, flags, fildes, off);
     }
 
     public long mmap(long addr, long len, boolean r, boolean w, boolean x, boolean fixed, boolean anonymous, boolean shared, int fildes, long off) throws PosixException {
@@ -172,6 +176,10 @@ public class Ptrace implements Closeable {
 
     public int munmap(long addr, long len) throws PosixException {
         return (int) sc(Syscalls.SYS_munmap, addr, len, 0, 0, 0, 0);
+    }
+
+    public int mprotect(long addr, long len, int prot) throws PosixException {
+        return (int) sc(Syscalls.SYS_mprotect, addr, len, prot, 0, 0, 0);
     }
 
     public int mprotect(long addr, long len, boolean r, boolean w, boolean x) throws PosixException {

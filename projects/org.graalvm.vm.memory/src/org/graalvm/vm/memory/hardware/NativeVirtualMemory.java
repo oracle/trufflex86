@@ -220,6 +220,13 @@ public class NativeVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
+        long addr = addr(address);
+        long phy = phy(addr);
+        MMU.mprotect(phy, len, r, w, x);
+    }
+
+    @Override
     public void add(MemoryPage page) {
         Memory mem = page.getMemory();
         if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
