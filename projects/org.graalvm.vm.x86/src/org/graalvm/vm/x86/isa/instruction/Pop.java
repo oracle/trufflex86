@@ -56,9 +56,9 @@ public abstract class Pop extends AMD64Instruction {
             createChildrenIfNecessary();
             long rsp = readRSP.executeI64(frame);
             short value = readMemory.executeI16(rsp);
-            writeDst.executeI16(frame, value);
             rsp += 2;
             writeRSP.executeI64(frame, rsp);
+            writeDst.executeI16(frame, value);
             return next();
         }
     }
@@ -73,9 +73,9 @@ public abstract class Pop extends AMD64Instruction {
             createChildrenIfNecessary();
             long rsp = readRSP.executeI64(frame);
             long value = readMemory.executeI64(rsp);
-            writeDst.executeI64(frame, value);
             rsp += 8;
             writeRSP.executeI64(frame, rsp);
+            writeDst.executeI64(frame, value);
             return next();
         }
     }
