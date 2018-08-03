@@ -257,6 +257,39 @@ public class PosixEnvironment {
         }
     }
 
+    public long dup(int fildes) throws SyscallException {
+        try {
+            return posix.dup(fildes);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "dup failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long dup2(int fildes, int fildes2) throws SyscallException {
+        try {
+            return posix.dup2(fildes, fildes2);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "dup2 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long dup3(int oldfd, int newfd, int flags) throws SyscallException {
+        try {
+            return posix.dup3(oldfd, newfd, flags);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "dup3 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long readlink(long path, long buf, long bufsize) throws SyscallException {
         String p = cstr(path);
         PosixPointer ptr = posixPointer(buf);

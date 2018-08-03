@@ -36,6 +36,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_access = 21;
+    public static final int SYS_dup = 32;
+    public static final int SYS_dup2 = 33;
     public static final int SYS_getpid = 39;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
@@ -62,6 +64,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
+    public static final int SYS_dup3 = 292;
     public static final int SYS_prlimit64 = 302;
 
     public static final int SYS_DEBUG = 0xDEADBEEF;
@@ -178,6 +181,10 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.writev((int) a1, a2, (int) a3);
             case SYS_access:
                 return posix.access(a1, (int) a2);
+            case SYS_dup:
+                return posix.dup((int) a1);
+            case SYS_dup2:
+                return posix.dup2((int) a1, (int) a2);
             case SYS_getpid:
                 return posix.getpid();
             case SYS_exit:
@@ -233,6 +240,8 @@ public class SyscallWrapper extends AMD64Node {
                 throw new ProcessExitException(128 + (int) a3);
             case SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
+            case SYS_dup3:
+                return posix.dup3((int) a1, (int) a2, (int) a3);
             case SYS_prlimit64:
                 return posix.prlimit64((int) a1, (int) a2, a3, a4);
             case SYS_DEBUG:

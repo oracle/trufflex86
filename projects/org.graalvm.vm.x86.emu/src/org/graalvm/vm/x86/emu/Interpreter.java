@@ -169,6 +169,10 @@ public class Interpreter {
                 return posix.writev((int) a1, a2, (int) a3);
             case Syscalls.SYS_access:
                 return posix.access(a1, (int) a2);
+            case Syscalls.SYS_dup:
+                return posix.dup((int) a1);
+            case Syscalls.SYS_dup2:
+                return posix.dup2((int) a1, (int) a2);
             case Syscalls.SYS_getpid:
                 return posix.getpid();
             case Syscalls.SYS_exit:
@@ -226,6 +230,8 @@ public class Interpreter {
                 throw new ProcessExitException(128 + (int) a3);
             case Syscalls.SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
+            case Syscalls.SYS_dup3:
+                return posix.dup3((int) a1, (int) a2, (int) a3);
             case Syscalls.SYS_prlimit64:
                 return posix.prlimit64((int) a1, (int) a2, a3, a4);
             case Syscalls.SYS_DEBUG:

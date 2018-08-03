@@ -21,6 +21,8 @@ public class Syscalls {
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_access = 21;
+    public static final int SYS_dup = 32;
+    public static final int SYS_dup2 = 33;
     public static final int SYS_getpid = 39;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
@@ -47,6 +49,7 @@ public class Syscalls {
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
+    public static final int SYS_dup3 = 292;
     public static final int SYS_prlimit64 = 302;
 
     // non-standard VM only syscalls
