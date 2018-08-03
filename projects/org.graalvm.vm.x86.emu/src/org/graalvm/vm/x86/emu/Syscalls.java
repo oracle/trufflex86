@@ -16,6 +16,8 @@ public class Syscalls {
     public static final int SYS_rt_sigaction = 13;
     public static final int SYS_rt_sigprocmask = 14;
     public static final int SYS_ioctl = 16;
+    public static final int SYS_pread64 = 17;
+    public static final int SYS_pwrite64 = 18;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_access = 21;

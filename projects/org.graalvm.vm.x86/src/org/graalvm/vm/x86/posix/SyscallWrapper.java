@@ -31,6 +31,8 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_rt_sigaction = 13;
     public static final int SYS_rt_sigprocmask = 14;
     public static final int SYS_ioctl = 16;
+    public static final int SYS_pread64 = 17;
+    public static final int SYS_pwrite64 = 18;
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_access = 21;
@@ -166,6 +168,10 @@ public class SyscallWrapper extends AMD64Node {
                 throw new SyscallException(Errno.ENOSYS);
             case SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
+            case SYS_pread64:
+                return posix.pread64((int) a1, a2, (int) a3, a4);
+            case SYS_pwrite64:
+                return posix.pwrite64((int) a1, a2, (int) a3, a4);
             case SYS_readv:
                 return posix.readv((int) a1, a2, (int) a3);
             case SYS_writev:

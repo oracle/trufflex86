@@ -196,6 +196,28 @@ public class PosixEnvironment {
         }
     }
 
+    public long pread64(int fd, long buf, long nbyte, long offset) throws SyscallException {
+        try {
+            return posix.pread64(fd, posixPointer(buf), nbyte, offset);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "pread64 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long pwrite64(int fd, long buf, long nbyte, long offset) throws SyscallException {
+        try {
+            return posix.pwrite64(fd, posixPointer(buf), nbyte, offset);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "pwrite64 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     private Iovec[] getIov64(long iov, int iovcnt) {
         Iovec[] iovs = new Iovec[iovcnt];
         long ptr = iov;

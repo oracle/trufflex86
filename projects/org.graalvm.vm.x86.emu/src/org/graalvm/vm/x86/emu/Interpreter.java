@@ -159,6 +159,10 @@ public class Interpreter {
                 throw new SyscallException(Errno.ENOSYS);
             case Syscalls.SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
+            case Syscalls.SYS_pread64:
+                return posix.pread64((int) a1, a2, (int) a3, a4);
+            case Syscalls.SYS_pwrite64:
+                return posix.pwrite64((int) a1, a2, (int) a3, a4);
             case Syscalls.SYS_readv:
                 return posix.readv((int) a1, a2, (int) a3);
             case Syscalls.SYS_writev:
