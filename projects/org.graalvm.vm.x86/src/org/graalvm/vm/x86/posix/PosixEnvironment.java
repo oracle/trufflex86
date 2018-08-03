@@ -163,6 +163,17 @@ public class PosixEnvironment {
         }
     }
 
+    public int creat(long path, int mode) throws SyscallException {
+        try {
+            return posix.creat(cstr(path), mode);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "creat failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long read(int fd, long buf, long nbyte) throws SyscallException {
         try {
             return posix.read(fd, posixPointer(buf), nbyte);
