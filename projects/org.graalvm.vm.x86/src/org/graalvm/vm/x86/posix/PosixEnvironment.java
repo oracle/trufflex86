@@ -398,6 +398,8 @@ public class PosixEnvironment {
                 case Fcntl.F_GETFL:
                 case Fcntl.F_SETFD:
                 case Fcntl.F_SETFL:
+                case Fcntl.F_DUPFD:
+                case Fcntl.F_DUPFD_CLOEXEC:
                     return posix.fcntl(fd, cmd, (int) arg);
                 default:
                     log.log(Level.INFO, "fcntl command not implemented: " + cmd);
