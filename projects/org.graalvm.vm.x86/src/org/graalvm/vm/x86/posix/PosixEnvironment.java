@@ -789,6 +789,7 @@ public class PosixEnvironment {
                             break;
                         default:
                             buf.append('%');
+                            buf.append(c);
                             state = 0;
                             break;
                     }
