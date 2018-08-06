@@ -126,6 +126,7 @@ import org.graalvm.vm.x86.isa.instruction.Cwd;
 import org.graalvm.vm.x86.isa.instruction.Cxe.Cbw;
 import org.graalvm.vm.x86.isa.instruction.Cxe.Cdqe;
 import org.graalvm.vm.x86.isa.instruction.Cxe.Cwde;
+import org.graalvm.vm.x86.isa.instruction.Dec.Decb;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decl;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decq;
 import org.graalvm.vm.x86.isa.instruction.Dec.Decw;
@@ -767,6 +768,15 @@ public class AMD64InstructionDecoder {
                     return new Repnz(pc, Arrays.copyOf(instruction, instructionLength), cmp);
                 } else {
                     return cmp;
+                }
+            }
+            case AMD64Opcode.DEC_RM8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                switch (args.modrm.getReg()) {
+                    case 1: // DEC R8
+                        return new Decb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    default:
+                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
             }
             case AMD64Opcode.FNSTCW_M: {

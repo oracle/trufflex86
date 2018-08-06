@@ -94,6 +94,8 @@ public class AMD64Opcode {
 
     public static final byte CVTTSD2SI = 0x2C;
 
+    public static final byte DEC_RM8 = (byte) 0xFE;
+
     public static final byte DIVSD_X_XM = 0x5E;
 
     public static final byte FNSTCW_M = (byte) 0xD9;
