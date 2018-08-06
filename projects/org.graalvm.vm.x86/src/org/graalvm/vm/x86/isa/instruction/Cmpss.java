@@ -40,6 +40,8 @@ public abstract class Cmpss extends AMD64Instruction {
                 return new Cmpltss(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
                 return new Cmpless(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            case 5:
+                return new Cmpnltss(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 6:
                 return new Cmpnless(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
@@ -87,6 +89,24 @@ public abstract class Cmpss extends AMD64Instruction {
             float a = dst.getF32(3);
             float b = src.getF32(3);
             dst.setI32(3, a <= b ? 0xFFFFFFFF : 0x00000000);
+            writeDst.executeI128(frame, dst);
+            return next();
+        }
+    }
+
+    public static class Cmpnltss extends Cmpss {
+        protected Cmpnltss(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpnltss", (byte) 2);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            float a = dst.getF32(3);
+            float b = src.getF32(3);
+            dst.setI32(3, a >= b ? 0xFFFFFFFF : 0x00000000);
             writeDst.executeI128(frame, dst);
             return next();
         }

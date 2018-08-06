@@ -40,6 +40,8 @@ public abstract class Cmpsd extends AMD64Instruction {
                 return new Cmpltsd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
                 return new Cmplesd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            case 5:
+                return new Cmpnltsd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 6:
                 return new Cmpnlesd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
@@ -87,6 +89,24 @@ public abstract class Cmpsd extends AMD64Instruction {
             double a = dst.getF64(1);
             double b = src.getF64(1);
             dst.setI64(1, a <= b ? 0xFFFFFFFFFFFFFFFFL : 0x0000000000000000);
+            writeDst.executeI128(frame, dst);
+            return next();
+        }
+    }
+
+    public static class Cmpnltsd extends Cmpsd {
+        protected Cmpnltsd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpnltsd", (byte) 2);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            createChildrenIfNecessary();
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            double a = dst.getF64(1);
+            double b = src.getF64(1);
+            dst.setI64(1, a >= b ? 0xFFFFFFFFFFFFFFFFL : 0x0000000000000000);
             writeDst.executeI128(frame, dst);
             return next();
         }
