@@ -118,16 +118,17 @@ public class PosixEnvironment {
         return address;
     }
 
+    // stdin/stdout/stderr are a terminal for now
     public void setStandardIn(InputStream in) {
-        posix.setStream(FileDescriptorManager.STDIN, in);
+        posix.setTTY(FileDescriptorManager.STDIN, in);
     }
 
     public void setStandardOut(OutputStream out) {
-        posix.setStream(FileDescriptorManager.STDOUT, out);
+        posix.setTTY(FileDescriptorManager.STDOUT, out);
     }
 
     public void setStandardErr(OutputStream out) {
-        posix.setStream(FileDescriptorManager.STDERR, out);
+        posix.setTTY(FileDescriptorManager.STDERR, out);
     }
 
     public int open(long pathname, int flags, int mode) throws SyscallException {
@@ -390,12 +391,14 @@ public class PosixEnvironment {
         }
     }
 
-    public long fcntl(int fd, int cmd, @SuppressWarnings("unused") long arg) throws SyscallException {
+    public long fcntl(int fd, int cmd, long arg) throws SyscallException {
         try {
             switch (cmd) {
                 case Fcntl.F_GETFD:
                 case Fcntl.F_GETFL:
-                    return posix.fcntl(fd, cmd);
+                case Fcntl.F_SETFD:
+                case Fcntl.F_SETFL:
+                    return posix.fcntl(fd, cmd, (int) arg);
                 default:
                     log.log(Level.INFO, "fcntl command not implemented: " + cmd);
                     throw new PosixException(Errno.EINVAL);
