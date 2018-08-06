@@ -33,6 +33,7 @@ public class Interpreter {
     private static final long CPUID = 0xA20F;
     private static final long RDTSC = 0x310F;
     private static final long REP_STOSB = 0xAAF3;
+    private static final long REP_STOSD = 0xABF3;
     private static final long REP_STOSQ = 0xAB48F3;
 
     private Ptrace ptrace;
@@ -369,7 +370,7 @@ public class Interpreter {
             regs.rdx = Integer.toUnsignedLong(high);
             regs.rip += 2;
             ptrace.setRegisters(regs);
-        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFFFF) == REP_STOSQ)) {
+        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFF) == REP_STOSD) || ((insn & 0xFFFFFF) == REP_STOSQ)) {
             // step next
             long rip = regs.rip;
             do {

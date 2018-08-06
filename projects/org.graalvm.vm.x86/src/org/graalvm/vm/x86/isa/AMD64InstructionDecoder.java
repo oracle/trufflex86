@@ -2033,10 +2033,10 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.BSWAP + 6:
                     case AMD64Opcode.BSWAP + 7: {
                         if (rex != null && rex.w) {
-                            Register reg = getRegister64(op2, rex.r);
+                            Register reg = getRegister64(op2, rex.b);
                             return new Bswapq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
                         } else {
-                            Register reg = getRegister32(op2, rex != null ? rex.r : false);
+                            Register reg = getRegister32(op2, rex != null ? rex.b : false);
                             return new Bswapl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(reg));
                         }
                     }

@@ -40,7 +40,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/core.jar"
       ],
-      "sha1" : "a01bac8dfe4a20f172e833c8e0b2a451dd0df99a",
+      "sha1" : "5912802baea7b8065693a0f13f9ff04ec3e12701",
     },
 
     "POSIX" : {
@@ -48,7 +48,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
       ],
-      "sha1" : "349ee266279b64512aaa8933c11c854596f98b23",
+      "sha1" : "7446d48deee0d43536a8ced1fbe08c93b08abdd3",
     },
 
     "XED" : {
