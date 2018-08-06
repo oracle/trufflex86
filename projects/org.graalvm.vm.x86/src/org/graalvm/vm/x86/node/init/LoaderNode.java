@@ -3,11 +3,13 @@ package org.graalvm.vm.x86.node.init;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.ElfLoader;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -39,7 +41,14 @@ public class LoaderNode extends AMD64Node {
 
     @TruffleBoundary
     private static Map<String, String> getenv() {
-        return System.getenv();
+        if (Options.getBoolean(Options.DEBUG_STATIC_ENV)) {
+            Map<String, String> env = new HashMap<>();
+            env.put("PATH", System.getenv("PATH"));
+            env.put("LANG", System.getenv("LANG"));
+            return env;
+        } else {
+            return System.getenv();
+        }
     }
 
     @TruffleBoundary

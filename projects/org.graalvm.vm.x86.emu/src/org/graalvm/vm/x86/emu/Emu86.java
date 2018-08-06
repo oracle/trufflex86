@@ -3,6 +3,8 @@ package org.graalvm.vm.x86.emu;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
@@ -11,6 +13,7 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
 import org.graalvm.vm.x86.ElfLoader;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.PosixException;
@@ -42,7 +45,14 @@ public class Emu86 {
         ElfLoader loader = new ElfLoader();
         loader.setPosixEnvironment(posix);
         loader.setVirtualMemory(mem);
-        loader.setEnvironment(System.getenv());
+        if (Options.getBoolean(Options.DEBUG_STATIC_ENV)) {
+            Map<String, String> env = new HashMap<>();
+            env.put("PATH", System.getenv("PATH"));
+            env.put("LANG", System.getenv("LANG"));
+            loader.setEnvironment(env);
+        } else {
+            loader.setEnvironment(System.getenv());
+        }
         loader.setArguments(args);
 
         long stackbase = mem.pageStart(STACK_BASE);
