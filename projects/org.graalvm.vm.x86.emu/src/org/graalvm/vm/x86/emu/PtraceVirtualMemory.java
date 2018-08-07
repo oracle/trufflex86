@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.emu;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
@@ -327,6 +328,20 @@ public class PtraceVirtualMemory extends VirtualMemory {
         } catch (IOException e) {
             out.println("Error while retrieving memory map:");
             e.printStackTrace(out);
+        }
+    }
+
+    @Override
+    public void printAddressInfo(long addr, PrintStream out) {
+        try {
+            MemoryMap map = new MemoryMap(ptrace.getPid());
+            for (MemorySegment s : map.getSegments()) {
+                if (s.contains(addr(addr))) {
+                    out.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", s.name, s.start, addr - s.start);
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Cannot retrieve memory region info", e);
         }
     }
 }

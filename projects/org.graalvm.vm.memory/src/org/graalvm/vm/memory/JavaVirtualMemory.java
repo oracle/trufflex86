@@ -651,4 +651,10 @@ public class JavaVirtualMemory extends VirtualMemory {
         out.printf("Cache: %d hits, %d misses (%5.3f%% hits)\n", cacheHits, cacheMisses,
                         (double) cacheHits / (double) (cacheHits + cacheMisses));
     }
+
+    @Override
+    public void printAddressInfo(long addr, PrintStream out) {
+        MemoryPage page = get(addr);
+        out.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, addr - page.base);
+    }
 }

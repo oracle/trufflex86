@@ -282,13 +282,7 @@ public class TraceDispatchNode extends AMD64Node {
             }
             if (!(e.getCause() instanceof SegmentationViolation)) {
                 try {
-                    if (memory instanceof JavaVirtualMemory) {
-                        JavaVirtualMemory jmem = (JavaVirtualMemory) memory;
-                        MemoryPage page = jmem.get(e.getPC());
-                        if (page != null && page.name != null) {
-                            Trace.log.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", page.name, page.base, e.getPC() - page.base);
-                        }
-                    }
+                    memory.printAddressInfo(e.getPC(), Trace.log);
                 } catch (Throwable t) {
                     Trace.log.printf("Error while retrieving memory region metadata of 0x%016x\n", e.getPC());
                 }

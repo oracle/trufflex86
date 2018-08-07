@@ -423,4 +423,6 @@ public abstract class VirtualMemory {
     }
 
     public abstract void printLayout(PrintStream out);
+
+    public abstract void printAddressInfo(long address, PrintStream out);
 }

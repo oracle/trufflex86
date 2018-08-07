@@ -2,6 +2,7 @@ package org.graalvm.vm.memory.hardware;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
@@ -432,6 +433,16 @@ public class NativeVirtualMemory extends VirtualMemory {
         throw new UnsupportedOperationException();
     }
 
+    private long vaddr(long phy) {
+        long offset = phy - physicalLo;
+        long vaddr = offset + virtualLo;
+        return vaddr;
+    }
+
+    private MemorySegment segment(MemorySegment s) {
+        return new MemorySegment(vaddr(s.start), vaddr(s.end), s.rawPermissions, s.offset, s.name);
+    }
+
     @Override
     public void printLayout(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
@@ -441,11 +452,26 @@ public class NativeVirtualMemory extends VirtualMemory {
 
             for (MemorySegment s : map.getSegments()) {
                 if (s.start >= physicalLo && s.start <= physicalHi && s.end >= physicalLo && s.end <= physicalHi) {
-                    out.println(s);
+                    out.println(segment(s));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace(out);
+        }
+    }
+
+    @Override
+    public void printAddressInfo(long addr, PrintStream out) {
+        try {
+            MemoryMap map = new MemoryMap();
+            for (MemorySegment s : map.getSegments()) {
+                if (s.contains(phy(addr(addr)))) {
+                    MemorySegment seg = segment(s);
+                    out.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", seg.name, seg.start, addr - seg.start);
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Cannot retrieve memory region info", e);
         }
     }
 }

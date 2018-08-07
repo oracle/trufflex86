@@ -223,4 +223,13 @@ public class HybridVirtualMemory extends VirtualMemory {
         nmem.printLayout(out);
         jmem.printLayout(out);
     }
+
+    @Override
+    public void printAddressInfo(long address, PrintStream out) {
+        if (address < nmem.getVirtualHigh()) {
+            nmem.printAddressInfo(address, out);
+        } else {
+            jmem.printAddressInfo(address, out);
+        }
+    }
 }
