@@ -183,6 +183,7 @@ import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
 import org.graalvm.vm.x86.isa.instruction.Maxps;
 import org.graalvm.vm.x86.isa.instruction.Maxsd;
 import org.graalvm.vm.x86.isa.instruction.Maxss;
+import org.graalvm.vm.x86.isa.instruction.Mfence;
 import org.graalvm.vm.x86.isa.instruction.Minps;
 import org.graalvm.vm.x86.isa.instruction.Minsd;
 import org.graalvm.vm.x86.isa.instruction.Minss;
@@ -3326,6 +3327,8 @@ public class AMD64InstructionDecoder {
                                     return new Ldmxcsr(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                                 case 3:
                                     return new Stmxcsr(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 6:
+                                    return new Mfence(pc, args.getOp(instruction, instructionLength));
                                 case 7:
                                     return new Sfence(pc, args.getOp(instruction, instructionLength));
                                 default:
