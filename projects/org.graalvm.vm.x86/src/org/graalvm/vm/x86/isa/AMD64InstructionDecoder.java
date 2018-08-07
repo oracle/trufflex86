@@ -135,6 +135,7 @@ import org.graalvm.vm.x86.isa.instruction.Div.Divl;
 import org.graalvm.vm.x86.isa.instruction.Div.Divq;
 import org.graalvm.vm.x86.isa.instruction.Div.Divw;
 import org.graalvm.vm.x86.isa.instruction.Divpd;
+import org.graalvm.vm.x86.isa.instruction.Divps;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
 import org.graalvm.vm.x86.isa.instruction.Fnstcw;
@@ -2383,7 +2384,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.DIVSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPNZ) {
+                        if (np) {
+                            return new Divps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
                             return new Divsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPZ) {
                             return new Divss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
