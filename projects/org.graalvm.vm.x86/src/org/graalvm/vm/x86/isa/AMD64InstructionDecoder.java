@@ -268,6 +268,7 @@ import org.graalvm.vm.x86.isa.instruction.Pcmpeq.Pcmpeq128w;
 import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128b;
 import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128d;
 import org.graalvm.vm.x86.isa.instruction.Pcmpgt.Pcmpgt128w;
+import org.graalvm.vm.x86.isa.instruction.Pextrw;
 import org.graalvm.vm.x86.isa.instruction.Pmaxub;
 import org.graalvm.vm.x86.isa.instruction.Pminub;
 import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
@@ -2884,6 +2885,15 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
                             return new Pcmpgt128d(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.PEXTRW_R_X_I: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            byte imm = code.read8();
+                            return new Pextrw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
