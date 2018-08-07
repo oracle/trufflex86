@@ -425,6 +425,17 @@ public class PosixEnvironment {
         }
     }
 
+    public int futex(long uaddr, int futex_op, int val, long timeout, long uaddr2, int val3) throws SyscallException {
+        try {
+            return posix.futex(posixPointer(uaddr), futex_op, val, posixPointer(timeout), posixPointer(uaddr2), val3);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "futex failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long getcwd(long buf, long size) throws SyscallException {
         try {
             posix.getcwd(posixPointer(buf), size);

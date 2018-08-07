@@ -45,6 +45,7 @@ public class Syscalls {
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_gettid = 186;
     public static final int SYS_time = 201;
+    public static final int SYS_futex = 202;
     public static final int SYS_clock_gettime = 228;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;

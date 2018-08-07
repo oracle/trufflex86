@@ -222,6 +222,8 @@ public class Interpreter {
                 return posix.gettid();
             case Syscalls.SYS_time:
                 return posix.time(a1);
+            case Syscalls.SYS_futex:
+                return posix.futex(a1, (int) a2, (int) a3, a4, a5, (int) a6);
             case Syscalls.SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
             case Syscalls.SYS_tgkill:
