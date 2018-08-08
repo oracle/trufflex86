@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.isa;
 
 import java.util.Arrays;
 
+import org.graalvm.vm.x86.isa.instruction.Adc.Adcb;
 import org.graalvm.vm.x86.isa.instruction.Adc.Adcl;
 import org.graalvm.vm.x86.isa.instruction.Adc.Adcq;
 import org.graalvm.vm.x86.isa.instruction.Adc.Adcw;
@@ -502,6 +503,11 @@ public class AMD64InstructionDecoder {
             instruction[instructionLength++] = op;
         }
         switch (op) {
+            case AMD64Opcode.ADC_A_I8: {
+                byte imm = code.read8();
+                instruction[instructionLength++] = imm;
+                return new Adcb(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AL), imm);
+            }
             case AMD64Opcode.ADC_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {

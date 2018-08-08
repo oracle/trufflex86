@@ -4,6 +4,7 @@ public class AMD64Opcode {
     public static final byte ESCAPE = 0x0F;
     public static final byte FENCE = (byte) 0xAE;
 
+    public static final byte ADC_A_I8 = 0x14;
     public static final byte ADC_RM_R = 0x11;
     public static final byte ADC_R_RM = 0x13;
 
