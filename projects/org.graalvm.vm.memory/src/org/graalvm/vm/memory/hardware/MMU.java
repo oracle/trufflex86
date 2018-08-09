@@ -1,14 +1,21 @@
 package org.graalvm.vm.memory.hardware;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.PosixException;
 import com.everyware.util.UnsafeHolder;
+import com.everyware.util.log.Levels;
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 
 import sun.misc.Unsafe;
 
 public class MMU {
+    private static final Logger log = Trace.create(MMU.class);
+
     @CompilationFinal private static boolean initialized = false;
     private static final Unsafe unsafe = UnsafeHolder.getUnsafe();
     @CompilationFinal private static long ptr;
@@ -22,12 +29,17 @@ public class MMU {
             System.loadLibrary("memory");
             ptr = setup(lo, hi);
             initialized = true;
+            try {
+                mmap(lo, hi - lo, false, false, false, true, true, false, -1, 0);
+            } catch (PosixException e) {
+                log.log(Level.INFO, "cannot pre-allocate VM region");
+            }
             return true;
         } catch (UnsatisfiedLinkError e) {
-            System.out.println("cannot load libmemory");
+            log.log(Level.INFO, "cannot load libmemory");
             return false;
         } catch (PosixException e) {
-            System.err.println("Error: " + Errno.toString(e.getErrno()));
+            log.log(Levels.ERROR, "Error: " + Errno.toString(e.getErrno()));
             return false;
         }
     }
