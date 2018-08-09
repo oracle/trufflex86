@@ -7,10 +7,12 @@ import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI128Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI16Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI32Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI64Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI8Node;
+import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI128NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI16NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI32NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI64NodeGen;
@@ -23,6 +25,7 @@ public class MemoryWriteNode extends AMD64Node {
     @Child private HybridMemoryWriteI16Node writeI16;
     @Child private HybridMemoryWriteI32Node writeI32;
     @Child private HybridMemoryWriteI64Node writeI64;
+    @Child private HybridMemoryWriteI128Node writeI128;
 
     public MemoryWriteNode(VirtualMemory memory) {
         this.memory = memory;
@@ -34,6 +37,7 @@ public class MemoryWriteNode extends AMD64Node {
             writeI16 = HybridMemoryWriteI16NodeGen.create(jmem, nmem);
             writeI32 = HybridMemoryWriteI32NodeGen.create(jmem, nmem);
             writeI64 = HybridMemoryWriteI64NodeGen.create(jmem, nmem);
+            writeI128 = HybridMemoryWriteI128NodeGen.create(jmem, nmem);
         }
     }
 
@@ -70,7 +74,11 @@ public class MemoryWriteNode extends AMD64Node {
     }
 
     public void executeI128(long address, Vector128 value) {
-        memory.setI128(address, value.getI64(0), value.getI64(1));
+        if (writeI128 != null) {
+            writeI128.executeI128(address, value);
+        } else {
+            memory.setI128(address, value);
+        }
     }
 
     public void executeI256(long address, Vector256 value) {

@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.node;
 
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
+import org.graalvm.vm.memory.vector.Vector128;
 
 import com.oracle.truffle.api.dsl.Specialization;
 
@@ -83,6 +84,24 @@ public abstract class HybridMemoryReadNode extends AMD64Node {
         @Specialization(guards = {"!isNativeMemory(address)"})
         protected long executeI64Virtual(long address) {
             return vmem.getI64(address);
+        }
+    }
+
+    public static abstract class HybridMemoryReadI128Node extends HybridMemoryReadNode {
+        public HybridMemoryReadI128Node(VirtualMemory vmem, NativeVirtualMemory nmem) {
+            super(vmem, nmem);
+        }
+
+        public abstract Vector128 executeI128(long address);
+
+        @Specialization(guards = {"isNativeMemory(address)"})
+        protected Vector128 executeI128Native(long address) {
+            return nmem.getI128(address);
+        }
+
+        @Specialization(guards = {"!isNativeMemory(address)"})
+        protected Vector128 executeI128Virtual(long address) {
+            return vmem.getI128(address);
         }
     }
 

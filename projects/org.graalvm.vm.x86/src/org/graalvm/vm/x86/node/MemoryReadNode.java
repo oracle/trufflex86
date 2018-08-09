@@ -7,10 +7,12 @@ import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI128Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI16Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI32Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI64Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI8Node;
+import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI128NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI16NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI32NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI64NodeGen;
@@ -23,6 +25,7 @@ public class MemoryReadNode extends AMD64Node {
     @Child private HybridMemoryReadI16Node readI16;
     @Child private HybridMemoryReadI32Node readI32;
     @Child private HybridMemoryReadI64Node readI64;
+    @Child private HybridMemoryReadI128Node readI128;
 
     public MemoryReadNode(VirtualMemory memory) {
         this.memory = memory;
@@ -34,6 +37,7 @@ public class MemoryReadNode extends AMD64Node {
             readI16 = HybridMemoryReadI16NodeGen.create(jmem, nmem);
             readI32 = HybridMemoryReadI32NodeGen.create(jmem, nmem);
             readI64 = HybridMemoryReadI64NodeGen.create(jmem, nmem);
+            readI128 = HybridMemoryReadI128NodeGen.create(jmem, nmem);
         }
     }
 
@@ -70,7 +74,11 @@ public class MemoryReadNode extends AMD64Node {
     }
 
     public Vector128 executeI128(long address) {
-        return memory.getI128(address);
+        if (readI128 != null) {
+            return readI128.executeI128(address);
+        } else {
+            return memory.getI128(address);
+        }
     }
 
     public Vector256 executeI256(long address) {
