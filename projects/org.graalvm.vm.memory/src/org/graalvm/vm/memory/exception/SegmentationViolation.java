@@ -3,9 +3,7 @@ package org.graalvm.vm.memory.exception;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
-
-public class SegmentationViolation extends ControlFlowException {
+public class SegmentationViolation extends RuntimeException {
     private static final long serialVersionUID = 6904011763641924860L;
 
     private final MemoryPage page;
