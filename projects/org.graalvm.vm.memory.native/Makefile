@@ -13,11 +13,11 @@ LDFLAGS		=	-g -L$(XED_VERSION)/lib
 LIBS		=	-lxed-ild
 
 $(LIBXED_ILD): $(XED)
-	@echo "[UNTAR] $(XED)"
+	@echo "[UNTAR]     $(XED)"
 	@tar xf $(XED)
 
 bin/$(LIBMEMORY): $(OBJECTFILES) $(LIBXED_ILD)
-	@echo "[LD]    $@"
+	@echo "[LD]        $@"
 	@$(CC) -std=c99 -shared $(LDFLAGS) $+ -o $@ $(LIBS)
 
 bin/%.d: src/%.c $(LIBXED_ILD)
@@ -25,7 +25,7 @@ bin/%.d: src/%.c $(LIBXED_ILD)
 	@$(CC) -MM $(CFLAGS) $< | sed 's|\($*\)\.o[ :]*|bin/\1.o $@ : |g' > $@
 
 bin/%.o: src/%.c $(LIBXED_ILD)
-	@echo "[CC]    $@"
+	@echo "[CC]        $@"
 	@$(CC) -c $(CFLAGS) -o $@ $<
 
 -include ${OBJECTS:%.o=bin/%.d}
