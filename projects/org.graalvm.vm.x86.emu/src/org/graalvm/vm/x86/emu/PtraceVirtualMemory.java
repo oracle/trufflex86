@@ -158,6 +158,8 @@ public class PtraceVirtualMemory extends VirtualMemory {
     public void add(MemoryPage page) {
         Memory mem = page.getMemory();
         if (mem instanceof PosixMemory) {
+            assert ((PosixMemory) mem).isReadOnly();
+
             // copy
             long size = mem.size();
             Memory memory = new ByteMemory(size, false);
@@ -236,6 +238,8 @@ public class PtraceVirtualMemory extends VirtualMemory {
     @Override
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
         if (memory instanceof PosixMemory) {
+            assert ((PosixMemory) memory).isReadOnly();
+
             // copy
             Memory mem = new ByteMemory(size, false);
             long sz = memory.size();

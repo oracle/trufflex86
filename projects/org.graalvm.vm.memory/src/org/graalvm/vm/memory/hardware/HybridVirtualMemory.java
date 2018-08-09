@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
+import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
@@ -57,7 +58,11 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
-        return jmem.allocate(memory, size, name, offset);
+        if (memory instanceof PosixMemory && ((PosixMemory) memory).isReadOnly()) {
+            return nmem.allocate(memory, size, name, offset);
+        } else {
+            return jmem.allocate(memory, size, name, offset);
+        }
     }
 
     @Override

@@ -6,11 +6,17 @@ import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class PosixMemory extends Memory {
-    private PosixPointer ptr;
+    private final PosixPointer ptr;
+    private final boolean readonly;
 
-    public PosixMemory(PosixPointer ptr, boolean isBE) {
+    public PosixMemory(PosixPointer ptr, boolean isBE, boolean readonly) {
         super(isBE);
         this.ptr = ptr;
+        this.readonly = readonly;
+    }
+
+    public boolean isReadOnly() {
+        return readonly;
     }
 
     private PosixPointer ptr(long pos) {

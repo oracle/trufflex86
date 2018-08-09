@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
+import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
@@ -230,8 +231,20 @@ public class NativeVirtualMemory extends VirtualMemory {
     @Override
     public void add(MemoryPage page) {
         Memory mem = page.getMemory();
-        if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
-            CompilerDirectives.transferToInterpreter();
+        if (mem instanceof PosixMemory) {
+            assert ((PosixMemory) mem).isReadOnly();
+
+            // copy
+            long size = mem.size();
+            Memory memory = new ByteMemory(size, false);
+            long sz = mem.size();
+            for (int i = 0; i < sz; i++) {
+                memory.setI8(i, mem.getI8(i));
+            }
+            MemoryPage pag = new MemoryPage(memory, page.base, page.size, page.name, page.fileOffset);
+            add(pag);
+            return;
+        } else if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
             throw new IllegalArgumentException("not a ByteMemory");
         }
         boolean ok = Long.compareUnsigned(page.end, pointerBase) <= 0 || Long.compareUnsigned(page.end, pointerEnd) > 0;
@@ -256,14 +269,22 @@ public class NativeVirtualMemory extends VirtualMemory {
 
         // copy page content to native memory
         if (mem instanceof ByteMemory) {
-            int i;
-            for (i = 0; i < page.size - 8; i += 8) {
-                long val = page.getI64(page.base + i);
-                setI64(page.base + i, val);
+            int i = 0;
+            try {
+                for (i = 0; i < page.size - 8; i += 8) {
+                    long val = page.getI64(page.base + i);
+                    setI64(page.base + i, val);
+                }
+            } catch (SegmentationViolation e) {
+                // this could be a SIGBUS when accessing a mmap'd file
             }
-            for (; i < page.size; i++) {
-                byte val = page.getI8(page.base + i);
-                setI8(page.base + i, val);
+            try {
+                for (; i < page.size; i++) {
+                    byte val = page.getI8(page.base + i);
+                    setI8(page.base + i, val);
+                }
+            } catch (SegmentationViolation e) {
+                // this could be a SIGBUS when accessing a mmap'd file
             }
         }
 
@@ -294,8 +315,17 @@ public class NativeVirtualMemory extends VirtualMemory {
 
     @Override
     public MemoryPage allocate(Memory memory, long size, String name, long offset) {
-        if (!(memory instanceof ByteMemory)) {
-            CompilerDirectives.transferToInterpreter();
+        if (memory instanceof PosixMemory) {
+            assert ((PosixMemory) memory).isReadOnly();
+
+            // copy
+            Memory mem = new ByteMemory(size, false);
+            long sz = memory.size();
+            for (int i = 0; i < sz; i++) {
+                mem.setI8(i, memory.getI8(i));
+            }
+            return allocate(mem, size, name, offset);
+        } else if (!(memory instanceof ByteMemory)) {
             throw new IllegalArgumentException("not a ByteMemory");
         }
 

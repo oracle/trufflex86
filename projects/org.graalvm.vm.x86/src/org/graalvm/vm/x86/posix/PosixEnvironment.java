@@ -98,8 +98,8 @@ public class PosixEnvironment {
         }
     }
 
-    private long getPointer(PosixPointer ptr, boolean r, boolean w, boolean x, long offset) {
-        PosixMemory pmem = new PosixMemory(ptr, false);
+    private long getPointer(PosixPointer ptr, boolean r, boolean w, boolean x, long offset, boolean priv) {
+        PosixMemory pmem = new PosixMemory(ptr, false, priv);
         MemoryPage page = mem.allocate(pmem, mem.roundToPageSize(ptr.size()), ptr.getName(), offset);
         page.r = r;
         page.w = w;
@@ -107,9 +107,9 @@ public class PosixEnvironment {
         return page.getBase();
     }
 
-    private long getPointer(PosixPointer ptr, long address, long size, boolean r, boolean w, boolean x, long offset) {
+    private long getPointer(PosixPointer ptr, long address, long size, boolean r, boolean w, boolean x, long offset, boolean priv) {
         long addr = mem.addr(address);
-        Memory memory = new PosixMemory(ptr, false);
+        Memory memory = new PosixMemory(ptr, false, priv);
         MemoryPage page = new MemoryPage(memory, addr, size, ptr.getName(), offset);
         page.r = r;
         page.w = w;
@@ -579,11 +579,12 @@ public class PosixEnvironment {
             boolean r = BitTest.test(prot, Mman.PROT_READ);
             boolean w = BitTest.test(prot, Mman.PROT_WRITE);
             boolean x = BitTest.test(prot, Mman.PROT_EXEC);
+            boolean priv = BitTest.test(flags, Mman.MAP_PRIVATE);
             if (BitTest.test(flags, Mman.MAP_FIXED)) {
-                return getPointer(ptr, addr, mem.roundToPageSize(length), r, w, x, offset);
+                return getPointer(ptr, addr, mem.roundToPageSize(length), r, w, x, offset, priv);
             } else {
                 assert mem.roundToPageSize(ptr.size()) == mem.roundToPageSize(length);
-                return getPointer(ptr, r, w, x, offset);
+                return getPointer(ptr, r, w, x, offset, priv);
             }
         } catch (PosixException e) {
             if (strace) {
