@@ -422,7 +422,12 @@ public abstract class VirtualMemory {
         printLayout(System.out);
     }
 
-    public abstract void printLayout(PrintStream out);
+    public void printLayout(PrintStream out) {
+        out.println("Memory map:");
+        printMaps(out);
+    }
+
+    public abstract void printMaps(PrintStream out);
 
     public abstract void printAddressInfo(long address, PrintStream out);
 }

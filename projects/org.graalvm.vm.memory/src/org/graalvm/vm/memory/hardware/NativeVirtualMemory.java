@@ -444,9 +444,8 @@ public class NativeVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public void printLayout(PrintStream out) {
+    public void printMaps(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
-        out.println("Memory map:");
         try {
             MemoryMap map = new MemoryMap();
 

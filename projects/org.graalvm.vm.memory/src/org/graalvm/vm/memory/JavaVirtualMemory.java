@@ -640,9 +640,8 @@ public class JavaVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public void printLayout(PrintStream out) {
+    public void printMaps(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
-        out.println("Memory map:");
         pages.entrySet().stream().map((x) -> x.getValue().toString()).forEachOrdered(out::println);
     }
 

@@ -219,9 +219,9 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public void printLayout(PrintStream out) {
-        nmem.printLayout(out);
-        jmem.printLayout(out);
+    public void printMaps(PrintStream out) {
+        nmem.printMaps(out);
+        jmem.printMaps(out);
     }
 
     @Override

@@ -319,7 +319,7 @@ public class PtraceVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public void printLayout(PrintStream out) {
+    public void printMaps(PrintStream out) {
         try {
             MemoryMap map = new MemoryMap(ptrace.getPid());
             for (MemorySegment segment : map.getSegments()) {
