@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -10,6 +11,8 @@ public class SymbolResolver {
     private final NavigableMap<Long, Symbol> symbols;
     private final NavigableMap<Long, Symbol> globalSymbols;
 
+    private final HashMap<String, Symbol> addresses;
+
     public SymbolResolver(NavigableMap<Long, Symbol> symbols) {
         this.symbols = symbols;
 
@@ -19,6 +22,15 @@ public class SymbolResolver {
             Symbol sym = entry.getValue();
             if (sym.getBind() == Symbol.GLOBAL) {
                 globalSymbols.put(sym.getValue(), sym);
+            }
+        }
+
+        // compute global addr -> symbol
+        addresses = new HashMap<>();
+        for (Entry<Long, Symbol> entry : symbols.entrySet()) {
+            Symbol sym = entry.getValue();
+            if (sym.getBind() == Symbol.GLOBAL) {
+                addresses.put(sym.getName(), sym);
             }
         }
     }
@@ -47,6 +59,10 @@ public class SymbolResolver {
             }
         }
         return null;
+    }
+
+    public Symbol getSymbol(String name) {
+        return addresses.get(name);
     }
 
     public Symbol getSymbolExact(long pc) {

@@ -3,9 +3,11 @@ package org.graalvm.vm.x86.posix;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.node.AMD64Node;
 
+import com.everyware.posix.api.CString;
 import com.everyware.posix.api.Errno;
 import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
@@ -57,6 +59,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_setgid = 106;
     public static final int SYS_geteuid = 107;
     public static final int SYS_getegid = 108;
+    public static final int SYS_sigaltstack = 131;
     public static final int SYS_arch_prctl = 158;
     public static final int SYS_gettid = 186;
     public static final int SYS_time = 201;
@@ -70,6 +73,10 @@ public class SyscallWrapper extends AMD64Node {
 
     public static final int SYS_DEBUG = 0xDEADBEEF;
     public static final int SYS_PRINTK = 0xDEADBABE;
+
+    public static final int SYS_interop_init = 0xC0DE0000;
+    public static final int SYS_interop_error = 0xC0DE0001;
+    public static final int SYS_interop_return = 0xC0DE0002;
 
     private final PosixEnvironment posix;
     private final VirtualMemory memory;
@@ -228,6 +235,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.geteuid();
             case SYS_getegid:
                 return posix.getegid();
+            case SYS_sigaltstack:
+                return posix.sigaltstack(a1, a2);
             case SYS_gettid:
                 return posix.gettid();
             case SYS_time:
@@ -256,6 +265,12 @@ public class SyscallWrapper extends AMD64Node {
                 }
                 posix.printk(a1, a2, a3, a4, a5, a6, a7);
                 return 0;
+            case SYS_interop_init:
+                throw new InteropInitException(a1, a2, a3);
+            case SYS_interop_return:
+                throw new InteropReturnException(a1);
+            case SYS_interop_error:
+                throw new InteropErrorException(CString.cstr(new PosixVirtualMemoryPointer(memory, a1)));
             default:
                 throw new SyscallException(Errno.ENOSYS);
         }

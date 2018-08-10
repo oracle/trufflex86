@@ -3,23 +3,24 @@ package org.graalvm.vm.x86.node.flow;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.graalvm.vm.x86.AMD64Language;
+import org.graalvm.vm.x86.AMD64Context;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node.Child;
 
 public class TraceRegistry {
-    private final AMD64Language language;
+    private final TruffleLanguage<AMD64Context> language;
     private final FrameDescriptor frameDescriptor;
 
     @Child private IndirectCallNode node = Truffle.getRuntime().createIndirectCallNode();
 
     private Map<Long, CompiledTrace> traces;
 
-    public TraceRegistry(AMD64Language language, FrameDescriptor frameDescriptor) {
+    public TraceRegistry(TruffleLanguage<AMD64Context> language, FrameDescriptor frameDescriptor) {
         this.language = language;
         this.frameDescriptor = frameDescriptor;
         traces = new HashMap<>();

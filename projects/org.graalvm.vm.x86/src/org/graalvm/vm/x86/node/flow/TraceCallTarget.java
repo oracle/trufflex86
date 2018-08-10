@@ -5,6 +5,7 @@ import static org.graalvm.vm.x86.Options.getBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.CpuState;
@@ -30,7 +31,7 @@ public class TraceCallTarget extends AMD64RootNode {
 
     @CompilationFinal private static boolean CHECK = false;
 
-    protected TraceCallTarget(TruffleLanguage<?> language, FrameDescriptor fd) {
+    protected TraceCallTarget(TruffleLanguage<AMD64Context> language, FrameDescriptor fd) {
         super(language, fd);
     }
 

@@ -23,6 +23,7 @@ import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Rlimit;
 import com.everyware.posix.api.Sigaction;
+import com.everyware.posix.api.Stack;
 import com.everyware.posix.api.Timespec;
 import com.everyware.posix.api.Timeval;
 import com.everyware.posix.api.Tms;
@@ -724,6 +725,29 @@ public class PosixEnvironment {
         }
     }
 
+    public int sigaltstack(long ss, long oldss) throws SyscallException {
+        try {
+            PosixPointer pss = posixPointer(ss);
+            PosixPointer poldss = posixPointer(oldss);
+            Stack sigstk = null;
+            if (pss != null) {
+                sigstk = new Stack();
+                sigstk.read64(pss);
+            }
+            Stack oldsigstk = poldss == null ? null : new Stack();
+            int result = posix.sigaltstack(sigstk, oldsigstk);
+            if (poldss != null) {
+                oldsigstk.write64(poldss);
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "sigaltstack failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int sysinfo(long info) throws SyscallException {
         try {
             Sysinfo sysinfo = new Sysinfo();
@@ -763,6 +787,10 @@ public class PosixEnvironment {
 
     public void mount(String path, FileSystem fs) throws PosixException {
         posix.getVFS().mount(path, fs);
+    }
+
+    public Stack getSigaltstack() {
+        return posix.getSigaltstack();
     }
 
     // DEBUGGING FEATURES (NONSTANDARD!)

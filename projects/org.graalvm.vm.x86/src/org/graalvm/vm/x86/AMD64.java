@@ -11,4 +11,17 @@ public class AMD64 {
 
     public static final int DCACHE_LINE_SIZE = 0x20;
     public static final int ICACHE_LINE_SIZE = 0x20;
+
+    public static final long SCRATCH_SIZE = 4 * 1024 * 1024; // 4MB
+
+    public static final long RETURN_BASE = STACK_BASE - 16384;
+
+    // @formatter:off
+    public static final byte[] RETURN_CODE = {
+                    0x48, (byte) 0x89, (byte) 0xc7,             // mov    rdi,rax
+                    0x48, (byte) 0xb8, 0x02, 0x00, (byte) 0xde, // mov    rax,0xc0de0002
+                    (byte) 0xc0, 0x00, 0x00, 0x00, 0x00,
+                    0x0f, 0x05                                  // syscall
+    };
+    // @formatter:on
 }

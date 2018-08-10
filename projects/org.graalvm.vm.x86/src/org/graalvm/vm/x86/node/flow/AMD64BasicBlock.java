@@ -26,6 +26,7 @@ import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
+import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.elf.Symbol;
@@ -268,7 +269,7 @@ public class AMD64BasicBlock extends AMD64Node {
                     printArgs.execute(frame, pc);
                 }
             }
-        } catch (ProcessExitException | ReturnException e) {
+        } catch (ProcessExitException | ReturnException | InteropException e) {
             updateInstructionCount(frame, n);
             throw e;
         } catch (Throwable t) {

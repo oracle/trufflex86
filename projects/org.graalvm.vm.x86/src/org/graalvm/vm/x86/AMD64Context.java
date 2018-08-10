@@ -4,10 +4,13 @@ import java.util.Collections;
 import java.util.NavigableMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
+import com.everyware.posix.api.Stack;
 import com.everyware.posix.elf.Symbol;
+import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -21,6 +24,7 @@ public class AMD64Context {
     private final PosixEnvironment posix;
     private final String[] args;
 
+    private final TruffleLanguage<AMD64Context> language;
     private final FrameDescriptor frameDescriptor;
     private final FrameSlot[] gpr;
     private final FrameSlot[] zmm;
@@ -47,7 +51,12 @@ public class AMD64Context {
 
     private TraceRegistry traces;
 
-    public AMD64Context(AMD64Language language, Env env, FrameDescriptor fd) {
+    private CpuState snapshot;
+    private long returnAddress;
+    private long scratchMemory;
+
+    public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd) {
+        this.language = language;
         frameDescriptor = fd;
         memory = VirtualMemory.create();
         posix = new PosixEnvironment(memory, ARCH_NAME);
@@ -86,6 +95,10 @@ public class AMD64Context {
         traces = new TraceRegistry(language, frameDescriptor);
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
+    }
+
+    public TruffleLanguage<AMD64Context> getLanguage() {
+        return language;
     }
 
     public FrameDescriptor getFrameDescriptor() {
@@ -198,5 +211,38 @@ public class AMD64Context {
 
     public TraceRegistry getTraceRegistry() {
         return traces;
+    }
+
+    public long getSigaltstack() {
+        Stack stack = posix.getSigaltstack();
+        if (stack == null) {
+            return 0;
+        } else {
+            return stack.ss_sp + stack.ss_size;
+        }
+    }
+
+    public void setStateSnapshot(CpuState state) {
+        snapshot = state;
+    }
+
+    public CpuState getStateSnapshot() {
+        return snapshot;
+    }
+
+    public void setReturnAddress(long address) {
+        returnAddress = address;
+    }
+
+    public long getReturnAddress() {
+        return returnAddress;
+    }
+
+    public void setScratchMemory(long address) {
+        scratchMemory = address;
+    }
+
+    public long getScratchMemory() {
+        return scratchMemory;
     }
 }

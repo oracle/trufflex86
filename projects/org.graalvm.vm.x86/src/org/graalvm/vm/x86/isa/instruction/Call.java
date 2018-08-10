@@ -3,7 +3,6 @@ package org.graalvm.vm.x86.isa.instruction;
 import static org.graalvm.vm.x86.Options.getBoolean;
 
 import org.graalvm.vm.x86.AMD64Context;
-import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
@@ -14,6 +13,7 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.isa.ReturnException;
+import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -69,7 +69,7 @@ public abstract class Call extends AMD64Instruction {
             writeMemory = state.createMemoryWrite();
             traces = state.getTraceRegistry();
 
-            TruffleLanguage<AMD64Context> language = getRootNode().getLanguage(AMD64Language.class);
+            TruffleLanguage<AMD64Context> language = ((AMD64RootNode) getRootNode()).getAMD64Language();
             interpreter = insert(new CompiledTraceInterpreter(language, ctx.getFrameDescriptor()));
         }
     }

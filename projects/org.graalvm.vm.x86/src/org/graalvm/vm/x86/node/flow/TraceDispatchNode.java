@@ -28,6 +28,7 @@ import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
+import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.elf.Symbol;
@@ -268,7 +269,7 @@ public class TraceDispatchNode extends AMD64Node {
             }
             writePC.executeI64(frame, pc);
             throw e;
-        } catch (ReturnException e) {
+        } catch (ReturnException | InteropException e) {
             writePC.executeI64(frame, pc);
             throw e;
         } catch (CpuRuntimeException e) {

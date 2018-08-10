@@ -14,7 +14,7 @@ public class InterpreterStartNode extends AMD64RootNode {
 
     @Child private InterpreterRootNode interpreter;
 
-    public InterpreterStartNode(TruffleLanguage<?> language, FrameDescriptor fd, String programName) {
+    public InterpreterStartNode(TruffleLanguage<AMD64Context> language, FrameDescriptor fd, String programName) {
         super(language, fd);
         this.programName = programName;
     }

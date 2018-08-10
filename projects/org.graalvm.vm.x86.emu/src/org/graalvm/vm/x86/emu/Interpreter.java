@@ -216,6 +216,8 @@ public class Interpreter {
                 return posix.geteuid();
             case Syscalls.SYS_getegid:
                 return posix.getegid();
+            case Syscalls.SYS_sigaltstack:
+                return posix.sigaltstack(a1, a2);
             case Syscalls.SYS_arch_prctl:
                 return arch_prctl((int) a1, a2);
             case Syscalls.SYS_gettid:

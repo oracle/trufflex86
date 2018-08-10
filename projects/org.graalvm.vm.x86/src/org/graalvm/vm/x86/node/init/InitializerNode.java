@@ -22,6 +22,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class InitializerNode extends AMD64Node {
     private final String programName;
+    private final String[] arguments;
 
     @Child private LoaderNode setup;
     @Children private RegisterWriteNode[] gpr;
@@ -40,6 +41,11 @@ public class InitializerNode extends AMD64Node {
     @CompilationFinal private FrameSlot instructionCount;
 
     public InitializerNode(ArchitecturalState state, String programName) {
+        this(state, programName, null);
+    }
+
+    public InitializerNode(ArchitecturalState state, String programName, String[] arguments) {
+        this.arguments = arguments;
         this.setup = new LoaderNode(state);
         this.programName = programName;
         gpr = new RegisterWriteNode[16];
@@ -86,6 +92,17 @@ public class InitializerNode extends AMD64Node {
         assert (sp & 0xf) == 0;
         gpr[Register.RSP.getID()].executeI64(frame, sp);
 
+        // initialize return code page
+        long retbase = memory.pageStart(AMD64.RETURN_BASE);
+        long retsize = memory.roundToPageSize(AMD64.RETURN_CODE.length);
+        Memory retMemory = new ByteMemory(retsize, false);
+        for (int i = 0; i < AMD64.RETURN_CODE.length; i++) {
+            retMemory.setI8(i, AMD64.RETURN_CODE[i]);
+        }
+        MemoryPage ret = new MemoryPage(retMemory, retbase, retsize, "[return code]");
+        memory.add(ret);
+        ctx.setReturnAddress(retbase);
+
         fs.executeI64(frame, 0);
         gs.executeI64(frame, 0);
 
@@ -100,6 +117,9 @@ public class InitializerNode extends AMD64Node {
         frame.setLong(instructionCount, 0);
 
         String[] args = ctx.getArguments();
+        if (arguments != null) {
+            args = arguments;
+        }
         setup.execute(frame, programName, args);
     }
 }

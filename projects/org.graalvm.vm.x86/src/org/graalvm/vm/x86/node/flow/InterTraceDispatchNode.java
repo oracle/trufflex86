@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
+import org.graalvm.vm.x86.posix.InteropInitException;
 
 import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -29,8 +30,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
 
     private final TraceRegistry traces;
 
-    @CompilationFinal public static boolean PRINT_STATS = getBoolean(Options.PRINT_DISPATCH_STATS);
-    @CompilationFinal public static boolean USE_LOOP_NODE = getBoolean(Options.USE_LOOP_NODE);
+    public static final boolean PRINT_STATS = getBoolean(Options.PRINT_DISPATCH_STATS);
+    public static final boolean USE_LOOP_NODE = getBoolean(Options.USE_LOOP_NODE);
 
     private int noSuccessor = 0;
     private int hasSuccessor = 0;
@@ -98,6 +99,9 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
             loop.executeLoop(frame);
         } catch (RetException e) {
             return e.getState();
+        } catch (InteropInitException e) {
+            writeState.execute(frame, state);
+            throw e;
         }
         throw new AssertionError("loop node must not return");
     }
@@ -113,24 +117,29 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
             startTrace = currentTrace;
         }
 
-        if (USE_LOOP_NODE) {
-            loop.executeLoop(frame);
-            throw new AssertionError("loop node must not return");
-        } else {
-            while (true) {
-                pc = state.rip;
-                state = (CpuState) currentTrace.callTarget.call(state);
-                CompiledTrace next = currentTrace.getNext(state.rip);
-                if (next == null) {
-                    noSuccessor++;
-                    next = traces.get(state.rip);
-                    currentTrace.setNext(next);
-                } else {
-                    hasSuccessor++;
+        try {
+            if (USE_LOOP_NODE) {
+                loop.executeLoop(frame);
+                throw new AssertionError("loop node must not return");
+            } else {
+                while (true) {
+                    pc = state.rip;
+                    state = (CpuState) currentTrace.callTarget.call(state);
+                    CompiledTrace next = currentTrace.getNext(state.rip);
+                    if (next == null) {
+                        noSuccessor++;
+                        next = traces.get(state.rip);
+                        currentTrace.setNext(next);
+                    } else {
+                        hasSuccessor++;
+                    }
+                    currentTrace = next;
+                    insncnt = state.instructionCount;
                 }
-                currentTrace = next;
-                insncnt = state.instructionCount;
             }
+        } catch (InteropInitException e) {
+            writeState.execute(frame, state);
+            throw e;
         }
     }
 }

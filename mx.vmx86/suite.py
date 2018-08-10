@@ -48,7 +48,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
       ],
-      "sha1" : "fefc95f56536b72a2396030031be1225f2c498f7",
+      "sha1" : "49af9da09fdddcf9d380e8a236de4505b7285bc2",
     },
 
     "XED" : {
@@ -116,22 +116,37 @@ suite = {
       "license" : "GPLv3",
     },
 
+    "org.graalvm.vm.x86.nfi" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.x86"
+      ],
+      "javaCompliance" : "1.8",
+      "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
+      "workingSets" : "vmx86",
+      "license" : "GPLv3",
+    },
+
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3"
+      "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "org.graalvm.vm.x86.testcases.c" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3"
+      "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "org.graalvm.vm.x86.testcases.sulong.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3"
+      "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "benchmarksgame" : {
@@ -198,7 +213,8 @@ suite = {
         "bin/knucleotide.cint",
         "bin/knucleotide.gcc-8"
       ],
-      "license" : "GPLv3"
+      "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "org.graalvm.vm.x86.test" : {
@@ -215,6 +231,7 @@ suite = {
       "javaCompliance" : "1.8",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "org.graalvm.vm.memory.test" : {
@@ -227,6 +244,7 @@ suite = {
       "javaCompliance" : "1.8",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
+      "testProject" : True,
     },
 
     "org.graalvm.vm.x86.emu" : {
@@ -263,6 +281,49 @@ suite = {
       "license" : "GPLv3",
       "testProject" : True,
     },
+
+    "org.graalvm.vm.x86.nfi.native" : {
+      "subDir" : "projects",
+      "native" : True,
+      "vpath" : True,
+      "results" : [
+        "bin/<lib:nfi>",
+      ],
+      "buildEnv" : {
+        "LIBNFI" : "<lib:nfi>",
+        "OS" : "<os>",
+      },
+      "license" : "GPLv3",
+    },
+
+    "org.graalvm.vm.x86.nfi.test.native" : {
+      "subDir" : "projects",
+      "native" : True,
+      "vpath" : True,
+      "results" : [
+        "bin/<lib:test>",
+      ],
+      "buildEnv" : {
+        "LIBTEST" : "<lib:test>",
+        "OS" : "<os>",
+      },
+      "license" : "GPLv3",
+      "testProject" : True,
+    },
+
+    "org.graalvm.vm.x86.nfi.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.x86.nfi",
+        "truffle:TRUFFLE_TCK",
+        "mx:JUNIT",
+      ],
+      "javaCompliance" : "1.8",
+      "workingSets" : "vmx86",
+      "license" : "GPLv3",
+      "testProject" : True,
+    },
   },
 
   "distributions" : {
@@ -290,6 +351,15 @@ suite = {
       ],
     },
 
+    "VM_NFI_NATIVE" : {
+      "native" : True,
+      "platformDependent" : True,
+      "output" : "build",
+      "dependencies" : [
+        "org.graalvm.vm.x86.nfi.native"
+      ],
+    },
+
     "VM_TESTCASES" : {
       "native" : True,
       "platformDependent" : True,
@@ -299,6 +369,7 @@ suite = {
         "org.graalvm.vm.x86.testcases.c",
         "org.graalvm.vm.x86.testcases.sulong.asm",
         "benchmarksgame",
+        "org.graalvm.vm.x86.nfi.test.native"
       ],
       "javaProperties" : {
         "library.path" : "<path:VM_MEMORY_NATIVE>/<lib:memory>"
@@ -311,6 +382,7 @@ suite = {
       "sourcesPath" : "build/vmx86_test.src.zip",
       "dependencies" : [
         "org.graalvm.vm.x86.test",
+        "org.graalvm.vm.x86.nfi.test",
         "org.graalvm.vm.memory.test"
       ],
       "distDependencies" : [
