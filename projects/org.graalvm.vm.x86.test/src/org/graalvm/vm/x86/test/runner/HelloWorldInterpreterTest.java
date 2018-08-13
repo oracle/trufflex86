@@ -75,8 +75,8 @@ public class HelloWorldInterpreterTest {
         String stdin = "";
         String stdout = "fs(selector)=0\n" +
                         "fs=0\n" +
-                        "fs(selector)=400c88\n" +
-                        "fs=400c88\n" +
+                        "fs(selector)=402048\n" +
+                        "fs=402048\n" +
                         "tls=4847464544434241\n";
         String stderr = "";
 
