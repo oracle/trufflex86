@@ -139,6 +139,8 @@ import org.graalvm.vm.x86.isa.instruction.Divpd;
 import org.graalvm.vm.x86.isa.instruction.Divps;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
+import org.graalvm.vm.x86.isa.instruction.Endbr32;
+import org.graalvm.vm.x86.isa.instruction.Endbr64;
 import org.graalvm.vm.x86.isa.instruction.Fnstcw;
 import org.graalvm.vm.x86.isa.instruction.Fxrstor;
 import org.graalvm.vm.x86.isa.instruction.Fxsave;
@@ -305,6 +307,7 @@ import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfq;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfw;
 import org.graalvm.vm.x86.isa.instruction.Pxor;
+import org.graalvm.vm.x86.isa.instruction.Rdssp.Rdsspq;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
 import org.graalvm.vm.x86.isa.instruction.Rep.Repnz;
@@ -2401,6 +2404,26 @@ public class AMD64InstructionDecoder {
                             return new Divpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.CET: {
+                        if (isREPZ) {
+                            Args args = new Args(code, rex, segment, addressOverride);
+                            switch (args.modrm.getReg()) {
+                                case 1:
+                                    return new Rdsspq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                case 7:
+                                    switch (args.modrm.getModRM()) {
+                                        case (byte) 0xFA:
+                                            return new Endbr64(pc, args.getOp(instruction, instructionLength));
+                                        case (byte) 0xFB:
+                                            return new Endbr32(pc, args.getOp(instruction, instructionLength));
+                                        default:
+                                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                                    }
+                            }
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
                     }
                     case AMD64Opcode.IMUL_R_RM: {

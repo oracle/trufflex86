@@ -99,6 +99,8 @@ public class AMD64Opcode {
 
     public static final byte DIVSD_X_XM = 0x5E;
 
+    public static final byte CET = 0x1E;
+
     public static final byte FNSTCW_M = (byte) 0xD9;
 
     public static final byte IDIV_RM8 = (byte) 0xF6;
