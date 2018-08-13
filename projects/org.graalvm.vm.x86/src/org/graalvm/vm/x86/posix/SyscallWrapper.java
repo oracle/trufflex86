@@ -121,6 +121,21 @@ public class SyscallWrapper extends AMD64Node {
             case ArchPrctl.ARCH_SET_GS:
                 name = "ARCH_SET_GS";
                 break;
+            case ArchPrctl.ARCH_CET_STATUS:
+                name = "ARCH_CET_STATUS";
+                break;
+            case ArchPrctl.ARCH_CET_DISABLE:
+                name = "ARCH_CET_DISABLE";
+                break;
+            case ArchPrctl.ARCH_CET_LOCK:
+                name = "ARCH_CET_LOCK";
+                break;
+            case ArchPrctl.ARCH_CET_ALLOC_SHSTK:
+                name = "ARCH_CET_ALLOC_SHSTK";
+                break;
+            case ArchPrctl.ARCH_CET_LEGACY_BITMAP:
+                name = "ARCH_CET_LEGACY_BITMAP";
+                break;
             default:
                 name = Integer.toString(code);
         }

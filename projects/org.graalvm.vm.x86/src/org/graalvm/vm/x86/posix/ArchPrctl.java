@@ -16,6 +16,12 @@ public class ArchPrctl extends AMD64Node {
     public static final int ARCH_GET_FS = 0x1003;
     public static final int ARCH_GET_GS = 0x1004;
 
+    public static final int ARCH_CET_STATUS = 0x3001;
+    public static final int ARCH_CET_DISABLE = 0x3002;
+    public static final int ARCH_CET_LOCK = 0x3003;
+    public static final int ARCH_CET_ALLOC_SHSTK = 0x3004;
+    public static final int ARCH_CET_LEGACY_BITMAP = 0x3005;
+
     @Child private RegisterReadNode readFS;
     @Child private RegisterReadNode readGS;
     @Child private RegisterWriteNode writeFS;
@@ -66,6 +72,13 @@ public class ArchPrctl extends AMD64Node {
                 }
                 writeMemory.executeI64(value, readGS.executeI64(frame));
                 return 0;
+            case ARCH_CET_STATUS:
+            case ARCH_CET_DISABLE:
+            case ARCH_CET_LOCK:
+            case ARCH_CET_ALLOC_SHSTK:
+            case ARCH_CET_LEGACY_BITMAP:
+                // Intel CET is not (yet?) supported
+                throw new SyscallException(Errno.EINVAL);
             default:
                 CompilerDirectives.transferToInterpreter();
                 System.out.printf("arch_prctl(0x%x): invalid code\n", code);
