@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
@@ -21,14 +22,17 @@ public class NativeTypeConversionNode extends Node {
                         return (int) value;
                     case SINT64:
                     case UINT64:
-                    case POINTER:
                         return value;
+                    case POINTER:
+                        return new NativePointer(value);
                     default:
-                        return null;
+                        CompilerDirectives.transferToInterpreter();
+                        throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
                 }
             }
             default:
-                return null;
+                CompilerDirectives.transferToInterpreter();
+                throw new AssertionError("Unsupported type: " + type.getKind());
         }
     }
 }

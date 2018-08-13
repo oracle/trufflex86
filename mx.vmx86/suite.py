@@ -320,6 +320,7 @@ suite = {
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8",
+      "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
       "license" : "GPLv3",
       "testProject" : True,
