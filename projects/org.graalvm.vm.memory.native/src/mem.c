@@ -30,6 +30,11 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 	xed_tables_init();
 	return JNI_VERSION_1_2;
 }
+#elif defined(__aarch64__)
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+	return JNI_VERSION_1_2;
+}
 #else
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -38,7 +43,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 }
 #endif
 
-#ifdef DEBUG
+#if defined(DEBUG) && defined(__x86_64__)
 #define __SYSCALL_3(result, id, a1, a2, a3)                                    \
 	__asm__ volatile("syscall" : "=a"(result)                              \
 				   : "a"(id), "D"(a1), "S"(a2), "d"(a3)        \
@@ -116,6 +121,21 @@ static void sigsegv_handler(int sig, siginfo_t* info, void* context)
 		uintptr_t rip = ctx->uc_mcontext.gregs[REG_RIP];
 		rip += insn_len;
 		ctx->uc_mcontext.gregs[REG_RIP] = rip;
+	} else {
+		jvm_sigsegv_handler(sig, info, context);
+	}
+}
+#elif defined(__aarch64__)
+static void sigsegv_handler(int sig, siginfo_t* info, void* context)
+{
+	ucontext_t* ctx = (ucontext_t*) context;
+	unsigned long ptr = (unsigned long) info->si_addr;
+	if(ptr >= low && ptr <= high) {
+		int i;
+		error = ptr;
+		uintptr_t pc = ctx->uc_mcontext.pc;
+		pc += 4;
+		ctx->uc_mcontext.pc = pc;
 	} else {
 		jvm_sigsegv_handler(sig, info, context);
 	}

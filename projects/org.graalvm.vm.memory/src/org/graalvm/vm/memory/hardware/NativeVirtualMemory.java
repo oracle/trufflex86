@@ -27,8 +27,10 @@ import com.oracle.truffle.api.CompilerDirectives;
 public class NativeVirtualMemory extends VirtualMemory {
     private static final Logger log = Trace.create(NativeVirtualMemory.class);
 
-    public static final long LOW = 0x200000000000L;
-    public static final long HIGH = 0x400000000000L;
+    private static final String ARCH = System.getProperty("os.arch");
+
+    public static final long LOW = getLow();
+    public static final long HIGH = getHigh();
     public static final long SIZE = HIGH - LOW;
 
     private final long physicalLo;
@@ -39,6 +41,24 @@ public class NativeVirtualMemory extends VirtualMemory {
 
     private static boolean initialized = false;
     private static boolean supported;
+
+    private static long getLow() {
+        switch (ARCH) {
+            case "aarch64":
+                return 0x2000000000L;
+            default:
+                return 0x200000000000L;
+	}
+    }
+
+    private static long getHigh() {
+        switch (ARCH) {
+            case "aarch64":
+                return 0x4000000000L;
+            default:
+                return 0x400000000000L;
+	}
+    }
 
     private static boolean checkMemoryMap() {
         try {

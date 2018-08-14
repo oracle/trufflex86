@@ -96,6 +96,7 @@ suite = {
         "XED" : "<path:XED>",
         "XED_VERSION" : "xed-install-base-2018-06-29-lin-x86-64",
         "OS" : "<os>",
+        "ARCH" : "<arch>"
       },
       "license" : "GPLv3",
     },
