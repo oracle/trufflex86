@@ -12,6 +12,11 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
     }
 
     @Override
+    public long getAddress() {
+        return offset;
+    }
+
+    @Override
     public PosixPointer add(int off) {
         return new PosixVirtualMemoryPointer(memory, offset + off);
     }

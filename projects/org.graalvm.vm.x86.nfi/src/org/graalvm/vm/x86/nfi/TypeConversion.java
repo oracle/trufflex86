@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 
@@ -21,6 +22,106 @@ public class TypeConversion extends Node {
 
     protected static boolean checkNull(Node isNull, TruffleObject object) {
         return ForeignAccess.sendIsNull(isNull, object);
+    }
+
+    abstract static class IsNullNode extends TypeConversion {
+        abstract boolean execute(Object arg);
+
+        @Specialization
+        protected boolean executeTruffleObject(TruffleObject obj, @Cached("createIsNull()") Node isNull) {
+            return checkNull(isNull, obj);
+        }
+    }
+
+    abstract static class AsI64Node extends TypeConversion {
+        abstract long execute(Object arg);
+
+        @Specialization
+        protected long executeI8(byte arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected long executeI16(short arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected long executeI32(int arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected long executeI64(long arg) {
+            return arg;
+        }
+
+        @Specialization(guards = "checkIsPointer(isPointer, arg)")
+        @SuppressWarnings("unused")
+        protected long serializePointer(TruffleObject arg,
+                        @Cached("createIsPointer()") Node isPointer,
+                        @Cached("createAsPointer()") Node asPointer) {
+            try {
+                long pointer = ForeignAccess.sendAsPointer(asPointer, arg);
+                return pointer;
+            } catch (UnsupportedMessageException ex) {
+                CompilerDirectives.transferToInterpreter();
+                throw ex.raise();
+            }
+        }
+
+        @Specialization(guards = "checkNull(isNull, arg)")
+        @SuppressWarnings("unused")
+        long nullAsPointer(TruffleObject arg, @Cached("createIsNull()") Node isNull) {
+            return 0;
+        }
+
+        protected static boolean checkIsPointer(Node isPointer, TruffleObject object) {
+            return ForeignAccess.sendIsPointer(isPointer, object);
+        }
+
+        static Node createIsPointer() {
+            return Message.IS_POINTER.createNode();
+        }
+
+        static Node createAsPointer() {
+            return Message.AS_POINTER.createNode();
+        }
+
+        static Node createToNative() {
+            return Message.TO_NATIVE.createNode();
+        }
+
+        static AsI64Node createRecursive() {
+            return AsI64NodeGen.create();
+        }
+
+        @SuppressWarnings("unused")
+        @Specialization(guards = "checkIsBoxed(isBoxed, arg)")
+        protected long unbox(TruffleObject arg,
+                        @Cached("createIsBoxed()") Node isBoxed,
+                        @Cached("createUnbox()") Node unbox,
+                        @Cached("createRecursive()") AsI64Node recursive) {
+            try {
+                Object value = ForeignAccess.sendUnbox(unbox, arg);
+                return recursive.execute(value);
+            } catch (UnsupportedMessageException ex) {
+                CompilerDirectives.transferToInterpreter();
+                throw ex.raise();
+            }
+        }
+
+        protected static boolean checkIsBoxed(Node isBoxed, TruffleObject object) {
+            return ForeignAccess.sendIsBoxed(isBoxed, object);
+        }
+
+        static Node createIsBoxed() {
+            return Message.IS_BOXED.createNode();
+        }
+
+        static Node createUnbox() {
+            return Message.UNBOX.createNode();
+        }
     }
 
     abstract static class AsPointerNode extends TypeConversion {

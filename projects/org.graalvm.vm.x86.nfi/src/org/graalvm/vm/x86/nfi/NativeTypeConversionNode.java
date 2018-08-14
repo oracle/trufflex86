@@ -25,11 +25,24 @@ public class NativeTypeConversionNode extends Node {
                         return value;
                     case POINTER:
                         return new NativePointer(value);
+                    case STRING:
+                        return new AMD64String(value);
+                    case OBJECT:
+                        if (value == 0) {
+                            return new NativePointer(value);
+                        } else {
+                            CompilerDirectives.transferToInterpreter();
+                            throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
+                        }
+                    case VOID:
+                        return new NativePointer(0);
                     default:
                         CompilerDirectives.transferToInterpreter();
                         throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
                 }
             }
+            case FUNCTION:
+                return new NativePointer(value);
             default:
                 CompilerDirectives.transferToInterpreter();
                 throw new AssertionError("Unsupported type: " + type.getKind());
