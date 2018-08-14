@@ -7,7 +7,7 @@ OBJECTS		=	main.o
 OBJECTFILES	=	${OBJECTS:%.o=bin/%.o}
 CFLAGS		+=	-I$(VPATH)/include
 CFLAGS		+=	-O3 -g0 -fPIC
-LDFLAGS		=	-g0
+LDFLAGS		=	-g0 -s
 
 bin/$(LIBNFI): $(OBJECTFILES)
 	@echo "[LD] $@"
