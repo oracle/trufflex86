@@ -1,6 +1,5 @@
 package org.graalvm.vm.x86.node.init;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -35,10 +34,6 @@ public class LoaderNode extends AMD64Node {
         writePC = state.getRegisters().getPC().createWrite();
     }
 
-    protected ElfLoader getElfLoader() {
-        return new ElfLoader();
-    }
-
     @TruffleBoundary
     private static Map<String, String> getenv() {
         if (Options.getBoolean(Options.DEBUG_STATIC_ENV)) {
@@ -52,8 +47,7 @@ public class LoaderNode extends AMD64Node {
     }
 
     @TruffleBoundary
-    private void setup(String execfn, ElfLoader loader) throws PosixException, IOException {
-        PosixEnvironment posix = getContextReference().get().getPosixEnvironment();
+    private static void setup(String execfn, PosixEnvironment posix) throws PosixException {
         posix.setExecfn(execfn);
         VFS vfs = posix.getVFS();
         Path cwd = Paths.get(".").toAbsolutePath().normalize();
@@ -81,9 +75,6 @@ public class LoaderNode extends AMD64Node {
             posixPath.append('/').append(cwd.getName(i));
         }
         posix.getPosix().chdir(posixPath.toString());
-
-        String path = vfs.resolve(execfn);
-        loader.load(path);
     }
 
     public Object execute(VirtualFrame frame, String execfn, String[] args) {
@@ -96,8 +87,45 @@ public class LoaderNode extends AMD64Node {
         loader.setArguments(args);
         loader.setEnvironment(getenv());
 
+        PosixEnvironment posix = getContextReference().get().getPosixEnvironment();
+
         try {
-            setup(execfn, loader);
+            setup(execfn, posix);
+            VFS vfs = posix.getVFS();
+            String path = vfs.resolve(execfn);
+            loader.load(path);
+        } catch (Throwable t) {
+            CompilerDirectives.transferToInterpreter();
+            throw new RuntimeException(t);
+        }
+
+        if (!loader.isAMD64()) {
+            CompilerDirectives.transferToInterpreter();
+            throw new RuntimeException("Not an x86_64 executable!");
+        }
+
+        writePC.executeI64(frame, loader.getPC());
+        writeSP.executeI64(frame, loader.getSP());
+        ctx.setSymbols(loader.getSymbols());
+
+        return null;
+    }
+
+    public Object executeELF(VirtualFrame frame, String execfn, String[] args, byte[] elf) {
+        AMD64Context ctx = getContextReference().get();
+        ElfLoader loader = new ElfLoader();
+        loader.setPosixEnvironment(ctx.getPosixEnvironment());
+        loader.setVirtualMemory(ctx.getMemory());
+        loader.setSP(readSP.executeI64(frame));
+        loader.setProgramName(execfn);
+        loader.setArguments(args);
+        loader.setEnvironment(getenv());
+
+        PosixEnvironment posix = getContextReference().get().getPosixEnvironment();
+
+        try {
+            setup(execfn, posix);
+            loader.load(elf, execfn);
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();
             throw new RuntimeException(t);

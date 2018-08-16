@@ -1,5 +1,11 @@
 package org.graalvm.vm.x86.node.init;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
@@ -8,6 +14,7 @@ import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.AVXRegister;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -15,12 +22,16 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 public class InitializerNode extends AMD64Node {
+    private static final Logger log = Trace.create(LoaderNode.class);
+    @CompilationFinal(dimensions = 1) public static final byte[] BINARY = loadBinary();
+
     private final String programName;
     private final String[] arguments;
 
@@ -69,6 +80,19 @@ public class InitializerNode extends AMD64Node {
         writeOF = state.getRegisters().getOF().createWrite();
 
         instructionCount = state.getInstructionCount();
+    }
+
+    private static byte[] loadBinary() {
+        String filename = Options.getString(Options.STATIC_BINARY);
+        if (filename == null) {
+            return null;
+        }
+        try {
+            return Files.readAllBytes(Paths.get(filename));
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Cannot load binary \"" + filename + "\"");
+            return null;
+        }
     }
 
     @ExplodeLoop
@@ -120,6 +144,11 @@ public class InitializerNode extends AMD64Node {
         if (arguments != null) {
             args = arguments;
         }
-        setup.execute(frame, programName, args);
+
+        if (BINARY != null) {
+            setup.executeELF(frame, programName, args, BINARY);
+        } else {
+            setup.execute(frame, programName, args);
+        }
     }
 }

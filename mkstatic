@@ -1,0 +1,28 @@
+#!/bin/sh
+
+ROOT=$HOME/git
+GRAAL=$ROOT/graal
+TRUFFLE=$ROOT/graal/truffle
+SVM=$GRAAL/substratevm
+VMX86=$ROOT/vmx86
+
+EXECUTABLE="$1"
+OUTPUT="$2"
+
+if [ $# -ne 2 ]; then
+	echo "Usage: $0 /path/to/program/file /path/to/output/file"
+	exit 1
+fi
+
+(cd $SVM && mx native-image \
+		--tool:truffle \
+		-H:+JNI -H:JNIConfigurationFiles=$VMX86/jniconfig \
+		-H:MaxRuntimeCompileMethods=10000 \
+		-H:Name=$OUTPUT \
+		-Djava.library.path=$VMX86/build \
+		-Djvmci.class.path.append=$GRAAL/compiler/mxbuild/dists/graal.jar \
+		-Dgraal.TruffleCompilationExceptionsArePrinted=true \
+		-Dgraal.ExitVMOnException=true \
+		-Dvmx86.elf.binary=$EXECUTABLE \
+		-cp $GRAAL/sdk/mxbuild/dists/graal-sdk.jar:$TRUFFLE/mxbuild/dists/truffle-api.jar:$TRUFFLE/mxbuild/dists/truffle-nfi.jar:$VMX86/lib/core.jar:$VMX86/lib/posix.jar:$VMX86/build/vmx86.jar \
+		org.graalvm.vm.x86.AMD64BundledVM)

@@ -27,6 +27,7 @@ public class Options {
     // ELF loader
     public static final LongOption LOAD_BIAS = new LongOption("vmx86.elf.load_bias", 0);
     public static final StringOption STACK_CONTENT = new StringOption("vmx86.elf.stack", null);
+    public static final StringOption STATIC_BINARY = new StringOption("vmx86.elf.binary", null);
 
     // Instructions
     public static final BooleanOption RDTSC_USE_INSTRUCTION_COUNT = new BooleanOption("vmx86.rdtsc.insncnt", false);
