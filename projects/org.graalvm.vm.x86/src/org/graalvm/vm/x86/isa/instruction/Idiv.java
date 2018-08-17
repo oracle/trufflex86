@@ -30,27 +30,13 @@ public abstract class Idiv extends AMD64Instruction {
         this.operand = operand;
     }
 
-    protected void create8bitChildrenIfNecessary() {
-        if (readOperand == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readOperand = operand.createRead(state, next());
-            readA = state.getRegisters().getRegister(Register.AX).createRead();
-            writeA = state.getRegisters().getRegister(Register.AL).createWrite();
-            writeD = state.getRegisters().getRegister(Register.AH).createWrite();
-        }
-    }
-
-    protected void createChildrenIfNecessary(Register a, Register d) {
-        if (readOperand == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readOperand = operand.createRead(state, next());
-            readA = state.getRegisters().getRegister(a).createRead();
-            readD = state.getRegisters().getRegister(d).createRead();
-            writeA = state.getRegisters().getRegister(a).createWrite();
-            writeD = state.getRegisters().getRegister(d).createWrite();
-        }
+    protected void createChildNodes(Register a, Register d) {
+        ArchitecturalState state = getState();
+        readOperand = operand.createRead(state, next());
+        readA = state.getRegisters().getRegister(a).createRead();
+        readD = state.getRegisters().getRegister(d).createRead();
+        writeA = state.getRegisters().getRegister(a).createWrite();
+        writeD = state.getRegisters().getRegister(d).createWrite();
     }
 
     public static class Idivb extends Idiv {
@@ -61,8 +47,16 @@ public abstract class Idiv extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readOperand = operand.createRead(state, next());
+            readA = state.getRegisters().getRegister(Register.AX).createRead();
+            writeA = state.getRegisters().getRegister(Register.AL).createWrite();
+            writeD = state.getRegisters().getRegister(Register.AH).createWrite();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            create8bitChildrenIfNecessary();
             byte divisor = readOperand.executeI8(frame);
             if (divisor == 0) {
                 CompilerDirectives.transferToInterpreter();
@@ -90,8 +84,12 @@ public abstract class Idiv extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AX, Register.DX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AX, Register.DX);
             short divisor = readOperand.executeI16(frame);
             if (divisor == 0) {
                 CompilerDirectives.transferToInterpreter();
@@ -121,8 +119,12 @@ public abstract class Idiv extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.EAX, Register.EDX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.EAX, Register.EDX);
             int divisor = readOperand.executeI32(frame);
             if (divisor == 0) {
                 CompilerDirectives.transferToInterpreter();
@@ -152,8 +154,12 @@ public abstract class Idiv extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.RAX, Register.RDX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.RAX, Register.RDX);
             long divisor = readOperand.executeI64(frame);
             if (divisor == 0) {
                 CompilerDirectives.transferToInterpreter();

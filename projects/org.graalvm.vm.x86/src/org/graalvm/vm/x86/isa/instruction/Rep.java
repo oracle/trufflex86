@@ -13,7 +13,6 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -256,32 +255,18 @@ public class Rep extends AMD64Instruction {
     }
 
     @Override
-    public Register[] getUsedGPRRead() {
-        createChildrenIfNecessary();
-        return super.getUsedGPRRead();
-    }
-
-    @Override
-    public Register[] getUsedGPRWrite() {
-        createChildrenIfNecessary();
-        return super.getUsedGPRWrite();
-    }
-
-    protected void createChildrenIfNecessary() {
-        if (loop == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RepeatingNode body = createRepeatingNode(state, insn);
-            UsesRegisters r = (UsesRegisters) body;
-            setGPRReadOperands(r.getReadOperands());
-            setGPRWriteOperands(r.getWriteOperands());
-            loop = insert(Truffle.getRuntime().createLoopNode(body));
-        }
+    protected void createChildNodes() {
+        insn.createChildren();
+        ArchitecturalState state = getState();
+        RepeatingNode body = createRepeatingNode(state, insn);
+        UsesRegisters r = (UsesRegisters) body;
+        setGPRReadOperands(r.getReadOperands());
+        setGPRWriteOperands(r.getWriteOperands());
+        loop = insert(Truffle.getRuntime().createLoopNode(body));
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         loop.executeLoop(frame);
         return next();
     }

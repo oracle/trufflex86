@@ -12,7 +12,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Sbb extends AMD64Instruction {
@@ -39,22 +38,20 @@ public abstract class Sbb extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (srcA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            srcA = operand1.createRead(state, next());
-            srcB = operand2.createRead(state, next());
-            dst = operand1.createWrite(state, next());
-            readCF = regs.getCF().createRead();
-            writeCF = regs.getCF().createWrite();
-            writeOF = regs.getOF().createWrite();
-            writeSF = regs.getSF().createWrite();
-            writeZF = regs.getZF().createWrite();
-            writePF = regs.getPF().createWrite();
-            writeAF = regs.getAF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        srcA = operand1.createRead(state, next());
+        srcB = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
+        readCF = regs.getCF().createRead();
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeAF = regs.getAF().createWrite();
     }
 
     private static Operand getOp1(OperandDecoder decoder, int type, boolean swap) {
@@ -84,7 +81,6 @@ public abstract class Sbb extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
 
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
@@ -126,8 +122,6 @@ public abstract class Sbb extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
-
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             boolean cf = readCF.execute(frame);
@@ -168,8 +162,6 @@ public abstract class Sbb extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
-
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             boolean cf = readCF.execute(frame);
@@ -210,8 +202,6 @@ public abstract class Sbb extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
-
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             boolean cf = readCF.execute(frame);

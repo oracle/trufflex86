@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cmpsd extends AMD64Instruction {
@@ -48,14 +47,12 @@ public abstract class Cmpsd extends AMD64Instruction {
         throw new IllegalInstructionException(pc, instruction, "unknown type " + imm);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc1 = operand1.createRead(state, next());
-            readSrc2 = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc1 = operand1.createRead(state, next());
+        readSrc2 = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Cmpltsd extends Cmpsd {
@@ -65,7 +62,6 @@ public abstract class Cmpsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 dst = readSrc1.executeI128(frame);
             Vector128 src = readSrc2.executeI128(frame);
             double a = dst.getF64(1);
@@ -83,7 +79,6 @@ public abstract class Cmpsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 dst = readSrc1.executeI128(frame);
             Vector128 src = readSrc2.executeI128(frame);
             double a = dst.getF64(1);
@@ -101,7 +96,6 @@ public abstract class Cmpsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 dst = readSrc1.executeI128(frame);
             Vector128 src = readSrc2.executeI128(frame);
             double a = dst.getF64(1);
@@ -119,7 +113,6 @@ public abstract class Cmpsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 dst = readSrc1.executeI128(frame);
             Vector128 src = readSrc2.executeI128(frame);
             double a = dst.getF64(1);

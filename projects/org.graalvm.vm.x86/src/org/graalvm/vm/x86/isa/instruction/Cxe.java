@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cxe extends AMD64Instruction {
@@ -30,27 +29,25 @@ public abstract class Cxe extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RDX));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            switch (size) {
-                case 0:
-                    readSrc = regs.getRegister(Register.AL).createRead();
-                    writeDst = regs.getRegister(Register.AX).createWrite();
-                    break;
-                case 1:
-                    readSrc = regs.getRegister(Register.AX).createRead();
-                    writeDst = regs.getRegister(Register.EAX).createWrite();
-                    break;
-                case 2:
-                    readSrc = regs.getRegister(Register.EAX).createRead();
-                    writeDst = regs.getRegister(Register.RAX).createWrite();
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        switch (size) {
+            case 0:
+                readSrc = regs.getRegister(Register.AL).createRead();
+                writeDst = regs.getRegister(Register.AX).createWrite();
+                break;
+            case 1:
+                readSrc = regs.getRegister(Register.AX).createRead();
+                writeDst = regs.getRegister(Register.EAX).createWrite();
+                break;
+            case 2:
+                readSrc = regs.getRegister(Register.EAX).createRead();
+                writeDst = regs.getRegister(Register.RAX).createWrite();
+                break;
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -61,7 +58,6 @@ public abstract class Cxe extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte value = readSrc.executeI8(frame);
             writeDst.executeI16(frame, value);
             return next();
@@ -75,7 +71,6 @@ public abstract class Cxe extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short value = readSrc.executeI16(frame);
             writeDst.executeI32(frame, value);
             return next();
@@ -89,7 +84,6 @@ public abstract class Cxe extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int value = readSrc.executeI32(frame);
             writeDst.executeI64(frame, value);
             return next();

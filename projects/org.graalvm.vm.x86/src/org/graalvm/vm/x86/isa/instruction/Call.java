@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.instruction;
 import static org.graalvm.vm.x86.Options.getBoolean;
 
 import org.graalvm.vm.x86.AMD64Context;
+import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
@@ -13,7 +14,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.isa.ReturnException;
-import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
@@ -24,7 +24,6 @@ import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.util.Debug;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -43,7 +42,7 @@ public abstract class Call extends AMD64Instruction {
 
     @CompilationFinal private TraceRegistry traces;
 
-    @CompilationFinal public static boolean TRUFFLE_CALLS = getBoolean(Options.TRUFFLE_CALLS);
+    public static final boolean TRUFFLE_CALLS = getBoolean(Options.TRUFFLE_CALLS);
 
     @Child private CompiledTraceInterpreter interpreter;
 
@@ -58,20 +57,18 @@ public abstract class Call extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSP == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            AMD64Context ctx = getContextReference().get();
-            ArchitecturalState state = ctx.getState();
-            AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
-            readRSP = rsp.createRead();
-            writeRSP = rsp.createWrite();
-            writeMemory = state.createMemoryWrite();
-            traces = state.getTraceRegistry();
+    @Override
+    protected void createChildNodes() {
+        AMD64Context ctx = getContext();
+        ArchitecturalState state = ctx.getState();
+        AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
+        readRSP = rsp.createRead();
+        writeRSP = rsp.createWrite();
+        writeMemory = state.createMemoryWrite();
+        traces = state.getTraceRegistry();
 
-            TruffleLanguage<AMD64Context> language = ((AMD64RootNode) getRootNode()).getAMD64Language();
-            interpreter = insert(new CompiledTraceInterpreter(language, ctx.getFrameDescriptor()));
-        }
+        TruffleLanguage<AMD64Context> language = AMD64Language.getCurrentLanguage();
+        interpreter = insert(new CompiledTraceInterpreter(language, ctx.getFrameDescriptor()));
     }
 
     protected abstract long getCallTarget(VirtualFrame frame);
@@ -90,15 +87,17 @@ public abstract class Call extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            readBTA = operand.createRead(state, next());
+        }
+
+        @Override
         protected long getCallTarget(VirtualFrame frame) {
             if (bta != 0) {
                 return bta;
             } else {
-                if (readBTA == null) {
-                    CompilerDirectives.transferToInterpreterAndInvalidate();
-                    ArchitecturalState state = getContextReference().get().getState();
-                    readBTA = operand.createRead(state, next());
-                }
                 return next() + readBTA.executeI64(frame);
             }
         }
@@ -110,19 +109,20 @@ public abstract class Call extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            readBTA = operand.createRead(state, next());
+        }
+
+        @Override
         protected long getCallTarget(VirtualFrame frame) {
-            if (readBTA == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readBTA = operand.createRead(state, next());
-            }
             return readBTA.executeI64(frame);
         }
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         long target = getCallTarget(frame);
         long rsp = readRSP.executeI64(frame);
         rsp -= 8;

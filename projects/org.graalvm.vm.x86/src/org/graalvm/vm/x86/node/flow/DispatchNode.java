@@ -53,35 +53,6 @@ public class DispatchNode extends AbstractDispatchNode {
         usedBlocks = 0;
     }
 
-    public AMD64BasicBlock __get(long address) {
-        if (DEBUG) {
-            System.out.printf("parsing block at 0x%016x\n", address);
-        }
-        CompilerDirectives.transferToInterpreter();
-        Map.Entry<Long, AMD64BasicBlock> entry = blockLookup.floorEntry(address);
-        if (entry != null && entry.getValue().contains(address)) {
-            AMD64BasicBlock block = entry.getValue();
-            if (block.getAddress() == address) {
-                if (DEBUG) {
-                    System.out.printf("block at 0x%016x: already parsed\n", entry.getKey());
-                }
-                return block;
-            }
-            if (DEBUG) {
-                System.out.printf("block at 0x%016x: splitting at 0x%016x\n", entry.getKey(), address);
-            }
-            AMD64BasicBlock split = block.split(address);
-            addBlock(split);
-            computeSuccessors(split);
-            return split;
-        }
-        reader.setPC(address);
-        AMD64BasicBlock block = AMD64BasicBlockParser.parse(reader);
-        addBlock(block);
-        computeSuccessors(block);
-        return block;
-    }
-
     public AMD64BasicBlock get(long address) {
         CompilerDirectives.transferToInterpreter();
         if (DEBUG) {

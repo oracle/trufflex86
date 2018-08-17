@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Pextrw extends AMD64Instruction {
@@ -34,18 +33,15 @@ public class Pextrw extends AMD64Instruction {
         this(pc, instruction, operands.getOperand2(OperandDecoder.R32), operands.getAVXOperand1(128), imm);
     }
 
-    private void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         Vector128 src = readSrc.executeI128(frame);
         int sel = imm & 0x3;
         short result = src.getI16(7 - sel);

@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Xadd extends AMD64Instruction {
@@ -26,20 +25,18 @@ public abstract class Xadd extends AMD64Instruction {
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writePF;
 
-    protected void createChildrenIfNecessary() {
-        if (srcA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            srcA = operand1.createRead(state, next());
-            srcB = operand2.createRead(state, next());
-            dst = operand1.createWrite(state, next());
-            src = operand2.createWrite(state, next());
-            writeCF = state.getRegisters().getCF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
-            writeSF = state.getRegisters().getSF().createWrite();
-            writeZF = state.getRegisters().getZF().createWrite();
-            writePF = state.getRegisters().getPF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        srcA = operand1.createRead(state, next());
+        srcB = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
+        src = operand2.createWrite(state, next());
+        writeCF = state.getRegisters().getCF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
+        writeSF = state.getRegisters().getSF().createWrite();
+        writeZF = state.getRegisters().getZF().createWrite();
+        writePF = state.getRegisters().getPF().createWrite();
     }
 
     protected Xadd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
@@ -58,7 +55,6 @@ public abstract class Xadd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
             byte result = (byte) (a + b);
@@ -83,7 +79,6 @@ public abstract class Xadd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             short result = (short) (a + b);
@@ -108,7 +103,6 @@ public abstract class Xadd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             int result = a + b;
@@ -133,7 +127,6 @@ public abstract class Xadd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             long result = a + b;

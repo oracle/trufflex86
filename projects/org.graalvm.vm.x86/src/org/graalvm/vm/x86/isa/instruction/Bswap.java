@@ -6,7 +6,6 @@ import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Bswap extends AMD64Instruction {
@@ -23,13 +22,11 @@ public abstract class Bswap extends AMD64Instruction {
         setGPRWriteOperands(operand);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand.createRead(state, next());
-            writeDst = operand.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand.createRead(state, next());
+        writeDst = operand.createWrite(state, next());
     }
 
     public static class Bswapl extends Bswap {
@@ -39,7 +36,6 @@ public abstract class Bswap extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readSrc.executeI32(frame);
             int dst = Integer.reverseBytes(src);
             writeDst.executeI32(frame, dst);
@@ -54,7 +50,6 @@ public abstract class Bswap extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
             long dst = Long.reverseBytes(src);
             writeDst.executeI64(frame, dst);

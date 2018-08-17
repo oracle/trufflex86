@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.Options;
@@ -72,6 +73,10 @@ public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal public int successor2;
 
     public AMD64BasicBlock(AMD64Instruction[] instructions) {
+        this(instructions, true);
+    }
+
+    public AMD64BasicBlock(AMD64Instruction[] instructions, boolean createChildren) {
         assert instructions.length > 0;
         this.instructions = instructions;
         if (DEBUG_COMPILER) {
@@ -94,6 +99,18 @@ public class AMD64BasicBlock extends AMD64Node {
             pc1 = insn.next();
             pc2 = insn.next();
         }
+
+        if (createChildren) {
+            // don't create children in certain unit tests
+            createChildren();
+        }
+    }
+
+    private void createChildren() {
+        ArchitecturalState state = AMD64Language.getCurrentContextReference().get().getState();
+        instructionCount = state.getInstructionCount();
+        readInstructionCount = new RegisterReadNode(instructionCount);
+        writeInstructionCount = new RegisterWriteNode(instructionCount);
     }
 
     public boolean isIndirect() {
@@ -204,13 +221,6 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     private void updateInstructionCount(VirtualFrame frame, long n) {
-        if (instructionCount == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            instructionCount = state.getInstructionCount();
-            readInstructionCount = new RegisterReadNode(instructionCount);
-            writeInstructionCount = new RegisterWriteNode(instructionCount);
-        }
         long cnt = readInstructionCount.executeI64(frame);
         cnt += n;
         writeInstructionCount.executeI64(frame, cnt);

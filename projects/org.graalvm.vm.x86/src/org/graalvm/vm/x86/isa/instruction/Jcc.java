@@ -6,7 +6,6 @@ import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Jcc extends AMD64Instruction {
@@ -28,13 +27,14 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-            }
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             return (!cf && !zf) ? bta : next();
@@ -49,12 +49,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readCF = regs.getCF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readCF = regs.getCF().createRead();
-            }
             boolean cf = readCF.execute(frame);
             return !cf ? bta : next();
         }
@@ -68,12 +69,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readCF = regs.getCF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readCF = regs.getCF().createRead();
-            }
             boolean cf = readCF.execute(frame);
             return cf ? bta : next();
         }
@@ -88,13 +90,14 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-            }
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             return (cf || zf) ? bta : next();
@@ -109,12 +112,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readRCX = regs.getRegister(Register.RCX).createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readRCX == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readRCX = regs.getRegister(Register.RCX).createRead();
-            }
             long value = readRCX.executeI64(frame);
             return (value == 0) ? bta : next();
         }
@@ -128,12 +132,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readZF = regs.getZF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readZF = regs.getZF().createRead();
-            }
             boolean zf = readZF.execute(frame);
             return zf ? bta : next();
         }
@@ -149,14 +154,15 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+            readZF = regs.getZF().createRead();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-                readZF = regs.getZF().createRead();
-                readOF = regs.getOF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             boolean zf = readZF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -173,13 +179,14 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             return (sf == of) ? bta : next();
@@ -195,13 +202,14 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             return (sf != of) ? bta : next();
@@ -218,14 +226,15 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+            readZF = regs.getZF().createRead();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-                readZF = regs.getZF().createRead();
-                readOF = regs.getOF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             boolean zf = readZF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -241,12 +250,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readZF = regs.getZF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readZF = regs.getZF().createRead();
-            }
             boolean zf = readZF.execute(frame);
             return !zf ? bta : next();
         }
@@ -260,12 +270,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readOF = regs.getOF().createRead();
-            }
             boolean of = readOF.execute(frame);
             return !of ? bta : next();
         }
@@ -279,12 +290,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readPF = regs.getPF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readPF = regs.getPF().createRead();
-            }
             boolean pf = readPF.execute(frame);
             return !pf ? bta : next();
         }
@@ -298,12 +310,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             return !sf ? bta : next();
         }
@@ -317,12 +330,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readOF = regs.getOF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readOF = regs.getOF().createRead();
-            }
             boolean of = readOF.execute(frame);
             return of ? bta : next();
         }
@@ -336,12 +350,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readPF = regs.getPF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readPF = regs.getPF().createRead();
-            }
             boolean pf = readPF.execute(frame);
             return pf ? bta : next();
         }
@@ -355,12 +370,13 @@ public abstract class Jcc extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            RegisterAccessFactory regs = getState().getRegisters();
+            readSF = regs.getSF().createRead();
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                RegisterAccessFactory regs = getContextReference().get().getState().getRegisters();
-                readSF = regs.getSF().createRead();
-            }
             boolean sf = readSF.execute(frame);
             return sf ? bta : next();
         }

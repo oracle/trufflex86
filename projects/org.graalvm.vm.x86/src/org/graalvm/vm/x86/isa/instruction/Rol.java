@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Rol extends AMD64Instruction {
@@ -31,16 +30,14 @@ public abstract class Rol extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand1.createRead(state, next());
-            readShamt = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-            writeCF = state.getRegisters().getCF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand1.createRead(state, next());
+        readShamt = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
+        writeCF = state.getRegisters().getCF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
     }
 
     public static class Rolb extends Rol {
@@ -54,7 +51,6 @@ public abstract class Rol extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readSrc.executeI8(frame) & 0xFF;
             int shift = readShamt.executeI8(frame) & 0x7;
             byte result = (byte) ((src << shift) | (src >>> (8 - shift)));
@@ -83,7 +79,6 @@ public abstract class Rol extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readSrc.executeI16(frame) & 0xFFFF;
             int shift = readShamt.executeI8(frame) & 0xF;
             short result = (short) ((src << shift) | (src >>> (16 - shift)));
@@ -112,7 +107,6 @@ public abstract class Rol extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readSrc.executeI32(frame);
             int shift = readShamt.executeI8(frame) & 0x1F;
             int result = (src << shift) | (src >>> (32 - shift));
@@ -141,7 +135,6 @@ public abstract class Rol extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
             int shift = readShamt.executeI8(frame) & 0x3F;
             long result = (src << shift) | (src >>> (64 - shift));

@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Psrl extends AMD64Instruction {
@@ -31,14 +30,12 @@ public abstract class Psrl extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand1.createRead(state, next());
-            readShamt = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand1.createRead(state, next());
+        readShamt = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Psrlw extends Psrl {
@@ -52,7 +49,6 @@ public abstract class Psrl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;
@@ -77,7 +73,6 @@ public abstract class Psrl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;
@@ -102,7 +97,6 @@ public abstract class Psrl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;

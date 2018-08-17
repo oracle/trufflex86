@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Pushf extends AMD64Instruction {
@@ -26,20 +25,18 @@ public abstract class Pushf extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSP == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            assert readRSP == null;
-            assert writeRSP == null;
-            assert writeMemory == null;
+    @Override
+    protected void createChildNodes() {
+        assert readRSP == null;
+        assert writeRSP == null;
+        assert writeMemory == null;
 
-            ArchitecturalState state = getContextReference().get().getState();
-            AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
-            readFlags = insert(new ReadFlagsNode());
-            readRSP = rsp.createRead();
-            writeRSP = rsp.createWrite();
-            writeMemory = state.createMemoryWrite();
-        }
+        ArchitecturalState state = getState();
+        AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
+        readFlags = insert(new ReadFlagsNode());
+        readRSP = rsp.createRead();
+        writeRSP = rsp.createWrite();
+        writeMemory = state.createMemoryWrite();
     }
 
     public static class Pushfw extends Pushf {
@@ -49,7 +46,6 @@ public abstract class Pushf extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short value = readFlags.executeI16(frame);
             long rsp = readRSP.executeI64(frame);
             rsp -= 2;
@@ -66,7 +62,6 @@ public abstract class Pushf extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = readFlags.executeI64(frame);
             long rsp = readRSP.executeI64(frame);
             rsp -= 8;

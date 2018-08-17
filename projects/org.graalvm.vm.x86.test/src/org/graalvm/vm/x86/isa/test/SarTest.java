@@ -1,43 +1,26 @@
 package org.graalvm.vm.x86.isa.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.graalvm.vm.x86.isa.AMD64Instruction;
-import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
-import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarb;
 import org.graalvm.vm.x86.isa.instruction.Sar.Sarl;
-import org.graalvm.vm.x86.test.CodeArrayReader;
+import org.graalvm.vm.x86.test.InstructionTest;
 import org.graalvm.vm.x86.test.runner.TestRunner;
 import org.junit.Test;
 
-public class SarTest {
-    public static final byte[] MACHINECODE1 = {(byte) 0xd1, (byte) 0xf9};
-    public static final String ASSEMBLY1 = "sar\tecx,0x1";
+public class SarTest extends InstructionTest {
+    private static final byte[] MACHINECODE1 = {(byte) 0xd1, (byte) 0xf9};
+    private static final String ASSEMBLY1 = "sar\tecx,0x1";
 
-    public static final byte[] MACHINECODE2 = {(byte) 0xc0, (byte) 0xfa, 0x07};
-    public static final String ASSEMBLY2 = "sar\tdl,0x7";
+    private static final byte[] MACHINECODE2 = {(byte) 0xc0, (byte) 0xfa, 0x07};
+    private static final String ASSEMBLY2 = "sar\tdl,0x7";
 
     @Test
     public void test1() {
-        CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
-        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
-        assertNotNull(insn);
-        assertTrue(insn instanceof Sarl);
-        assertEquals(ASSEMBLY1, insn.toString());
-        assertEquals(MACHINECODE1.length, reader.getPC());
+        check(MACHINECODE1, ASSEMBLY1, Sarl.class);
     }
 
     @Test
     public void test2() {
-        CodeReader reader = new CodeArrayReader(MACHINECODE2, 0);
-        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
-        assertNotNull(insn);
-        assertTrue(insn instanceof Sarb);
-        assertEquals(ASSEMBLY2, insn.toString());
-        assertEquals(MACHINECODE2.length, reader.getPC());
+        check(MACHINECODE2, ASSEMBLY2, Sarb.class);
     }
 
     @Test

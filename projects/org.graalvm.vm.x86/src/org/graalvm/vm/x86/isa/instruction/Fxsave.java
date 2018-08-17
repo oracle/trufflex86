@@ -11,7 +11,6 @@ import org.graalvm.vm.x86.node.AddressComputationNode;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
@@ -38,23 +37,20 @@ public class Fxsave extends AMD64Instruction {
         this(pc, instruction, operands.getOperand1(OperandDecoder.R64));
     }
 
-    private void createChildrenIfNecessary() {
-        if (address == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            address = new AddressComputationNode(state, operand, next());
-            memory = state.createMemoryWrite();
-            readXMM = new ReadNode[16];
-            for (int i = 0; i < readXMM.length; i++) {
-                readXMM[i] = state.getRegisters().getAVXRegister(i).createRead();
-            }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        address = new AddressComputationNode(state, operand, next());
+        memory = state.createMemoryWrite();
+        readXMM = new ReadNode[16];
+        for (int i = 0; i < readXMM.length; i++) {
+            readXMM[i] = state.getRegisters().getAVXRegister(i).createRead();
         }
     }
 
     @Override
     @ExplodeLoop
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         long addr = address.execute(frame);
         long ptr = addr + 160;
         for (int i = 0; i < readXMM.length; i++) {

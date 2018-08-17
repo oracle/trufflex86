@@ -14,7 +14,7 @@ import java.util.Base64.Encoder;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
-import org.graalvm.vm.x86.AMD64Language;
+import org.graalvm.vm.x86.Vmx86;
 import org.graalvm.vm.x86.test.TestOptions;
 
 public class TestRunner {
@@ -33,13 +33,13 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
         Value result;
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
 
         try {
             result = ctx.eval(source);
@@ -60,13 +60,13 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
         Value result;
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
 
         try {
             result = ctx.eval(source);
@@ -87,13 +87,13 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(AMD64Language.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
         Value result;
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
 
         try {
             result = ctx.eval(source);

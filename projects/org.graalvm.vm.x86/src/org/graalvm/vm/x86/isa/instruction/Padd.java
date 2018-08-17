@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Padd extends AMD64Instruction {
@@ -30,14 +29,12 @@ public abstract class Padd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readA = operand1.createRead(state, next());
-            readB = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readA = operand1.createRead(state, next());
+        readB = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Paddb extends Padd {
@@ -47,7 +44,6 @@ public abstract class Padd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readA.executeI128(frame);
             Vector128 b = readB.executeI128(frame);
             Vector128 result = a.addPackedI8(b);
@@ -63,7 +59,6 @@ public abstract class Padd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readA.executeI128(frame);
             Vector128 b = readB.executeI128(frame);
             Vector128 result = a.addPackedI16(b);
@@ -79,7 +74,6 @@ public abstract class Padd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readA.executeI128(frame);
             Vector128 b = readB.executeI128(frame);
             Vector128 result = a.addPackedI32(b);
@@ -95,7 +89,6 @@ public abstract class Padd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readA.executeI128(frame);
             Vector128 b = readB.executeI128(frame);
             Vector128 result = a.addPackedI64(b);

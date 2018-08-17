@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Movupd extends AMD64Instruction {
@@ -27,13 +26,11 @@ public abstract class Movupd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (src == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            src = operand2.createRead(state, next());
-            dst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        src = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
     }
 
     public static class MovupdToReg extends Movupd {
@@ -43,7 +40,6 @@ public abstract class Movupd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 value = src.executeI128(frame);
             dst.executeI128(frame, value);
             return next();
@@ -57,7 +53,6 @@ public abstract class Movupd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 value = src.executeI128(frame);
             dst.executeI128(frame, value);
             return next();

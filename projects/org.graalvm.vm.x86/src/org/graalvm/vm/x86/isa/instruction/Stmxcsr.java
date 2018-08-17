@@ -33,7 +33,7 @@ public class Stmxcsr extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        if (writeDst == null) {
+        if (writeDst == null) { // TODO: use createChildren/createChildNodes
             CompilerDirectives.transferToInterpreterAndInvalidate();
             log.log(Levels.WARNING, String.format("Stub instruction STMXCSR executed at 0x%016x", getPC()));
             ArchitecturalState state = getContextReference().get().getState();

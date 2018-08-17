@@ -13,7 +13,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.IntValueProfile;
@@ -67,23 +66,20 @@ public class Cpuid extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.EAX), new RegisterOperand(Register.EBX), new RegisterOperand(Register.RCX), new RegisterOperand(Register.EDX));
     }
 
-    private void createChildrenIfNecessary() {
-        if (readEAX == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readEAX = regs.getRegister(Register.EAX).createRead();
-            readECX = regs.getRegister(Register.ECX).createRead();
-            writeEAX = regs.getRegister(Register.EAX).createWrite();
-            writeEBX = regs.getRegister(Register.EBX).createWrite();
-            writeECX = regs.getRegister(Register.ECX).createWrite();
-            writeEDX = regs.getRegister(Register.EDX).createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readEAX = regs.getRegister(Register.EAX).createRead();
+        readECX = regs.getRegister(Register.ECX).createRead();
+        writeEAX = regs.getRegister(Register.EAX).createWrite();
+        writeEBX = regs.getRegister(Register.EBX).createWrite();
+        writeECX = regs.getRegister(Register.ECX).createWrite();
+        writeEDX = regs.getRegister(Register.EDX).createWrite();
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         int level = readEAX.executeI32(frame);
 
         int a;

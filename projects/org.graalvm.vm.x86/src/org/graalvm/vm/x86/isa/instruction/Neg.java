@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Neg extends AMD64Instruction {
@@ -33,12 +32,12 @@ public abstract class Neg extends AMD64Instruction {
         setGPRWriteOperands(operand);
     }
 
-    protected void createChildren() {
+    @Override
+    protected void createChildNodes() {
         assert read == null;
         assert write == null;
 
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
+        ArchitecturalState state = getState();
         RegisterAccessFactory regs = state.getRegisters();
         read = operand.createRead(state, next());
         write = operand.createWrite(state, next());
@@ -57,9 +56,6 @@ public abstract class Neg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             byte val = read.executeI8(frame);
             byte result = (byte) -val;
             write.executeI8(frame, result);
@@ -84,9 +80,6 @@ public abstract class Neg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             short val = read.executeI16(frame);
             short result = (short) -val;
             write.executeI16(frame, result);
@@ -111,9 +104,6 @@ public abstract class Neg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             int val = read.executeI32(frame);
             int result = -val;
             write.executeI32(frame, result);
@@ -138,9 +128,6 @@ public abstract class Neg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             long val = read.executeI64(frame);
             long result = -val;
             write.executeI64(frame, result);

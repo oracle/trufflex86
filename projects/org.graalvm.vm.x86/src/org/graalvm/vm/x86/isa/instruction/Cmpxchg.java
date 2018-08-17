@@ -11,7 +11,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cmpxchg extends AMD64Instruction {
@@ -39,39 +38,36 @@ public abstract class Cmpxchg extends AMD64Instruction {
         setGPRWriteOperands(operand1, new RegisterOperand(Register.RAX));
     }
 
-    protected void createChildrenIfNecessary(int size) {
-        if (readA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            Register a = null;
-            switch (size) {
-                case OperandDecoder.R8:
-                    a = Register.AL;
-                    break;
-                case OperandDecoder.R16:
-                    a = Register.AX;
-                    break;
-                case OperandDecoder.R32:
-                    a = Register.EAX;
-                    break;
-                case OperandDecoder.R64:
-                    a = Register.RAX;
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
-            ArchitecturalState state = getContextReference().get().getState();
-            readA = state.getRegisters().getRegister(a).createRead();
-            readSrc = operand2.createRead(state, next());
-            readDst = operand1.createRead(state, next());
-            writeA = state.getRegisters().getRegister(a).createWrite();
-            writeDst = operand1.createWrite(state, next());
-            writeZF = state.getRegisters().getZF().createWrite();
-            writeCF = state.getRegisters().getCF().createWrite();
-            writePF = state.getRegisters().getPF().createWrite();
-            writeAF = state.getRegisters().getAF().createWrite();
-            writeSF = state.getRegisters().getSF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
+    protected void createChildNodes(int size) {
+        Register a = null;
+        switch (size) {
+            case OperandDecoder.R8:
+                a = Register.AL;
+                break;
+            case OperandDecoder.R16:
+                a = Register.AX;
+                break;
+            case OperandDecoder.R32:
+                a = Register.EAX;
+                break;
+            case OperandDecoder.R64:
+                a = Register.RAX;
+                break;
+            default:
+                throw new IllegalArgumentException();
         }
+        ArchitecturalState state = getState();
+        readA = state.getRegisters().getRegister(a).createRead();
+        readSrc = operand2.createRead(state, next());
+        readDst = operand1.createRead(state, next());
+        writeA = state.getRegisters().getRegister(a).createWrite();
+        writeDst = operand1.createWrite(state, next());
+        writeZF = state.getRegisters().getZF().createWrite();
+        writeCF = state.getRegisters().getCF().createWrite();
+        writePF = state.getRegisters().getPF().createWrite();
+        writeAF = state.getRegisters().getAF().createWrite();
+        writeSF = state.getRegisters().getSF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
     }
 
     public static class Cmpxchgb extends Cmpxchg {
@@ -80,8 +76,12 @@ public abstract class Cmpxchg extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(OperandDecoder.R8);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(OperandDecoder.R8);
             byte al = readA.executeI8(frame);
             byte src = readSrc.executeI8(frame);
             byte dst = readDst.executeI8(frame);
@@ -116,8 +116,12 @@ public abstract class Cmpxchg extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(OperandDecoder.R16);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(OperandDecoder.R16);
             short ax = readA.executeI16(frame);
             short src = readSrc.executeI16(frame);
             short dst = readDst.executeI16(frame);
@@ -152,8 +156,12 @@ public abstract class Cmpxchg extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(OperandDecoder.R32);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(OperandDecoder.R32);
             int eax = readA.executeI32(frame);
             int src = readSrc.executeI32(frame);
             int dst = readDst.executeI32(frame);
@@ -188,8 +196,12 @@ public abstract class Cmpxchg extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(OperandDecoder.R64);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(OperandDecoder.R64);
             long rax = readA.executeI64(frame);
             long src = readSrc.executeI64(frame);
             long dst = readDst.executeI64(frame);

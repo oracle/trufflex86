@@ -1,27 +1,15 @@
 package org.graalvm.vm.x86.isa.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.graalvm.vm.x86.isa.AMD64Instruction;
-import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
-import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Packuswb;
-import org.graalvm.vm.x86.test.CodeArrayReader;
+import org.graalvm.vm.x86.test.InstructionTest;
 import org.junit.Test;
 
-public class PackuswbTest {
-    public static final byte[] MACHINECODE1 = {0x66, 0x41, 0x0f, 0x67, (byte) 0xe8};
-    public static final String ASSEMBLY1 = "packuswb\txmm5,xmm8";
+public class PackuswbTest extends InstructionTest {
+    private static final byte[] MACHINECODE1 = {0x66, 0x41, 0x0f, 0x67, (byte) 0xe8};
+    private static final String ASSEMBLY1 = "packuswb\txmm5,xmm8";
 
     @Test
     public void test1() {
-        CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
-        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
-        assertNotNull(insn);
-        assertTrue(insn instanceof Packuswb);
-        assertEquals(ASSEMBLY1, insn.toString());
-        assertEquals(MACHINECODE1.length, reader.getPC());
+        check(MACHINECODE1, ASSEMBLY1, Packuswb.class);
     }
 }

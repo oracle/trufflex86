@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Sub extends AMD64Instruction {
@@ -27,13 +26,13 @@ public abstract class Sub extends AMD64Instruction {
     @Child protected WriteFlagNode writePF;
     @Child protected WriteFlagNode writeAF;
 
-    protected void createChildren() {
+    @Override
+    protected void createChildNodes() {
         assert srcA == null;
         assert srcB == null;
         assert dst == null;
 
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
+        ArchitecturalState state = getState();
         srcA = operand1.createRead(state, next());
         srcB = operand2.createRead(state, next());
         dst = operand1.createWrite(state, next());
@@ -43,10 +42,6 @@ public abstract class Sub extends AMD64Instruction {
         writeZF = state.getRegisters().getZF().createWrite();
         writePF = state.getRegisters().getPF().createWrite();
         writeAF = state.getRegisters().getAF().createWrite();
-    }
-
-    protected boolean needsChildren() {
-        return srcA == null;
     }
 
     protected Sub(long pc, byte[] instruction, Operand operand1, Operand operand2) {
@@ -93,9 +88,6 @@ public abstract class Sub extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
             byte result = (byte) (a - b);
@@ -134,9 +126,6 @@ public abstract class Sub extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             short result = (short) (a - b);
@@ -175,9 +164,6 @@ public abstract class Sub extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             int result = a - b;
@@ -216,9 +202,6 @@ public abstract class Sub extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             long result = a - b;

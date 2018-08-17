@@ -11,7 +11,6 @@ import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Pop extends AMD64Instruction {
@@ -30,20 +29,18 @@ public abstract class Pop extends AMD64Instruction {
         setGPRWriteOperands(operand, new RegisterOperand(Register.RSP));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSP == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            assert readRSP == null;
-            assert writeRSP == null;
-            assert readMemory == null;
+    @Override
+    protected void createChildNodes() {
+        assert readRSP == null;
+        assert writeRSP == null;
+        assert readMemory == null;
 
-            ArchitecturalState state = getContextReference().get().getState();
-            AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
-            writeDst = operand.createWrite(state, next());
-            readRSP = rsp.createRead();
-            writeRSP = rsp.createWrite();
-            readMemory = state.createMemoryRead();
-        }
+        ArchitecturalState state = getState();
+        AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
+        writeDst = operand.createWrite(state, next());
+        readRSP = rsp.createRead();
+        writeRSP = rsp.createWrite();
+        readMemory = state.createMemoryRead();
     }
 
     public static class Popw extends Pop {
@@ -53,7 +50,6 @@ public abstract class Pop extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsp = readRSP.executeI64(frame);
             short value = readMemory.executeI16(rsp);
             rsp += 2;
@@ -70,7 +66,6 @@ public abstract class Pop extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsp = readRSP.executeI64(frame);
             long value = readMemory.executeI64(rsp);
             rsp += 8;

@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Unpckhpd extends AMD64Instruction {
@@ -32,19 +31,16 @@ public class Unpckhpd extends AMD64Instruction {
         this(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
     }
 
-    private void createChildrenIfNecessary() {
-        if (readSrc1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc1 = operand1.createRead(state, next());
-            readSrc2 = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc1 = operand1.createRead(state, next());
+        readSrc2 = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         Vector128 a = readSrc1.executeI128(frame);
         Vector128 b = readSrc2.executeI128(frame);
         double low = a.getF64(0);

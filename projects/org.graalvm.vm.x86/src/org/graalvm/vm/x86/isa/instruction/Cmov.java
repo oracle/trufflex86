@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cmov extends AMD64Instruction {
@@ -30,13 +29,11 @@ public abstract class Cmov extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createOperandNodesIfNecessary() {
-        if (writeDst == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static abstract class Cmova extends Cmov {
@@ -47,15 +44,13 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmova", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
         }
     }
 
@@ -66,7 +61,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (!cf && !zf) {
@@ -84,7 +78,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (!cf && !zf) {
@@ -102,7 +95,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (!cf && !zf) {
@@ -120,14 +112,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovae", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
         }
     }
 
@@ -138,7 +128,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (!cf) {
                 short value = readSrc.executeI16(frame);
@@ -155,7 +144,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (!cf) {
                 int value = readSrc.executeI32(frame);
@@ -172,7 +160,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (!cf) {
                 long value = readSrc.executeI64(frame);
@@ -189,14 +176,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovb", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
         }
     }
 
@@ -207,7 +192,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (cf) {
                 short value = readSrc.executeI16(frame);
@@ -224,7 +208,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (cf) {
                 int value = readSrc.executeI32(frame);
@@ -241,7 +224,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             if (cf) {
                 long value = readSrc.executeI64(frame);
@@ -259,15 +241,13 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovbe", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
         }
     }
 
@@ -278,7 +258,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (cf || zf) {
@@ -296,7 +275,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (cf || zf) {
@@ -314,7 +292,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             if (cf || zf) {
@@ -332,14 +309,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmove", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
         }
     }
 
@@ -350,7 +325,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (zf) {
                 short value = readSrc.executeI16(frame);
@@ -367,7 +341,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (zf) {
                 int value = readSrc.executeI32(frame);
@@ -384,7 +357,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (zf) {
                 long value = readSrc.executeI64(frame);
@@ -403,16 +375,14 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovg", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -423,7 +393,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -442,7 +411,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -461,7 +429,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -481,15 +448,13 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovge", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -500,7 +465,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf == of) {
@@ -518,7 +482,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf == of) {
@@ -536,7 +499,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf == of) {
@@ -555,15 +517,13 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovl", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -574,7 +534,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf != of) {
@@ -592,7 +551,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf != of) {
@@ -610,7 +568,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             if (sf != of) {
@@ -630,16 +587,14 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovle", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -650,7 +605,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -669,7 +623,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -688,7 +641,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -707,14 +659,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovne", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
         }
     }
 
@@ -725,7 +675,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (!zf) {
                 short value = readSrc.executeI16(frame);
@@ -742,7 +691,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (!zf) {
                 int value = readSrc.executeI32(frame);
@@ -759,7 +707,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             if (!zf) {
                 long value = readSrc.executeI64(frame);
@@ -776,14 +723,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovno", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -794,7 +739,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (!of) {
                 short value = readSrc.executeI16(frame);
@@ -811,7 +755,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (!of) {
                 int value = readSrc.executeI32(frame);
@@ -828,7 +771,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (!of) {
                 long value = readSrc.executeI64(frame);
@@ -845,14 +787,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovnp", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readPF = regs.getPF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readPF = regs.getPF().createRead();
         }
     }
 
@@ -863,7 +803,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (!pf) {
                 short value = readSrc.executeI16(frame);
@@ -880,7 +819,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (!pf) {
                 int value = readSrc.executeI32(frame);
@@ -897,7 +835,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (!pf) {
                 long value = readSrc.executeI64(frame);
@@ -914,14 +851,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovns", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
         }
     }
 
@@ -932,7 +867,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (!sf) {
                 short value = readSrc.executeI16(frame);
@@ -949,7 +883,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (!sf) {
                 int value = readSrc.executeI32(frame);
@@ -966,7 +899,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (!sf) {
                 long value = readSrc.executeI64(frame);
@@ -983,14 +915,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovo", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readOF = regs.getOF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readOF = regs.getOF().createRead();
         }
     }
 
@@ -1001,7 +931,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (of) {
                 short value = readSrc.executeI16(frame);
@@ -1018,7 +947,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (of) {
                 int value = readSrc.executeI32(frame);
@@ -1035,7 +963,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             if (of) {
                 long value = readSrc.executeI64(frame);
@@ -1052,14 +979,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovp", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readPF = regs.getPF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readPF = regs.getPF().createRead();
         }
     }
 
@@ -1070,7 +995,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (pf) {
                 short value = readSrc.executeI16(frame);
@@ -1087,7 +1011,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (pf) {
                 int value = readSrc.executeI32(frame);
@@ -1104,7 +1027,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             if (pf) {
                 long value = readSrc.executeI64(frame);
@@ -1121,14 +1043,12 @@ public abstract class Cmov extends AMD64Instruction {
             super(pc, instruction, "cmovs", operands.getOperand2(type), operands.getOperand1(type));
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                createOperandNodesIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
         }
     }
 
@@ -1139,7 +1059,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (sf) {
                 short value = readSrc.executeI16(frame);
@@ -1156,7 +1075,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (sf) {
                 int value = readSrc.executeI32(frame);
@@ -1173,7 +1091,6 @@ public abstract class Cmov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             if (sf) {
                 long value = readSrc.executeI64(frame);

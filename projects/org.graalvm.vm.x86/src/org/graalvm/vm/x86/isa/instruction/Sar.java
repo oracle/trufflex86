@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Sar extends AMD64Instruction {
@@ -36,19 +35,17 @@ public abstract class Sar extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand1.createRead(state, next());
-            readShift = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-            writeCF = state.getRegisters().getCF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
-            writeZF = state.getRegisters().getZF().createWrite();
-            writeSF = state.getRegisters().getSF().createWrite();
-            writePF = state.getRegisters().getPF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand1.createRead(state, next());
+        readShift = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
+        writeCF = state.getRegisters().getCF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
+        writeZF = state.getRegisters().getZF().createWrite();
+        writeSF = state.getRegisters().getSF().createWrite();
+        writePF = state.getRegisters().getPF().createWrite();
     }
 
     public static class Sarb extends Sar {
@@ -62,7 +59,6 @@ public abstract class Sar extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte src = readSrc.executeI8(frame);
             byte shift = (byte) (readShift.executeI8(frame) & 0x1f);
             byte result = (byte) (src >> shift);
@@ -91,7 +87,6 @@ public abstract class Sar extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short src = readSrc.executeI16(frame);
             short shift = (short) (readShift.executeI8(frame) & 0x1f);
             short result = (short) (src >> shift);
@@ -120,7 +115,6 @@ public abstract class Sar extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readSrc.executeI32(frame);
             int shift = readShift.executeI8(frame) & 0x1f;
             int result = src >> shift;
@@ -149,7 +143,6 @@ public abstract class Sar extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long src = readSrc.executeI64(frame);
             long shift = readShift.executeI8(frame) & 0x3f;
             long result = src >> shift;

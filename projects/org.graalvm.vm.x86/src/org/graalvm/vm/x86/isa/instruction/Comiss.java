@@ -37,25 +37,22 @@ public class Comiss extends AMD64Instruction {
         this(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
     }
 
-    private void createChildrenIfNecessary() {
-        if (readA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readA = operand1.createRead(state, next());
-            readB = operand2.createRead(state, next());
-            writeCF = regs.getCF().createWrite();
-            writeOF = regs.getOF().createWrite();
-            writeSF = regs.getSF().createWrite();
-            writeZF = regs.getZF().createWrite();
-            writePF = regs.getPF().createWrite();
-            writeAF = regs.getAF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readA = operand1.createRead(state, next());
+        readB = operand2.createRead(state, next());
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeAF = regs.getAF().createWrite();
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         float a = readA.executeF32(frame);
         float b = readB.executeF32(frame);
         if (Double.isNaN(a) || Double.isNaN(b)) { // unordered

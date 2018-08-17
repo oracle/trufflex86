@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -29,16 +28,14 @@ public class Rdtsc extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
     }
 
-    private void createChildrenIfNecessary() {
-        if (writeEAX == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            writeEAX = state.getRegisters().getRegister(Register.EAX).createWrite();
-            writeEDX = state.getRegisters().getRegister(Register.EDX).createWrite();
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        writeEAX = state.getRegisters().getRegister(Register.EAX).createWrite();
+        writeEDX = state.getRegisters().getRegister(Register.EDX).createWrite();
 
-            if (useInstructionCount) {
-                insncntslot = state.getInstructionCount();
-            }
+        if (useInstructionCount) {
+            insncntslot = state.getInstructionCount();
         }
     }
 
@@ -49,7 +46,6 @@ public class Rdtsc extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         long time;
         if (useInstructionCount) {
             time = FrameUtil.getLongSafe(frame, insncntslot);

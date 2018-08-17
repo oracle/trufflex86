@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Setcc extends AMD64Instruction {
@@ -25,12 +24,10 @@ public abstract class Setcc extends AMD64Instruction {
         setGPRWriteOperands(operand);
     }
 
-    protected void createOperandNodeIfNecessary() {
-        if (writeDst == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            writeDst = operand.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        writeDst = operand.createWrite(state, next());
     }
 
     public static class Seta extends Setcc {
@@ -41,20 +38,17 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "seta", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             boolean value = !cf && !zf;
@@ -70,19 +64,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setae", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean value = !cf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -97,19 +88,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setb", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean value = cf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -125,20 +113,17 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setbe", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readCF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readCF = regs.getCF().createRead();
-                readZF = regs.getZF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readCF = regs.getCF().createRead();
+            readZF = regs.getZF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean cf = readCF.execute(frame);
             boolean zf = readZF.execute(frame);
             boolean value = cf || zf;
@@ -154,19 +139,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "sete", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean value = zf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -183,21 +165,18 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setg", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -215,20 +194,17 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setge", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             boolean value = sf == of;
@@ -245,20 +221,17 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setl", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
             boolean value = sf != of;
@@ -276,21 +249,18 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setle", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                readSF = regs.getSF().createRead();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
+            readSF = regs.getSF().createRead();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean sf = readSF.execute(frame);
             boolean of = readOF.execute(frame);
@@ -307,19 +277,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setne", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readZF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readZF = regs.getZF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readZF = regs.getZF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean zf = readZF.execute(frame);
             boolean value = !zf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -334,19 +301,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setno", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             boolean value = !of;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -361,19 +325,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setnp", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readPF = regs.getPF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readPF = regs.getPF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             boolean value = !pf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -388,19 +349,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setns", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean value = !sf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -415,19 +373,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "seto", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readOF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readOF = regs.getOF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readOF = regs.getOF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean of = readOF.execute(frame);
             boolean value = of;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -442,19 +397,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "setp", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readPF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readPF = regs.getPF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readPF = regs.getPF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean pf = readPF.execute(frame);
             boolean value = pf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));
@@ -469,19 +421,16 @@ public abstract class Setcc extends AMD64Instruction {
             super(pc, instruction, "sets", operands.getOperand1(OperandDecoder.R8));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readSF == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readSF = regs.getSF().createRead();
-                createOperandNodeIfNecessary();
-            }
+        @Override
+        protected void createChildNodes() {
+            super.createChildNodes();
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readSF = regs.getSF().createRead();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             boolean sf = readSF.execute(frame);
             boolean value = sf;
             writeDst.executeI8(frame, (byte) (value ? 1 : 0));

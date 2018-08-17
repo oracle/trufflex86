@@ -23,7 +23,7 @@ public class AMD64VM {
             System.out.printf("Usage: %s program [args]\n", AMD64VM.class.getSimpleName());
             System.exit(1);
         }
-        Source source = Source.newBuilder(AMD64Language.NAME, new File(args[0])).build();
+        Source source = Source.newBuilder(Vmx86.NAME, new File(args[0])).build();
         System.exit(executeSource(source, args));
     }
 
@@ -32,7 +32,7 @@ public class AMD64VM {
             Trace.println("== running on " + Truffle.getRuntime().getName());
         }
 
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, args).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, args).build();
 
         try {
             Value result = ctx.eval(source);

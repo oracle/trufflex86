@@ -14,7 +14,6 @@ import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.everyware.math.LongMultiplication;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Imul extends AMD64Instruction {
@@ -63,23 +62,20 @@ public abstract class Imul extends AMD64Instruction {
             setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
-        protected void createChildrenIfNecessary(Register ra, Register wa) {
-            createChildrenIfNecessary(ra, wa, null);
+        protected void createChildNodes(Register ra, Register wa) {
+            createChildNodes(ra, wa, null);
         }
 
-        protected void createChildrenIfNecessary(Register ra, Register wa, Register wd) {
-            if (readOp == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                RegisterAccessFactory regs = state.getRegisters();
-                readOp = operand1.createRead(state, next());
-                readA = regs.getRegister(ra).createRead();
-                writeA = regs.getRegister(wa).createWrite();
-                if (wd != null) {
-                    writeD = regs.getRegister(wd).createWrite();
-                }
-                createFlagNodes(state);
+        protected void createChildNodes(Register ra, Register wa, Register wd) {
+            ArchitecturalState state = getState();
+            RegisterAccessFactory regs = state.getRegisters();
+            readOp = operand1.createRead(state, next());
+            readA = regs.getRegister(ra).createRead();
+            writeA = regs.getRegister(wa).createWrite();
+            if (wd != null) {
+                writeD = regs.getRegister(wd).createWrite();
             }
+            createFlagNodes(state);
         }
     }
 
@@ -90,8 +86,12 @@ public abstract class Imul extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AL, Register.AX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AL, Register.AX);
             byte a = readOp.executeI8(frame);
             byte b = readA.executeI8(frame);
             int result = a * b;
@@ -111,8 +111,12 @@ public abstract class Imul extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AX, Register.AX, Register.DX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AX, Register.AX, Register.DX);
             short a = readOp.executeI16(frame);
             short b = readA.executeI16(frame);
             int result = a * b;
@@ -133,8 +137,12 @@ public abstract class Imul extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.EAX, Register.EAX, Register.EDX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.EAX, Register.EAX, Register.EDX);
             int a = readOp.executeI32(frame);
             int b = readA.executeI32(frame);
             long result = (long) a * (long) b;
@@ -155,8 +163,12 @@ public abstract class Imul extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.RAX, Register.RAX, Register.RDX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.RAX, Register.RAX, Register.RDX);
             long a = readOp.executeI64(frame);
             long b = readA.executeI64(frame);
             long resultL = a * b;
@@ -221,15 +233,13 @@ public abstract class Imul extends AMD64Instruction {
             setGPRWriteOperands(dst);
         }
 
-        protected void createChildrenIfNecessary() {
-            if (readOp1 == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readOp1 = srcA.createRead(state, next());
-                readOp2 = srcB.createRead(state, next());
-                writeDst = dst.createWrite(state, next());
-                createFlagNodes(state);
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readOp1 = srcA.createRead(state, next());
+            readOp2 = srcB.createRead(state, next());
+            writeDst = dst.createWrite(state, next());
+            createFlagNodes(state);
         }
     }
 
@@ -244,7 +254,6 @@ public abstract class Imul extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short op1 = readOp1.executeI16(frame);
             short op2 = readOp2.executeI16(frame);
             int result = op1 * op2;
@@ -269,7 +278,6 @@ public abstract class Imul extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int op1 = readOp1.executeI32(frame);
             int op2 = readOp2.executeI32(frame);
             long result = (long) op1 * (long) op2;
@@ -294,7 +302,6 @@ public abstract class Imul extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long op1 = readOp1.executeI64(frame);
             long op2 = readOp2.executeI64(frame);
             long result = op1 * op2;

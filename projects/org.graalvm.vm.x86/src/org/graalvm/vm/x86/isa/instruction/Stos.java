@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Stos extends AMD64Instruction {
@@ -29,17 +28,14 @@ public abstract class Stos extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RDI));
     }
 
-    protected void createChildrenIfNecessary(Register src) {
-        if (readDF == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readDF = regs.getDF().createRead();
-            readSrc = regs.getRegister(src).createRead();
-            readDst = regs.getRegister(Register.RDI).createRead();
-            writeDst = regs.getRegister(Register.RDI).createWrite();
-            writeMemory = state.createMemoryWrite();
-        }
+    protected void createChildNodes(Register src) {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readDF = regs.getDF().createRead();
+        readSrc = regs.getRegister(src).createRead();
+        readDst = regs.getRegister(Register.RDI).createRead();
+        writeDst = regs.getRegister(Register.RDI).createWrite();
+        writeMemory = state.createMemoryWrite();
     }
 
     public static class Stosb extends Stos {
@@ -48,8 +44,12 @@ public abstract class Stos extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AL);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AL);
             boolean df = readDF.execute(frame);
             byte al = readSrc.executeI8(frame);
             long rdi = readDst.executeI64(frame);
@@ -70,8 +70,12 @@ public abstract class Stos extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AX);
             boolean df = readDF.execute(frame);
             short ax = readSrc.executeI16(frame);
             long rdi = readDst.executeI64(frame);
@@ -92,8 +96,12 @@ public abstract class Stos extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.EAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.EAX);
             boolean df = readDF.execute(frame);
             int eax = readSrc.executeI32(frame);
             long rdi = readDst.executeI64(frame);
@@ -114,8 +122,12 @@ public abstract class Stos extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.RAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.RAX);
             boolean df = readDF.execute(frame);
             long rax = readSrc.executeI64(frame);
             long rdi = readDst.executeI64(frame);

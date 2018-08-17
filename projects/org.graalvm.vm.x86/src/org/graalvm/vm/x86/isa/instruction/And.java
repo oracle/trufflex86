@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class And extends AMD64Instruction {
@@ -35,21 +34,19 @@ public abstract class And extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readOperand1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            assert readOperand1 == null;
-            assert readOperand2 == null;
-            ArchitecturalState state = getContextReference().get().getState();
-            readOperand1 = operand1.createRead(state, next());
-            readOperand2 = operand2.createRead(state, next());
-            writeResult = operand1.createWrite(state, next());
-            writeCF = state.getRegisters().getCF().createWrite();
-            writePF = state.getRegisters().getPF().createWrite();
-            writeZF = state.getRegisters().getZF().createWrite();
-            writeSF = state.getRegisters().getSF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        assert readOperand1 == null;
+        assert readOperand2 == null;
+        ArchitecturalState state = getState();
+        readOperand1 = operand1.createRead(state, next());
+        readOperand2 = operand2.createRead(state, next());
+        writeResult = operand1.createWrite(state, next());
+        writeCF = state.getRegisters().getCF().createWrite();
+        writePF = state.getRegisters().getPF().createWrite();
+        writeZF = state.getRegisters().getZF().createWrite();
+        writeSF = state.getRegisters().getSF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -87,7 +84,6 @@ public abstract class And extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte a = readOperand1.executeI8(frame);
             byte b = readOperand2.executeI8(frame);
             byte val = (byte) (a & b);
@@ -120,7 +116,6 @@ public abstract class And extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short a = readOperand1.executeI16(frame);
             short b = readOperand2.executeI16(frame);
             short val = (short) (a & b);
@@ -153,7 +148,6 @@ public abstract class And extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int a = readOperand1.executeI32(frame);
             int b = readOperand2.executeI32(frame);
             int val = a & b;
@@ -186,7 +180,6 @@ public abstract class And extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long a = readOperand1.executeI64(frame);
             long b = readOperand2.executeI64(frame);
             long val = a & b;

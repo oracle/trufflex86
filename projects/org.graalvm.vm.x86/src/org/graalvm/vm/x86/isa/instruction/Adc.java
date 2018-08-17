@@ -12,7 +12,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Adc extends AMD64Instruction {
@@ -29,13 +28,13 @@ public abstract class Adc extends AMD64Instruction {
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writePF;
 
-    protected void createChildren() {
+    @Override
+    protected void createChildNodes() {
         assert srcA == null;
         assert srcB == null;
         assert dst == null;
 
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
+        ArchitecturalState state = getState();
         srcA = operand1.createRead(state, next());
         srcB = operand2.createRead(state, next());
         dst = operand1.createWrite(state, next());
@@ -46,10 +45,6 @@ public abstract class Adc extends AMD64Instruction {
         writeSF = regs.getSF().createWrite();
         writeZF = regs.getZF().createWrite();
         writePF = regs.getPF().createWrite();
-    }
-
-    protected boolean needsChildren() {
-        return srcA == null;
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -72,6 +67,7 @@ public abstract class Adc extends AMD64Instruction {
         super(pc, instruction);
         this.operand1 = operand1;
         this.operand2 = operand2;
+
         setGPRReadOperands(operand1, operand2);
         setGPRWriteOperands(operand1);
     }
@@ -95,9 +91,6 @@ public abstract class Adc extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
             int c = readCF.execute(frame) ? 1 : 0;
@@ -138,9 +131,6 @@ public abstract class Adc extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             int c = readCF.execute(frame) ? 1 : 0;
@@ -181,9 +171,6 @@ public abstract class Adc extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             int c = readCF.execute(frame) ? 1 : 0;
@@ -224,9 +211,6 @@ public abstract class Adc extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             int c = readCF.execute(frame) ? 1 : 0;

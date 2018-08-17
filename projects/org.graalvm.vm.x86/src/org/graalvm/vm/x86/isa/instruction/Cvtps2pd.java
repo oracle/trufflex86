@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Cvtps2pd extends AMD64Instruction {
@@ -27,13 +26,11 @@ public class Cvtps2pd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public Cvtps2pd(long pc, byte[] instruction, OperandDecoder operands) {
@@ -42,7 +39,6 @@ public class Cvtps2pd extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         Vector128 src = readSrc.executeI128(frame);
         float high = src.getF32(2);
         float low = src.getF32(3);

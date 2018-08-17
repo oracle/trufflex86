@@ -7,7 +7,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Minss extends AMD64Instruction {
@@ -31,19 +30,16 @@ public class Minss extends AMD64Instruction {
         this(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
     }
 
-    private void createChildrenIfNecessary() {
-        if (readA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readA = operand1.createRead(state, next());
-            readB = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readA = operand1.createRead(state, next());
+        readB = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         float a = readA.executeF32(frame);
         float b = readB.executeF32(frame);
         // TODO: exceptions

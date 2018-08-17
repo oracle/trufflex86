@@ -25,7 +25,7 @@ public class AMD64BundledVM {
         String execfn = getExecfn();
         argv[0] = execfn; // TODO: use real argv[0]
         System.arraycopy(args, 0, argv, 1, args.length);
-        Source source = Source.newBuilder(AMD64Language.NAME, execfn, "<program>").build();
+        Source source = Source.newBuilder(Vmx86.NAME, execfn, "<program>").build();
         System.exit(executeSource(source, argv));
     }
 
@@ -44,7 +44,7 @@ public class AMD64BundledVM {
             Trace.println("== running on " + Truffle.getRuntime().getName());
         }
 
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, args).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, args).build();
 
         try {
             Value result = ctx.eval(source);

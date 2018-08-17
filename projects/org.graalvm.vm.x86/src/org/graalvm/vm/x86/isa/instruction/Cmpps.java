@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cmpps extends AMD64Instruction {
@@ -46,14 +45,12 @@ public abstract class Cmpps extends AMD64Instruction {
         throw new IllegalInstructionException(pc, instruction, "unknown type " + imm);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc1 = operand1.createRead(state, next());
-            readSrc2 = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc1 = operand1.createRead(state, next());
+        readSrc2 = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Cmpltps extends Cmpps {
@@ -63,7 +60,6 @@ public abstract class Cmpps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readSrc1.executeI128(frame);
             Vector128 b = readSrc2.executeI128(frame);
             Vector128 le = a.ltF32(b);
@@ -79,7 +75,6 @@ public abstract class Cmpps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readSrc1.executeI128(frame);
             Vector128 b = readSrc2.executeI128(frame);
             Vector128 le = a.leF32(b);
@@ -95,13 +90,13 @@ public abstract class Cmpps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readSrc1.executeI128(frame);
             Vector128 b = readSrc2.executeI128(frame);
             Vector128 le = a.gtF32(b);
             writeDst.executeI128(frame, le);
             return next();
         }
+
     }
 
     @Override

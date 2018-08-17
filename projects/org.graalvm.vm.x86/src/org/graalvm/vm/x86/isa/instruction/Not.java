@@ -7,7 +7,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Not extends AMD64Instruction {
@@ -24,12 +23,12 @@ public abstract class Not extends AMD64Instruction {
         setGPRWriteOperands(operand);
     }
 
-    protected void createChildren() {
+    @Override
+    protected void createChildNodes() {
         assert read == null;
         assert write == null;
 
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
+        ArchitecturalState state = getState();
         read = operand.createRead(state, next());
         write = operand.createWrite(state, next());
     }
@@ -41,9 +40,6 @@ public abstract class Not extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             byte val = read.executeI8(frame);
             write.executeI8(frame, (byte) ~val);
             return next();
@@ -57,9 +53,6 @@ public abstract class Not extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             short val = read.executeI16(frame);
             write.executeI16(frame, (short) ~val);
             return next();
@@ -73,9 +66,6 @@ public abstract class Not extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             int val = read.executeI32(frame);
             write.executeI32(frame, ~val);
             return next();
@@ -89,9 +79,6 @@ public abstract class Not extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (read == null) {
-                createChildren();
-            }
             long val = read.executeI64(frame);
             write.executeI64(frame, ~val);
             return next();

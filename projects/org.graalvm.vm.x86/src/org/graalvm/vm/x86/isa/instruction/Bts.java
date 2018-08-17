@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Bts extends AMD64Instruction {
@@ -30,15 +29,13 @@ public abstract class Bts extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readBase == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readBase = operand1.createRead(state, next());
-            readOffset = operand2.createRead(state, next());
-            writeResult = operand1.createWrite(state, next());
-            writeCF = state.getRegisters().getCF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readBase = operand1.createRead(state, next());
+        readOffset = operand2.createRead(state, next());
+        writeResult = operand1.createWrite(state, next());
+        writeCF = state.getRegisters().getCF().createWrite();
     }
 
     public static class Btsw extends Bts {
@@ -52,7 +49,6 @@ public abstract class Bts extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short base = readBase.executeI16(frame);
             int bit = readOffset.executeI16(frame) & 0x0f;
             boolean cf = (base & (1 << bit)) != 0;
@@ -74,7 +70,6 @@ public abstract class Bts extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int base = readBase.executeI32(frame);
             int bit = readOffset.executeI32(frame) & 0x1f;
             boolean cf = (base & (1 << bit)) != 0;
@@ -96,7 +91,6 @@ public abstract class Bts extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long base = readBase.executeI64(frame);
             long bit = readOffset.executeI64(frame) & 0x3f;
             boolean cf = (base & (1L << bit)) != 0;

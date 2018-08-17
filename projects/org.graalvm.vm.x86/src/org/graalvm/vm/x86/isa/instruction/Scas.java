@@ -12,7 +12,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Scas extends AMD64Instruction {
@@ -38,23 +37,20 @@ public abstract class Scas extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RDI));
     }
 
-    protected void createChildrenIfNecessary(Register a) {
-        if (readA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readA = regs.getRegister(a).createRead();
-            readRDI = regs.getRegister(Register.RDI).createRead();
-            readDF = regs.getDF().createRead();
-            readMemory = state.createMemoryRead();
-            writeRDI = regs.getRegister(Register.RDI).createWrite();
-            writeCF = regs.getCF().createWrite();
-            writeOF = regs.getOF().createWrite();
-            writeSF = regs.getSF().createWrite();
-            writeZF = regs.getZF().createWrite();
-            writePF = regs.getPF().createWrite();
-            writeAF = regs.getAF().createWrite();
-        }
+    protected void createChildNodes(Register a) {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readA = regs.getRegister(a).createRead();
+        readRDI = regs.getRegister(Register.RDI).createRead();
+        readDF = regs.getDF().createRead();
+        readMemory = state.createMemoryRead();
+        writeRDI = regs.getRegister(Register.RDI).createWrite();
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeAF = regs.getAF().createWrite();
     }
 
     public static class Scasb extends Scas {
@@ -63,8 +59,12 @@ public abstract class Scas extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AL);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AL);
             long rdi = readRDI.executeI64(frame);
             byte a = readA.executeI8(frame);
             byte b = readMemory.executeI8(rdi);
@@ -101,8 +101,12 @@ public abstract class Scas extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AX);
             long rdi = readRDI.executeI64(frame);
             short a = readA.executeI16(frame);
             short b = readMemory.executeI16(rdi);
@@ -139,8 +143,12 @@ public abstract class Scas extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.EAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.EAX);
             long rdi = readRDI.executeI64(frame);
             int a = readA.executeI32(frame);
             int b = readMemory.executeI32(rdi);
@@ -177,8 +185,12 @@ public abstract class Scas extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.RAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.RAX);
             long rdi = readRDI.executeI64(frame);
             long a = readA.executeI64(frame);
             long b = readMemory.executeI64(rdi);

@@ -11,7 +11,6 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Movs extends AMD64Instruction {
@@ -33,19 +32,17 @@ public abstract class Movs extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSI == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readRSI = regs.getRegister(Register.RSI).createRead();
-            readRDI = regs.getRegister(Register.RDI).createRead();
-            readDF = regs.getDF().createRead();
-            readMemory = state.createMemoryRead();
-            writeMemory = state.createMemoryWrite();
-            writeRSI = regs.getRegister(Register.RSI).createWrite();
-            writeRDI = regs.getRegister(Register.RDI).createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readRSI = regs.getRegister(Register.RSI).createRead();
+        readRDI = regs.getRegister(Register.RDI).createRead();
+        readDF = regs.getDF().createRead();
+        readMemory = state.createMemoryRead();
+        writeMemory = state.createMemoryWrite();
+        writeRSI = regs.getRegister(Register.RSI).createWrite();
+        writeRDI = regs.getRegister(Register.RDI).createWrite();
     }
 
     public static class Movsb extends Movs {
@@ -55,7 +52,6 @@ public abstract class Movs extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             byte val = readMemory.executeI8(rsi);
@@ -84,7 +80,6 @@ public abstract class Movs extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             short val = readMemory.executeI16(rsi);
@@ -113,7 +108,6 @@ public abstract class Movs extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             int val = readMemory.executeI32(rsi);
@@ -142,7 +136,6 @@ public abstract class Movs extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             long val = readMemory.executeI64(rsi);

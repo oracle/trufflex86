@@ -7,7 +7,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Movsx extends AMD64Instruction {
@@ -16,20 +15,6 @@ public abstract class Movsx extends AMD64Instruction {
 
     @Child protected ReadNode read;
     @Child protected WriteNode write;
-
-    protected void createChildren() {
-        assert read == null;
-        assert write == null;
-
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        ArchitecturalState state = getContextReference().get().getState();
-        write = operand1.createWrite(state, next());
-        read = operand2.createRead(state, next());
-    }
-
-    protected boolean needsChildren() {
-        return read == null;
-    }
 
     protected Movsx(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -40,6 +25,16 @@ public abstract class Movsx extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
+    @Override
+    protected void createChildNodes() {
+        assert read == null;
+        assert write == null;
+
+        ArchitecturalState state = getState();
+        write = operand1.createWrite(state, next());
+        read = operand2.createRead(state, next());
+    }
+
     public static class Movsbw extends Movsx {
         public Movsbw(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getOperand2(OperandDecoder.R16), operands.getOperand1(OperandDecoder.R8));
@@ -47,9 +42,6 @@ public abstract class Movsx extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             byte val = read.executeI8(frame);
             write.executeI16(frame, val);
             return next();
@@ -63,9 +55,6 @@ public abstract class Movsx extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             byte val = read.executeI8(frame);
             write.executeI32(frame, val);
             return next();
@@ -79,9 +68,6 @@ public abstract class Movsx extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             byte val = read.executeI8(frame);
             write.executeI64(frame, val);
             return next();
@@ -95,9 +81,6 @@ public abstract class Movsx extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             short val = read.executeI16(frame);
             write.executeI32(frame, val);
             return next();
@@ -111,9 +94,6 @@ public abstract class Movsx extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            if (needsChildren()) {
-                createChildren();
-            }
             short val = read.executeI16(frame);
             write.executeI64(frame, val);
             return next();

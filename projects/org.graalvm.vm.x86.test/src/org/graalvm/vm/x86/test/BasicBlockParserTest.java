@@ -25,7 +25,7 @@ public class BasicBlockParserTest {
             if (elf.getEntryPoint() >= hdr.getVirtualAddress() && elf.getEntryPoint() < (hdr.getVirtualAddress() + hdr.getMemorySize())) {
                 CodeSegmentReader r = new CodeSegmentReader(hdr);
                 r.setPC(elf.getEntryPoint());
-                AMD64BasicBlock block = AMD64BasicBlockParser.parse(r);
+                AMD64BasicBlock block = AMD64BasicBlockParser.parse(r, false);
                 assertEquals(ref, block.toString());
                 break;
             }

@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Pshufd extends AMD64Instruction {
@@ -38,18 +37,15 @@ public class Pshufd extends AMD64Instruction {
         this(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128), order);
     }
 
-    private void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
         Vector128 src = readSrc.executeI128(frame);
         Vector128 dst = new Vector128();
         dst.setI32(0, src.getI32(getOrder(3)));

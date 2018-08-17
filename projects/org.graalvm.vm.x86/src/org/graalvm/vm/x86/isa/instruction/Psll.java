@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Psll extends AMD64Instruction {
@@ -31,14 +30,12 @@ public abstract class Psll extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand1.createRead(state, next());
-            readShift = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand1.createRead(state, next());
+        readShift = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Pslld extends Psll {
@@ -48,7 +45,6 @@ public abstract class Psll extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 val = readSrc.executeI128(frame);
             int n = readShift.executeI32(frame);
             Vector128 result = val.shlPackedI32(n);
@@ -64,7 +60,6 @@ public abstract class Psll extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 val = readSrc.executeI128(frame);
             int n = readShift.executeI32(frame);
             Vector128 result = val.shlPackedI64(n);

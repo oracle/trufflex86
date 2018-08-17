@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Lods extends AMD64Instruction {
@@ -28,20 +27,18 @@ public abstract class Lods extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RAX));
     }
 
-    protected void createChildrenIfNecessary(Register a) {
-        if (readRSI == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            assert readRSI == null;
-            assert writeRSI == null;
-            assert writeA == null;
-            assert readMemory == null;
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readRSI = regs.getRegister(Register.RSI).createRead();
-            writeRSI = regs.getRegister(Register.RSI).createWrite();
-            writeA = regs.getRegister(a).createWrite();
-            readMemory = state.createMemoryRead();
-        }
+    protected void createChildNodes(Register a) {
+        assert readRSI == null;
+        assert writeRSI == null;
+        assert writeA == null;
+        assert readMemory == null;
+
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readRSI = regs.getRegister(Register.RSI).createRead();
+        writeRSI = regs.getRegister(Register.RSI).createWrite();
+        writeA = regs.getRegister(a).createWrite();
+        readMemory = state.createMemoryRead();
     }
 
     public static class Lodsb extends Lods {
@@ -50,8 +47,12 @@ public abstract class Lods extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AL);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AL);
             long rsi = readRSI.executeI64(frame);
             byte al = readMemory.executeI8(rsi);
             writeA.executeI8(frame, al);
@@ -66,8 +67,12 @@ public abstract class Lods extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.AX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.AX);
             long rsi = readRSI.executeI64(frame);
             short ax = readMemory.executeI16(rsi);
             writeA.executeI16(frame, ax);
@@ -82,8 +87,12 @@ public abstract class Lods extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.EAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.EAX);
             long rsi = readRSI.executeI64(frame);
             int eax = readMemory.executeI32(rsi);
             writeA.executeI32(frame, eax);
@@ -98,8 +107,12 @@ public abstract class Lods extends AMD64Instruction {
         }
 
         @Override
+        protected void createChildNodes() {
+            createChildNodes(Register.RAX);
+        }
+
+        @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary(Register.RAX);
             long rsi = readRSI.executeI64(frame);
             long rax = readMemory.executeI64(rsi);
             writeA.executeI64(frame, rax);

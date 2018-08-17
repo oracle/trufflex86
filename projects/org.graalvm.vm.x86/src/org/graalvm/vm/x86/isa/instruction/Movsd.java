@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Movsd extends AMD64Instruction {
@@ -28,13 +27,11 @@ public abstract class Movsd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class MovsdToReg extends Movsd {
@@ -44,7 +41,6 @@ public abstract class Movsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = readSrc.executeI64(frame);
             Vector128 vec = new Vector128(0, value);
             writeDst.executeI128(frame, vec);
@@ -59,7 +55,6 @@ public abstract class Movsd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = readSrc.executeI64(frame);
             if (writeDst instanceof AVXRegisterWriteNode) {
                 Vector128 vec = new Vector128(0, value);

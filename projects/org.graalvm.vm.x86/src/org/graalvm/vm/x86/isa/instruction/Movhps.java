@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Movhps extends AMD64Instruction {
@@ -28,14 +27,12 @@ public abstract class Movhps extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (src == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            xmm = operand1.createRead(state, next());
-            src = operand2.createRead(state, next());
-            dst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        xmm = operand1.createRead(state, next());
+        src = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
     }
 
     public static class MovhpsToReg extends Movhps {
@@ -45,7 +42,6 @@ public abstract class Movhps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = src.executeI64(frame);
             Vector128 reg = xmm.executeI128(frame);
             reg.setI64(0, value);
@@ -61,7 +57,6 @@ public abstract class Movhps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 reg = src.executeI128(frame);
             long value = reg.getI64(0);
             dst.executeI64(frame, value);

@@ -12,7 +12,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Cmps extends AMD64Instruction {
@@ -39,24 +38,22 @@ public abstract class Cmps extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDI));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSI == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readRSI = regs.getRegister(Register.RSI).createRead();
-            readRDI = regs.getRegister(Register.RDI).createRead();
-            readDF = regs.getDF().createRead();
-            readMemory = state.createMemoryRead();
-            writeRSI = regs.getRegister(Register.RSI).createWrite();
-            writeRDI = regs.getRegister(Register.RDI).createWrite();
-            writeCF = regs.getCF().createWrite();
-            writeOF = regs.getOF().createWrite();
-            writeSF = regs.getSF().createWrite();
-            writeZF = regs.getZF().createWrite();
-            writePF = regs.getPF().createWrite();
-            writeAF = regs.getAF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readRSI = regs.getRegister(Register.RSI).createRead();
+        readRDI = regs.getRegister(Register.RDI).createRead();
+        readDF = regs.getDF().createRead();
+        readMemory = state.createMemoryRead();
+        writeRSI = regs.getRegister(Register.RSI).createWrite();
+        writeRDI = regs.getRegister(Register.RDI).createWrite();
+        writeCF = regs.getCF().createWrite();
+        writeOF = regs.getOF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeAF = regs.getAF().createWrite();
     }
 
     public static class Cmpsb extends Cmps {
@@ -66,7 +63,6 @@ public abstract class Cmps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             byte a = readMemory.executeI8(rsi);
@@ -108,7 +104,6 @@ public abstract class Cmps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             short a = readMemory.executeI16(rsi);
@@ -150,7 +145,6 @@ public abstract class Cmps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             int a = readMemory.executeI32(rsi);
@@ -192,7 +186,6 @@ public abstract class Cmps extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rsi = readRSI.executeI64(frame);
             long rdi = readRDI.executeI64(frame);
             long a = readMemory.executeI64(rsi);

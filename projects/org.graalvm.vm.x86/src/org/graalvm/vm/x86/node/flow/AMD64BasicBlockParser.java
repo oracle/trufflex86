@@ -11,10 +11,17 @@ import org.graalvm.vm.x86.isa.SegmentationViolationInstruction;
 
 public class AMD64BasicBlockParser {
     public static AMD64BasicBlock parse(CodeReader reader) {
+        return parse(reader, true);
+    }
+
+    public static AMD64BasicBlock parse(CodeReader reader, boolean createChildren) {
         List<AMD64Instruction> instructions = new ArrayList<>();
         while (reader.isAvailable()) {
             try {
                 AMD64Instruction insn = AMD64InstructionDecoder.decode(reader.getPC(), reader);
+                if (createChildren) {
+                    insn.createChildren();
+                }
                 instructions.add(insn);
                 if (insn.isControlFlow()) {
                     break;
@@ -24,6 +31,6 @@ public class AMD64BasicBlockParser {
                 break;
             }
         }
-        return new AMD64BasicBlock(instructions.toArray(new AMD64Instruction[instructions.size()]));
+        return new AMD64BasicBlock(instructions.toArray(new AMD64Instruction[instructions.size()]), createChildren);
     }
 }

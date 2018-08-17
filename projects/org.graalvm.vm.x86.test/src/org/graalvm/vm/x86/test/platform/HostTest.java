@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
-import org.graalvm.vm.x86.AMD64Language;
+import org.graalvm.vm.x86.Vmx86;
 import org.graalvm.vm.x86.test.TestOptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -74,13 +74,13 @@ public class HostTest {
     private static void run(String filename, String[] args, String stdin, Result res) throws Exception {
         TestOptions.init();
 
-        Source source = Source.newBuilder(AMD64Language.NAME, new File(filename)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, new File(filename)).build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
         Value result;
-        Context ctx = Context.newBuilder(AMD64Language.NAME).arguments(AMD64Language.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
+        Context ctx = Context.newBuilder(Vmx86.NAME).arguments(Vmx86.NAME, getArgs(filename, args)).in(in).out(out).err(err).build();
 
         try {
             result = ctx.eval(source);

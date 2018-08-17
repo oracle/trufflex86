@@ -18,7 +18,6 @@ import org.graalvm.vm.x86.posix.SyscallWrapper;
 
 import com.everyware.posix.api.Errno;
 import com.everyware.util.log.Trace;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -44,10 +43,11 @@ public class Syscall extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RAX));
     }
 
-    private void createChildren() {
+    @Override
+    protected void createChildNodes() {
         assert syscall == null;
-        CompilerDirectives.transferToInterpreterAndInvalidate();
-        AMD64Context ctx = getContextReference().get();
+
+        AMD64Context ctx = getContext();
         RegisterAccessFactory reg = ctx.getState().getRegisters();
         PosixEnvironment posix = ctx.getPosixEnvironment();
         VirtualMemory memory = ctx.getMemory();
@@ -64,9 +64,6 @@ public class Syscall extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        if (syscall == null) {
-            createChildren();
-        }
         long rax = readRAX.executeI64(frame);
         long rdi = readRDI.executeI64(frame);
         long rsi = readRSI.executeI64(frame);

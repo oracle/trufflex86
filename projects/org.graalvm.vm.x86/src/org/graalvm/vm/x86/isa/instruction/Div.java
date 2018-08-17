@@ -38,19 +38,16 @@ public abstract class Div extends AMD64Instruction {
             setGPRWriteOperands(operand, new RegisterOperand(Register.RAX));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readAX == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readAX = state.getRegisters().getRegister(Register.AX).createRead();
-                readOp = operand.createRead(state, next());
-                writeAX = state.getRegisters().getRegister(Register.AX).createWrite();
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readAX = state.getRegisters().getRegister(Register.AX).createRead();
+            readOp = operand.createRead(state, next());
+            writeAX = state.getRegisters().getRegister(Register.AX).createWrite();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int ax = Short.toUnsignedInt(readAX.executeI16(frame));
             int op = Byte.toUnsignedInt(readOp.executeI8(frame));
             if (op == 0) {
@@ -82,21 +79,18 @@ public abstract class Div extends AMD64Instruction {
             setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readAX == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readAX = state.getRegisters().getRegister(Register.AX).createRead();
-                readDX = state.getRegisters().getRegister(Register.DX).createRead();
-                readOp = operand.createRead(state, next());
-                writeAX = state.getRegisters().getRegister(Register.AX).createWrite();
-                writeDX = state.getRegisters().getRegister(Register.DX).createWrite();
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readAX = state.getRegisters().getRegister(Register.AX).createRead();
+            readDX = state.getRegisters().getRegister(Register.DX).createRead();
+            readOp = operand.createRead(state, next());
+            writeAX = state.getRegisters().getRegister(Register.AX).createWrite();
+            writeDX = state.getRegisters().getRegister(Register.DX).createWrite();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short ax = readAX.executeI16(frame);
             short dx = readDX.executeI16(frame);
             int input = Short.toUnsignedInt(ax) | (Short.toUnsignedInt(dx) << 16);
@@ -130,21 +124,18 @@ public abstract class Div extends AMD64Instruction {
             setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readEAX == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readEAX = state.getRegisters().getRegister(Register.EAX).createRead();
-                readEDX = state.getRegisters().getRegister(Register.EDX).createRead();
-                readOp = operand.createRead(state, next());
-                writeEAX = state.getRegisters().getRegister(Register.EAX).createWrite();
-                writeEDX = state.getRegisters().getRegister(Register.EDX).createWrite();
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readEAX = state.getRegisters().getRegister(Register.EAX).createRead();
+            readEDX = state.getRegisters().getRegister(Register.EDX).createRead();
+            readOp = operand.createRead(state, next());
+            writeEAX = state.getRegisters().getRegister(Register.EAX).createWrite();
+            writeEDX = state.getRegisters().getRegister(Register.EDX).createWrite();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int eax = readEAX.executeI32(frame);
             int edx = readEDX.executeI32(frame);
             long input = Integer.toUnsignedLong(eax) | (Integer.toUnsignedLong(edx) << 32);
@@ -178,21 +169,18 @@ public abstract class Div extends AMD64Instruction {
             setGPRWriteOperands(operand, new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDX));
         }
 
-        private void createChildrenIfNecessary() {
-            if (readRAX == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readRAX = state.getRegisters().getRegister(Register.RAX).createRead();
-                readRDX = state.getRegisters().getRegister(Register.RDX).createRead();
-                readOp = operand.createRead(state, next());
-                writeRAX = state.getRegisters().getRegister(Register.RAX).createWrite();
-                writeRDX = state.getRegisters().getRegister(Register.RDX).createWrite();
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readRAX = state.getRegisters().getRegister(Register.RAX).createRead();
+            readRDX = state.getRegisters().getRegister(Register.RDX).createRead();
+            readOp = operand.createRead(state, next());
+            writeRAX = state.getRegisters().getRegister(Register.RAX).createWrite();
+            writeRDX = state.getRegisters().getRegister(Register.RDX).createWrite();
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long rax = readRAX.executeI64(frame);
             long rdx = readRDX.executeI64(frame);
             long op = readOp.executeI64(frame);

@@ -9,7 +9,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.everyware.util.io.Endianess;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Punpckl extends AMD64Instruction {
@@ -31,14 +30,12 @@ public abstract class Punpckl extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readOp1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readOp1 = operand1.createRead(state, next());
-            readOp2 = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readOp1 = operand1.createRead(state, next());
+        readOp2 = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
     }
 
     public static class Punpcklbw extends Punpckl {
@@ -48,7 +45,6 @@ public abstract class Punpckl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
             long la = a.getI64(1);
@@ -73,7 +69,6 @@ public abstract class Punpckl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
             short[] sa = a.getShorts();
@@ -92,7 +87,6 @@ public abstract class Punpckl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 a = readOp1.executeI128(frame);
             Vector128 b = readOp2.executeI128(frame);
             int ha = a.getI32(2);
@@ -112,7 +106,6 @@ public abstract class Punpckl extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             Vector128 dst = readOp1.executeI128(frame);
             Vector128 src = readOp2.executeI128(frame);
             long low = dst.getI64(1);

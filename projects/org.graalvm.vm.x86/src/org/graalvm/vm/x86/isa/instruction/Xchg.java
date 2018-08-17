@@ -7,7 +7,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Xchg extends AMD64Instruction {
@@ -28,15 +27,13 @@ public abstract class Xchg extends AMD64Instruction {
         setGPRWriteOperands(operand1, operand2);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readOp1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readOp1 = operand1.createRead(state, next());
-            readOp2 = operand2.createRead(state, next());
-            writeOp1 = operand1.createWrite(state, next());
-            writeOp2 = operand2.createWrite(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readOp1 = operand1.createRead(state, next());
+        readOp2 = operand2.createRead(state, next());
+        writeOp1 = operand1.createWrite(state, next());
+        writeOp2 = operand2.createWrite(state, next());
     }
 
     public static class Xchgb extends Xchg {
@@ -50,7 +47,6 @@ public abstract class Xchg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte a = readOp1.executeI8(frame);
             byte b = readOp2.executeI8(frame);
             writeOp1.executeI8(frame, b);
@@ -70,7 +66,6 @@ public abstract class Xchg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short a = readOp1.executeI16(frame);
             short b = readOp2.executeI16(frame);
             writeOp1.executeI16(frame, b);
@@ -90,7 +85,6 @@ public abstract class Xchg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int a = readOp1.executeI32(frame);
             int b = readOp2.executeI32(frame);
             writeOp1.executeI32(frame, b);
@@ -110,7 +104,6 @@ public abstract class Xchg extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long a = readOp1.executeI64(frame);
             long b = readOp2.executeI64(frame);
             writeOp1.executeI64(frame, b);

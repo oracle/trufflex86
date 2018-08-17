@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.AddressComputationNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Lea extends AMD64Instruction {
@@ -29,13 +28,11 @@ public abstract class Lea extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (address == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            dst = operand1.createWrite(state, next());
-            address = new AddressComputationNode(state, (MemoryOperand) operand2, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        dst = operand1.createWrite(state, next());
+        address = new AddressComputationNode(state, (MemoryOperand) operand2, next());
     }
 
     public static class Leaw extends Lea {
@@ -45,7 +42,6 @@ public abstract class Lea extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long addr = address.execute(frame);
             dst.executeI16(frame, (short) addr);
             return next();
@@ -59,7 +55,6 @@ public abstract class Lea extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long addr = address.execute(frame);
             dst.executeI32(frame, (int) addr);
             return next();
@@ -73,7 +68,6 @@ public abstract class Lea extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long addr = address.execute(frame);
             dst.executeI64(frame, addr);
             return next();

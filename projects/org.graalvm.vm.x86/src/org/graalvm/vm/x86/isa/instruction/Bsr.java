@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Bsr extends AMD64Instruction {
@@ -28,14 +27,12 @@ public abstract class Bsr extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readSrc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            readSrc = operand2.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-            writeZF = state.getRegisters().getZF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        readSrc = operand2.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
+        writeZF = state.getRegisters().getZF().createWrite();
     }
 
     public static class Bsrw extends Bsr {
@@ -45,7 +42,6 @@ public abstract class Bsr extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int value = Short.toUnsignedInt(readSrc.executeI16(frame));
             if (value == 0) {
                 writeZF.execute(frame, true);
@@ -65,7 +61,6 @@ public abstract class Bsr extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int value = readSrc.executeI32(frame);
             if (value == 0) {
                 writeZF.execute(frame, true);
@@ -85,7 +80,6 @@ public abstract class Bsr extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = readSrc.executeI64(frame);
             if (value == 0) {
                 writeZF.execute(frame, true);

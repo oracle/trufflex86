@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.everyware.posix.api.CString;
 import com.everyware.posix.api.PosixPointer;
 
-public class PosixTest {
+public class DebugSyscallTest {
     private PosixEnvironment posix;
     private VirtualMemory vm;
     private ByteArrayOutputStream stdout;

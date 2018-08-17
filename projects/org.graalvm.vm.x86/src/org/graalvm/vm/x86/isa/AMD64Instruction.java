@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.graalvm.vm.x86.AMD64Context;
+import org.graalvm.vm.x86.AMD64Language;
+import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.node.AMD64Node;
 
 import com.oracle.truffle.api.CompilerAsserts;
@@ -35,6 +38,30 @@ public abstract class AMD64Instruction extends AMD64Node {
     public abstract long executeInstruction(VirtualFrame frame);
 
     protected abstract String[] disassemble();
+
+    protected AMD64Context getContext() {
+        return AMD64Language.getCurrentContextReference().get();
+    }
+
+    protected ArchitecturalState getState() {
+        return getContext().getState();
+    }
+
+    protected void createChildNodes() {
+        // empty
+    }
+
+    @CompilationFinal private boolean initialized = false;
+
+    public final void createChildren() {
+        CompilerAsserts.neverPartOfCompilation();
+        if (initialized) {
+            throw new IllegalStateException("tried to initialize node twice (" + this + ")");
+        } else {
+            initialized = true;
+        }
+        createChildNodes();
+    }
 
     public Register[] getUsedGPRRead() {
         CompilerAsserts.neverPartOfCompilation();

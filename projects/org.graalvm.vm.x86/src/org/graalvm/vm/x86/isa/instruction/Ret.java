@@ -13,7 +13,6 @@ import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -31,21 +30,17 @@ public class Ret extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
-    private void createChildrenIfNecessary() {
-        if (readRSP == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
-            readRSP = rsp.createRead();
-            writeRSP = rsp.createWrite();
-            readMemory = state.createMemoryRead();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
+        readRSP = rsp.createRead();
+        writeRSP = rsp.createWrite();
+        readMemory = state.createMemoryRead();
     }
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        createChildrenIfNecessary();
-
         long rsp = readRSP.executeI64(frame);
         long npc = readMemory.executeI64(rsp);
         writeRSP.executeI64(frame, rsp + 8);

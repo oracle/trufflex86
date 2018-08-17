@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Cdq extends AMD64Instruction {
@@ -23,14 +22,15 @@ public class Cdq extends AMD64Instruction {
     }
 
     @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readEAX = regs.getRegister(Register.EAX).createRead();
+        writeEDX = regs.getRegister(Register.EDX).createWrite();
+    }
+
+    @Override
     public long executeInstruction(VirtualFrame frame) {
-        if (readEAX == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readEAX = regs.getRegister(Register.EAX).createRead();
-            writeEDX = regs.getRegister(Register.EDX).createWrite();
-        }
         int rax = readEAX.executeI32(frame);
         if (rax < 0) {
             writeEDX.executeI32(frame, -1);

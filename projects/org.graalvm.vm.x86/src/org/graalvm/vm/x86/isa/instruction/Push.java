@@ -11,7 +11,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Push extends AMD64Instruction {
@@ -30,20 +29,18 @@ public abstract class Push extends AMD64Instruction {
         setGPRWriteOperands(new RegisterOperand(Register.RSP));
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readRSP == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            assert readRSP == null;
-            assert writeRSP == null;
-            assert writeMemory == null;
+    @Override
+    protected void createChildNodes() {
+        assert readRSP == null;
+        assert writeRSP == null;
+        assert writeMemory == null;
 
-            ArchitecturalState state = getContextReference().get().getState();
-            AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
-            readSrc = operand.createRead(state, next());
-            readRSP = rsp.createRead();
-            writeRSP = rsp.createWrite();
-            writeMemory = state.createMemoryWrite();
-        }
+        ArchitecturalState state = getState();
+        AMD64Register rsp = state.getRegisters().getRegister(Register.RSP);
+        readSrc = operand.createRead(state, next());
+        readRSP = rsp.createRead();
+        writeRSP = rsp.createWrite();
+        writeMemory = state.createMemoryWrite();
     }
 
     public static class Pushb extends Push {
@@ -53,7 +50,6 @@ public abstract class Push extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte value = readSrc.executeI8(frame);
             long rsp = readRSP.executeI64(frame);
             rsp--;
@@ -70,7 +66,6 @@ public abstract class Push extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short value = readSrc.executeI16(frame);
             long rsp = readRSP.executeI64(frame);
             rsp -= 2;
@@ -87,7 +82,6 @@ public abstract class Push extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int value = readSrc.executeI32(frame);
             long rsp = readRSP.executeI64(frame);
             rsp -= 4;
@@ -104,7 +98,6 @@ public abstract class Push extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long value = readSrc.executeI64(frame);
             long rsp = readRSP.executeI64(frame);
             rsp -= 8;

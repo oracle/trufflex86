@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Mov extends AMD64Instruction {
@@ -18,13 +17,11 @@ public abstract class Mov extends AMD64Instruction {
     @Child protected ReadNode read;
     @Child protected WriteNode write;
 
-    protected void createChildrenIfNecessary() {
-        if (read == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            write = operand1.createWrite(state, next());
-            read = operand2.createRead(state, next());
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        write = operand1.createWrite(state, next());
+        read = operand2.createRead(state, next());
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -71,7 +68,6 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte val = read.executeI8(frame);
             write.executeI8(frame, val);
             return next();
@@ -97,7 +93,6 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short val = read.executeI16(frame);
             write.executeI16(frame, val);
             return next();
@@ -123,7 +118,6 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int val = read.executeI32(frame);
             write.executeI32(frame, val);
             return next();
@@ -153,7 +147,6 @@ public abstract class Mov extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long val = read.executeI64(frame);
             write.executeI64(frame, val);
             return next();

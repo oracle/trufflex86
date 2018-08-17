@@ -33,7 +33,7 @@ public class Ldmxcsr extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        if (readSrc == null) {
+        if (readSrc == null) { // TODO: use createChildren/createChildNodes
             CompilerDirectives.transferToInterpreterAndInvalidate();
             log.log(Levels.WARNING, String.format("Stub instruction LDMXCSR executed at 0x%016x", getPC()));
             ArchitecturalState state = getContextReference().get().getState();

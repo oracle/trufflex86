@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
@@ -42,21 +41,19 @@ public abstract class Shrd extends AMD64Instruction {
         setGPRWriteOperands(operand1);
     }
 
-    protected void createChildrenIfNecessary() {
-        if (readOperand1 == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readOperand1 = operand1.createRead(state, next());
-            readOperand2 = operand2.createRead(state, next());
-            readOperand3 = operand3.createRead(state, next());
-            writeDst = operand1.createWrite(state, next());
-            writeCF = regs.getCF().createWrite();
-            writePF = regs.getPF().createWrite();
-            writeZF = regs.getZF().createWrite();
-            writeSF = regs.getSF().createWrite();
-            writeOF = regs.getOF().createWrite();
-        }
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        readOperand1 = operand1.createRead(state, next());
+        readOperand2 = operand2.createRead(state, next());
+        readOperand3 = operand3.createRead(state, next());
+        writeDst = operand1.createWrite(state, next());
+        writeCF = regs.getCF().createWrite();
+        writePF = regs.getPF().createWrite();
+        writeZF = regs.getZF().createWrite();
+        writeSF = regs.getSF().createWrite();
+        writeOF = regs.getOF().createWrite();
     }
 
     protected long mask(int n) {
@@ -76,7 +73,6 @@ public abstract class Shrd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short src = readOperand1.executeI16(frame);
             short bits = readOperand2.executeI16(frame);
             int count = readOperand3.executeI8(frame) & 0x1F;
@@ -104,7 +100,6 @@ public abstract class Shrd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int src = readOperand1.executeI32(frame);
             int bits = readOperand2.executeI32(frame);
             int count = readOperand3.executeI8(frame) & 0x1F;
@@ -132,7 +127,6 @@ public abstract class Shrd extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long src = readOperand1.executeI64(frame);
             long bits = readOperand2.executeI64(frame);
             int count = readOperand3.executeI8(frame) & 0x3F;

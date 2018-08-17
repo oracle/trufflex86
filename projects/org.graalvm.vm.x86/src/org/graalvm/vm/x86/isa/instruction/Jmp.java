@@ -6,7 +6,6 @@ import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Jmp extends AMD64Instruction {
@@ -52,17 +51,14 @@ public abstract class Jmp extends AMD64Instruction {
             setGPRReadOperands(operand);
         }
 
-        private void createChildrenIfNecessary() {
-            if (readBTA == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                ArchitecturalState state = getContextReference().get().getState();
-                readBTA = operand.createRead(state, next());
-            }
+        @Override
+        protected void createChildNodes() {
+            ArchitecturalState state = getState();
+            readBTA = operand.createRead(state, next());
         }
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             return readBTA.executeI64(frame);
         }
 

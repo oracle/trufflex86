@@ -8,7 +8,6 @@ import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Lahf extends AMD64Instruction {
@@ -22,14 +21,15 @@ public class Lahf extends AMD64Instruction {
     }
 
     @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        writeAH = regs.getRegister(Register.AH).createWrite();
+        readFlags = insert(new ReadFlagsNode());
+    }
+
+    @Override
     public long executeInstruction(VirtualFrame frame) {
-        if (writeAH == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            writeAH = regs.getRegister(Register.AH).createWrite();
-            readFlags = insert(new ReadFlagsNode());
-        }
         byte value = readFlags.executeI8(frame);
         writeAH.executeI8(frame, value);
         return next();

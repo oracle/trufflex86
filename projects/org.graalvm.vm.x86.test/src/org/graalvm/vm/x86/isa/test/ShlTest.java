@@ -1,43 +1,26 @@
 package org.graalvm.vm.x86.isa.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.graalvm.vm.x86.isa.AMD64Instruction;
-import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
-import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlb;
 import org.graalvm.vm.x86.isa.instruction.Shl.Shlq;
-import org.graalvm.vm.x86.test.CodeArrayReader;
+import org.graalvm.vm.x86.test.InstructionTest;
 import org.graalvm.vm.x86.test.runner.TestRunner;
 import org.junit.Test;
 
-public class ShlTest {
-    public static final byte[] MACHINECODE1 = {0x48, (byte) 0xc1, (byte) 0xe2, 0x20};
-    public static final String ASSEMBLY1 = "shl\trdx,0x20";
+public class ShlTest extends InstructionTest {
+    private static final byte[] MACHINECODE1 = {0x48, (byte) 0xc1, (byte) 0xe2, 0x20};
+    private static final String ASSEMBLY1 = "shl\trdx,0x20";
 
-    public static final byte[] MACHINECODE2 = {(byte) 0xc0, (byte) 0xe2, 0x02};
-    public static final String ASSEMBLY2 = "shl\tdl,0x2";
+    private static final byte[] MACHINECODE2 = {(byte) 0xc0, (byte) 0xe2, 0x02};
+    private static final String ASSEMBLY2 = "shl\tdl,0x2";
 
     @Test
     public void test1() {
-        CodeReader reader = new CodeArrayReader(MACHINECODE1, 0);
-        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
-        assertNotNull(insn);
-        assertTrue(insn instanceof Shlq);
-        assertEquals(ASSEMBLY1, insn.toString());
-        assertEquals(MACHINECODE1.length, reader.getPC());
+        check(MACHINECODE1, ASSEMBLY1, Shlq.class);
     }
 
     @Test
     public void test2() {
-        CodeReader reader = new CodeArrayReader(MACHINECODE2, 0);
-        AMD64Instruction insn = AMD64InstructionDecoder.decode(0, reader);
-        assertNotNull(insn);
-        assertTrue(insn instanceof Shlb);
-        assertEquals(ASSEMBLY2, insn.toString());
-        assertEquals(MACHINECODE2.length, reader.getPC());
+        check(MACHINECODE2, ASSEMBLY2, Shlb.class);
     }
 
     @Test

@@ -10,7 +10,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Or extends AMD64Instruction {
@@ -26,20 +25,27 @@ public abstract class Or extends AMD64Instruction {
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writeOF;
 
-    protected void createChildrenIfNecessary() {
-        if (srcA == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            srcA = operand1.createRead(state, next());
-            srcB = operand2.createRead(state, next());
-            dst = operand1.createWrite(state, next());
+    protected Or(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+        super(pc, instruction);
+        this.operand1 = operand1;
+        this.operand2 = operand2;
 
-            writeCF = state.getRegisters().getCF().createWrite();
-            writePF = state.getRegisters().getPF().createWrite();
-            writeZF = state.getRegisters().getZF().createWrite();
-            writeSF = state.getRegisters().getSF().createWrite();
-            writeOF = state.getRegisters().getOF().createWrite();
-        }
+        setGPRReadOperands(operand1, operand2);
+        setGPRWriteOperands(operand1);
+    }
+
+    @Override
+    protected void createChildNodes() {
+        ArchitecturalState state = getState();
+        srcA = operand1.createRead(state, next());
+        srcB = operand2.createRead(state, next());
+        dst = operand1.createWrite(state, next());
+
+        writeCF = state.getRegisters().getCF().createWrite();
+        writePF = state.getRegisters().getPF().createWrite();
+        writeZF = state.getRegisters().getZF().createWrite();
+        writeSF = state.getRegisters().getSF().createWrite();
+        writeOF = state.getRegisters().getOF().createWrite();
     }
 
     protected static Operand getOp1(OperandDecoder operands, int type, boolean swap) {
@@ -56,15 +62,6 @@ public abstract class Or extends AMD64Instruction {
         } else {
             return operands.getOperand2(type);
         }
-    }
-
-    protected Or(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-        super(pc, instruction);
-        this.operand1 = operand1;
-        this.operand2 = operand2;
-
-        setGPRReadOperands(operand1, operand2);
-        setGPRWriteOperands(operand1);
     }
 
     public static class Orb extends Or {
@@ -86,7 +83,6 @@ public abstract class Or extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             byte a = srcA.executeI8(frame);
             byte b = srcB.executeI8(frame);
             byte result = (byte) (a | b);
@@ -119,7 +115,6 @@ public abstract class Or extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             short a = srcA.executeI16(frame);
             short b = srcB.executeI16(frame);
             short result = (short) (a | b);
@@ -152,7 +147,6 @@ public abstract class Or extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             int a = srcA.executeI32(frame);
             int b = srcB.executeI32(frame);
             int result = a | b;
@@ -185,7 +179,6 @@ public abstract class Or extends AMD64Instruction {
 
         @Override
         public long executeInstruction(VirtualFrame frame) {
-            createChildrenIfNecessary();
             long a = srcA.executeI64(frame);
             long b = srcB.executeI64(frame);
             long result = a | b;
