@@ -426,6 +426,18 @@ public class PosixEnvironment {
         }
     }
 
+    public long getdents64(int fd, long dirp, int count) throws SyscallException {
+        long cnt = Integer.toUnsignedLong(count);
+        try {
+            return posix.getdents(fd, posixPointer(dirp), cnt, Dirent.DIRENT64);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getdents64 failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int futex(long uaddr, int futex_op, int val, long timeout, long uaddr2, int val3) throws SyscallException {
         try {
             return posix.futex(posixPointer(uaddr), futex_op, val, posixPointer(timeout), posixPointer(uaddr2), val3);

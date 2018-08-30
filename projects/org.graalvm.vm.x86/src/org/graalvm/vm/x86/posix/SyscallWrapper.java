@@ -64,6 +64,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_gettid = 186;
     public static final int SYS_time = 201;
     public static final int SYS_futex = 202;
+    public static final int SYS_getdents64 = 217;
     public static final int SYS_clock_gettime = 228;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
@@ -258,6 +259,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.time(a1);
             case SYS_futex:
                 return posix.futex(a1, (int) a2, (int) a3, a4, a5, (int) a6);
+	    case SYS_getdents64:
+                return posix.getdents64((int) a1, a2, (int) a3);
             case SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
             case SYS_tgkill:
