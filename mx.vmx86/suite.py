@@ -212,7 +212,13 @@ suite = {
         "bin/meteor.gpp-5",
         "bin/meteor.gpp-6",
         "bin/knucleotide.cint",
-        "bin/knucleotide.gcc-8"
+        "bin/knucleotide.gcc-8",
+        "bin/regexdna.cint-2",
+        "bin/regexdna.gcc-2",
+        "bin/revcomp.cint-2",
+        "bin/revcomp.gcc-4",
+        "bin/revcomp.gpp-3",
+        "bin/revcomp.gpp-5"
       ],
       "license" : "GPLv3",
       "testProject" : True,

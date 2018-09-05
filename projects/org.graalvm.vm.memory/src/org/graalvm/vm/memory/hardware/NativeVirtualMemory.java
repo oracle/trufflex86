@@ -48,7 +48,7 @@ public class NativeVirtualMemory extends VirtualMemory {
                 return 0x2000000000L;
             default:
                 return 0x200000000000L;
-	}
+        }
     }
 
     private static long getHigh() {
@@ -57,7 +57,7 @@ public class NativeVirtualMemory extends VirtualMemory {
                 return 0x4000000000L;
             default:
                 return 0x400000000000L;
-	}
+        }
     }
 
     private static boolean checkMemoryMap() {

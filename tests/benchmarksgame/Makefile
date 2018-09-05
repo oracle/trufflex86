@@ -31,7 +31,10 @@ all: bin/binarytrees.gcc bin/binarytrees.gcc-2 bin/fasta.cint bin/fasta.gcc \
 		bin/meteor.cint bin/meteor.gcc bin/meteor.gpp bin/meteor.gpp-2 \
 		bin/meteor.gpp-3 bin/meteor.gpp-4 bin/meteor.gpp-5 \
 		bin/meteor.gpp-6 \
-		bin/knucleotide.cint bin/knucleotide.gcc-8
+		bin/knucleotide.cint bin/knucleotide.gcc-8 \
+		bin/regexdna.gcc-2 bin/regexdna.cint-2 \
+		bin/revcomp.cint-2 bin/revcomp.gcc-4 bin/revcomp.gpp-3 \
+		bin/revcomp.gpp-5
 
 
 clean:
@@ -61,7 +64,10 @@ clean:
 			bin/meteor.cint bin/meteor.gcc bin/meteor.gpp \
 			bin/meteor.gpp-2 bin/meteor.gpp-3 bin/meteor.gpp-4 \
 			bin/meteor.gpp-5 bin/meteor.gpp-6 \
-			bin/knucleotide.cint bin/knucleotide.gcc-8
+			bin/knucleotide.cint bin/knucleotide.gcc-8 \
+			bin/regexdna.gcc-2 bin/regexdna.cint-2 \
+			bin/revcomp.cint-2 bin/revcomp.gcc-4 bin/revcomp.gpp-3 \
+			bin/revcomp.gpp-5
 
 bin/binarytrees.gcc: binarytrees/binarytrees.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
@@ -352,3 +358,33 @@ bin/knucleotide.gcc-8: knucleotide/knucleotide.gcc-8.gcc.c
 	$(QUIET)[ ! -d bin ] && mkdir bin || true
 	$(QUIET)echo "[CCLD]      $@"
 	$(QUIET)$(CC) $(CFLAGS) -o $@ $< -lm
+
+bin/regexdna.gcc-2: regexdna/regexdna.gcc-2.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lpcre
+
+bin/regexdna.cint-2: regexdna/regexdna.cint-2.cint.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGSD) -o $@ $< -lpcre
+
+bin/revcomp.cint-2: revcomp/revcomp.cint-2.cint.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
+
+bin/revcomp.gcc-4: revcomp/revcomp.gcc-4.gcc.c
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CCLD]      $@"
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $<
+
+bin/revcomp.gpp-3: revcomp/revcomp.gpp-3.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
+
+bin/revcomp.gpp-5: revcomp/revcomp.gpp-5.gpp.cpp
+	$(QUIET)[ ! -d bin ] && mkdir bin || true
+	$(QUIET)echo "[CXXLD]     $@"
+	$(QUIET)$(CXX) $(CXXFLAGS) -o $@ $<
