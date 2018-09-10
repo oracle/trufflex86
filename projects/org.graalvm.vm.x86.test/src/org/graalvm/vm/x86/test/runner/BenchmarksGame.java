@@ -855,6 +855,31 @@ public class BenchmarksGame {
     }
 
     @Test
+    public void fasta_gcc5() throws Exception {
+        TestRunner.run("fasta.gcc-5", new String[]{"1000"}, "", FASTA, "", 0);
+    }
+
+    @Test
+    public void fasta_gpp() throws Exception {
+        TestRunner.run("fasta.gpp", new String[]{"1000"}, "", FASTA, "", 0);
+    }
+
+    @Test
+    public void fasta_gpp2() throws Exception {
+        TestRunner.run("fasta.gpp-2", new String[]{"1000"}, "", FASTA, "", 0);
+    }
+
+    @Test
+    public void fasta_gpp3() throws Exception {
+        TestRunner.run("fasta.gpp-3", new String[]{"1000"}, "", FASTA, "", 0);
+    }
+
+    @Test
+    public void fasta_gpp4() throws Exception {
+        TestRunner.run("fasta.gpp-4", new String[]{"1000"}, "", FASTA, "", 0);
+    }
+
+    @Test
     public void fastaredux_gcc2() throws Exception {
         TestRunner.run("fastaredux.gcc-2", new String[]{"1000"}, "", FASTAREDUX, "", 0);
     }
@@ -897,6 +922,11 @@ public class BenchmarksGame {
     @Test
     public void fannkuchredux_gcc3() throws Exception {
         TestRunner.run("fannkuchredux.gcc-3", new String[]{"7"}, "", FANNKUCH, "", 0);
+    }
+
+    @Test
+    public void fannkuchredux_gpp3() throws Exception {
+        TestRunner.run("fannkuchredux.gpp-3", new String[]{"7"}, "", FANNKUCH, "", 0);
     }
 
     @Test
@@ -975,6 +1005,16 @@ public class BenchmarksGame {
     }
 
     @Test
+    public void binarytrees_gpp2() throws Exception {
+        TestRunner.run("binarytrees.gpp-2", new String[]{"10"}, "", BINARYTREES, "", 0);
+    }
+
+    @Test
+    public void binarytrees_gpp6() throws Exception {
+        TestRunner.run("binarytrees.gpp-6", new String[]{"10"}, "", BINARYTREES, "", 0);
+    }
+
+    @Test
     public void spectralnorm_cint() throws Exception {
         TestRunner.run("spectralnorm.cint", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
@@ -997,6 +1037,11 @@ public class BenchmarksGame {
     @Test
     public void spectralnorm_gcc5() throws Exception {
         TestRunner.run("spectralnorm.gcc-5", new String[]{"100"}, "", SPECTRALNORM, "", 0);
+    }
+
+    @Test
+    public void spectralnorm_gpp() throws Exception {
+        TestRunner.run("spectralnorm.gpp", new String[]{"100"}, "", SPECTRALNORM, "", 0);
     }
 
     @Test
