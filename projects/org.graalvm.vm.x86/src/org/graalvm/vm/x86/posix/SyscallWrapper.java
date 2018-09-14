@@ -189,10 +189,7 @@ public class SyscallWrapper extends AMD64Node {
             case SYS_rt_sigaction:
                 return posix.rt_sigaction((int) a1, a2, a3);
             case SYS_rt_sigprocmask:
-                if (posix.isStrace()) {
-                    log.log(Level.INFO, () -> String.format("rt_sigprocmask(%s, ..., %s)", a1, a4));
-                }
-                throw new SyscallException(Errno.ENOSYS);
+                return posix.rt_sigprocmask((int) a1, a2, a3, (int) a4);
             case SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
             case SYS_pread64:
@@ -259,7 +256,7 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.time(a1);
             case SYS_futex:
                 return posix.futex(a1, (int) a2, (int) a3, a4, a5, (int) a6);
-	    case SYS_getdents64:
+            case SYS_getdents64:
                 return posix.getdents64((int) a1, a2, (int) a3);
             case SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);

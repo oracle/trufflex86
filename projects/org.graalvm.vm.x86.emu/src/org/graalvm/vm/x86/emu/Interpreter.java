@@ -154,10 +154,7 @@ public class Interpreter {
             case Syscalls.SYS_rt_sigaction:
                 return posix.rt_sigaction((int) a1, a2, a3);
             case Syscalls.SYS_rt_sigprocmask:
-                if (posix.isStrace()) {
-                    log.log(Level.INFO, () -> String.format("rt_sigprocmask(%s, ..., %s)", a1, a4));
-                }
-                throw new SyscallException(Errno.ENOSYS);
+                return posix.rt_sigprocmask((int) a1, a2, a3, (int) a4);
             case Syscalls.SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
             case Syscalls.SYS_pread64:

@@ -23,6 +23,7 @@ import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
 import com.everyware.posix.api.Rlimit;
 import com.everyware.posix.api.Sigaction;
+import com.everyware.posix.api.Sigset;
 import com.everyware.posix.api.Stack;
 import com.everyware.posix.api.Timespec;
 import com.everyware.posix.api.Timeval;
@@ -721,7 +722,7 @@ public class PosixEnvironment {
             Sigaction newact = null;
             if (pact != null) {
                 newact = new Sigaction();
-                newact.read32(pact);
+                newact.read64(pact);
             }
             Sigaction oldact = poact != null ? new Sigaction() : null;
             int result = posix.sigaction(sig, newact, oldact);
@@ -732,6 +733,35 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "rt_sigaction failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int rt_sigprocmask(int how, long set, long oldset, int sigsetsize) throws SyscallException {
+        try {
+            if (sigsetsize != 8) {
+                throw new PosixException(Errno.EINVAL);
+            }
+            PosixPointer pset = posixPointer(set);
+            PosixPointer poldset = posixPointer(oldset);
+            Sigset sset = null;
+            Sigset soldset = null;
+            if (pset != null) {
+                sset = new Sigset();
+                sset.read64(pset);
+            }
+            if (poldset != null) {
+                soldset = new Sigset();
+            }
+            int result = posix.sigprocmask(how, sset, soldset);
+            if (poldset != null) {
+                soldset.write64(poldset);
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "rt_sigprocmask failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }
