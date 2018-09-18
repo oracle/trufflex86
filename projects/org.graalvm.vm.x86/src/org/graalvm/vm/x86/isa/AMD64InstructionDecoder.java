@@ -1484,6 +1484,18 @@ public class AMD64InstructionDecoder {
                 }
                 return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
             }
+            case AMD64Opcode.SHL_RM8_C: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                switch (args.modrm.getReg()) {
+                    case 4:
+                        return new Shlb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                    case 5:
+                        return new Shrb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                    case 7:
+                        return new Sarb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                }
+                return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+            }
             case AMD64Opcode.SHL_RM8_I8: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
