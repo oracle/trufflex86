@@ -99,6 +99,23 @@ public abstract class Punpckh extends AMD64Instruction {
         }
     }
 
+    public static class Punpckhqdq extends Punpckh {
+        public Punpckhqdq(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, "punpckhqdq", operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 dst = readOp1.executeI128(frame);
+            Vector128 src = readOp2.executeI128(frame);
+            long lo = dst.getI64(0);
+            long hi = src.getI64(0);
+            Vector128 out = new Vector128(hi, lo);
+            writeDst.executeI128(frame, out);
+            return next();
+        }
+    }
+
     @Override
     protected String[] disassemble() {
         return new String[]{name, operand1.toString(), operand2.toString()};
