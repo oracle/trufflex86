@@ -3265,6 +3265,18 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         return new Sets(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     }
+                    case AMD64Opcode.SHLD_RM_R_I: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        byte imm = code.read8();
+                        ImmediateOperand shamt = new ImmediateOperand(imm);
+                        if (rex != null && rex.w) {
+                            return new Shldq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), shamt);
+                        } else if (sizeOverride) {
+                            return new Shldw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), shamt);
+                        } else {
+                            return new Shldl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), shamt);
+                        }
+                    }
                     case AMD64Opcode.SHLD_RM_R_C: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         Operand cl = new RegisterOperand(Register.CL);

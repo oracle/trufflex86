@@ -9,9 +9,17 @@ public class ShldTest extends InstructionTest {
     private static final byte[] MACHINECODE1 = {0x4c, 0x0f, (byte) 0xa5, (byte) 0xc8};
     private static final String ASSEMBLY1 = "shld\trax,r9,cl";
 
+    private static final byte[] MACHINECODE2 = {0x0f, (byte) 0xa4, (byte) 0xd8, 0x01};
+    private static final String ASSEMBLY2 = "shld\teax,ebx,0x1";
+
     @Test
     public void test1() {
         check(MACHINECODE1, ASSEMBLY1, Shld.class);
+    }
+
+    @Test
+    public void test2() {
+        check(MACHINECODE2, ASSEMBLY2, Shld.class);
     }
 
     @Test
