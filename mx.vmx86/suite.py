@@ -73,7 +73,7 @@ suite = {
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
       "license" : "GPLv3",
@@ -111,7 +111,7 @@ suite = {
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
       "license" : "GPLv3",
@@ -123,7 +123,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86"
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
       "license" : "GPLv3",
@@ -244,7 +244,7 @@ suite = {
         "benchmarksgame",
         "mx:JUNIT",
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
       "testProject" : True,
@@ -257,7 +257,7 @@ suite = {
         "org.graalvm.vm.memory",
         "mx:JUNIT",
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
       "testProject" : True,
@@ -273,7 +273,7 @@ suite = {
         "CORE",
         "POSIX"
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "license" : "GPLv3",
       "testProject" : True,
@@ -335,7 +335,7 @@ suite = {
         "truffle:TRUFFLE_TCK",
         "mx:JUNIT",
       ],
-      "javaCompliance" : "1.8",
+      "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
       "license" : "GPLv3",
