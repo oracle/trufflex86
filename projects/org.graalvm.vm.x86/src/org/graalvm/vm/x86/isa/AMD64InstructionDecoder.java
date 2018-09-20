@@ -283,6 +283,8 @@ import org.graalvm.vm.x86.isa.instruction.Popf.Popfw;
 import org.graalvm.vm.x86.isa.instruction.Por;
 import org.graalvm.vm.x86.isa.instruction.Prefetch;
 import org.graalvm.vm.x86.isa.instruction.Pshufd;
+import org.graalvm.vm.x86.isa.instruction.Pshufhw;
+import org.graalvm.vm.x86.isa.instruction.Pshuflw;
 import org.graalvm.vm.x86.isa.instruction.Psll.Pslld;
 import org.graalvm.vm.x86.isa.instruction.Psll.Psllq;
 import org.graalvm.vm.x86.isa.instruction.Pslldq;
@@ -3001,6 +3003,12 @@ public class AMD64InstructionDecoder {
                         if (sizeOverride) {
                             byte imm = code.read8();
                             return new Pshufd(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (isREPNZ) {
+                            byte imm = code.read8();
+                            return new Pshuflw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
+                        } else if (isREPZ) {
+                            byte imm = code.read8();
+                            return new Pshufhw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
