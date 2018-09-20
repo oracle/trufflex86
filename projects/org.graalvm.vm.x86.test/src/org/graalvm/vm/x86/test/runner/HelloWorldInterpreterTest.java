@@ -84,4 +84,17 @@ public class HelloWorldInterpreterTest {
 
         TestRunner.run("tls.nostdlib.elf", args, stdin, stdout, stderr, code);
     }
+
+    @Test
+    public void test7() throws Exception {
+        String[] args = new String[0];
+
+        String stdin = "";
+        String stdout = "";
+        String stderr = "";
+
+        int code = 89;
+
+        TestRunner.run("fib.asm.elf", args, stdin, stdout, stderr, code);
+    }
 }
