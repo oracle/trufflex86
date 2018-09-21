@@ -5,6 +5,8 @@ import static org.graalvm.vm.x86.Options.getBoolean;
 import java.io.File;
 import java.io.IOException;
 
+import org.graalvm.nativeimage.ImageInfo;
+import org.graalvm.nativeimage.RuntimeOptions;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
@@ -22,6 +24,10 @@ public class AMD64VM {
         if (args.length == 0) {
             System.out.printf("Usage: %s program [args]\n", AMD64VM.class.getSimpleName());
             System.exit(1);
+        }
+        if (ImageInfo.inImageCode()) {
+            RuntimeOptions.set("TruffleOSRCompilationThreshold", 10);
+            RuntimeOptions.set("TruffleCompilationThreshold", 10);
         }
         Source source = Source.newBuilder(Vmx86.NAME, new File(args[0])).build();
         System.exit(executeSource(source, args));
