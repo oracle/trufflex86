@@ -8,12 +8,13 @@ VMX86=$ROOT/vmx86
 
 (cd $SVM && mx native-image \
 		--tool:truffle \
+		-da \
 		-H:+JNI -H:JNIConfigurationFiles=$VMX86/jniconfig \
 		-H:MaxRuntimeCompileMethods=10000 \
 		-H:Name=$VMX86/vmx86-svm \
 		-Djava.library.path=$VMX86/build \
-		-Djvmci.class.path.append=$GRAAL/compiler/mxbuild/dists/graal.jar \
+		-Djvmci.class.path.append=$GRAAL/compiler/mxbuild/dists/jdk9/graal.jar \
 		-Dgraal.TruffleCompilationExceptionsArePrinted=true \
 		-Dgraal.ExitVMOnException=true \
-		-cp $GRAAL/sdk/mxbuild/dists/graal-sdk.jar:$TRUFFLE/mxbuild/dists/truffle-api.jar:$TRUFFLE/mxbuild/dists/truffle-nfi.jar:$VMX86/lib/core.jar:$VMX86/lib/posix.jar:$VMX86/build/vmx86.jar \
+		-cp $GRAAL/sdk/mxbuild/dists/jdk9/graal-sdk.jar:$TRUFFLE/mxbuild/dists/jdk9/truffle-api.jar:$TRUFFLE/mxbuild/dists/jdk9/truffle-nfi.jar:$VMX86/lib/core.jar:$VMX86/lib/posix.jar:$VMX86/build/vmx86.jar \
 		org.graalvm.vm.x86.AMD64VM)
