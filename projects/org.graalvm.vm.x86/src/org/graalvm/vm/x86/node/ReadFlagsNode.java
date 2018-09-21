@@ -15,6 +15,8 @@ public class ReadFlagsNode extends ReadNode {
     @Child private ReadFlagNode readSF;
     @Child private ReadFlagNode readDF;
     @Child private ReadFlagNode readOF;
+    @Child private ReadFlagNode readAC;
+    @Child private ReadFlagNode readID;
 
     private static final long RESERVED = bit(1, true) | bit(Flags.IF, true);
 
@@ -34,6 +36,8 @@ public class ReadFlagsNode extends ReadNode {
             readSF = regs.getSF().createRead();
             readDF = regs.getDF().createRead();
             readOF = regs.getOF().createRead();
+            readAC = regs.getAC().createRead();
+            readID = regs.getID().createRead();
         }
     }
 
@@ -46,7 +50,10 @@ public class ReadFlagsNode extends ReadNode {
         boolean sf = readSF.execute(frame);
         boolean df = readDF.execute(frame);
         boolean of = readOF.execute(frame);
-        return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | RESERVED;
+        boolean ac = readAC.execute(frame);
+        boolean id = readID.execute(frame);
+        return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | bit(Flags.AC, ac) | bit(Flags.ID, id) |
+                        RESERVED;
     }
 
     @Override

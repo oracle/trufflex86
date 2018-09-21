@@ -42,6 +42,8 @@ public class AMD64Context {
     private final FrameSlot sf;
     private final FrameSlot df;
     private final FrameSlot of;
+    private final FrameSlot ac;
+    private final FrameSlot id;
 
     private final FrameSlot instructionCount;
 
@@ -91,6 +93,8 @@ public class AMD64Context {
         sf = frameDescriptor.addFrameSlot("sf", FrameSlotKind.Boolean);
         df = frameDescriptor.addFrameSlot("df", FrameSlotKind.Boolean);
         of = frameDescriptor.addFrameSlot("of", FrameSlotKind.Boolean);
+        ac = frameDescriptor.addFrameSlot("ac", FrameSlotKind.Boolean);
+        id = frameDescriptor.addFrameSlot("id", FrameSlotKind.Boolean);
         instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
         traces = new TraceRegistry(language, frameDescriptor);
         state = new ArchitecturalState(this);
@@ -195,6 +199,14 @@ public class AMD64Context {
 
     public FrameSlot getOF() {
         return of;
+    }
+
+    public FrameSlot getAC() {
+        return ac;
+    }
+
+    public FrameSlot getID() {
+        return id;
     }
 
     public FrameSlot getInstructionCount() {

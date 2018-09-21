@@ -48,6 +48,8 @@ public class InitializerNode extends AMD64Node {
     @Child private WriteFlagNode writeSF;
     @Child private WriteFlagNode writeDF;
     @Child private WriteFlagNode writeOF;
+    @Child private WriteFlagNode writeAC;
+    @Child private WriteFlagNode writeID;
 
     @CompilationFinal private FrameSlot instructionCount;
 
@@ -78,6 +80,8 @@ public class InitializerNode extends AMD64Node {
         writeSF = state.getRegisters().getSF().createWrite();
         writeDF = state.getRegisters().getDF().createWrite();
         writeOF = state.getRegisters().getOF().createWrite();
+        writeAC = state.getRegisters().getAC().createWrite();
+        writeID = state.getRegisters().getID().createWrite();
 
         instructionCount = state.getInstructionCount();
     }
@@ -137,6 +141,8 @@ public class InitializerNode extends AMD64Node {
         writeSF.execute(frame, false);
         writeDF.execute(frame, false);
         writeOF.execute(frame, false);
+        writeAC.execute(frame, false);
+        writeID.execute(frame, false);
 
         frame.setLong(instructionCount, 0);
 

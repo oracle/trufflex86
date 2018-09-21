@@ -57,6 +57,8 @@ public class CpuState {
     public boolean sf;
     public boolean df;
     public boolean of;
+    public boolean ac;
+    public boolean id;
 
     public long fs;
     public long gs;
@@ -73,7 +75,8 @@ public class CpuState {
     }
 
     private long getRFL() {
-        return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | RESERVED;
+        return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | bit(Flags.AC, ac) | bit(Flags.ID, id) |
+                        RESERVED;
     }
 
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {

@@ -44,6 +44,8 @@ public class InitializeFromCpuStateNode extends AMD64Node {
     @Child private WriteFlagNode sf;
     @Child private WriteFlagNode df;
     @Child private WriteFlagNode of;
+    @Child private WriteFlagNode ac;
+    @Child private WriteFlagNode id;
     @Child private RegisterWriteNode pc;
 
     @CompilationFinal private FrameSlot instructionCount;
@@ -78,6 +80,8 @@ public class InitializeFromCpuStateNode extends AMD64Node {
             sf = regs.getSF().createWrite();
             df = regs.getDF().createWrite();
             of = regs.getOF().createWrite();
+            ac = regs.getAC().createWrite();
+            id = regs.getID().createWrite();
             zmm = new AVXRegisterWriteNode[32];
             for (int i = 0; i < zmm.length; i++) {
                 AVXRegister reg = regs.getAVXRegister(i);
@@ -117,6 +121,8 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         sf.execute(frame, state.sf);
         df.execute(frame, state.df);
         of.execute(frame, state.of);
+        ac.execute(frame, state.ac);
+        id.execute(frame, state.id);
         for (int i = 0; i < 16; i++) {
             zmm[i].executeClear(frame);
             zmm[i].executeI128(frame, state.xmm[i]);
@@ -202,6 +208,8 @@ public class InitializeFromCpuStateNode extends AMD64Node {
         sf.execute(frame, state.sf);
         df.execute(frame, state.df);
         of.execute(frame, state.of);
+        ac.execute(frame, state.ac);
+        id.execute(frame, state.id);
         CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < 16; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);

@@ -24,9 +24,11 @@ public class RegisterAccessFactory {
     private final FrameSlot sf;
     private final FrameSlot df;
     private final FrameSlot of;
+    private final FrameSlot ac;
+    private final FrameSlot id;
 
     public RegisterAccessFactory(FrameSlot[] gpr, FrameSlot[] zmm, FrameSlot[] xmm, FrameSlot[] xmmF32, FrameSlot[] xmmF64, FrameSlot[] xmmType, FrameSlot pc, FrameSlot fs, FrameSlot gs, FrameSlot cf,
-                    FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of) {
+                    FrameSlot pf, FrameSlot af, FrameSlot zf, FrameSlot sf, FrameSlot df, FrameSlot of, FrameSlot ac, FrameSlot id) {
         this.gpr = gpr;
         this.zmm = zmm;
         this.xmm = xmm;
@@ -43,6 +45,8 @@ public class RegisterAccessFactory {
         this.sf = sf;
         this.df = df;
         this.of = of;
+        this.ac = ac;
+        this.id = id;
     }
 
     public AMD64Register getRegister(Register reg) {
@@ -99,6 +103,14 @@ public class RegisterAccessFactory {
 
     public AMD64Flag getOF() {
         return new AMD64Flag(of);
+    }
+
+    public AMD64Flag getAC() {
+        return new AMD64Flag(ac);
+    }
+
+    public AMD64Flag getID() {
+        return new AMD64Flag(id);
     }
 
     public ReadFlagsNode createReadFlags() {

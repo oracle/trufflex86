@@ -41,6 +41,8 @@ public class CopyToCpuStateNode extends AMD64Node {
     @Child private ReadFlagNode readSF;
     @Child private ReadFlagNode readDF;
     @Child private ReadFlagNode readOF;
+    @Child private ReadFlagNode readAC;
+    @Child private ReadFlagNode readID;
     @Children private ReadNode[] readZMM;
 
     @CompilationFinal private FrameSlot instructionCount;
@@ -74,6 +76,8 @@ public class CopyToCpuStateNode extends AMD64Node {
             this.readSF = regs.getSF().createRead();
             this.readDF = regs.getDF().createRead();
             this.readOF = regs.getOF().createRead();
+            this.readAC = regs.getAC().createRead();
+            this.readID = regs.getID().createRead();
             this.readZMM = new ReadNode[32];
             for (int i = 0; i < readZMM.length; i++) {
                 readZMM[i] = regs.getAVXRegister(i).createRead();
@@ -112,6 +116,8 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.sf = readSF.execute(frame);
         state.df = readDF.execute(frame);
         state.of = readOF.execute(frame);
+        state.ac = readAC.execute(frame);
+        state.id = readID.execute(frame);
         for (int i = 0; i < 16; i++) {
             state.xmm[i] = readZMM[i].executeI128(frame);
         }
@@ -197,6 +203,8 @@ public class CopyToCpuStateNode extends AMD64Node {
         state.sf = readSF.execute(frame);
         state.df = readDF.execute(frame);
         state.of = readOF.execute(frame);
+        state.ac = readAC.execute(frame);
+        state.id = readID.execute(frame);
         CompilerAsserts.partialEvaluationConstant(avxMask);
         for (int i = 0; i < 16; i++) {
             CompilerAsserts.partialEvaluationConstant(avxMask[i]);

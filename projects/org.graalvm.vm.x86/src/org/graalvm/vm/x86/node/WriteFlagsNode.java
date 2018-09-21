@@ -16,6 +16,8 @@ public class WriteFlagsNode extends WriteNode {
     @Child private WriteFlagNode writeSF;
     @Child private WriteFlagNode writeDF;
     @Child private WriteFlagNode writeOF;
+    @Child private WriteFlagNode writeAC;
+    @Child private WriteFlagNode writeID;
 
     private static long bit(long shift) {
         return bit(shift, true);
@@ -37,6 +39,8 @@ public class WriteFlagsNode extends WriteNode {
             writeSF = regs.getSF().createWrite();
             writeDF = regs.getDF().createWrite();
             writeOF = regs.getOF().createWrite();
+            writeAC = regs.getAC().createWrite();
+            writeID = regs.getID().createWrite();
         }
     }
 
@@ -77,10 +81,15 @@ public class WriteFlagsNode extends WriteNode {
     @Override
     public void executeI32(VirtualFrame frame, int value) {
         executeI16(frame, (short) value);
+
+        boolean ac = BitTest.test(value, bit(Flags.AC));
+        boolean id = BitTest.test(value, bit(Flags.ID));
+        writeAC.execute(frame, ac);
+        writeID.execute(frame, id);
     }
 
     @Override
     public void executeI64(VirtualFrame frame, long value) {
-        executeI16(frame, (short) value);
+        executeI32(frame, (int) value);
     }
 }
