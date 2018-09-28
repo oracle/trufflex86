@@ -796,7 +796,12 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.FNSTCW_M: {
                 Args args = new Args(code, rex, segment, addressOverride);
-                return new Fnstcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                switch (args.modrm.getReg()) {
+                    case 7:
+                        return new Fnstcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    default:
+                        return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                }
             }
             case AMD64Opcode.IMUL_R_RM_I8: {
                 Args args = new Args(code, rex, segment, addressOverride);
