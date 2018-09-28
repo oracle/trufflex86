@@ -1,6 +1,6 @@
 suite = {
   "mxversion" : "5.180.0",
-  "name" : "core",
+  "name" : "vmx86",
   "versionConflictResolution" : "latest",
 
   "imports" : {
@@ -40,7 +40,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/core.jar"
       ],
-      "sha1" : "5912802baea7b8065693a0f13f9ff04ec3e12701",
+      "sha1" : "f2ad5c44e8544285305939d96cd840a714b6df84",
     },
 
     "POSIX" : {
@@ -48,7 +48,7 @@ suite = {
       "urls" : [
         "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
       ],
-      "sha1" : "0ae42112c26615a5c226379591e4b69f42ff5bcc",
+      "sha1" : "faa95c6932aed6153b6d4992e180c4f70d900318",
     },
 
     "XED" : {
@@ -76,7 +76,6 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
     },
 
     "org.graalvm.vm.memory.native" : {
@@ -98,7 +97,6 @@ suite = {
         "OS" : "<os>",
         "ARCH" : "<arch>"
       },
-      "license" : "GPLv3",
     },
 
     "org.graalvm.vm.x86" : {
@@ -114,7 +112,6 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
     },
 
     "org.graalvm.vm.x86.nfi" : {
@@ -126,27 +123,34 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
+    },
+
+    "org.graalvm.vm.x86.launcher" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "CORE",
+        "sdk:LAUNCHER_COMMON"
+      ],
+      "javaCompliance" : "1.8+",
+      "workingSets" : "vmx86",
     },
 
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
     "org.graalvm.vm.x86.testcases.c" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
     "org.graalvm.vm.x86.testcases.sulong.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -229,7 +233,6 @@ suite = {
         "bin/revcomp.gpp-3",
         "bin/revcomp.gpp-5"
       ],
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -246,7 +249,6 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -259,7 +261,6 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -275,7 +276,6 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -294,7 +294,6 @@ suite = {
         "LIBEMU86" : "<lib:emu86>",
         "OS" : "<os>",
       },
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -309,7 +308,6 @@ suite = {
         "LIBNFI" : "<lib:nfi>",
         "OS" : "<os>",
       },
-      "license" : "GPLv3",
     },
 
     "org.graalvm.vm.x86.nfi.test.native" : {
@@ -323,7 +321,6 @@ suite = {
         "LIBTEST" : "<lib:test>",
         "OS" : "<os>",
       },
-      "license" : "GPLv3",
       "testProject" : True,
     },
 
@@ -338,7 +335,6 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
-      "license" : "GPLv3",
       "testProject" : True,
     },
   },
@@ -374,6 +370,17 @@ suite = {
       "output" : "build",
       "dependencies" : [
         "org.graalvm.vm.x86.nfi.native"
+      ],
+    },
+
+    "VM_LAUNCHER" : {
+      "path" : "build/vmx86-launcher.jar",
+      "sourcesPath" : "build/vmx86-launcher.src.zip",
+      "subDir" : "vmx86",
+      "mainClass" : "org.graalvm.vm.x86.launcher.AMD64Launcher",
+      "dependencies" : ["org.graalvm.vm.x86.launcher"],
+      "distDependencies" : [
+        "sdk:LAUNCHER_COMMON",
       ],
     },
 
