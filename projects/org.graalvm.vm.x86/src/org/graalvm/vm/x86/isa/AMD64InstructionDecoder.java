@@ -155,6 +155,7 @@ import org.graalvm.vm.x86.isa.instruction.Imul.Imul1w;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imull;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imulq;
 import org.graalvm.vm.x86.isa.instruction.Imul.Imulw;
+import org.graalvm.vm.x86.isa.instruction.Inc.Incb;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incl;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incq;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incw;
@@ -788,6 +789,8 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.DEC_RM8: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
+                    case 0: // INC R8
+                        return new Incb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 1: // DEC R8
                         return new Decb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     default:
