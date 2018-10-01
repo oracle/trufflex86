@@ -446,6 +446,13 @@ suite = {
         "POSIX",
         "VM"
       ],
-    }
+    },
+
+    "VMX86_GRAALVM_SUPPORT" : {
+      "native" : True,
+      "layout": {
+        "native-image.properties": "file:mx.vmx86/native-image.properties",
+      },
+    },
   }
 }
