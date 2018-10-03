@@ -82,7 +82,7 @@ def getAMD64RootOptions():
 
 def getClasspathOptions():
     """gets the classpath of the vmx86 distributions"""
-    return mx.get_runtime_jvm_args(['VM', 'VM_LAUNCHER', 'CORE', 'POSIX'])
+    return mx.get_runtime_jvm_args(['VM', 'VMX86_LAUNCHER', 'CORE', 'POSIX'])
 
 def runAMD64(args=None, out=None):
     """uses vmx86 to execute a Linux/x86_64 ELF binary"""
@@ -111,7 +111,7 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
     launcher_configs=[
         mx_sdk.LanguageLauncherConfig(
             destination='bin/<exe:vmx86>',
-            jar_distributions=['vmx86:VM_LAUNCHER'],
+            jar_distributions=['vmx86:VMX86_LAUNCHER'],
             main_class='org.graalvm.vm.x86.launcher.AMD64Launcher',
             build_args=['--language:amd64']
         )

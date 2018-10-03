@@ -373,7 +373,7 @@ suite = {
       ],
     },
 
-    "VM_LAUNCHER" : {
+    "VMX86_LAUNCHER" : {
       "path" : "build/vmx86-launcher.jar",
       "sourcesPath" : "build/vmx86-launcher.src.zip",
       "subDir" : "vmx86",
@@ -451,7 +451,7 @@ suite = {
     "VMX86_GRAALVM_SUPPORT" : {
       "native" : True,
       "layout": {
-        "native-image.properties": "file:mx.vmx86/native-image.properties",
+        "native-image.properties" : "file:mx.vmx86/native-image.properties"
       },
     },
   }
