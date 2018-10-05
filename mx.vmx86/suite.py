@@ -81,6 +81,17 @@ suite = {
         "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
+      ],
+      "javaCompliance" : "1.8+",
+      "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
+      "workingSets" : "vmx86",
+    },
+
+    "org.graalvm.vm.memory.svm" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.memory",
         "substratevm:SVM"
       ],
       "javaCompliance" : "1.8+",
@@ -367,7 +378,6 @@ suite = {
         "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
-        "substratevm:SVM"
       ]
     },
 
@@ -377,6 +387,19 @@ suite = {
       "output" : "build",
       "dependencies" : [
         "org.graalvm.vm.memory.native"
+      ],
+    },
+
+    "VM_MEMORY_SVM" : {
+      "path" : "build/memory-svm.jar",
+      "subDir" : "vmx86",
+      "sourcesPath" : "build/memory-svm.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.memory.svm",
+        "substratevm:SVM"
+      ],
+      "distDependencies" : [
+        "VM"
       ],
     },
 
