@@ -105,15 +105,20 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
     third_party_license_files=[],
     truffle_jars=['vmx86:VM', 'vmx86:CORE', 'vmx86:POSIX'],
     support_distributions=[
-        'vmx86:VMX86_GRAALVM_SUPPORT',
-        'vmx86:VM_MEMORY_NATIVE',
+        'vmx86:VMX86_GRAALVM_SUPPORT'
+    ],
+    polyglot_lib_build_args=[
+        '-H:CLibraryPath=<path:VMX86_GRAALVM_SUPPORT>/clibraries/<os>-<arch>'
     ],
     launcher_configs=[
         mx_sdk.LanguageLauncherConfig(
             destination='bin/<exe:vmx86>',
             jar_distributions=['vmx86:VMX86_LAUNCHER'],
             main_class='org.graalvm.vm.x86.launcher.AMD64Launcher',
-            build_args=['--language:amd64']
+            build_args=[
+                '--language:amd64',
+                '-H:CLibraryPath=<path:VMX86_GRAALVM_SUPPORT>/clibraries/<os>-<arch>'
+            ]
         )
     ],
 ))

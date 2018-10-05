@@ -13,24 +13,11 @@
 #include "xed/xed-interface.h"
 #endif
 
+#include "libmemory.h"
+
 static const char* posix_exception_name = "com/everyware/posix/api/PosixException";
 
-static void (*jvm_sigsegv_handler)(int, siginfo_t *, void *);
-
-static unsigned long low;
-static unsigned long high;
-
-static unsigned long error;
-
-static const char digits[36] = "0123456789ABCDEF";
-
-#ifdef __x86_64__
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
-	xed_tables_init();
-	return JNI_VERSION_1_2;
-}
-#elif defined(__aarch64__)
+#if defined(__x86_64__) || defined(__aarch64__)
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
 	return JNI_VERSION_1_2;
@@ -40,111 +27,6 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
 	/* not supported on this platform */
 	return -1;
-}
-#endif
-
-#if defined(DEBUG) && defined(__x86_64__)
-#define __SYSCALL_3(result, id, a1, a2, a3)                                    \
-	__asm__ volatile("syscall" : "=a"(result)                              \
-				   : "a"(id), "D"(a1), "S"(a2), "d"(a3)        \
-				   : "memory", "rcx", "r11");
-
-static void write0(int fd, const void* data, long len)
-{
-	long result;
-	__SYSCALL_3(result, 1, (long) fd, (long) data, (long) len);
-}
-
-static void print_str(const char* s)
-{
-	int len = 0;
-	char* p;
-	for(p = (char*) s; *p; p++);
-	len = p - s;
-	write0(1, s, len);
-}
-
-static void print_i8(const char value)
-{
-	char buf[2];
-	buf[0] = digits[(value >> 4) & 0x0F];
-	buf[1] = digits[value & 0x0F];
-	write0(1, buf, 2);
-}
-
-static void print_i64(const long value)
-{
-	int i;
-	char buf[16];
-	for(i = 0; i < 16; i++) {
-		buf[i] = digits[(value >> 60 - (4 * i)) & 0x0F];
-	}
-	write0(1, buf, 16);
-}
-#endif
-
-#ifdef __x86_64__
-static int get_insn_length(unsigned char* pc)
-{
-	xed_decoded_inst_t xedd;
-	xed_state_t dstate;
-
-	dstate.mmode = XED_MACHINE_MODE_LONG_64;
-
-	xed_decoded_inst_zero_set_mode(&xedd, &dstate);
-	xed_ild_decode(&xedd, pc, XED_MAX_INSTRUCTION_BYTES);
-	return xed_decoded_inst_get_length(&xedd);
-}
-
-static void sigsegv_handler(int sig, siginfo_t* info, void* context)
-{
-	ucontext_t* ctx = (ucontext_t*) context;
-	unsigned long ptr = (unsigned long) info->si_addr;
-	if(ptr >= low && ptr <= high) {
-		int i;
-		error = ptr;
-		unsigned char* pc = (unsigned char*) ctx->uc_mcontext.gregs[REG_RIP];
-		int insn_len = get_insn_length(pc);
-#ifdef DEBUG
-		print_str("segfault at 0x");
-		print_i64(ptr);
-		print_str("; within range; insn length: 0x");
-		print_i8(insn_len);
-		print_str("\ninsn:");
-		for(i = 0; i < insn_len; i++) {
-			print_str(" ");
-			print_i8(pc[i]);
-		}
-		print_str("\n");
-#endif
-
-		uintptr_t rip = ctx->uc_mcontext.gregs[REG_RIP];
-		rip += insn_len;
-		ctx->uc_mcontext.gregs[REG_RIP] = rip;
-	} else {
-		jvm_sigsegv_handler(sig, info, context);
-	}
-}
-#elif defined(__aarch64__)
-static void sigsegv_handler(int sig, siginfo_t* info, void* context)
-{
-	ucontext_t* ctx = (ucontext_t*) context;
-	unsigned long ptr = (unsigned long) info->si_addr;
-	if(ptr >= low && ptr <= high) {
-		int i;
-		error = ptr;
-		uintptr_t pc = ctx->uc_mcontext.pc;
-		pc += 4;
-		ctx->uc_mcontext.pc = pc;
-	} else {
-		jvm_sigsegv_handler(sig, info, context);
-	}
-}
-#else
-static void sigsegv_handler(int sig, siginfo_t* info, void* context)
-{
-	printf("SIGSEGV handler not supported on this platform\n");
-	exit(1);
 }
 #endif
 
@@ -159,28 +41,18 @@ static void throw_posix_exception(JNIEnv* env, int err)
 JNIEXPORT jlong JNICALL Java_org_graalvm_vm_memory_hardware_MMU_setup
   (JNIEnv* env, jclass self, jlong lo, jlong hi)
 {
-	struct sigaction sa;
-
-	low = lo;
-	high = hi;
-
-	if(sigaction(SIGSEGV, NULL, &sa) == -1) {
-		throw_posix_exception(env, errno);
+	int err = 0;
+	long result = MEM_setup_segv_handler(lo, hi, &err);
+	if(result == -1) {
+		if(err == 0) {
+			return 0;
+		} else {
+			throw_posix_exception(env, errno);
+			return 0;
+		}
+	} else {
+		return result;
 	}
-
-	if(!(sa.sa_flags & SA_SIGINFO)) {
-		return 0;
-	}
-
-	jvm_sigsegv_handler = sa.sa_sigaction;
-	sa.sa_sigaction = sigsegv_handler;
-
-	if(sigaction(SIGSEGV, &sa, NULL) == -1) {
-		throw_posix_exception(env, errno);
-	}
-
-	error = 0;
-	return (jlong) &error;
 }
 
 JNIEXPORT jlong JNICALL Java_org_graalvm_vm_memory_hardware_MMU_mmap

@@ -26,8 +26,12 @@ public class MMU {
             throw new IllegalStateException("already initialized");
         }
         try {
-            System.loadLibrary("memory");
+            loadLibrary();
             ptr = setup(lo, hi);
+            if (ptr == 0) {
+                log.log(Level.INFO, "cannot setup VM handler");
+                return false;
+            }
             initialized = true;
             try {
                 mmap(lo, hi - lo, false, false, false, true, true, false, -1, 0);
@@ -54,6 +58,10 @@ public class MMU {
             unsafe.putLong(ptr, 0);
         }
         return val;
+    }
+
+    private static void loadLibrary() throws UnsatisfiedLinkError {
+        System.loadLibrary("memory");
     }
 
     private static native long setup(long lo, long hi) throws PosixException;

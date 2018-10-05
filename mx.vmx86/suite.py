@@ -8,7 +8,16 @@ suite = {
       {
         "name" : "truffle",
         "subdir" : True,
-        "version" : "1e0194b98ecaf02f30de217b1ed085dee7c9e27f",
+        "version" : "84dcb4e9ad49ae749c88ee612ba5dc95ab171bd8",
+        "urls" : [
+          {"url" : "https://github.com/oracle/graal", "kind" : "git"},
+          {"url" : "https://curio.ssw.jku.at/nexus/content/repositories/snapshots", "kind" : "binary"},
+        ]
+      },
+      {
+        "name" : "substratevm",
+        "subdir" : True,
+        "version" : "84dcb4e9ad49ae749c88ee612ba5dc95ab171bd8",
         "urls" : [
           {"url" : "https://github.com/oracle/graal", "kind" : "git"},
           {"url" : "https://curio.ssw.jku.at/nexus/content/repositories/snapshots", "kind" : "binary"},
@@ -71,7 +80,8 @@ suite = {
         "CORE",
         "POSIX",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI"
+        "truffle:TRUFFLE_NFI",
+        "substratevm:SVM"
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
@@ -84,6 +94,7 @@ suite = {
       "vpath" : True,
       "results" : [
         "bin/<lib:memory>",
+        "bin/libmemory.a"
       ],
       "buildDependencies" : [
         "org.graalvm.vm.memory",
@@ -347,11 +358,16 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86",
       ],
+      "exclude" : [
+        "CORE",
+        "POSIX",
+      ],
       "distDependencies" : [
         "CORE",
         "POSIX",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI"
+        "truffle:TRUFFLE_NFI",
+        "substratevm:SVM"
       ]
     },
 
@@ -450,8 +466,12 @@ suite = {
 
     "VMX86_GRAALVM_SUPPORT" : {
       "native" : True,
+      "platformDependent" : True,
+      "description" : "vmx86 support distribution for the GraalVM",
       "layout": {
-        "native-image.properties" : "file:mx.vmx86/native-image.properties"
+        "native-image.properties" : "file:mx.vmx86/native-image.properties",
+        "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>"],
+        "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a"],
       },
     },
   }
