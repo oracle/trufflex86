@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.node.AMD64RootNode;
 
 import com.everyware.posix.api.CString;
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -31,6 +32,11 @@ public class AMD64LibraryNode extends AMD64RootNode {
         root = new InterpreterRootNode(state);
     }
 
+    @TruffleBoundary
+    private static PosixPointer strcpy(PosixPointer dst, String src) {
+        return CString.strcpy(dst, src);
+    }
+
     @Override
     public Object execute(VirtualFrame frame) {
         InteropFunctionPointers ptrs = interpreter.execute(frame);
@@ -42,7 +48,7 @@ public class AMD64LibraryNode extends AMD64RootNode {
         long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
         MemoryPage scratch = mem.allocate(len);
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, scratch.base);
-        CString.strcpy(ptr, libname);
+        strcpy(ptr, libname);
         ctx.setScratchMemory(scratch.base);
         long interoplibname = scratch.base;
         long handle = root.executeInterop(frame, ctx.getSigaltstack(), ctx.getReturnAddress(), ptrs.loadLibrary, interoplibname, 0, 0, 0, 0, 0);

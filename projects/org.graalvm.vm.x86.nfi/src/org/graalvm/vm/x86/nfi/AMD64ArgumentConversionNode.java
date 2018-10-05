@@ -10,6 +10,7 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 import com.everyware.posix.api.CString;
 import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
@@ -19,6 +20,11 @@ public class AMD64ArgumentConversionNode extends Node {
     @Child private AsPointerNode asPointer = AsPointerNodeGen.create();
     @Child private AsI64Node asI64 = AsI64NodeGen.create();
     @Child private AsStringNode asString = AsStringNodeGen.create(true);
+
+    @TruffleBoundary
+    private static PosixPointer strcpy(PosixPointer dst, String src) {
+        return CString.strcpy(dst, src);
+    }
 
     // TODO: use proper conversion messages and cache the type
     public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg) {
@@ -42,7 +48,7 @@ public class AMD64ArgumentConversionNode extends Node {
                         if (str == null) {
                             return new ConversionResult(0, ptr);
                         } else {
-                            PosixPointer out = CString.strcpy(ptr, str);
+                            PosixPointer out = strcpy(ptr, str);
                             return new ConversionResult(ptr.getAddress(), out);
                         }
                     }
