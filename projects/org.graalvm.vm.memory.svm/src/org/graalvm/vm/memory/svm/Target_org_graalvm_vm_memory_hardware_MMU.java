@@ -42,7 +42,7 @@ final class Target_org_graalvm_vm_memory_hardware_MMU {
         PointerBase result = Mman.mmap(WordFactory.pointer(addr), WordFactory.unsigned(len), prot, flags, fildes, off);
         if (result.equal(Mman.MAP_FAILED())) {
             int errno = Errno.errno();
-            throw new PosixException(errno);
+            throw new PosixException(ErrnoTranslator.translate(errno));
         } else {
             return result.rawValue();
         }
@@ -53,7 +53,7 @@ final class Target_org_graalvm_vm_memory_hardware_MMU {
         int result = Mman.munmap(WordFactory.pointer(addr), WordFactory.unsigned(len));
         if (result < 0) {
             int errno = Errno.errno();
-            throw new PosixException(errno);
+            throw new PosixException(ErrnoTranslator.translate(errno));
         }
         return result;
     }
@@ -64,7 +64,7 @@ final class Target_org_graalvm_vm_memory_hardware_MMU {
         int result = Mman.mprotect(WordFactory.pointer(addr), WordFactory.unsigned(len), prot);
         if (result < 0) {
             int errno = Errno.errno();
-            throw new PosixException(errno);
+            throw new PosixException(ErrnoTranslator.translate(errno));
         }
         return result;
     }

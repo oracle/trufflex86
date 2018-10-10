@@ -26,7 +26,7 @@ public class LibMemory {
             if (err.read() == 0) {
                 return 0;
             } else {
-                throw new PosixException(err.read());
+                throw new PosixException(ErrnoTranslator.translate(err.read()));
             }
         }
         return result.rawValue();
