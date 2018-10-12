@@ -31,6 +31,15 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public MemoryPage get(long addr) {
+        if (Long.compareUnsigned(addr, nmem.getVirtualHigh()) >= 0) {
+            return jmem.get(addr);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void add(MemoryPage page) {
         if (Long.compareUnsigned(page.base, nmem.getVirtualHigh()) < 0) {
             if (Long.compareUnsigned(page.end, nmem.getVirtualHigh()) > 0) {

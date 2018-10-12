@@ -42,11 +42,6 @@ public class JavaVirtualMemory extends VirtualMemory {
         setLE();
     }
 
-    public static boolean getBoolean(String name, boolean fallback) {
-        String value = System.getProperty(name, Boolean.toString(fallback));
-        return value.equalsIgnoreCase("true") || value.equals("1");
-    }
-
     @TruffleBoundary
     public Collection<MemoryPage> getPages() {
         return Collections.unmodifiableCollection(pages.values());
@@ -251,6 +246,7 @@ public class JavaVirtualMemory extends VirtualMemory {
         }
     }
 
+    @Override
     public MemoryPage get(long address) {
         long addr = addr(address);
         // TODO: fix this!

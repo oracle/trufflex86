@@ -7,7 +7,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.graalvm.vm.memory.MemoryPage;
+import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
@@ -28,6 +31,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
 import org.graalvm.vm.x86.posix.InteropException;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.elf.Symbol;
@@ -35,6 +39,7 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -52,6 +57,7 @@ public class AMD64BasicBlock extends AMD64Node {
     @Child private PrintStateNode printState;
     @Child private PrintArgumentsNode printArgs;
     @CompilationFinal private SymbolResolver symbolResolver;
+    @CompilationFinal private ContextReference<AMD64Context> ctxref;
 
     @Child private ReadNode readInstructionCount;
     @Child private WriteNode writeInstructionCount;
@@ -188,10 +194,26 @@ public class AMD64BasicBlock extends AMD64Node {
     @TruffleBoundary
     private void trace(long pc, AMD64Instruction insn) {
         if (PRINT_SYMBOL) {
+            AMD64Context ctx = ctxref.get();
+            String base = "";
             Symbol sym = symbolResolver.getSymbol(pc);
+            if (sym == null) {
+                PosixEnvironment posix = ctx.getPosixEnvironment();
+                sym = posix.getSymbol(pc);
+                long b = posix.getBase(pc);
+                if (b != -1) {
+                    base = " @ 0x" + HexFormatter.tohex(pc - b, 8);
+                }
+            }
             String func = sym == null ? "" : sym.getName();
             if (PRINT_STATE) {
-                System.out.println("----------------\nIN: " + func);
+                String filename = "unknown";
+                VirtualMemory mem = ctx.getMemory();
+                MemoryPage page = mem.get(pc);
+                if (page != null && page.name != null) {
+                    filename = page.name;
+                }
+                System.out.println("----------------\nIN: " + func + " # " + filename + base);
             } else if (sym != null) {
                 System.out.println(sym.getName() + ":");
             }
@@ -205,7 +227,8 @@ public class AMD64BasicBlock extends AMD64Node {
         if (DEBUG && (!PRINT_ONCE || !visited)) {
             if (symbolResolver == null) {
                 CompilerDirectives.transferToInterpreterAndInvalidate();
-                symbolResolver = getContextReference().get().getSymbolResolver();
+                ctxref = getContextReference();
+                symbolResolver = ctxref.get().getSymbolResolver();
             }
             trace(pc, insn);
         }
@@ -401,7 +424,7 @@ public class AMD64BasicBlock extends AMD64Node {
         CompilerAsserts.neverPartOfCompilation();
         StringBuilder buf = new StringBuilder(String.format("%016x:\n", instructions[0].getPC()));
         for (AMD64Instruction insn : instructions) {
-            buf.append(insn).append('\n');
+            buf.append(insn.getDisassembly()).append('\n');
         }
         return buf.toString();
     }

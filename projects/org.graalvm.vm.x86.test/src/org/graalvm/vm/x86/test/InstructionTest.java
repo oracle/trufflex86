@@ -20,6 +20,6 @@ public class InstructionTest {
     protected void check(byte[] code, String asm, Class<? extends AMD64Instruction> clazz) {
         AMD64Instruction insn = decode(code);
         assertTrue(clazz.isInstance(insn));
-        assertEquals(asm, insn.toString());
+        assertEquals(asm, insn.getDisassembly());
     }
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
@@ -174,8 +175,17 @@ public abstract class AMD64Instruction extends AMD64Node {
         }
     }
 
+    private String printBytes() {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < instruction.length; i++) {
+            buf.append(' ');
+            buf.append(HexFormatter.tohex(Byte.toUnsignedInt(instruction[i]), 2));
+        }
+        return buf.toString();
+    }
+
     @Override
     public String toString() {
-        return getDisassembly();
+        return getDisassembly() + " ;" + printBytes();
     }
 }

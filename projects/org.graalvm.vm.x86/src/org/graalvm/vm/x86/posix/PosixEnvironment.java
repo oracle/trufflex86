@@ -1,9 +1,15 @@
 package org.graalvm.vm.x86.posix;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
@@ -12,7 +18,9 @@ import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.Options;
+import org.graalvm.vm.x86.SymbolResolver;
 
 import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.CString;
@@ -33,17 +41,25 @@ import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
 import com.everyware.posix.api.io.Stat;
+import com.everyware.posix.api.io.Stream;
 import com.everyware.posix.api.linux.Sysinfo;
 import com.everyware.posix.api.mem.Mman;
+import com.everyware.posix.elf.Elf;
+import com.everyware.posix.elf.ProgramHeader;
+import com.everyware.posix.elf.Section;
+import com.everyware.posix.elf.Symbol;
+import com.everyware.posix.elf.SymbolTable;
 import com.everyware.posix.vfs.FileSystem;
 import com.everyware.posix.vfs.VFS;
 import com.everyware.util.BitTest;
+import com.everyware.util.io.Endianess;
 import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
 
 public class PosixEnvironment {
     private static final Logger log = Trace.create(PosixEnvironment.class);
 
+    private static final boolean DEBUG = Options.getBoolean(Options.DEBUG_EXEC);
     private static final boolean STATIC_TIME = Options.getBoolean(Options.USE_STATIC_TIME);
 
     private final VirtualMemory mem;
@@ -53,11 +69,20 @@ public class PosixEnvironment {
 
     private String execfn;
 
+    private NavigableMap<Long, Symbol> symbols;
+    private NavigableSet<Long> libraries;
+    private SymbolResolver symbolResolver;
+
     public PosixEnvironment(VirtualMemory mem, String arch) {
         this.mem = mem;
         this.arch = arch;
         posix = new Posix();
         strace = System.getProperty("posix.strace") != null;
+        if (DEBUG) {
+            symbols = new TreeMap<>();
+            symbolResolver = new SymbolResolver(symbols);
+            libraries = new TreeSet<>();
+        }
     }
 
     public void setStrace(boolean value) {
@@ -71,6 +96,74 @@ public class PosixEnvironment {
 
     public void setExecfn(String execfn) {
         this.execfn = execfn;
+    }
+
+    public Symbol getSymbol(long pc) {
+        return symbolResolver.getSymbol(pc);
+    }
+
+    public long getBase(long pc) {
+        Long result = libraries.floor(pc);
+        if (result == null) {
+            return -1;
+        } else {
+            return result;
+        }
+    }
+
+    private void loadSymbols(int fildes, long offset, long ptr, long length) {
+        log.log(Levels.INFO, "Loading symbols for file " + fildes + " (pointer: " + HexFormatter.tohex(ptr, 16) + ", file offset: " + HexFormatter.tohex(offset, 16) + "-" +
+                        HexFormatter.tohex(offset + length, 16) + ")");
+        try {
+            // check if this is an ELF file
+            byte[] magic = new byte[4];
+            Stat stat = new Stat();
+            Stream stream = posix.getStream(fildes);
+            stream.stat(stat);
+            if ((stat.st_mode & Stat.S_IFMT) == Stat.S_IFREG && stat.st_size > 4) {
+                log.log(Levels.DEBUG, "File " + fildes + " is a regular file of size " + stat.st_size);
+                int read = stream.pread(magic, 0, 4, 0);
+                if (read == 4 && Endianess.get32bitBE(magic) == Elf.MAGIC && (int) stat.st_size > 0) {
+                    log.log(Levels.DEBUG, "File " + fildes + " is an ELF file");
+                    // load elf file
+                    byte[] buf = new byte[(int) stat.st_size];
+                    stream.pread(buf, 0, buf.length, 0);
+                    Elf elf = new Elf(buf);
+                    log.log(Levels.DEBUG, "Segments: " +
+                                    elf.getProgramHeaders().stream().map(phdr -> String.format("0x%08x-0x%08x", phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz)).collect(Collectors.joining(", ")));
+                    log.log(Levels.DEBUG, "Sections: " + elf.sections.stream().map(Section::getName).collect(Collectors.joining(", ")));
+
+                    // find program header of this segment
+                    long loadBias = ptr - offset; // strange assumption
+                    for (ProgramHeader phdr : elf.getProgramHeaders()) {
+                        if (phdr.p_offset == offset) { // this is it, probably
+                            loadBias = ptr - phdr.p_vaddr;
+                            log.log(Levels.INFO, "Program header found: " + String.format("0x%08x-0x%08x", phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz));
+                            log.log(Levels.INFO, "Computed load bias is " + HexFormatter.tohex(loadBias, 16));
+                            libraries.add(loadBias);
+                            break;
+                        }
+                    }
+
+                    SymbolTable symtab = elf.getSymbolTable();
+                    if (symtab == null) {
+                        symtab = elf.getDynamicSymbolTable();
+                    }
+                    if (symtab != null) {
+                        log.log(Levels.DEBUG, "Loading symbols in range " + HexFormatter.tohex(ptr, 16) + "-" + HexFormatter.tohex(ptr + length, 16) + "...");
+                        for (Symbol sym : symtab.getSymbols()) {
+                            if (sym.getSectionIndex() != Symbol.SHN_UNDEF && sym.getValue() >= offset && sym.getValue() < offset + length) {
+                                symbols.put(sym.getValue() + loadBias, sym.offset(loadBias));
+                                log.log(Levels.INFO, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + loadBias, 16));
+                            }
+                        }
+                    }
+                }
+            }
+            symbolResolver = new SymbolResolver(symbols);
+        } catch (PosixException | IOException e) {
+            log.log(Level.WARNING, "Error while reading symbols: " + e.getMessage(), e);
+        }
     }
 
     private String cstr(long buf) {
@@ -594,12 +687,17 @@ public class PosixEnvironment {
             boolean w = BitTest.test(prot, Mman.PROT_WRITE);
             boolean x = BitTest.test(prot, Mman.PROT_EXEC);
             boolean priv = BitTest.test(flags, Mman.MAP_PRIVATE);
+            long result;
             if (BitTest.test(flags, Mman.MAP_FIXED)) {
-                return getPointer(ptr, addr, mem.roundToPageSize(length), r, w, x, offset, priv);
+                result = getPointer(ptr, addr, mem.roundToPageSize(length), r, w, x, offset, priv);
             } else {
                 assert mem.roundToPageSize(ptr.size()) == mem.roundToPageSize(length);
-                return getPointer(ptr, r, w, x, offset, priv);
+                result = getPointer(ptr, r, w, x, offset, priv);
             }
+            if (DEBUG) {
+                loadSymbols(fildes, offset, result, length);
+            }
+            return result;
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "mmap failed: " + Errno.toString(e.getErrno()));

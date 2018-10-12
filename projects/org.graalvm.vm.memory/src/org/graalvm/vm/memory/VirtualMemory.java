@@ -74,7 +74,7 @@ public abstract class VirtualMemory {
         setLE();
     }
 
-    public static boolean getBoolean(String name, boolean fallback) {
+    protected static boolean getBoolean(String name, boolean fallback) {
         String value = System.getProperty(name, Boolean.toString(fallback));
         return value.equalsIgnoreCase("true") || value.equals("1");
     }
@@ -142,6 +142,10 @@ public abstract class VirtualMemory {
         } else {
             return base;
         }
+    }
+
+    public MemoryPage get(@SuppressWarnings("unused") long addr) {
+        return null;
     }
 
     public abstract void add(MemoryPage page);

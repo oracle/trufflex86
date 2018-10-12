@@ -34,7 +34,7 @@ public class HelloWorldTest {
         while (reader.isAvailable()) {
             AMD64Instruction insn = AMD64InstructionDecoder.decode(pc, reader);
             pc += insn.getSize();
-            buf.append(insn).append('\n');
+            buf.append(insn.getDisassembly()).append('\n');
         }
         assertEquals(ref, buf.toString());
     }
