@@ -1,6 +1,8 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import static org.graalvm.vm.x86.Options.getString;
+import static org.graalvm.vm.x86.isa.CpuidBits.getI32;
+import static org.graalvm.vm.x86.isa.CpuidBits.getProcessorInfo;
 
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
@@ -12,7 +14,6 @@ import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.IntValueProfile;
@@ -24,32 +25,12 @@ public class Cpuid extends AMD64Instruction {
     // exactly 12 characters
     public static final String VENDOR_ID = getString(Options.VENDOR_ID);
 
+    public static final int PROCESSOR_INFO = getProcessorInfo(0, 6, 1, 1);
+
     @CompilationFinal(dimensions = 1) public static final int[] BRAND_I32 = getI32(BRAND, 12);
     @CompilationFinal(dimensions = 1) public static final int[] VENDOR_ID_I32 = getI32(VENDOR_ID, 3);
 
     private IntValueProfile profile;
-
-    private static int[] getI32(String s, int len) {
-        CompilerAsserts.neverPartOfCompilation();
-        int[] i32 = new int[len];
-        for (int i = 0; i < len; i++) {
-            byte b1 = getI8(s, i * 4);
-            byte b2 = getI8(s, i * 4 + 1);
-            byte b3 = getI8(s, i * 4 + 2);
-            byte b4 = getI8(s, i * 4 + 3);
-            i32[i] = Byte.toUnsignedInt(b1) | Byte.toUnsignedInt(b2) << 8 | Byte.toUnsignedInt(b3) << 16 | Byte.toUnsignedInt(b4) << 24;
-        }
-        return i32;
-    }
-
-    private static byte getI8(String s, int offset) {
-        CompilerAsserts.neverPartOfCompilation();
-        if (offset >= s.length()) {
-            return 0;
-        } else {
-            return (byte) s.charAt(offset);
-        }
-    }
 
     @Child private ReadNode readEAX;
     @Child private ReadNode readECX;
@@ -104,7 +85,7 @@ public class Cpuid extends AMD64Instruction {
                 // 13:12 - Processor Type
                 // 19:16 - Extended Model
                 // 27:20 - Extended Family
-                a = 0;
+                a = PROCESSOR_INFO;
                 b = 0;
                 c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.SSE42 | CpuidBits.POPCNT | CpuidBits.RDRND;
                 d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
