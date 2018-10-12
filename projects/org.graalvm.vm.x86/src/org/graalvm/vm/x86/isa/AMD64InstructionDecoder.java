@@ -1468,6 +1468,15 @@ public class AMD64InstructionDecoder {
                             return new Roll(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
                         }
                     }
+                    case 1: { // ROR r/m,1
+                        if (rex != null && rex.w) {
+                            return new Rorq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                        } else if (sizeOverride) {
+                            return new Rorw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                        } else {
+                            return new Rorl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
+                        }
+                    }
                     case 4: {
                         if (rex != null && rex.w) {
                             return new Shlq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), (byte) 1);
