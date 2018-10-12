@@ -66,6 +66,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_futex = 202;
     public static final int SYS_getdents64 = 217;
     public static final int SYS_clock_gettime = 228;
+    public static final int SYS_clock_getres = 229;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
@@ -260,6 +261,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getdents64((int) a1, a2, (int) a3);
             case SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
+            case SYS_clock_getres:
+                return posix.clock_getres((int) a1, a2);
             case SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));

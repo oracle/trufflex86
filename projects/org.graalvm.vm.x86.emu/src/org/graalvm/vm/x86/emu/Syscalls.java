@@ -49,6 +49,7 @@ public class Syscalls {
     public static final int SYS_futex = 202;
     public static final int SYS_getdents64 = 217;
     public static final int SYS_clock_gettime = 228;
+    public static final int SYS_clock_getres = 229;
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;

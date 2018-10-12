@@ -227,6 +227,8 @@ public class Interpreter {
                 return posix.getdents64((int) a1, a2, (int) a3);
             case Syscalls.SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
+            case Syscalls.SYS_clock_getres:
+                return posix.clock_getres((int) a1, a2);
             case Syscalls.SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));

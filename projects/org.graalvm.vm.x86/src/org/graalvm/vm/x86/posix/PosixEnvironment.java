@@ -739,6 +739,23 @@ public class PosixEnvironment {
         return 0;
     }
 
+    public int clock_getres(int clk_id, long tp) throws SyscallException {
+        try {
+            Timespec t = new Timespec();
+            int val = posix.clock_getres(clk_id, t);
+            if (tp != 0) {
+                PosixPointer ptr = posixPointer(tp);
+                t.write64(ptr);
+            }
+            return val;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "clock_getres failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int clock_gettime(int clk_id, long tp) throws SyscallException {
         try {
             Timespec t = new Timespec();
