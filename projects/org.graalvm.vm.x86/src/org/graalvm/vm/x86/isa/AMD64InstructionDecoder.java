@@ -141,6 +141,7 @@ import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
 import org.graalvm.vm.x86.isa.instruction.Endbr32;
 import org.graalvm.vm.x86.isa.instruction.Endbr64;
+import org.graalvm.vm.x86.isa.instruction.Fldcw;
 import org.graalvm.vm.x86.isa.instruction.Fnstcw;
 import org.graalvm.vm.x86.isa.instruction.Fxrstor;
 import org.graalvm.vm.x86.isa.instruction.Fxsave;
@@ -800,6 +801,8 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.FNSTCW_M: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
+                    case 5:
+                        return new Fldcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     case 7:
                         return new Fnstcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                     default:
