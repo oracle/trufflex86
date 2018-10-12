@@ -30,6 +30,9 @@ public class Cpuid extends AMD64Instruction {
     @CompilationFinal(dimensions = 1) public static final int[] BRAND_I32 = getI32(BRAND, 12);
     @CompilationFinal(dimensions = 1) public static final int[] VENDOR_ID_I32 = getI32(VENDOR_ID, 3);
 
+    public static final int BRAND_INDEX = 0;
+    public static final int CLFLUSH_LINE_SIZE = 8;
+
     private IntValueProfile profile;
 
     @Child private ReadNode readEAX;
@@ -86,9 +89,9 @@ public class Cpuid extends AMD64Instruction {
                 // 19:16 - Extended Model
                 // 27:20 - Extended Family
                 a = PROCESSOR_INFO;
-                b = 0;
+                b = BRAND_INDEX | (CLFLUSH_LINE_SIZE << 8);
                 c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.SSE42 | CpuidBits.POPCNT | CpuidBits.RDRND;
-                d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
+                d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.CLFSH | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
                 break;
             case 7:
                 // Extended Features (FIXME: assumption is ECX=0)

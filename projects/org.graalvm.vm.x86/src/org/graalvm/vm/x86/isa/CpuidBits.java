@@ -6,6 +6,7 @@ public class CpuidBits {
     // FN=1: EDX
     public static final int TSC = 1 << 4;
     public static final int CMOV = 1 << 15;
+    public static final int CLFSH = 1 << 19;
     public static final int FXSR = 1 << 24;
     public static final int SSE = 1 << 25;
     public static final int SSE2 = 1 << 26;
