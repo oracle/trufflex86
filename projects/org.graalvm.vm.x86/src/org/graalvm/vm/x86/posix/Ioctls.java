@@ -13,6 +13,8 @@ public class Ioctls {
     public static final int TIOCGWINSZ = 0x5413;
     public static final int TIOCOUTQ = 0x5411;
     public static final int TIOCSWINSZ = 0x5414;
+    public static final int FIONCLEX = 0x5450;
+    public static final int FIOCLEX = 0x5451;
 
     static {
         ioctls.put(TCGETS, com.everyware.posix.api.io.Ioctls.TCGETS);
@@ -22,6 +24,8 @@ public class Ioctls {
         ioctls.put(TIOCGWINSZ, com.everyware.posix.api.io.Ioctls.TIOCGWINSZ);
         ioctls.put(TIOCOUTQ, com.everyware.posix.api.io.Ioctls.TIOCOUTQ);
         ioctls.put(TIOCSWINSZ, com.everyware.posix.api.io.Ioctls.TIOCSWINSZ);
+        ioctls.put(FIONCLEX, com.everyware.posix.api.io.Ioctls.FIONCLEX);
+        ioctls.put(FIOCLEX, com.everyware.posix.api.io.Ioctls.FIOCLEX);
     }
 
     public static int translate(int request) {
