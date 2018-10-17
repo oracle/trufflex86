@@ -439,9 +439,18 @@ suite = {
       "subDir" : "vmx86",
       "mainClass" : "org.graalvm.vm.x86.trcview.ui.MainWindow",
       "dependencies" : ["org.graalvm.vm.x86.trcview"],
-      "distDependencies" : [
-        "VM",
+      "strip" : [
+        "trcview"
       ],
+      "distDependencies": [
+        "truffle:TRUFFLE_NFI_NATIVE",
+      ],
+      "overlaps" : [
+        "VM",
+        "sdk:GRAAL_SDK",
+        "truffle:TRUFFLE_API",
+        "truffle:TRUFFLE_NFI",
+      ]
     },
 
     "VM_TESTCASES" : {

@@ -1,0 +1,25 @@
+-repackageclasses 'org.graalvm.vm.x86' 
+-allowaccessmodification
+-optimizationpasses 3
+-overloadaggressively
+
+-adaptresourcefilenames		**.xml,**.hyp,**.pat,**.classes,**.functions,**.constants,**.commands
+-adaptresourcefilecontents	**.xml,META-INF/MANIFEST.MF
+
+-dontwarn com.oracle.truffle.object.basic.BasicLocations$LongFieldLocation
+-dontwarn com.oracle.truffle.object.basic.BasicLocations$ObjectFieldLocation
+-dontwarn com.oracle.truffle.polyglot.HostFieldDesc$MHImpl
+-dontwarn com.oracle.truffle.polyglot.HostMethodDesc$SingleMethod$MHBase
+
+-keepclasseswithmembers,allowobfuscation class * {
+	public static void main(java.lang.String);
+}
+
+-keepclassmembers class * {
+	public static void main(java.lang.String);
+}
+
+-keepclassmembers,allowoptimization enum * { 
+	public static **[] values();
+	public static ** valueOf(java.lang.String); 
+}
