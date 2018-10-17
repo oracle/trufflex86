@@ -3,6 +3,8 @@ package org.graalvm.vm.x86.trcview.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -11,11 +13,13 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
@@ -34,6 +38,7 @@ public class InstructionView extends JPanel {
 
     public static final Color CALL_FG = Color.BLUE;
     public static final Color RET_FG = Color.RED;
+    public static final Color SYSCALL_FG = Color.MAGENTA;
 
     private List<Node> instructions;
     private DefaultListModel<String> model;
@@ -70,7 +75,7 @@ public class InstructionView extends JPanel {
             buf.append("PC=0x");
             buf.append(HexFormatter.tohex(loc.getPC(), 16));
             if (loc.getSymbol() != null) {
-                buf.append(" IN: ");
+                buf.append(" ");
                 buf.append(loc.getSymbol());
             }
             if (loc.getFilename() != null) {
@@ -90,6 +95,14 @@ public class InstructionView extends JPanel {
                 if (e.getClickCount() == 2) {
                     trace();
                 }
+            }
+        });
+
+        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        insns.getInputMap().put(enter, enter);
+        insns.getActionMap().put(enter, new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                trace();
             }
         });
     }
@@ -215,7 +228,9 @@ public class InstructionView extends JPanel {
                         buf.append("]");
                     }
                 } else if (loc.getFilename() != null) {
-                    buf.append(" # [");
+                    buf.append(" # 0x");
+                    buf.append(HexFormatter.tohex(loc.getPC(), 8));
+                    buf.append(" [");
                     buf.append(loc.getFilename());
                     buf.append("]");
                 }
@@ -262,6 +277,8 @@ public class InstructionView extends JPanel {
                 StepRecord step = (StepRecord) ((RecordNode) node).getRecord();
                 if (step.getLocation().getAssembly().startsWith("ret")) {
                     c.setForeground(RET_FG);
+                } else if (step.getLocation().getAssembly().startsWith("syscall")) {
+                    c.setForeground(SYSCALL_FG);
                 }
             }
             return c;

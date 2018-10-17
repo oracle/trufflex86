@@ -92,14 +92,14 @@ public class StackView extends JPanel {
 
     private static String format(StepRecord step) {
         StringBuilder buf = new StringBuilder();
-        if (step.getLocation().getSymbol() != null) {
-            buf.append('<');
-            buf.append(step.getLocation().getSymbol());
-            buf.append("> ");
-        }
         buf.append("0x");
         buf.append(HexFormatter.tohex(step.getLocation().getPC(), 16));
-        buf.append(": ");
+        if (step.getLocation().getSymbol() != null) {
+            buf.append(" <");
+            buf.append(step.getLocation().getSymbol());
+            buf.append('>');
+        }
+        buf.append(' ');
         buf.append(step.getLocation().getAssembly().replace('\t', ' '));
         return buf.toString();
     }
@@ -114,7 +114,8 @@ public class StackView extends JPanel {
             block = block.getParent();
         }
         if (block != null && block.getHead() == null) {
-            callStack.add("<_start>");
+            StepRecord first = block.getFirstStep();
+            callStack.add("0x" + HexFormatter.tohex(first.getLocation().getPC(), 16) + " <_start>");
             callStackBlocks.add(null);
         }
         Collections.reverse(callStack);
