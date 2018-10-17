@@ -1,0 +1,25 @@
+package org.graalvm.vm.x86.node.debug.trace;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.everyware.util.io.BEInputStream;
+import com.everyware.util.io.WordInputStream;
+
+public class ExecutionTraceReader implements Closeable {
+    private WordInputStream in;
+
+    public ExecutionTraceReader(InputStream in) {
+        this.in = new BEInputStream(in);
+    }
+
+    @Override
+    public void close() throws IOException {
+        in.close();
+    }
+
+    public <T extends Record> T read() throws IOException {
+        return Record.read(in);
+    }
+}

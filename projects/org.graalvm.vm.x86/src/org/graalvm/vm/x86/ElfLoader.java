@@ -10,11 +10,13 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.BytePosixPointer;
@@ -28,6 +30,8 @@ import com.everyware.posix.elf.ProgramHeader;
 import com.everyware.posix.elf.Symbol;
 import com.everyware.posix.elf.SymbolTable;
 import com.everyware.posix.libc.CString;
+import com.everyware.util.log.Levels;
+import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 //@formatter:off
@@ -77,6 +81,11 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 */
 //@formatter:on
 public class ElfLoader {
+    private static final Logger log = Trace.create(ElfLoader.class);
+
+    private static final boolean DEBUG = Options.getBoolean(Options.DEBUG_EXEC);
+    private static final boolean DEBUG_STATIC_ENV = Options.getBoolean(Options.DEBUG_STATIC_ENV);
+
     public static final String PLATFORM = "x86_64";
     public static final int RANDOM_SIZE = 16;
     public static final int PAGE_SIZE = 4096;
@@ -194,7 +203,7 @@ public class ElfLoader {
         base = 0;
 
         if (elf.e_type == Elf.ET_DYN) {
-            load_bias = 0x4000000000L; // avoid mapping things to zero page
+            load_bias = 0x40000000L; // avoid mapping things to zero page
         } else {
             load_bias = 0;
         }
@@ -219,9 +228,21 @@ public class ElfLoader {
                 long pageEnd = memory.roundToPageSize(segmentEnd);
                 size += pageEnd - segmentEnd;
 
+                long start = memory.pageStart(offset);
+                long off = fileOffset - (offset - start);
+
+                assert start <= offset;
+                assert (offset - start) >= 0;
+
                 byte[] segment = new byte[(int) size];
                 hdr.load(segment);
-                MemoryPage p = new MemoryPage(new ByteMemory(segment, false), load_bias + hdr.getVirtualAddress(), segment.length, filename, fileOffset);
+
+                // fill start of page with zero if necessary
+                size += offset - start;
+                byte[] load = new byte[(int) size];
+                System.arraycopy(segment, 0, load, (int) (offset - start), segment.length);
+
+                MemoryPage p = new MemoryPage(new ByteMemory(load, false), start, load.length, filename, off);
                 p.r = hdr.getFlag(Elf.PF_R);
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
@@ -238,6 +259,21 @@ public class ElfLoader {
             for (Symbol sym : symtab.getSymbols()) {
                 if (sym.getSectionIndex() != Symbol.SHN_UNDEF) {
                     symbols.put(sym.getValue() + load_bias, sym.offset(load_bias));
+                    if (DEBUG) {
+                        log.log(Levels.DEBUG, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + load_bias, 16));
+                    }
+                }
+            }
+        }
+
+        symtab = elf.getDynamicSymbolTable();
+        if (symtab != null) {
+            for (Symbol sym : symtab.getSymbols()) {
+                if (sym.getSectionIndex() != Symbol.SHN_UNDEF) {
+                    symbols.put(sym.getValue() + load_bias, sym.offset(load_bias));
+                    if (DEBUG) {
+                        log.log(Levels.DEBUG, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + load_bias, 16));
+                    }
                 }
             }
         }
@@ -297,6 +333,21 @@ public class ElfLoader {
                 for (Symbol sym : symtab.getSymbols()) {
                     if (sym.getSectionIndex() != Symbol.SHN_UNDEF) {
                         symbols.put(sym.getValue() + base, sym.offset(base));
+                        if (DEBUG) {
+                            log.log(Levels.DEBUG, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + base, 16));
+                        }
+                    }
+                }
+            }
+
+            symtab = interpelf.getDynamicSymbolTable();
+            if (symtab != null) {
+                for (Symbol sym : symtab.getSymbols()) {
+                    if (sym.getSectionIndex() != Symbol.SHN_UNDEF) {
+                        symbols.put(sym.getValue() + base, sym.offset(base));
+                        if (DEBUG) {
+                            log.log(Levels.DEBUG, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + base, 16));
+                        }
                     }
                 }
             }
@@ -407,7 +458,7 @@ public class ElfLoader {
         // auxv data
         ptr = r1 + pointersSize;
         long ptrRandom = ptr;
-        Random random = new Random();
+        Random random = DEBUG_STATIC_ENV ? new Random(0) : new Random();
         for (int i = 0; i < RANDOM_SIZE / 4; i++) {
             mem.setI32(ptr, random.nextInt());
             ptr += 4;
@@ -527,7 +578,7 @@ public class ElfLoader {
         // auxv data
         ptr = r1 + pointersSize;
         long ptrRandom = ptr;
-        Random random = new Random();
+        Random random = DEBUG_STATIC_ENV ? new Random(0) : new Random();
         for (int i = 0; i < RANDOM_SIZE / 4; i++) {
             mem.setI32(ptr, random.nextInt());
             ptr += 4;

@@ -158,6 +158,16 @@ suite = {
       "workingSets" : "vmx86",
     },
 
+    "org.graalvm.vm.x86.trcview" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.x86"
+      ],
+      "javaCompliance" : "1.8+",
+      "workingSets" : "vmx86",
+    },
+
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
@@ -423,6 +433,17 @@ suite = {
       ],
     },
 
+    "VMX86_TRCVIEW" : {
+      "path" : "build/trcview.jar",
+      "sourcesPath" : "build/trcview.src.zip",
+      "subDir" : "vmx86",
+      "mainClass" : "org.graalvm.vm.x86.trcview.ui.MainWindow",
+      "dependencies" : ["org.graalvm.vm.x86.trcview"],
+      "distDependencies" : [
+        "VM",
+      ],
+    },
+
     "VM_TESTCASES" : {
       "native" : True,
       "platformDependent" : True,
@@ -454,7 +475,9 @@ suite = {
         "VM",
         "VM_TESTCASES",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI"
+        "truffle:TRUFFLE_NFI",
+        "truffle:TRUFFLE_TCK",
+        "sdk:POLYGLOT_TCK"
       ],
       "exclude" : [
         "mx:JUNIT"

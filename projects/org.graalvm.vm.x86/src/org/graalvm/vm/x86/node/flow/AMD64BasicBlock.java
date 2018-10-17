@@ -17,6 +17,7 @@ import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
+import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.IndirectException;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.ReturnException;
@@ -30,6 +31,9 @@ import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.debug.PrintArgumentsNode;
 import org.graalvm.vm.x86.node.debug.PrintStateNode;
+import org.graalvm.vm.x86.node.debug.TraceArgumentsNode;
+import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
+import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
@@ -47,6 +51,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
 
 public class AMD64BasicBlock extends AMD64Node {
     @CompilationFinal private static boolean DEBUG = getBoolean(Options.DEBUG_EXEC);
+    @CompilationFinal private static boolean DEBUG_TRACE = getBoolean(Options.DEBUG_EXEC_TRACE);
     @CompilationFinal private static boolean PRINT_SYMBOL = getBoolean(Options.DEBUG_PRINT_SYMBOLS);
     @CompilationFinal private static boolean PRINT_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
     @CompilationFinal private static boolean PRINT_ONCE = getBoolean(Options.DEBUG_PRINT_ONCE);
@@ -58,6 +63,10 @@ public class AMD64BasicBlock extends AMD64Node {
     @Child private PrintArgumentsNode printArgs;
     @CompilationFinal private SymbolResolver symbolResolver;
     @CompilationFinal private ContextReference<AMD64Context> ctxref;
+
+    @CompilationFinal ExecutionTraceWriter traceWriter;
+    @Child private CopyToCpuStateNode readCpuState;
+    @Child private TraceArgumentsNode traceArgs;
 
     @Child private ReadNode readInstructionCount;
     @Child private WriteNode writeInstructionCount;
@@ -192,6 +201,33 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     @TruffleBoundary
+    private void writeTrace(CpuState state, AMD64Instruction insn) {
+        long pc = state.rip;
+        AMD64Context ctx = ctxref.get();
+        Symbol sym = symbolResolver.getSymbol(pc);
+        long base = 0;
+
+        if (sym == null) {
+            PosixEnvironment posix = ctx.getPosixEnvironment();
+            sym = posix.getSymbol(pc);
+            long b = posix.getBase(pc);
+            if (b != -1) {
+                base = pc - b;
+            }
+        }
+
+        String func = sym == null ? null : sym.getName();
+        String filename = null;
+        VirtualMemory mem = ctx.getMemory();
+        MemoryPage page = mem.get(pc);
+        if (page != null && page.name != null) {
+            filename = page.name;
+        }
+
+        traceWriter.step(state, filename, func, base, insn);
+    }
+
+    @TruffleBoundary
     private void trace(long pc, AMD64Instruction insn) {
         if (PRINT_SYMBOL) {
             AMD64Context ctx = ctxref.get();
@@ -224,21 +260,33 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     private void debug(VirtualFrame frame, long pc, AMD64Instruction insn) {
-        if (DEBUG && (!PRINT_ONCE || !visited)) {
-            if (symbolResolver == null) {
+        if (DEBUG && DEBUG_TRACE) {
+            if (readCpuState == null) {
                 CompilerDirectives.transferToInterpreterAndInvalidate();
                 ctxref = getContextReference();
-                symbolResolver = ctxref.get().getSymbolResolver();
+                AMD64Context ctx = ctxref.get();
+                readCpuState = insert(new CopyToCpuStateNode());
+                symbolResolver = ctx.getSymbolResolver();
+                traceWriter = ctx.getTraceWriter();
             }
-            trace(pc, insn);
-        }
-        if (DEBUG && (!PRINT_ONCE || !visited) && PRINT_STATE) {
-            if (printState == null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
-                printState = insert(new PrintStateNode());
+            writeTrace(readCpuState.execute(frame, pc), insn);
+        } else {
+            if (DEBUG && (!PRINT_ONCE || !visited)) {
+                if (symbolResolver == null) {
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
+                    ctxref = getContextReference();
+                    symbolResolver = ctxref.get().getSymbolResolver();
+                }
+                trace(pc, insn);
             }
-            if (!PRINT_ONCE || !visited) {
-                printState.execute(frame, pc);
+            if (DEBUG && (!PRINT_ONCE || !visited) && PRINT_STATE) {
+                if (printState == null) {
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
+                    printState = insert(new PrintStateNode());
+                }
+                if (!PRINT_ONCE || !visited) {
+                    printState.execute(frame, pc);
+                }
             }
         }
     }
@@ -295,11 +343,19 @@ public class AMD64BasicBlock extends AMD64Node {
                     n++;
                 }
                 if (DEBUG && PRINT_ARGS && insn instanceof Call) {
-                    if (printArgs == null) {
-                        CompilerDirectives.transferToInterpreterAndInvalidate();
-                        printArgs = insert(new PrintArgumentsNode());
+                    if (DEBUG_TRACE) {
+                        if (traceArgs == null) {
+                            CompilerDirectives.transferToInterpreterAndInvalidate();
+                            traceArgs = insert(new TraceArgumentsNode());
+                        }
+                        traceArgs.execute(frame, pc);
+                    } else {
+                        if (printArgs == null) {
+                            CompilerDirectives.transferToInterpreterAndInvalidate();
+                            printArgs = insert(new PrintArgumentsNode());
+                        }
+                        printArgs.execute(frame, pc);
                     }
-                    printArgs.execute(frame, pc);
                 }
             }
         } catch (ProcessExitException | ReturnException | InteropException e) {

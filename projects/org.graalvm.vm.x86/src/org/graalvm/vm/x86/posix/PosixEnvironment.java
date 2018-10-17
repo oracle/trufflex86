@@ -138,8 +138,8 @@ public class PosixEnvironment {
                     for (ProgramHeader phdr : elf.getProgramHeaders()) {
                         if (phdr.p_offset == offset) { // this is it, probably
                             loadBias = ptr - phdr.p_vaddr;
-                            log.log(Levels.INFO, "Program header found: " + String.format("0x%08x-0x%08x", phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz));
-                            log.log(Levels.INFO, "Computed load bias is " + HexFormatter.tohex(loadBias, 16));
+                            log.log(Levels.DEBUG, "Program header found: " + String.format("0x%08x-0x%08x", phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz));
+                            log.log(Levels.DEBUG, "Computed load bias is " + HexFormatter.tohex(loadBias, 16));
                             libraries.add(loadBias);
                             break;
                         }
@@ -154,7 +154,7 @@ public class PosixEnvironment {
                         for (Symbol sym : symtab.getSymbols()) {
                             if (sym.getSectionIndex() != Symbol.SHN_UNDEF && sym.getValue() >= offset && sym.getValue() < offset + length) {
                                 symbols.put(sym.getValue() + loadBias, sym.offset(loadBias));
-                                log.log(Levels.INFO, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + loadBias, 16));
+                                log.log(Levels.DEBUG, "Adding symbol " + sym + " for address 0x" + HexFormatter.tohex(sym.getValue() + loadBias, 16));
                             }
                         }
                     }

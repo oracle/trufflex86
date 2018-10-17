@@ -1,5 +1,7 @@
 package org.graalvm.vm.memory.util;
 
+import org.graalvm.vm.memory.vector.Vector128;
+
 public class Stringify {
     public static boolean isPrintable(byte value) {
         return value >= 0x20 && value <= 0x7e; // ascii
@@ -81,5 +83,15 @@ public class Stringify {
             buf.append(i8(v));
         }
         return buf.toString();
+    }
+
+    public static String i128(Vector128 value) {
+        String s1 = i64(value.getI64(0));
+        String s2 = i64(value.getI64(0));
+        if (s1 != null && s2 != null) {
+            return s1 + s2;
+        } else {
+            return null;
+        }
     }
 }

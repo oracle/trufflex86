@@ -22,6 +22,7 @@ public abstract class VirtualMemory {
 
     protected static final boolean DEBUG = getBoolean("mem.debug", false);
     protected static final boolean DEBUG_1BYTE = getBoolean("mem.debug.1byte", true);
+    protected static final boolean VIRTUAL = getBoolean("mem.virtual", false);
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
@@ -47,7 +48,7 @@ public abstract class VirtualMemory {
     protected long mapSequence;
 
     public static final VirtualMemory create() {
-        if (DEBUG) {
+        if (DEBUG || VIRTUAL) {
             return new JavaVirtualMemory();
         } else if (NativeVirtualMemory.isSupported()) {
             return new HybridVirtualMemory();
@@ -218,6 +219,17 @@ public abstract class VirtualMemory {
     public abstract void setI512(long address, Vector512 val);
 
     public abstract void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException;
+
+    public byte peek(long p) {
+        // disable memory access log during peek
+        boolean wasDebug = debugMemory;
+        debugMemory = false;
+        try {
+            return getI8(p);
+        } finally {
+            debugMemory = wasDebug;
+        }
+    }
 
     public void dump(long p, int size) {
         CompilerAsserts.neverPartOfCompilation();

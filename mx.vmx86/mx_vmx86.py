@@ -84,10 +84,19 @@ def getClasspathOptions():
     """gets the classpath of the vmx86 distributions"""
     return mx.get_runtime_jvm_args(['VM', 'VMX86_LAUNCHER', 'CORE', 'POSIX'])
 
+def getTrcviewClasspathOptions():
+    """gets the classpath of the trcview distributions"""
+    return mx.get_runtime_jvm_args(['VM', 'VMX86_TRCVIEW', 'CORE', 'POSIX'])
+
 def runAMD64(args=None, out=None):
     """uses vmx86 to execute a Linux/x86_64 ELF binary"""
     vmArgs, vmx86Args = truffle_extract_VM_args(args)
     return mx.run_java(getCommonOptions(False) + vmArgs + getClasspathOptions() + ['org.graalvm.vm.x86.launcher.AMD64Launcher'] + vmx86Args, out=out)
+
+def runTrcview(args=None, out=None):
+    """GUI tool to inspect execution traces"""
+    vmArgs, trcviewArgs = truffle_extract_VM_args(args)
+    return mx.run_java(getCommonOptions(False) + vmArgs + getTrcviewClasspathOptions() + ['org.graalvm.vm.x86.trcview.ui.MainWindow'] + trcviewArgs, out=out)
 
 def _unittest_config_participant(config):
     (vmArgs, mainClass, mainClassArgs) = config
@@ -124,5 +133,6 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
 ))
 
 mx.update_commands(_suite, {
-    'vmx86' : [runAMD64, '']
+    'vmx86' : [runAMD64, ''],
+    'trcview' : [runTrcview, '']
 })

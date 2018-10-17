@@ -74,7 +74,7 @@ public class CpuState {
         return value ? (1L << shift) : 0;
     }
 
-    private long getRFL() {
+    public long getRFL() {
         return bit(Flags.CF, cf) | bit(Flags.PF, pf) | bit(Flags.AF, af) | bit(Flags.ZF, zf) | bit(Flags.SF, sf) | bit(Flags.DF, df) | bit(Flags.OF, of) | bit(Flags.AC, ac) | bit(Flags.ID, id) |
                         RESERVED;
     }
