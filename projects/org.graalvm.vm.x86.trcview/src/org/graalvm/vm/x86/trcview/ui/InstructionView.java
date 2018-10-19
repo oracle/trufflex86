@@ -39,6 +39,8 @@ public class InstructionView extends JPanel {
     public static final Color CALL_FG = Color.BLUE;
     public static final Color RET_FG = Color.RED;
     public static final Color SYSCALL_FG = Color.MAGENTA;
+    public static final Color JMP_FG = Color.LIGHT_GRAY;
+    public static final Color JCC_FG = Color.ORANGE;
 
     private List<Node> instructions;
     private DefaultListModel<String> model;
@@ -164,7 +166,7 @@ public class InstructionView extends JPanel {
             fireCallEvent((BlockNode) node);
         } else {
             StepRecord step = (StepRecord) ((RecordNode) node).getRecord();
-            if (step.getLocation().getAssembly().startsWith("ret")) {
+            if (step.getLocation().getMnemonic().equals("ret")) {
                 fireRetEvent((RecordNode) node);
             }
         }
@@ -196,7 +198,7 @@ public class InstructionView extends JPanel {
         buf.append("0x");
         buf.append(HexFormatter.tohex(step.getLocation().getPC(), 16));
         buf.append(": ");
-        buf.append(tab(step.getLocation().getAssembly(), 8));
+        buf.append(tab(step.getLocation().getDisassembly(), 8));
         return buf.toString();
     }
 
@@ -275,10 +277,51 @@ public class InstructionView extends JPanel {
                 c.setForeground(CALL_FG);
             } else if (node instanceof RecordNode) {
                 StepRecord step = (StepRecord) ((RecordNode) node).getRecord();
-                if (step.getLocation().getAssembly().startsWith("ret")) {
-                    c.setForeground(RET_FG);
-                } else if (step.getLocation().getAssembly().startsWith("syscall")) {
-                    c.setForeground(SYSCALL_FG);
+                String mnemonic = step.getLocation().getMnemonic();
+                switch (mnemonic) {
+                    case "ret":
+                        c.setForeground(RET_FG);
+                        break;
+                    case "syscall":
+                        c.setForeground(SYSCALL_FG);
+                        break;
+                    case "jmp":
+                        c.setForeground(JMP_FG);
+                        break;
+                    case "ja":
+                    case "jae":
+                    case "jb":
+                    case "jbe":
+                    case "jc":
+                    case "jcxz":
+                    case "jecxz":
+                    case "je":
+                    case "jg":
+                    case "jge":
+                    case "jl":
+                    case "jle":
+                    case "jna":
+                    case "jnae":
+                    case "jnb":
+                    case "jnbe":
+                    case "jnc":
+                    case "jne":
+                    case "jng":
+                    case "jnge":
+                    case "jnl":
+                    case "jnle":
+                    case "jno":
+                    case "jnp":
+                    case "jns":
+                    case "jnz":
+                    case "jo":
+                    case "jp":
+                    case "jpe":
+                    case "jpo":
+                    case "js":
+                    case "jz":
+                        c.setForeground(JCC_FG);
+                        break;
                 }
             }
             return c;

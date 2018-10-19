@@ -58,11 +58,8 @@ public class CallArgsRecord extends Record {
 
     @Override
     protected int size() {
-        int size = 8 + 2 + 1;
-        if (symbol != null) {
-            byte[] bytes = symbol.getBytes();
-            size += bytes.length;
-        }
+        int size = 8 + 1;
+        size += sizeString(symbol);
         for (int i = 0; i < args.length; i++) {
             size += 8 + 2 + memory[i].length;
         }
@@ -72,13 +69,7 @@ public class CallArgsRecord extends Record {
     @Override
     protected void readRecord(WordInputStream in) throws IOException {
         pc = in.read64bit();
-        byte[] bytes = new byte[in.read16bit()];
-        if (bytes.length == 0) {
-            symbol = null;
-        } else {
-            in.read(bytes);
-            symbol = new String(bytes);
-        }
+        symbol = readString(in);
         args = new long[in.read8bit()];
         memory = new byte[args.length][];
         for (int i = 0; i < args.length; i++) {
@@ -93,13 +84,7 @@ public class CallArgsRecord extends Record {
     @Override
     protected void writeRecord(WordOutputStream out) throws IOException {
         out.write64bit(pc);
-        if (symbol == null) {
-            out.write16bit((short) 0);
-        } else {
-            byte[] bytes = symbol.getBytes();
-            out.write16bit((short) bytes.length);
-            out.write(bytes);
-        }
+        writeString(out, symbol);
         out.write8bit((byte) args.length);
         for (int i = 0; i < args.length; i++) {
             out.write64bit(args[i]);

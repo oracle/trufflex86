@@ -89,7 +89,15 @@ public abstract class Record {
 
     protected abstract void writeRecord(WordOutputStream out) throws IOException;
 
-    protected final static String readString(WordInputStream in) throws IOException {
+    protected static final int sizeString(String s) {
+        if (s == null) {
+            return 2;
+        } else {
+            return 2 + s.getBytes().length;
+        }
+    }
+
+    protected static final String readString(WordInputStream in) throws IOException {
         int length = in.read16bit();
         if (length == 0) {
             return null;
@@ -100,13 +108,84 @@ public abstract class Record {
         }
     }
 
-    protected final static void writeString(WordOutputStream out, String s) throws IOException {
+    protected static final void writeString(WordOutputStream out, String s) throws IOException {
         if (s == null) {
             out.write16bit((short) 0);
         } else {
             byte[] bytes = s.getBytes();
             out.write16bit((short) bytes.length);
             out.write(bytes);
+        }
+    }
+
+    protected static final int sizeStringArray(String[] s) {
+        if (s == null) {
+            return 2;
+        } else {
+            int size = 2;
+            for (String part : s) {
+                size += sizeString(part);
+            }
+            return size;
+        }
+    }
+
+    protected static final String[] readStringArray(WordInputStream in) throws IOException {
+        int length = in.read16bit();
+        if (length == 0) {
+            return null;
+        } else {
+            String[] result = new String[length];
+            for (int i = 0; i < result.length; i++) {
+                int slen = in.read16bit();
+                if (slen == 0) {
+                    result[i] = null;
+                } else {
+                    byte[] bytes = new byte[slen];
+                    in.read(bytes);
+                    result[i] = new String(bytes);
+                }
+            }
+            return result;
+        }
+    }
+
+    protected static final void writeStringArray(WordOutputStream out, String[] data) throws IOException {
+        if (data == null) {
+            out.write16bit((short) 0);
+        } else {
+            out.write16bit((short) data.length);
+            for (int i = 0; i < data.length; i++) {
+                writeString(out, data[i]);
+            }
+        }
+    }
+
+    protected static final int sizeArray(byte[] data) {
+        if (data == null) {
+            return 4;
+        } else {
+            return data.length + 4;
+        }
+    }
+
+    protected static final byte[] readArray(WordInputStream in) throws IOException {
+        int length = in.read32bit();
+        if (length == 0) {
+            return null;
+        } else {
+            byte[] data = new byte[length];
+            in.read(data);
+            return data;
+        }
+    }
+
+    protected static final void writeArray(WordOutputStream out, byte[] data) throws IOException {
+        if (data == null) {
+            out.write32bit(0);
+        } else {
+            out.write32bit(data.length);
+            out.write(data);
         }
     }
 }

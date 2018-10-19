@@ -100,7 +100,7 @@ public class StackView extends JPanel {
             buf.append('>');
         }
         buf.append(' ');
-        buf.append(step.getLocation().getAssembly().replace('\t', ' '));
+        buf.append(step.getLocation().getDisassembly().replace('\t', ' '));
         return buf.toString();
     }
 

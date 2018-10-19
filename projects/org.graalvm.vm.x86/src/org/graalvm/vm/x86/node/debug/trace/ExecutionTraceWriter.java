@@ -37,7 +37,7 @@ public class ExecutionTraceWriter implements Closeable {
 
     public synchronized void step(CpuState state, String filename, String symbol, long offset, AMD64Instruction insn) {
         CpuStateRecord stateRecord = new CpuStateRecord(state);
-        LocationRecord locationRecord = new LocationRecord(filename, symbol, offset, state.rip, insn.toString());
+        LocationRecord locationRecord = new LocationRecord(filename, symbol, offset, state.rip, insn.getBytes(), insn.getDisassemblyComponents());
         StepRecord record = new StepRecord(locationRecord, stateRecord);
         try {
             record.write(out);

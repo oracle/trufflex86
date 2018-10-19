@@ -1,6 +1,8 @@
 package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.graalvm.vm.memory.util.HexFormatter;
 
@@ -12,7 +14,8 @@ public class LocationRecord extends Record {
 
     private String filename;
     private String symbol;
-    private String assembly;
+    private byte[] machinecode;
+    private String[] assembly;
     private long offset;
     private long pc;
 
@@ -20,10 +23,11 @@ public class LocationRecord extends Record {
         super(MAGIC);
     }
 
-    public LocationRecord(String filename, String symbol, long offset, long pc, String assembly) {
+    public LocationRecord(String filename, String symbol, long offset, long pc, byte[] machinecode, String[] assembly) {
         this();
         this.filename = filename;
         this.symbol = symbol;
+        this.machinecode = machinecode;
         this.assembly = assembly;
         this.offset = offset;
         this.pc = pc;
@@ -45,12 +49,28 @@ public class LocationRecord extends Record {
         this.symbol = symbol;
     }
 
-    public String getAssembly() {
+    public byte[] getMachinecode() {
+        return machinecode;
+    }
+
+    public void setMachinecode(byte[] machinecode) {
+        this.machinecode = machinecode;
+    }
+
+    public String[] getAssembly() {
         return assembly;
     }
 
-    public void setAssembly(String assembly) {
+    public void setAssembly(String[] assembly) {
         this.assembly = assembly;
+    }
+
+    public String getMnemonic() {
+        if (assembly == null || assembly.length < 1) {
+            return null;
+        } else {
+            return assembly[0];
+        }
     }
 
     public long getOffset() {
@@ -71,16 +91,11 @@ public class LocationRecord extends Record {
 
     @Override
     protected int size() {
-        int size = 3 * 2 + 2 * 8;
-        if (filename != null) {
-            size += filename.getBytes().length;
-        }
-        if (symbol != null) {
-            size += symbol.getBytes().length;
-        }
-        if (assembly != null) {
-            size += assembly.getBytes().length;
-        }
+        int size = 2 * 8;
+        size += sizeString(filename);
+        size += sizeString(symbol);
+        size += sizeStringArray(assembly);
+        size += sizeArray(machinecode);
         return size;
     }
 
@@ -88,7 +103,8 @@ public class LocationRecord extends Record {
     protected void readRecord(WordInputStream in) throws IOException {
         filename = readString(in);
         symbol = readString(in);
-        assembly = readString(in);
+        assembly = readStringArray(in);
+        machinecode = readArray(in);
 
         offset = in.read64bit();
         pc = in.read64bit();
@@ -98,7 +114,8 @@ public class LocationRecord extends Record {
     protected void writeRecord(WordOutputStream out) throws IOException {
         writeString(out, filename);
         writeString(out, symbol);
-        writeString(out, assembly);
+        writeStringArray(out, assembly);
+        writeArray(out, machinecode);
         out.write64bit(offset);
         out.write64bit(pc);
     }
@@ -109,6 +126,26 @@ public class LocationRecord extends Record {
         } else {
             return s;
         }
+    }
+
+    public String getDisassembly() {
+        if (assembly == null) {
+            return null;
+        }
+        if (assembly.length == 1) {
+            return assembly[0];
+        } else {
+            return assembly[0] + "\t" + Stream.of(assembly).skip(1).collect(Collectors.joining(","));
+        }
+    }
+
+    public String getPrintableBytes() {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < machinecode.length; i++) {
+            buf.append(' ');
+            buf.append(HexFormatter.tohex(Byte.toUnsignedInt(machinecode[i]), 2));
+        }
+        return buf.toString().substring(1);
     }
 
     @Override
@@ -125,7 +162,11 @@ public class LocationRecord extends Record {
         buf.append("\n0x");
         buf.append(HexFormatter.tohex(pc, 8));
         buf.append(":\t");
-        buf.append(str(assembly));
+        if (assembly != null) {
+            buf.append(getDisassembly());
+            buf.append(" ; ");
+            buf.append(getPrintableBytes());
+        }
         return buf.toString();
     }
 }
