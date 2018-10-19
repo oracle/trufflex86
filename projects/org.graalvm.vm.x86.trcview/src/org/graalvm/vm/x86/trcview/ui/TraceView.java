@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
+import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
@@ -34,8 +35,10 @@ public class TraceView extends JPanel {
 
         insns.addChangeListener(() -> {
             StepRecord step = insns.getSelectedInstruction();
+            CallArgsRecord args = insns.getSelectedInstructionCallArguments();
             if (step != null) {
                 state.setState(step);
+                state.setCallArguments(args);
             }
         });
 

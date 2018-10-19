@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
@@ -40,7 +41,7 @@ public class InstructionView extends JPanel {
     public static final Color RET_FG = Color.RED;
     public static final Color SYSCALL_FG = Color.MAGENTA;
     public static final Color JMP_FG = Color.LIGHT_GRAY;
-    public static final Color JCC_FG = Color.ORANGE;
+    public static final Color JCC_FG = new Color(0xFF, 0x80, 0x00);
 
     private List<Node> instructions;
     private DefaultListModel<String> model;
@@ -265,6 +266,20 @@ public class InstructionView extends JPanel {
             return ((BlockNode) node).getHead();
         } else {
             return (StepRecord) ((RecordNode) node).getRecord();
+        }
+    }
+
+    public CallArgsRecord getSelectedInstructionCallArguments() {
+        int selected = insns.getSelectedIndex();
+        if (selected == -1) {
+            return null;
+        }
+
+        Node node = instructions.get(selected);
+        if (node instanceof BlockNode) {
+            return ((BlockNode) node).getCallArguments();
+        } else {
+            return null;
         }
     }
 

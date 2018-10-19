@@ -2,6 +2,8 @@ package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.IOException;
 
+import org.graalvm.vm.memory.util.HexFormatter;
+
 import com.everyware.util.io.WordInputStream;
 import com.everyware.util.io.WordOutputStream;
 
@@ -61,7 +63,7 @@ public class CallArgsRecord extends Record {
         int size = 8 + 1;
         size += sizeString(symbol);
         for (int i = 0; i < args.length; i++) {
-            size += 8 + 2 + memory[i].length;
+            size += 8 + sizeArray(memory[i]);
         }
         return size;
     }
@@ -74,10 +76,7 @@ public class CallArgsRecord extends Record {
         memory = new byte[args.length][];
         for (int i = 0; i < args.length; i++) {
             args[i] = in.read64bit();
-            memory[i] = new byte[in.read16bit()];
-            if (memory[i].length > 0) {
-                in.read(memory[i]);
-            }
+            memory[i] = readArray(in);
         }
     }
 
@@ -88,8 +87,73 @@ public class CallArgsRecord extends Record {
         out.write8bit((byte) args.length);
         for (int i = 0; i < args.length; i++) {
             out.write64bit(args[i]);
-            out.write16bit((short) memory[i].length);
-            out.write(memory[i]);
+            writeArray(out, memory[i]);
         }
+    }
+
+    private static boolean isPrintable(byte value) {
+        return value >= 0x20 && value <= 0x7e; // ascii
+    }
+
+    private static void dump(StringBuilder buf, long address, byte[] data) {
+        long ptr = address;
+        // buf.append("memory at 0x");
+        // buf.append(HexFormatter.tohex(ptr, 16));
+        // buf.append(":\n");
+        long ptr2 = ptr;
+        boolean nl = true;
+        for (int i = 0; i < data.length; i++) {
+            nl = true;
+            if (i % 16 == 0) {
+                buf.append(HexFormatter.tohex(ptr, 16));
+                buf.append(':');
+            }
+            byte u8 = data[(int) (ptr - address)];
+            ptr++;
+            buf.append(' ');
+            buf.append(HexFormatter.tohex(Byte.toUnsignedLong(u8), 2));
+            if (i % 16 == 15) {
+                buf.append("   ");
+                for (int j = 0; j < 16; j++) {
+                    u8 = data[(int) (ptr2 - address)];
+                    ptr2++;
+                    char ch = (char) (u8 & 0xff);
+                    if (!isPrintable(u8)) {
+                        ch = '.';
+                    }
+                    buf.append(ch);
+                }
+                buf.append('\n');
+                nl = false;
+            }
+        }
+        if (nl) {
+            buf.append('\n');
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("Calling 0x");
+        buf.append(HexFormatter.tohex(pc, 8));
+        if (symbol != null) {
+            buf.append(" <");
+            buf.append(symbol);
+            buf.append(">:\n");
+        } else {
+            buf.append(":\n");
+        }
+        for (int i = 0; i < args.length; i++) {
+            buf.append("arg");
+            buf.append(i);
+            buf.append(" = 0x");
+            buf.append(HexFormatter.tohex(args[i], 16));
+            buf.append('\n');
+            if (memory[i] != null && memory[i].length > 0) {
+                dump(buf, args[i], memory[i]);
+            }
+        }
+        return buf.toString();
     }
 }

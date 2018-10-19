@@ -48,7 +48,7 @@ public class TraceArgumentsNode extends AMD64Node {
                     result[i] = memory.peek(value + i);
                 }
             } catch (SegmentationViolation e) {
-                result = new byte[0];
+                result = null;
             }
         }
         return result;
