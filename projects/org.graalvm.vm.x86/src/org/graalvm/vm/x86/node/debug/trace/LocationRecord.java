@@ -16,7 +16,7 @@ public class LocationRecord extends Record {
     private long offset;
     private long pc;
 
-    public LocationRecord() {
+    LocationRecord() {
         super(MAGIC);
     }
 

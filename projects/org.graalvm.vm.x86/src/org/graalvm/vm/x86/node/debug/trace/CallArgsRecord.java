@@ -13,7 +13,7 @@ public class CallArgsRecord extends Record {
     private long[] args;
     private byte[][] memory;
 
-    public CallArgsRecord() {
+    CallArgsRecord() {
         super(MAGIC);
     }
 

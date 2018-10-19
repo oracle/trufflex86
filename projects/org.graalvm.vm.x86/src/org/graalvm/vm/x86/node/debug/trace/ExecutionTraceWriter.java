@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CpuState;
 
@@ -60,6 +61,33 @@ public class ExecutionTraceWriter implements Closeable {
             record.write(out);
         } catch (IOException e) {
             // don't log anything here because this method is called from a log handler!
+        }
+    }
+
+    public synchronized void memoryAccess(long address, boolean write, int size) {
+        MemoryEventRecord record = new MemoryEventRecord(address, write, size);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing memory access: " + e.getMessage(), e);
+        }
+    }
+
+    public synchronized void memoryAccess(long address, boolean write, int size, long value) {
+        MemoryEventRecord record = new MemoryEventRecord(address, write, size, value);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing memory access: " + e.getMessage(), e);
+        }
+    }
+
+    public synchronized void memoryAccess(long address, boolean write, int size, Vector128 value) {
+        MemoryEventRecord record = new MemoryEventRecord(address, write, size, value);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing memory access: " + e.getMessage(), e);
         }
     }
 }

@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.hardware.HybridVirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
-import org.graalvm.vm.memory.util.Stringify;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
@@ -21,7 +20,6 @@ public abstract class VirtualMemory {
     private static final Logger log = Trace.create(VirtualMemory.class);
 
     protected static final boolean DEBUG = getBoolean("mem.debug", false);
-    protected static final boolean DEBUG_1BYTE = getBoolean("mem.debug.1byte", true);
     protected static final boolean VIRTUAL = getBoolean("mem.virtual", false);
 
     public static final long PAGE_SIZE = 4096;
@@ -40,12 +38,13 @@ public abstract class VirtualMemory {
     protected long brk;
     protected long reportedBrk;
 
-    @CompilationFinal protected boolean debugMemory;
-    @CompilationFinal protected boolean debugSingleByte;
+    @CompilationFinal protected boolean enableAccessTrace;
 
     @CompilationFinal protected boolean bigEndian;
 
     protected long mapSequence;
+
+    @CompilationFinal MemoryAccessListener logger;
 
     public static final VirtualMemory create() {
         if (DEBUG || VIRTUAL) {
@@ -68,11 +67,16 @@ public abstract class VirtualMemory {
         allocator = new MemoryAllocator(pointerBase, pointerEnd - pointerBase);
         brk = 0;
         reportedBrk = brk;
-        debugMemory = DEBUG;
-        debugSingleByte = DEBUG_1BYTE;
+        enableAccessTrace = DEBUG;
         mapSequence = 0;
+        logger = new DefaultMemoryAccessLogger();
         set64bit();
         setLE();
+    }
+
+    public void setAccessLogger(MemoryAccessListener logger) {
+        this.logger = logger;
+        enableAccessTrace = true;
     }
 
     protected static boolean getBoolean(String name, boolean fallback) {
@@ -222,20 +226,20 @@ public abstract class VirtualMemory {
 
     public byte peek(long p) {
         // disable memory access log during peek
-        boolean wasDebug = debugMemory;
-        debugMemory = false;
+        boolean wasDebug = enableAccessTrace;
+        enableAccessTrace = false;
         try {
             return getI8(p);
         } finally {
-            debugMemory = wasDebug;
+            enableAccessTrace = wasDebug;
         }
     }
 
     public void dump(long p, int size) {
         CompilerAsserts.neverPartOfCompilation();
         // disable memory access log during dump
-        boolean wasDebug = debugMemory;
-        debugMemory = false;
+        boolean wasDebug = enableAccessTrace;
+        enableAccessTrace = false;
         try {
             long ptr = p;
             System.out.printf("memory at 0x%016x:\n", ptr);
@@ -268,54 +272,21 @@ public abstract class VirtualMemory {
                 System.out.println();
             }
         } finally {
-            debugMemory = wasDebug;
+            enableAccessTrace = wasDebug;
         }
     }
 
     protected void logMemoryRead(long address, int size) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read %d bytes\n", addr(addr), size);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryRead(addr(address), size);
         }
     }
 
     protected void logMemoryRead(long address, int size, long value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i64(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%016x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%016x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
-    protected void logMemoryRead(long address, int size, int value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i32(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%08x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%08x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
-    protected void logMemoryRead(long address, int size, short value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i16(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%04x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: read %d bytes (0x%04x)\n", addr(addr), size, value);
-            }
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryRead(addr(address), size, value);
         }
     }
 
@@ -323,114 +294,52 @@ public abstract class VirtualMemory {
         return value >= 0x20 && value <= 0x7e; // ascii
     }
 
-    protected void logMemoryRead(long address, int size, byte value) {
-        if (debugMemory && debugSingleByte) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            if (isPrintable(value)) {
-                System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
-            } else {
-                System.out.printf("Memory access to 0x%016x: read %d byte(s) (0x%02x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
     protected void logMemoryRead(long address, Vector128 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read 16 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryRead(addr(address), value);
         }
     }
 
     protected void logMemoryRead(long address, Vector256 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read 32 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryRead(addr(address), value);
         }
     }
 
     protected void logMemoryRead(long address, Vector512 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: read 64 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryRead(addr(address), value);
         }
     }
 
     protected void logMemoryWrite(long address, int size, long value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i64(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%016x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
-    protected void logMemoryWrite(long address, int size, int value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i32(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%08x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
-    protected void logMemoryWrite(long address, int size, short value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            String val = Stringify.i16(value);
-            if (val != null) {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x, '%s')\n", addr(addr), size, value, val);
-            } else {
-                System.out.printf("Memory access to 0x%016x: write %d bytes (0x%04x)\n", addr(addr), size, value);
-            }
-        }
-    }
-
-    protected void logMemoryWrite(long address, int size, byte value) {
-        if (debugMemory && debugSingleByte) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            if (isPrintable(value)) {
-                System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x, '%c')\n", addr(addr), size, value, new Character((char) (value & 0x7F)));
-            } else {
-                System.out.printf("Memory access to 0x%016x: write %d byte(s) (0x%02x)\n", addr(addr), size, value);
-            }
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryWrite(addr(address), size, value);
         }
     }
 
     protected void logMemoryWrite(long address, Vector128 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 16 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryWrite(addr(address), value);
         }
     }
 
     protected void logMemoryWrite(long address, Vector256 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 32 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryWrite(addr(address), value);
         }
     }
 
     protected void logMemoryWrite(long address, Vector512 value) {
-        if (debugMemory) {
-            CompilerDirectives.transferToInterpreter();
-            long addr = addr(address);
-            System.out.printf("Memory access to 0x%016x: write 64 bytes (%s)\n", addr(addr), value);
+        if (enableAccessTrace && logger != null) {
+            CompilerAsserts.neverPartOfCompilation();
+            logger.logMemoryWrite(addr(address), value);
         }
     }
 

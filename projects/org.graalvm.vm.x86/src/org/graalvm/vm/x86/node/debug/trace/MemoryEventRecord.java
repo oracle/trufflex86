@@ -12,22 +12,56 @@ import com.everyware.util.io.WordOutputStream;
 public class MemoryEventRecord extends Record {
     public static final int MAGIC = 0x4d454d30; // MEM0
 
-    private boolean read;
+    private static final byte FLAG_DATA = 1;
+    private static final byte FLAG_WRITE = 2;
+
+    private boolean write;
+    private boolean data;
     private long address;
     private byte size;
     private long value64;
     private Vector128 value128;
 
-    public MemoryEventRecord() {
+    MemoryEventRecord() {
         super(MAGIC);
     }
 
-    public boolean isRead() {
-        return read;
+    public MemoryEventRecord(long address, boolean write, int size) {
+        this();
+        this.address = address;
+        this.write = write;
+        this.size = (byte) size;
+        this.data = false;
     }
 
-    public void setRead(boolean read) {
-        this.read = read;
+    public MemoryEventRecord(long address, boolean write, int size, long value) {
+        this();
+        this.address = address;
+        this.write = write;
+        this.size = (byte) size;
+        this.data = true;
+        this.value64 = value;
+    }
+
+    public MemoryEventRecord(long address, boolean write, int size, Vector128 value) {
+        this();
+        this.address = address;
+        this.write = write;
+        this.size = (byte) size;
+        this.data = true;
+        this.value128 = value;
+    }
+
+    public boolean hasData() {
+        return data;
+    }
+
+    public boolean isWrite() {
+        return write;
+    }
+
+    public void setWrite(boolean write) {
+        this.write = write;
     }
 
     public long getAddress() {
@@ -73,37 +107,75 @@ public class MemoryEventRecord extends Record {
 
     @Override
     protected int size() {
-        if (size == 16) {
-            return 8 + 4 + 1 + 16;
-        } else {
-            return 2 * 8 + 4 + 1;
-        }
+        return 8 + 2 + (data ? size : 0);
     }
 
     @Override
     protected void readRecord(WordInputStream in) throws IOException {
-        read = in.read8bit() != 0;
-        address = in.read64bit();
+        int flags = in.read8bit();
+        write = (flags & FLAG_WRITE) != 0;
+        data = (flags & FLAG_DATA) != 0;
         size = (byte) in.read8bit();
-        if (size == 16) {
-            long hi = in.read64bit();
-            long lo = in.read64bit();
-            value128 = new Vector128(hi, lo);
-        } else {
-            value64 = in.read64bit();
+        address = in.read64bit();
+        if (data) {
+            switch (size) {
+                case 1:
+                    value64 = in.read8bit();
+                    break;
+                case 2:
+                    value64 = in.read16bit();
+                    break;
+                case 4:
+                    value64 = in.read32bit();
+                    break;
+                case 8:
+                    value64 = in.read64bit();
+                    break;
+                case 16: {
+                    long hi = in.read64bit();
+                    long lo = in.read64bit();
+                    value128 = new Vector128(hi, lo);
+                    break;
+                }
+                default:
+                    throw new IOException("unknown size: " + size);
+            }
         }
     }
 
     @Override
     protected void writeRecord(WordOutputStream out) throws IOException {
-        out.write8bit((byte) (read ? 1 : 0));
+        int flags = 0;
+        if (write) {
+            flags |= FLAG_WRITE;
+        }
+        if (data) {
+            flags |= FLAG_DATA;
+        }
+        out.write8bit((byte) flags);
+        out.write8bit(size);
         out.write64bit(address);
-        out.write32bit(size);
-        if (size == 16) {
-            out.write64bit(value128.getI64(0));
-            out.write64bit(value128.getI64(1));
-        } else {
-            out.write64bit(value64);
+        if (data) {
+            switch (size) {
+                case 1:
+                    out.write8bit((byte) value64);
+                    break;
+                case 2:
+                    out.write16bit((short) value64);
+                    break;
+                case 4:
+                    out.write32bit((int) value64);
+                    break;
+                case 8:
+                    out.write64bit(value64);
+                    break;
+                case 16:
+                    out.write64bit(value128.getI64(0));
+                    out.write64bit(value128.getI64(1));
+                    break;
+                default:
+                    throw new IOException("unknown size: " + size);
+            }
         }
     }
 
@@ -111,32 +183,34 @@ public class MemoryEventRecord extends Record {
     public String toString() {
         String str = null;
         StringBuilder val = new StringBuilder("0x");
-        switch (size) {
-            case 1:
-                str = Stringify.i8((byte) value64);
-                val.append(HexFormatter.tohex(value64, 2));
-                break;
-            case 2:
-                str = Stringify.i16((short) value64);
-                val.append(HexFormatter.tohex(value64, 4));
-                break;
-            case 4:
-                str = Stringify.i32((int) value64);
-                val.append(HexFormatter.tohex(value64, 8));
-                break;
-            case 8:
-                str = Stringify.i64(value64);
-                val.append(HexFormatter.tohex(value64, 16));
-                break;
-            case 16:
-                str = Stringify.i128(value128);
-                val.append(HexFormatter.tohex(value128.getI64(0), 16));
-                val.append(HexFormatter.tohex(value128.getI64(1), 16));
-                break;
+        if (data) {
+            switch (size) {
+                case 1:
+                    str = Stringify.i8((byte) value64);
+                    val.append(HexFormatter.tohex(value64, 2));
+                    break;
+                case 2:
+                    str = Stringify.i16((short) value64);
+                    val.append(HexFormatter.tohex(value64, 4));
+                    break;
+                case 4:
+                    str = Stringify.i32((int) value64);
+                    val.append(HexFormatter.tohex(value64, 8));
+                    break;
+                case 8:
+                    str = Stringify.i64(value64);
+                    val.append(HexFormatter.tohex(value64, 16));
+                    break;
+                case 16:
+                    str = Stringify.i128(value128);
+                    val.append(HexFormatter.tohex(value128.getI64(0), 16));
+                    val.append(HexFormatter.tohex(value128.getI64(1), 16));
+                    break;
+            }
         }
         if (str != null) {
             val.append(", '").append(str).append("'");
         }
-        return "Memory access to 0x" + HexFormatter.tohex(address, 16) + ": " + (read ? "read" : "write") + " " + size + " bytes (" + val + ")";
+        return "Memory access to 0x" + HexFormatter.tohex(address, 16) + ": " + (!write ? "read" : "write") + " " + size + " bytes" + (data ? " (" + val + ")" : "");
     }
 }

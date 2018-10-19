@@ -7,6 +7,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
+import org.graalvm.vm.x86.node.debug.trace.MemoryAccessTracer;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
@@ -72,6 +73,10 @@ public class AMD64Context {
         this.logHandler = logHandler;
         frameDescriptor = fd;
         memory = VirtualMemory.create();
+        if (traceWriter != null) {
+            MemoryAccessTracer memoryTracer = new MemoryAccessTracer(traceWriter);
+            memory.setAccessLogger(memoryTracer);
+        }
         posix = new PosixEnvironment(memory, ARCH_NAME);
         posix.setStandardIn(env.in());
         posix.setStandardOut(env.out());

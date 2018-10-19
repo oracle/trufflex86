@@ -19,14 +19,12 @@ import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.api.Signal;
 import com.everyware.util.log.Trace;
-import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
     private static final Logger log = Trace.create(InterpreterRootNode.class);
 
-    @CompilationFinal private static boolean SIMPLE_DISPATCH = getBoolean(Options.SIMPLE_DISPATCH) || getBoolean(Options.DEBUG_EXEC);
-    @CompilationFinal private static boolean DEBUG_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
+    private static final boolean SIMPLE_DISPATCH = getBoolean(Options.SIMPLE_DISPATCH) || getBoolean(Options.DEBUG_EXEC);
 
     @Child private InitializerNode initializer;
     @Child private AbstractDispatchNode interpreter;

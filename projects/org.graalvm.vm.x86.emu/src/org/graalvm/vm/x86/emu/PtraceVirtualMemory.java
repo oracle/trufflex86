@@ -34,11 +34,11 @@ public class PtraceVirtualMemory extends VirtualMemory {
     }
 
     public boolean getDebug() {
-        return debugMemory;
+        return enableAccessTrace;
     }
 
     public void setDebug(boolean debug) {
-        debugMemory = debug;
+        enableAccessTrace = debug;
     }
 
     private static long a64(long addr) {
