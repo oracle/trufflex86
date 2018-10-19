@@ -6,6 +6,7 @@ import java.util.NavigableMap;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
+import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
@@ -59,14 +60,16 @@ public class AMD64Context {
     private long scratchMemory;
 
     private ExecutionTraceWriter traceWriter;
+    private LogStreamHandler logHandler;
 
     public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd) {
-        this(language, env, fd, null);
+        this(language, env, fd, null, null);
     }
 
-    public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd, ExecutionTraceWriter traceWriter) {
+    public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd, ExecutionTraceWriter traceWriter, LogStreamHandler logHandler) {
         this.language = language;
         this.traceWriter = traceWriter;
+        this.logHandler = logHandler;
         frameDescriptor = fd;
         memory = VirtualMemory.create();
         posix = new PosixEnvironment(memory, ARCH_NAME);
@@ -268,5 +271,9 @@ public class AMD64Context {
 
     public ExecutionTraceWriter getTraceWriter() {
         return traceWriter;
+    }
+
+    LogStreamHandler getLogHandler() {
+        return logHandler;
     }
 }

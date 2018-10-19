@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.node.debug.trace;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,7 +22,7 @@ public class ExecutionTraceWriter implements Closeable {
     private WordOutputStream out;
 
     public ExecutionTraceWriter(File out) throws IOException {
-        this(new FileOutputStream(out));
+        this(new BufferedOutputStream(new FileOutputStream(out)));
     }
 
     public ExecutionTraceWriter(OutputStream out) {
@@ -50,6 +51,15 @@ public class ExecutionTraceWriter implements Closeable {
             record.write(out);
         } catch (IOException e) {
             log.log(Level.WARNING, "Error while writing call args: " + e.getMessage(), e);
+        }
+    }
+
+    public synchronized void log(long seq, long time, int level, int threadID, String logger, String clazz, String method, String msg, Throwable throwable) {
+        SystemLogRecord record = new SystemLogRecord(seq, time, level, threadID, logger, clazz, method, msg, throwable);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            // don't log anything here because this method is called from a log handler!
         }
     }
 }

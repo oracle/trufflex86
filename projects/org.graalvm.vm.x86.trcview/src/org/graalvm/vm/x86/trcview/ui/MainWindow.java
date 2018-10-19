@@ -105,6 +105,10 @@ public class MainWindow extends JFrame {
             }
             setStatus("Trace loaded");
             EventQueue.invokeLater(() -> view.setRoot(root));
+        } catch (Throwable t) {
+            log.info("Loading failed: " + t);
+            setStatus("Loading failed: " + t);
+            throw t;
         } finally {
             open.setEnabled(true);
         }

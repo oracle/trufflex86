@@ -86,29 +86,9 @@ public class LocationRecord extends Record {
 
     @Override
     protected void readRecord(WordInputStream in) throws IOException {
-        byte[] fbytes = new byte[in.read16bit()];
-        if (fbytes.length > 0) {
-            in.read(fbytes);
-            filename = new String(fbytes);
-        } else {
-            filename = null;
-        }
-
-        byte[] sbytes = new byte[in.read16bit()];
-        if (sbytes.length > 0) {
-            in.read(sbytes);
-            symbol = new String(sbytes);
-        } else {
-            symbol = null;
-        }
-
-        byte[] abytes = new byte[in.read16bit()];
-        if (abytes.length > 0) {
-            in.read(abytes);
-            assembly = new String(abytes);
-        } else {
-            assembly = null;
-        }
+        filename = readString(in);
+        symbol = readString(in);
+        assembly = readString(in);
 
         offset = in.read64bit();
         pc = in.read64bit();
@@ -116,27 +96,9 @@ public class LocationRecord extends Record {
 
     @Override
     protected void writeRecord(WordOutputStream out) throws IOException {
-        if (filename != null) {
-            byte[] bytes = filename.getBytes();
-            out.write16bit((short) bytes.length);
-            out.write(bytes);
-        } else {
-            out.write16bit((short) 0);
-        }
-        if (symbol != null) {
-            byte[] bytes = symbol.getBytes();
-            out.write16bit((short) bytes.length);
-            out.write(bytes);
-        } else {
-            out.write16bit((short) 0);
-        }
-        if (assembly != null) {
-            byte[] bytes = assembly.getBytes();
-            out.write16bit((short) bytes.length);
-            out.write(bytes);
-        } else {
-            out.write16bit((short) 0);
-        }
+        writeString(out, filename);
+        writeString(out, symbol);
+        writeString(out, assembly);
         out.write64bit(offset);
         out.write64bit(pc);
     }

@@ -47,6 +47,9 @@ public abstract class Record {
             case CallArgsRecord.MAGIC:
                 record = new CallArgsRecord();
                 break;
+            case SystemLogRecord.MAGIC:
+                record = new SystemLogRecord();
+                break;
             case EofRecord.MAGIC:
                 record = new EofRecord();
                 break;
@@ -61,7 +64,7 @@ public abstract class Record {
         long end = in.tell();
         long sz = end - start;
         if (sz != size) {
-            throw new IOException("Error: invalid size (" + size + " vs " + sz + ")");
+            throw new IOException("Error: invalid size (" + size + " vs " + sz + "; " + (record != null ? record.getClass().getSimpleName() : "unknown class") + ")");
         }
 
         return (T) record;
@@ -85,4 +88,25 @@ public abstract class Record {
     protected abstract void readRecord(WordInputStream in) throws IOException;
 
     protected abstract void writeRecord(WordOutputStream out) throws IOException;
+
+    protected final static String readString(WordInputStream in) throws IOException {
+        int length = in.read16bit();
+        if (length == 0) {
+            return null;
+        } else {
+            byte[] bytes = new byte[length];
+            in.read(bytes);
+            return new String(bytes);
+        }
+    }
+
+    protected final static void writeString(WordOutputStream out, String s) throws IOException {
+        if (s == null) {
+            out.write16bit((short) 0);
+        } else {
+            byte[] bytes = s.getBytes();
+            out.write16bit((short) bytes.length);
+            out.write(bytes);
+        }
+    }
 }
