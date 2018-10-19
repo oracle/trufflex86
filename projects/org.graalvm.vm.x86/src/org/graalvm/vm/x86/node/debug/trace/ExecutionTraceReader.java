@@ -14,6 +14,10 @@ public class ExecutionTraceReader implements Closeable {
         this.in = new BEInputStream(in);
     }
 
+    public long tell() {
+        return in.tell();
+    }
+
     @Override
     public void close() throws IOException {
         in.close();

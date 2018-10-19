@@ -39,15 +39,19 @@ public class BlockNode extends Node {
     }
 
     public static BlockNode read(ExecutionTraceReader in) throws IOException {
+        return read(in, null);
+    }
+
+    public static BlockNode read(ExecutionTraceReader in, ProgressListener progress) throws IOException {
         List<Node> nodes = new ArrayList<>();
         Node node;
-        while ((node = parseRecord(in)) != null) {
+        while ((node = parseRecord(in, progress)) != null) {
             nodes.add(node);
         }
         return new BlockNode(null, nodes);
     }
 
-    private static Node parseRecord(ExecutionTraceReader in) throws IOException {
+    private static Node parseRecord(ExecutionTraceReader in, ProgressListener progress) throws IOException {
         Record record = in.read();
         if (record == null) {
             return null;
@@ -55,9 +59,12 @@ public class BlockNode extends Node {
         if (record instanceof StepRecord) {
             StepRecord step = (StepRecord) record;
             if (step.getLocation().getAssembly().startsWith("call")) {
+                if (progress != null) {
+                    progress.progressUpdate(in.tell());
+                }
                 List<Node> result = new ArrayList<>();
                 while (true) {
-                    Node child = parseRecord(in);
+                    Node child = parseRecord(in, progress);
                     if (child == null) {
                         break;
                     }
@@ -65,6 +72,9 @@ public class BlockNode extends Node {
                     if (child instanceof RecordNode && ((RecordNode) child).getRecord() instanceof StepRecord) {
                         StepRecord s = (StepRecord) ((RecordNode) child).getRecord();
                         if (s.getLocation().getAssembly().startsWith("ret")) {
+                            if (progress != null) {
+                                progress.progressUpdate(in.tell());
+                            }
                             break;
                         }
                     }

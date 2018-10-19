@@ -93,9 +93,11 @@ public class MainWindow extends JFrame {
         log.info("Loading file " + file + "...");
         open.setEnabled(false);
         try (InputStream in = new FileInputStream(file)) {
-            setStatus("Loading " + file);
+            long size = file.length();
+            String text = "Loading " + file;
+            setStatus(text);
             ExecutionTraceReader reader = new ExecutionTraceReader(in);
-            BlockNode root = BlockNode.read(reader);
+            BlockNode root = BlockNode.read(reader, pos -> setStatus(text + " ( " + (pos * 100L / size) + "%)"));
             if (root == null || root.getFirstStep() == null) {
                 setStatus("Loading failed");
                 return;
