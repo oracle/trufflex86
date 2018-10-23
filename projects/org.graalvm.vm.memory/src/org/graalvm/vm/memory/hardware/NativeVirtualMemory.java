@@ -69,7 +69,7 @@ public class NativeVirtualMemory extends VirtualMemory {
             MemoryMap map = new MemoryMap();
 
             for (MemorySegment s : map.getSegments()) {
-                if (s.start >= LOW && s.start <= HIGH && s.end >= LOW && s.end <= HIGH) {
+                if (Long.compareUnsigned(s.start, LOW) >= 0 && Long.compareUnsigned(s.start, HIGH) <= 0 && Long.compareUnsigned(s.end, LOW) >= 0 && Long.compareUnsigned(s.end, HIGH) <= 0) {
                     return false;
                 }
             }
@@ -105,7 +105,8 @@ public class NativeVirtualMemory extends VirtualMemory {
         List<MemorySegment> segments = new ArrayList<>();
         MemoryMap memoryMap = new MemoryMap();
         for (MemorySegment s : memoryMap.getSegments()) {
-            if (s.start >= physicalLo && s.start <= physicalHi && s.end >= physicalLo && s.end <= physicalHi) {
+            if (Long.compareUnsigned(s.start, physicalLo) >= 0 && Long.compareUnsigned(s.start, physicalHi) <= 0 && Long.compareUnsigned(s.end, physicalLo) >= 0 &&
+                            Long.compareUnsigned(s.end, physicalHi) <= 0) {
                 segments.add(s);
             }
         }
