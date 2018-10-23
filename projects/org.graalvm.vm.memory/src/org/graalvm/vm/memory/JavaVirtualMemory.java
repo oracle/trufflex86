@@ -636,6 +636,12 @@ public class JavaVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public boolean isExecutable(long address) {
+        MemoryPage page = get(address);
+        return page.x;
+    }
+
+    @Override
     public void printMaps(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
         pages.entrySet().stream().map((x) -> x.getValue().toString()).forEachOrdered(out::println);

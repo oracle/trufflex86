@@ -224,6 +224,8 @@ public abstract class VirtualMemory {
 
     public abstract void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException;
 
+    public abstract boolean isExecutable(long address);
+
     public byte peek(long p) {
         // disable memory access log during peek
         boolean wasDebug = enableAccessTrace;

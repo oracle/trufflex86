@@ -89,6 +89,15 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public boolean isExecutable(long address) {
+        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+            return nmem.isExecutable(address);
+        } else {
+            return jmem.isExecutable(address);
+        }
+    }
+
+    @Override
     public byte getI8(long address) {
         if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI8(address);

@@ -3557,7 +3557,6 @@ public class AMD64InstructionDecoder {
                     }
                     break;
             }
-
         }
 
         public OperandDecoder getOperandDecoder() {

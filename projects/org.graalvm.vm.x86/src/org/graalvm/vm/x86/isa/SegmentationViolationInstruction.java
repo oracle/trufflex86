@@ -31,6 +31,6 @@ public class SegmentationViolationInstruction extends AMD64Instruction {
 
     @Override
     protected String[] disassemble() {
-        return new String[]{String.format("; cannot access memory at 0x%016x", pc)};
+        return new String[]{String.format("; cannot execute memory at 0x%016x", pc)};
     }
 }

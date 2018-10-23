@@ -323,6 +323,11 @@ public class PtraceVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public boolean isExecutable(long address) {
+        return true; // TODO: not correct but also not too harmful
+    }
+
+    @Override
     public void printMaps(PrintStream out) {
         try {
             MemoryMap map = new MemoryMap(ptrace.getPid());

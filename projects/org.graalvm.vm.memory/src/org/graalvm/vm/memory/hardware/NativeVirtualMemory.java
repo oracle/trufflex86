@@ -2,6 +2,8 @@ package org.graalvm.vm.memory.hardware;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +43,8 @@ public class NativeVirtualMemory extends VirtualMemory {
 
     private static boolean initialized = false;
     private static boolean supported;
+
+    private List<MemorySegment> map;
 
     private static long getLow() {
         switch (ARCH) {
@@ -93,6 +97,26 @@ public class NativeVirtualMemory extends VirtualMemory {
         long vsz = virtualHi - virtualLo;
         if (psz < vsz) {
             throw new IllegalArgumentException("physical area is too small");
+        }
+        updateMemoryMap();
+    }
+
+    private List<MemorySegment> getMemoryMap() throws IOException {
+        List<MemorySegment> segments = new ArrayList<>();
+        MemoryMap memoryMap = new MemoryMap();
+        for (MemorySegment s : memoryMap.getSegments()) {
+            if (s.start >= physicalLo && s.start <= physicalHi && s.end >= physicalLo && s.end <= physicalHi) {
+                segments.add(s);
+            }
+        }
+        return segments;
+    }
+
+    private void updateMemoryMap() {
+        try {
+            map = getMemoryMap();
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Cannot retrieve memory region info", e);
         }
     }
 
@@ -315,6 +339,8 @@ public class NativeVirtualMemory extends VirtualMemory {
             log.log(Levels.ERROR, "mprotect failed: " + Errno.toString(e.getErrno()));
             throw new OutOfMemoryError("mprotect failed: " + Errno.toString(e.getErrno()));
         }
+
+        updateMemoryMap();
     }
 
     @Override
@@ -323,6 +349,8 @@ public class NativeVirtualMemory extends VirtualMemory {
         allocator.free(address, len);
         long phy = phy(addr);
         MMU.munmap(phy, len);
+
+        updateMemoryMap();
     }
 
     @Override
@@ -483,6 +511,16 @@ public class NativeVirtualMemory extends VirtualMemory {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean isExecutable(long address) {
+        for (MemorySegment s : map) {
+            if (s.contains(phy(addr(address)))) {
+                return s.permissions.isExecute();
+            }
+        }
+        return false;
+    }
+
     private long vaddr(long phy) {
         long offset = phy - physicalLo;
         long vaddr = offset + virtualLo;
@@ -496,31 +534,18 @@ public class NativeVirtualMemory extends VirtualMemory {
     @Override
     public void printMaps(PrintStream out) {
         CompilerAsserts.neverPartOfCompilation();
-        try {
-            MemoryMap map = new MemoryMap();
-
-            for (MemorySegment s : map.getSegments()) {
-                if (s.start >= physicalLo && s.start <= physicalHi && s.end >= physicalLo && s.end <= physicalHi) {
-                    out.println(segment(s));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace(out);
+        for (MemorySegment s : map) {
+            out.println(segment(s));
         }
     }
 
     @Override
     public void printAddressInfo(long addr, PrintStream out) {
-        try {
-            MemoryMap map = new MemoryMap();
-            for (MemorySegment s : map.getSegments()) {
-                if (s.contains(phy(addr(addr)))) {
-                    MemorySegment seg = segment(s);
-                    out.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", seg.name, seg.start, addr - seg.start);
-                }
+        for (MemorySegment s : map) {
+            if (s.contains(phy(addr(addr)))) {
+                MemorySegment seg = segment(s);
+                out.printf("Memory region name: '%s', base = 0x%016x (offset = 0x%016x)\n", seg.name, seg.start, addr - seg.start);
             }
-        } catch (IOException e) {
-            log.log(Level.WARNING, "Cannot retrieve memory region info", e);
         }
     }
 }
