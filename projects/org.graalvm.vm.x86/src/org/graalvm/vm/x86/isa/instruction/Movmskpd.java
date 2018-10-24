@@ -40,7 +40,7 @@ public class Movmskpd extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         Vector128 vec = readSrc.executeI128(frame);
-        int signs = vec.signsF64();
+        int signs = vec.signsF64le();
         writeDst.executeI32(frame, signs);
         return next();
     }
