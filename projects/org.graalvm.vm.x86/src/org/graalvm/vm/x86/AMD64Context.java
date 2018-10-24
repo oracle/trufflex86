@@ -53,6 +53,7 @@ public class AMD64Context {
     private final ArchitecturalState state;
 
     private NavigableMap<Long, Symbol> symbols;
+    private SymbolResolver symbolResolver;
 
     private TraceRegistry traces;
 
@@ -115,6 +116,7 @@ public class AMD64Context {
         traces = new TraceRegistry(language, frameDescriptor);
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
+        symbolResolver = new SymbolResolver(symbols);
     }
 
     public TruffleLanguage<AMD64Context> getLanguage() {
@@ -135,6 +137,7 @@ public class AMD64Context {
 
     public void setSymbols(NavigableMap<Long, Symbol> symbols) {
         this.symbols = symbols;
+        this.symbolResolver = new SymbolResolver(symbols);
     }
 
     public NavigableMap<Long, Symbol> getSymbols() {
@@ -234,7 +237,7 @@ public class AMD64Context {
     }
 
     public SymbolResolver getSymbolResolver() {
-        return new SymbolResolver(symbols);
+        return symbolResolver;
     }
 
     public TraceRegistry getTraceRegistry() {
