@@ -126,7 +126,12 @@ public class Emu86 {
         ptrace.setRegisters(regs);
 
         Interpreter interp = new Interpreter(ptrace, posix, mem, loader.getSymbols());
-        int code = interp.execute();
+        int code;
+        try {
+            code = interp.execute();
+        } finally {
+            interp.close();
+        }
         System.exit(code);
     }
 

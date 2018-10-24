@@ -79,6 +79,18 @@ public class CpuState {
                         RESERVED;
     }
 
+    public void setRFL(long rfl) {
+        cf = BitTest.test(rfl, bit(Flags.CF, true));
+        pf = BitTest.test(rfl, bit(Flags.PF, true));
+        af = BitTest.test(rfl, bit(Flags.AF, true));
+        zf = BitTest.test(rfl, bit(Flags.ZF, true));
+        sf = BitTest.test(rfl, bit(Flags.SF, true));
+        df = BitTest.test(rfl, bit(Flags.DF, true));
+        of = BitTest.test(rfl, bit(Flags.OF, true));
+        ac = BitTest.test(rfl, bit(Flags.AC, true));
+        id = BitTest.test(rfl, bit(Flags.ID, true));
+    }
+
     private static StringBuilder formatRegLine(StringBuilder buf, String[] names, long[] values) {
         for (int i = 0; i < names.length; i++) {
             if (i > 0) {

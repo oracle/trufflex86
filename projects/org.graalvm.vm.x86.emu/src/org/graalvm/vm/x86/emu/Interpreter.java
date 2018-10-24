@@ -1,5 +1,8 @@
 package org.graalvm.vm.x86.emu;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.NavigableMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -7,11 +10,14 @@ import java.util.logging.Logger;
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
+import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
+import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.CpuidBits;
 import org.graalvm.vm.x86.isa.instruction.Cpuid;
+import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.posix.ArchPrctl;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
@@ -29,6 +35,9 @@ public class Interpreter {
     private static final boolean TRACE = Options.getBoolean(Options.DEBUG_EXEC);
     private static final boolean useInstructionCount = Options.getBoolean(Options.RDTSC_USE_INSTRUCTION_COUNT);
 
+    private static final boolean BINARY_TRACE = Options.getBoolean(Options.DEBUG_EXEC_TRACE);
+    private static final String TRACE_FILE = Options.getString(Options.DEBUG_EXEC_TRACEFILE);
+
     private static final long SYSCALL = 0x050F;
     private static final long CPUID = 0xA20F;
     private static final long RDTSC = 0x310F;
@@ -43,6 +52,8 @@ public class Interpreter {
 
     private SymbolResolver symbolResolver;
 
+    private ExecutionTraceWriter trace;
+
     private long insncnt;
 
     public Interpreter(Ptrace ptrace, PosixEnvironment posix, PtraceVirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
@@ -52,6 +63,19 @@ public class Interpreter {
         regs = ptrace.getRegisters();
         symbolResolver = new SymbolResolver(symbols);
         insncnt = 0;
+        if (BINARY_TRACE) {
+            try {
+                trace = new ExecutionTraceWriter(new BufferedOutputStream(new FileOutputStream(TRACE_FILE)));
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Cannot open trace file: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    public void close() throws IOException {
+        if (trace != null) {
+            trace.close();
+        }
     }
 
     private long brk(long addr) {
@@ -280,10 +304,10 @@ public class Interpreter {
                 // 13:12 - Processor Type
                 // 19:16 - Extended Model
                 // 27:20 - Extended Family
-                a = 0;
-                b = 0;
+                a = Cpuid.PROCESSOR_INFO;
+                b = Cpuid.BRAND_INDEX | (Cpuid.CLFLUSH_LINE_SIZE << 8);
                 c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.SSE42 | CpuidBits.POPCNT | CpuidBits.RDRND;
-                d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
+                d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.CLFSH | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
                 break;
             case 7:
                 // Extended Features (FIXME: assumption is ECX=0)
@@ -342,16 +366,21 @@ public class Interpreter {
 
     public void step() throws ProcessExitException, PosixException {
         regs = ptrace.getRegisters();
-        if (TRACE) {
+        if (TRACE || BINARY_TRACE) {
             boolean wasDebug = memory.getDebug();
             memory.setDebug(false);
             Symbol sym = symbolResolver.getSymbol(regs.rip);
             String func = sym == null ? "" : sym.getName();
             CodeReader reader = new CodeMemoryReader(memory, regs.rip);
-            String insn = AMD64InstructionDecoder.decode(regs.rip, reader).getDisassembly();
-            System.out.println("----------------\nIN: " + func);
-            System.out.println("0x" + HexFormatter.tohex(regs.rip, 8) + ":\t" + insn + "\n");
-            System.out.println(regs);
+            AMD64Instruction insn = AMD64InstructionDecoder.decode(regs.rip, reader);
+            if (trace == null) {
+                System.out.println("----------------\nIN: " + func);
+                System.out.println("0x" + HexFormatter.tohex(regs.rip, 8) + ":\t" + insn + "\n");
+                System.out.println(regs);
+            } else {
+                CpuState state = regs.toCpuState();
+                trace.step(state, null, func, 0, insn);
+            }
             memory.setDebug(wasDebug);
         }
         long insn = ptrace.read(regs.rip);

@@ -2,9 +2,11 @@ package org.graalvm.vm.x86.emu;
 
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Flags;
 
 import com.everyware.util.BitTest;
+import com.everyware.util.io.Endianess;
 
 public class Registers {
     public long rax;
@@ -111,5 +113,34 @@ public class Registers {
             }
         }
         return buf.toString();
+    }
+
+    public CpuState toCpuState() {
+        CpuState state = new CpuState();
+        state.rax = rax;
+        state.rbx = rbx;
+        state.rcx = rcx;
+        state.rdx = rdx;
+        state.rsi = rsi;
+        state.rdi = rdi;
+        state.rbp = rbp;
+        state.rsp = rsp;
+        state.r8 = r8;
+        state.r9 = r9;
+        state.r10 = r10;
+        state.r11 = r11;
+        state.r12 = r12;
+        state.r13 = r13;
+        state.r14 = r14;
+        state.r15 = r15;
+        state.setRFL(rflags);
+        state.fs = fs_base;
+        state.gs = gs_base;
+        for (int i = 0; i < 16; i++) {
+            long lo = Endianess.get64bitLE(xmm_space, 16 * i);
+            long hi = Endianess.get64bitLE(xmm_space, 16 * i + 8);
+            state.xmm[i] = new Vector128(hi, lo);
+        }
+        return state;
     }
 }
