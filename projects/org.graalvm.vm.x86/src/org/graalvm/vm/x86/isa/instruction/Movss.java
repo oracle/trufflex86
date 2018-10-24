@@ -42,7 +42,7 @@ public abstract class Movss extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             int value = readSrc.executeI32(frame);
-            Vector128 vec = new Vector128(0, value);
+            Vector128 vec = new Vector128(0, Integer.toUnsignedLong(value));
             writeDst.executeI128(frame, vec);
             return next();
         }
@@ -57,7 +57,7 @@ public abstract class Movss extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             int value = readSrc.executeI32(frame);
             if (writeDst instanceof AVXRegisterWriteNode) {
-                Vector128 vec = new Vector128(0, value);
+                Vector128 vec = new Vector128(0, Integer.toUnsignedLong(value));
                 writeDst.executeI128(frame, vec);
             } else {
                 writeDst.executeI32(frame, value);
