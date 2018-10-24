@@ -19,6 +19,10 @@ public class LocationRecord extends Record {
     private long offset;
     private long pc;
 
+    private byte[] filenameCache;
+    private byte[] symbolCache;
+    private byte[][] assemblyCache;
+
     LocationRecord() {
         super(MAGIC);
     }
@@ -92,10 +96,22 @@ public class LocationRecord extends Record {
     @Override
     protected int size() {
         int size = 2 * 8;
-        size += sizeString(filename);
-        size += sizeString(symbol);
-        size += sizeStringArray(assembly);
-        size += sizeArray(machinecode);
+        filenameCache = filename != null ? filename.getBytes() : null;
+        symbolCache = symbol != null ? symbol.getBytes() : null;
+        if (assembly != null) {
+            assemblyCache = new byte[assembly.length][];
+            for (int i = 0; i < assembly.length; i++) {
+                assemblyCache[i] = assembly[i].getBytes();
+            }
+        }
+
+        // size += sizeString(filename);
+        // size += sizeString(symbol);
+        // size += sizeStringArray(assembly);
+        size += sizeShortArray(filenameCache);
+        size += sizeShortArray(symbolCache);
+        size += sizeShortArray2(assemblyCache);
+        size += sizeShortArray(machinecode);
         return size;
     }
 
@@ -104,7 +120,7 @@ public class LocationRecord extends Record {
         filename = readString(in);
         symbol = readString(in);
         assembly = readStringArray(in);
-        machinecode = readArray(in);
+        machinecode = readShortArray(in);
 
         offset = in.read64bit();
         pc = in.read64bit();
@@ -112,10 +128,13 @@ public class LocationRecord extends Record {
 
     @Override
     protected void writeRecord(WordOutputStream out) throws IOException {
-        writeString(out, filename);
-        writeString(out, symbol);
-        writeStringArray(out, assembly);
-        writeArray(out, machinecode);
+        // writeString(out, filename);
+        // writeString(out, symbol);
+        // writeStringArray(out, assembly);
+        writeShortArray(out, filenameCache);
+        writeShortArray(out, symbolCache);
+        writeShortArray2(out, assemblyCache);
+        writeShortArray(out, machinecode);
         out.write64bit(offset);
         out.write64bit(pc);
     }

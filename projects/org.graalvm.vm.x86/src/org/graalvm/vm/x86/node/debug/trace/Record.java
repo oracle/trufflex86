@@ -188,4 +188,70 @@ public abstract class Record {
             out.write(data);
         }
     }
+
+    protected static final int sizeShortArray(byte[] data) {
+        if (data == null) {
+            return 2;
+        } else {
+            return data.length + 2;
+        }
+    }
+
+    protected static final byte[] readShortArray(WordInputStream in) throws IOException {
+        int length = in.read16bit();
+        if (length == 0) {
+            return null;
+        } else {
+            byte[] data = new byte[length];
+            in.read(data);
+            return data;
+        }
+    }
+
+    protected static final void writeShortArray(WordOutputStream out, byte[] data) throws IOException {
+        if (data == null) {
+            out.write16bit((short) 0);
+        } else {
+            out.write16bit((short) data.length);
+            out.write(data);
+        }
+    }
+
+    protected static final int sizeShortArray2(byte[][] data) {
+        if (data == null) {
+            return 2;
+        } else {
+            int size = 2;
+            for (int i = 0; i < data.length; i++) {
+                size += 2 + data[i].length;
+            }
+            return size;
+        }
+    }
+
+    protected static final byte[][] readShortArray2(WordInputStream in) throws IOException {
+        int length = in.read16bit();
+        if (length == 0) {
+            return null;
+        } else {
+            byte[][] data = new byte[length][];
+            for (int i = 0; i < data.length; i++) {
+                data[i] = new byte[in.read16bit()];
+                in.read(data[i]);
+            }
+            return data;
+        }
+    }
+
+    protected static final void writeShortArray2(WordOutputStream out, byte[][] data) throws IOException {
+        if (data == null) {
+            out.write16bit((short) 0);
+        } else {
+            out.write16bit((short) data.length);
+            for (int i = 0; i < data.length; i++) {
+                out.write16bit((short) data[i].length);
+                out.write(data[i]);
+            }
+        }
+    }
 }
