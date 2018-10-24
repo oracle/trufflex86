@@ -350,9 +350,28 @@ public class Vector128 implements Cloneable {
         }
     }
 
-    private static long gt(long x, long y, long mask) {
-        if ((x & mask) > (y & mask)) {
-            return mask;
+    private static long gt8(long x, long y, int b) {
+        int shamt = 8 * b;
+        if (((byte) (x >> shamt)) > ((byte) (y >> shamt))) {
+            return 0xFF << shamt;
+        } else {
+            return 0;
+        }
+    }
+
+    private static long gt16(long x, long y, int b) {
+        int shamt = 16 * b;
+        if (((short) (x >> shamt)) > ((short) (y >> shamt))) {
+            return 0xFFFF << shamt;
+        } else {
+            return 0;
+        }
+    }
+
+    private static long gt32(long x, long y, int b) {
+        int shamt = 32 * b;
+        if (((int) (x >> shamt)) > ((int) (y >> shamt))) {
+            return 0xFFFFFFFFL << shamt;
         } else {
             return 0;
         }
@@ -411,14 +430,14 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             long r = 0;
-            r |= gt(getI64(i), x.getI64(i), 0xFF00000000000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x00FF000000000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x0000FF0000000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x000000FF00000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x00000000FF000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x0000000000FF0000L);
-            r |= gt(getI64(i), x.getI64(i), 0x000000000000FF00L);
-            r |= gt(getI64(i), x.getI64(i), 0x00000000000000FFL);
+            r |= gt8(getI64(i), x.getI64(i), 7);
+            r |= gt8(getI64(i), x.getI64(i), 6);
+            r |= gt8(getI64(i), x.getI64(i), 5);
+            r |= gt8(getI64(i), x.getI64(i), 4);
+            r |= gt8(getI64(i), x.getI64(i), 3);
+            r |= gt8(getI64(i), x.getI64(i), 2);
+            r |= gt8(getI64(i), x.getI64(i), 1);
+            r |= gt8(getI64(i), x.getI64(i), 0);
             result[i] = r;
         }
         return new Vector128(result);
@@ -430,10 +449,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             long r = 0;
-            r |= gt(getI64(i), x.getI64(i), 0xFFFF000000000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x0000FFFF00000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x00000000FFFF0000L);
-            r |= gt(getI64(i), x.getI64(i), 0x000000000000FFFFL);
+            r |= gt16(getI64(i), x.getI64(i), 3);
+            r |= gt16(getI64(i), x.getI64(i), 2);
+            r |= gt16(getI64(i), x.getI64(i), 1);
+            r |= gt16(getI64(i), x.getI64(i), 0);
             result[i] = r;
         }
         return new Vector128(result);
@@ -445,8 +464,8 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             long r = 0;
-            r |= gt(getI64(i), x.getI64(i), 0xFFFFFFFF00000000L);
-            r |= gt(getI64(i), x.getI64(i), 0x00000000FFFFFFFFL);
+            r |= gt32(getI64(i), x.getI64(i), 1);
+            r |= gt32(getI64(i), x.getI64(i), 0);
             result[i] = r;
         }
         return new Vector128(result);
