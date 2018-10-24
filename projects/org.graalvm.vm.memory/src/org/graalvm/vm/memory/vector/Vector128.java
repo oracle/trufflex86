@@ -479,11 +479,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] <= b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFF;
+                result[i] = 0xFFFFFFFF;
             } else {
-                result[inv] = 0x00000000;
+                result[i] = 0x00000000;
             }
         }
         return new Vector128(result);
@@ -497,11 +496,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] < b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFF;
+                result[i] = 0xFFFFFFFF;
             } else {
-                result[inv] = 0x00000000;
+                result[i] = 0x00000000;
             }
         }
         return new Vector128(result);
@@ -515,11 +513,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] >= b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFF;
+                result[i] = 0xFFFFFFFF;
             } else {
-                result[inv] = 0x00000000;
+                result[i] = 0x00000000;
             }
         }
         return new Vector128(result);
@@ -533,11 +530,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] > b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFF;
+                result[i] = 0xFFFFFFFF;
             } else {
-                result[inv] = 0x00000000;
+                result[i] = 0x00000000;
             }
         }
         return new Vector128(result);
@@ -551,11 +547,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] <= b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
-                result[inv] = 0x0000000000000000L;
+                result[i] = 0x0000000000000000L;
             }
         }
         return new Vector128(result);
@@ -569,11 +564,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] < b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
-                result[inv] = 0x0000000000000000L;
+                result[i] = 0x0000000000000000L;
             }
         }
         return new Vector128(result);
@@ -587,11 +581,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] >= b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
-                result[inv] = 0x0000000000000000L;
+                result[i] = 0x0000000000000000L;
             }
         }
         return new Vector128(result);
@@ -605,11 +598,10 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] > b[i];
-            int inv = a.length - i - 1;
             if (val) {
-                result[inv] = 0xFFFFFFFFFFFFFFFFL;
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
-                result[inv] = 0x0000000000000000L;
+                result[i] = 0x0000000000000000L;
             }
         }
         return new Vector128(result);
