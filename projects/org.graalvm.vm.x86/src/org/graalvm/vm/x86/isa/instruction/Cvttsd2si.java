@@ -42,6 +42,9 @@ public abstract class Cvttsd2si extends AMD64Instruction {
             double val = readSrc.executeF64(frame);
             // TODO: rounding mode, exceptions
             int ival = (int) val;
+            if (val > Integer.MAX_VALUE || val < Integer.MIN_VALUE) {
+                ival = 0x80000000;
+            }
             writeDst.executeI32(frame, ival);
             return next();
         }
@@ -57,6 +60,9 @@ public abstract class Cvttsd2si extends AMD64Instruction {
             double val = readSrc.executeF64(frame);
             // TODO: rounding mode, exceptions
             long ival = (long) val;
+            if (val > Long.MAX_VALUE || val < Long.MIN_VALUE) {
+                ival = 0x80000000_00000000L;
+            }
             writeDst.executeI64(frame, ival);
             return next();
         }
