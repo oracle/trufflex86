@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.x86.isa.CpuState;
-import org.graalvm.vm.x86.isa.Flags;
 
-import com.everyware.util.BitTest;
 import com.everyware.util.io.WordInputStream;
 import com.everyware.util.io.WordOutputStream;
 
@@ -51,15 +49,7 @@ public class CpuStateRecord extends Record {
         state.fs = in.read64bit();
         state.gs = in.read64bit();
         long rfl = in.read64bit();
-        state.cf = BitTest.test(rfl, Flags.CF);
-        state.pf = BitTest.test(rfl, Flags.PF);
-        state.af = BitTest.test(rfl, Flags.AF);
-        state.zf = BitTest.test(rfl, Flags.ZF);
-        state.sf = BitTest.test(rfl, Flags.SF);
-        state.df = BitTest.test(rfl, Flags.DF);
-        state.of = BitTest.test(rfl, Flags.OF);
-        state.ac = BitTest.test(rfl, Flags.AC);
-        state.id = BitTest.test(rfl, Flags.ID);
+        state.setRFL(rfl);
         state.instructionCount = in.read64bit();
         for (int i = 0; i < 16; i++) {
             long hi = in.read64bit();
