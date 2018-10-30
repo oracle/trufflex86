@@ -918,6 +918,54 @@ public class Vector128 implements Cloneable {
     }
 
     @ExplodeLoop
+    public Vector128 mulPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) (a[i] * b[i]);
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
+    public Vector128 mulHighPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) ((a[i] * b[i]) >> 16);
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
+    public Vector128 mulUnsignedPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) (Short.toUnsignedInt(a[i]) * Short.toUnsignedInt(b[i]));
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
+    public Vector128 mulHighUnsignedPackedI16(Vector128 vec) {
+        short[] a = getShorts();
+        short[] b = vec.getShorts();
+        short[] result = new short[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (short) ((Short.toUnsignedInt(a[i]) * Short.toUnsignedInt(b[i])) >> 16);
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
     public Vector128 minUnsignedPackedI8(Vector128 vec) {
         byte[] a = getBytes();
         byte[] b = vec.getBytes();
