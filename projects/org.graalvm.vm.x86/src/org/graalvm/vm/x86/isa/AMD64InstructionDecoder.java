@@ -3134,6 +3134,14 @@ public class AMD64InstructionDecoder {
                                 return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
+                    case AMD64Opcode.PSRAD_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Psrad(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.PSUBB: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
