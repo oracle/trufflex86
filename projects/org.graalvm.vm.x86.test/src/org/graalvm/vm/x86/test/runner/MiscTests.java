@@ -12,7 +12,7 @@ public class MiscTests {
     public void dlIteratePhdr() throws Exception {
         String stdout = "Name: \"\" (8 segments)\n" +
                         "     0: [      0x400000; memsz:    470] flags: 0x4; PT_LOAD\n" +
-                        "     1: [      0x401000; memsz:  799cd] flags: 0x5; PT_LOAD\n" +
+                        "     1: [      0x401000; memsz:  7984d] flags: 0x5; PT_LOAD\n" +
                         "     2: [      0x47b000; memsz:  227ef] flags: 0x4; PT_LOAD\n" +
                         "     3: [      0x49f300; memsz:   6530] flags: 0x6; PT_LOAD\n" +
                         "     4: [      0x400200; memsz:     44] flags: 0x4; PT_NOTE\n" +
