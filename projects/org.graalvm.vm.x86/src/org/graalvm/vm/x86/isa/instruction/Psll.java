@@ -39,6 +39,10 @@ public abstract class Psll extends AMD64Instruction {
     }
 
     public static class Pslld extends Psll {
+        public Pslld(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, "pslld", operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+        }
+
         public Pslld(long pc, byte[] instruction, OperandDecoder operands, int imm) {
             super(pc, instruction, "pslld", operands.getAVXOperand1(128), new ImmediateOperand(imm));
         }
@@ -54,6 +58,10 @@ public abstract class Psll extends AMD64Instruction {
     }
 
     public static class Psllq extends Psll {
+        public Psllq(long pc, byte[] instruction, OperandDecoder operands) {
+            super(pc, instruction, "psllq", operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+        }
+
         public Psllq(long pc, byte[] instruction, OperandDecoder operands, int imm) {
             super(pc, instruction, "psllq", operands.getAVXOperand1(128), new ImmediateOperand(imm));
         }
