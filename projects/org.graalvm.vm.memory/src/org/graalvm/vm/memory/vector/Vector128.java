@@ -540,6 +540,23 @@ public class Vector128 implements Cloneable {
     }
 
     @ExplodeLoop
+    public Vector128 eqF64(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        long[] result = new long[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = a[i] == b[i];
+            if (val) {
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
+            } else {
+                result[i] = 0x0000000000000000L;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
     public Vector128 leF64(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();
@@ -598,6 +615,40 @@ public class Vector128 implements Cloneable {
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
             boolean val = a[i] > b[i];
+            if (val) {
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
+            } else {
+                result[i] = 0x0000000000000000L;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
+    public Vector128 orderedF64(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        long[] result = new long[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = !Double.isNaN(a[i]) && !Double.isNaN(b[i]);
+            if (val) {
+                result[i] = 0xFFFFFFFFFFFFFFFFL;
+            } else {
+                result[i] = 0x0000000000000000L;
+            }
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
+    public Vector128 unorderedF64(Vector128 x) {
+        double[] a = getDoubles();
+        double[] b = x.getDoubles();
+        long[] result = new long[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < result.length; i++) {
+            boolean val = Double.isNaN(a[i]) || Double.isNaN(b[i]);
             if (val) {
                 result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {

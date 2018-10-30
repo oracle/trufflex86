@@ -35,12 +35,20 @@ public abstract class Cmppd extends AMD64Instruction {
 
     public static Cmppd create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
         switch (imm & 0x7) {
+            case 0:
+                return new Cmpeqpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 1:
                 return new Cmpltpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
                 return new Cmplepd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            case 3:
+                return new Cmpunordpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            case 5:
+                return new Cmpnltpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 6:
                 return new Cmpnlepd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
+            case 7:
+                return new Cmpordpd(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
         throw new IllegalInstructionException(pc, instruction, "unknown type " + imm);
     }
@@ -53,9 +61,24 @@ public abstract class Cmppd extends AMD64Instruction {
         writeDst = operand1.createWrite(state, next());
     }
 
+    public static class Cmpeqpd extends Cmppd {
+        protected Cmpeqpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpeqpd", (byte) 0);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 a = readSrc1.executeI128(frame);
+            Vector128 b = readSrc2.executeI128(frame);
+            Vector128 le = a.eqF64(b);
+            writeDst.executeI128(frame, le);
+            return next();
+        }
+    }
+
     public static class Cmpltpd extends Cmppd {
         protected Cmpltpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpltpd", (byte) 2);
+            super(pc, instruction, operand1, operand2, "cmpltpd", (byte) 1);
         }
 
         @Override
@@ -83,9 +106,39 @@ public abstract class Cmppd extends AMD64Instruction {
         }
     }
 
+    public static class Cmpunordpd extends Cmppd {
+        protected Cmpunordpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpunordpd", (byte) 3);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 a = readSrc1.executeI128(frame);
+            Vector128 b = readSrc2.executeI128(frame);
+            Vector128 le = a.unorderedF64(b);
+            writeDst.executeI128(frame, le);
+            return next();
+        }
+    }
+
+    public static class Cmpnltpd extends Cmppd {
+        protected Cmpnltpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpnltpd", (byte) 5);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 a = readSrc1.executeI128(frame);
+            Vector128 b = readSrc2.executeI128(frame);
+            Vector128 ge = a.geF64(b);
+            writeDst.executeI128(frame, ge);
+            return next();
+        }
+    }
+
     public static class Cmpnlepd extends Cmppd {
         protected Cmpnlepd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpnlepd", (byte) 2);
+            super(pc, instruction, operand1, operand2, "cmpnlepd", (byte) 6);
         }
 
         @Override
@@ -96,7 +149,21 @@ public abstract class Cmppd extends AMD64Instruction {
             writeDst.executeI128(frame, le);
             return next();
         }
+    }
 
+    public static class Cmpordpd extends Cmppd {
+        protected Cmpordpd(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpordpd", (byte) 7);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 a = readSrc1.executeI128(frame);
+            Vector128 b = readSrc2.executeI128(frame);
+            Vector128 le = a.orderedF64(b);
+            writeDst.executeI128(frame, le);
+            return next();
+        }
     }
 
     @Override
