@@ -15,6 +15,9 @@ public class AddTest extends InstructionTest {
     private static final byte[] MACHINECODE3 = {0x04, 0x01};
     private static final String ASSEMBLY3 = "add\tal,0x1";
 
+    private static final byte[] MACHINECODE4 = {0x02, 0x4f, 0x08};
+    private static final String ASSEMBLY4 = "add\tcl,[rdi+0x8]";
+
     @Test
     public void test1() {
         check(MACHINECODE1, ASSEMBLY1, Addq.class);
@@ -28,5 +31,10 @@ public class AddTest extends InstructionTest {
     @Test
     public void test3() {
         check(MACHINECODE3, ASSEMBLY3, Addb.class);
+    }
+
+    @Test
+    public void test4() {
+        check(MACHINECODE4, ASSEMBLY4, Addb.class);
     }
 }

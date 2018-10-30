@@ -12,6 +12,7 @@ public class AMD64Opcode {
     public static final byte ADD_A_I = 0x05;
     public static final byte ADD_RM8_R = 0x00;
     public static final byte ADD_RM_R = 0x01;
+    public static final byte ADD_R8_RM8 = 0x02;
     public static final byte ADD_R_RM = 0x03;
     public static final byte ADD_RM_I8 = (byte) 0x83;
 

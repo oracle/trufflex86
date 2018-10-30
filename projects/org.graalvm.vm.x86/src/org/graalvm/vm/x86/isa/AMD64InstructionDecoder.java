@@ -580,6 +580,10 @@ public class AMD64InstructionDecoder {
                     return new Addl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                 }
             }
+            case AMD64Opcode.ADD_R8_RM8: {
+                Args args = new Args(code, rex, segment, addressOverride);
+                return new Addb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), true);
+            }
             case AMD64Opcode.ADD_R_RM: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 if (rex != null && rex.w) {
