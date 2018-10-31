@@ -324,9 +324,11 @@ import org.graalvm.vm.x86.isa.instruction.Rep;
 import org.graalvm.vm.x86.isa.instruction.Rep.Repnz;
 import org.graalvm.vm.x86.isa.instruction.Rep.Repz;
 import org.graalvm.vm.x86.isa.instruction.Ret;
+import org.graalvm.vm.x86.isa.instruction.Rol.Rolb;
 import org.graalvm.vm.x86.isa.instruction.Rol.Roll;
 import org.graalvm.vm.x86.isa.instruction.Rol.Rolq;
 import org.graalvm.vm.x86.isa.instruction.Rol.Rolw;
+import org.graalvm.vm.x86.isa.instruction.Ror.Rorb;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorl;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorq;
 import org.graalvm.vm.x86.isa.instruction.Ror.Rorw;
@@ -1520,6 +1522,10 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.SHL_RM8_C: {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
+                    case 0:
+                        return new Rolb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
+                    case 1:
+                        return new Rorb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
                     case 4:
                         return new Shlb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), new RegisterOperand(Register.CL));
                     case 5:
