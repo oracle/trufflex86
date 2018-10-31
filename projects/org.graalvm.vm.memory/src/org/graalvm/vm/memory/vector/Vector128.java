@@ -353,7 +353,7 @@ public class Vector128 implements Cloneable {
     private static long gt8(long x, long y, int b) {
         int shamt = 8 * b;
         if (((byte) (x >> shamt)) > ((byte) (y >> shamt))) {
-            return 0xFF << shamt;
+            return 0xFFL << shamt;
         } else {
             return 0;
         }
@@ -362,7 +362,7 @@ public class Vector128 implements Cloneable {
     private static long gt16(long x, long y, int b) {
         int shamt = 16 * b;
         if (((short) (x >> shamt)) > ((short) (y >> shamt))) {
-            return 0xFFFF << shamt;
+            return 0xFFFFL << shamt;
         } else {
             return 0;
         }

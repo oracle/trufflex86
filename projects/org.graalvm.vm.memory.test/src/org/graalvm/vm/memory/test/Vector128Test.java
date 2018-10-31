@@ -267,4 +267,13 @@ public class Vector128Test {
         Vector128 ref = new Vector128(0xffffffffffffffffL, 0xffffffffffffffffL);
         assertEquals(ref, act);
     }
+
+    @Test
+    public void testGt8() {
+        Vector128 vec1 = new Vector128(0x0000000000000000L, 0x0000000000000000L);
+        Vector128 vec2 = new Vector128(0xf00df409f805fc01L, 0xf00df409f805fc01L);
+        Vector128 act = vec1.gt8(vec2);
+        Vector128 ref = new Vector128(0xff00ff00ff00ff00L, 0xff00ff00ff00ff00L);
+        assertEquals(ref, act);
+    }
 }
