@@ -304,13 +304,17 @@ public abstract class Imul extends AMD64Instruction {
         public long executeInstruction(VirtualFrame frame) {
             long op1 = readOp1.executeI64(frame);
             long op2 = readOp2.executeI64(frame);
-            long result = op1 * op2;
-            writeDst.executeI64(frame, result);
-            boolean overflow = op1 != 0 && (result / op1 != op2); // TODO: implement properly!
+            long resultL = op1 * op2;
+            long resultH = LongMultiplication.multiplyHigh(op1, op2);
+            writeDst.executeI64(frame, resultL);
+            boolean ok1 = resultH != 0 || resultL >= 0; // resultH == 0 -> resultL >= 0;
+            boolean ok2 = resultH != -1 || resultL < 0; // resultH == -1 -> resultL < 0;
+            boolean ok3 = resultH == 0 || resultH == -1;
+            boolean overflow = !(ok1 && ok2 && ok3);
             writeCF.execute(frame, overflow);
             writeOF.execute(frame, overflow);
-            writeSF.execute(frame, result < 0);
-            writePF.execute(frame, Flags.getParity((byte) result));
+            writeSF.execute(frame, resultL < 0);
+            writePF.execute(frame, Flags.getParity((byte) resultL));
             return next();
         }
     }
