@@ -258,4 +258,13 @@ public class Vector128Test {
         Vector128 ref = new Vector128(0x33445566778899AAL, 0xBBCCDDEEFF000000L);
         assertEquals(ref, shifted);
     }
+
+    @Test
+    public void testGe() {
+        Vector128 vec1 = new Vector128(0x4014000000000000L, 0x4014000000000000L);
+        Vector128 vec2 = new Vector128(0x7ff8000000000000L, 0x4014000000000000L);
+        Vector128 act = vec1.geF64(vec2);
+        Vector128 ref = new Vector128(0xffffffffffffffffL, 0xffffffffffffffffL);
+        assertEquals(ref, act);
+    }
 }

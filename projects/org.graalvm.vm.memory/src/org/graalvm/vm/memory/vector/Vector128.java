@@ -597,7 +597,7 @@ public class Vector128 implements Cloneable {
         long[] result = new long[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
-            boolean val = a[i] >= b[i];
+            boolean val = a[i] >= b[i] || Double.isNaN(a[i]) || Double.isNaN(b[i]);
             if (val) {
                 result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
@@ -614,7 +614,7 @@ public class Vector128 implements Cloneable {
         long[] result = new long[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < result.length; i++) {
-            boolean val = a[i] > b[i];
+            boolean val = a[i] > b[i] || Double.isNaN(a[i]) || Double.isNaN(b[i]);
             if (val) {
                 result[i] = 0xFFFFFFFFFFFFFFFFL;
             } else {
