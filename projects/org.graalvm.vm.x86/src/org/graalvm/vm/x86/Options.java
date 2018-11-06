@@ -18,6 +18,7 @@ public class Options {
     public static final BooleanOption DEBUG_PRINT_STATE = new BooleanOption("vmx86.debug.state", true);
     public static final BooleanOption DEBUG_PRINT_ONCE = new BooleanOption("vmx86.debug.once", false);
     public static final BooleanOption DEBUG_PRINT_ARGS = new BooleanOption("vmx86.debug.args", true);
+    public static final BooleanOption DEBUG_SYMBOLS = new BooleanOption("vmx86.debug.symbols", false);
     public static final BooleanOption DEBUG_STATIC_ENV = new BooleanOption("vmx86.debug.staticenv", false);
 
     // Dispatch logic

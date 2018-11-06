@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -63,7 +61,7 @@ import com.everyware.util.log.Trace;
 public class PosixEnvironment {
     private static final Logger log = Trace.create(PosixEnvironment.class);
 
-    private static final boolean DEBUG = Options.getBoolean(Options.DEBUG_EXEC);
+    private static final boolean DEBUG = Options.getBoolean(Options.DEBUG_EXEC) || Options.getBoolean(Options.DEBUG_SYMBOLS);
     private static final boolean STATIC_TIME = Options.getBoolean(Options.USE_STATIC_TIME);
 
     private final VirtualMemory mem;
@@ -74,7 +72,7 @@ public class PosixEnvironment {
     private String execfn;
 
     private NavigableMap<Long, Symbol> symbols;
-    private NavigableSet<Long> libraries;
+    private NavigableMap<Long, String> libraries;
     private SymbolResolver symbolResolver;
 
     public PosixEnvironment(VirtualMemory mem, String arch) {
@@ -85,7 +83,7 @@ public class PosixEnvironment {
         if (DEBUG) {
             symbols = new TreeMap<>();
             symbolResolver = new SymbolResolver(symbols);
-            libraries = new TreeSet<>();
+            libraries = new TreeMap<>();
         }
     }
 
@@ -107,12 +105,16 @@ public class PosixEnvironment {
     }
 
     public long getBase(long pc) {
-        Long result = libraries.floor(pc);
+        Long result = libraries.floorKey(pc);
         if (result == null) {
             return -1;
         } else {
             return result;
         }
+    }
+
+    public String getFilename(long pc) {
+        return libraries.floorEntry(pc).getValue();
     }
 
     private void loadSymbols(int fildes, long offset, long ptr, long length) {
@@ -144,7 +146,11 @@ public class PosixEnvironment {
                             loadBias = ptr - phdr.p_vaddr;
                             log.log(Levels.DEBUG, "Program header found: " + String.format("0x%08x-0x%08x", phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz));
                             log.log(Levels.DEBUG, "Computed load bias is " + HexFormatter.tohex(loadBias, 16));
-                            libraries.add(loadBias);
+                            String filename = posix.getFileDescriptor(fildes).name;
+                            if (filename == null) {
+                                filename = "/proc/self/fd/" + fildes;
+                            }
+                            libraries.put(loadBias, filename);
                             break;
                         }
                     }

@@ -16,6 +16,7 @@ import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
 import org.graalvm.vm.x86.SymbolResolver;
@@ -29,6 +30,7 @@ import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.InteropException;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.elf.Symbol;
@@ -274,13 +276,44 @@ public class TraceDispatchNode extends AMD64Node {
             throw e;
         } catch (CpuRuntimeException e) {
             CompilerDirectives.transferToInterpreter();
-            SymbolResolver symbols = getContextReference().get().getSymbolResolver();
+            AMD64Context ctx = getContextReference().get();
+            SymbolResolver symbols = ctx.getSymbolResolver();
             Symbol sym = symbols.getSymbol(e.getPC());
+            long offset = 0;
+
+            if (sym == null) {
+                PosixEnvironment posix = ctx.getPosixEnvironment();
+                sym = posix.getSymbol(e.getPC());
+                long b = posix.getBase(e.getPC());
+                if (b != -1) {
+                    offset = e.getPC() - b;
+                }
+            }
+
+            String filename = null;
+            VirtualMemory mem = ctx.getMemory();
+            MemoryPage page = mem.get(e.getPC());
+            if (page != null && page.name != null) {
+                filename = page.name;
+            }
+            if (filename == null) {
+                PosixEnvironment posix = ctx.getPosixEnvironment();
+                filename = posix.getFilename(e.getPC());
+            }
+
             if (sym == null) {
                 Trace.log.printf("Exception at address 0x%016x!\n", e.getPC());
             } else {
                 Trace.log.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
             }
+            if (filename != null) {
+                if (offset != 0) {
+                    Trace.log.printf("File: %s [offset=0x%x]\n", filename, offset);
+                } else {
+                    Trace.log.printf("File: %s\n", filename);
+                }
+            }
+
             if (!(e.getCause() instanceof SegmentationViolation)) {
                 try {
                     memory.printAddressInfo(e.getPC(), Trace.log);
