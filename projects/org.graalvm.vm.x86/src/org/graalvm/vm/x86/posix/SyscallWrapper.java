@@ -25,6 +25,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_stat = 4;
     public static final int SYS_fstat = 5;
     public static final int SYS_lstat = 6;
+    public static final int SYS_poll = 7;
     public static final int SYS_lseek = 8;
     public static final int SYS_mmap = 9;
     public static final int SYS_mprotect = 10;
@@ -41,6 +42,15 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_dup = 32;
     public static final int SYS_dup2 = 33;
     public static final int SYS_getpid = 39;
+    public static final int SYS_socket = 41;
+    public static final int SYS_connect = 42;
+    public static final int SYS_recvfrom = 45;
+    public static final int SYS_recvmsg = 47;
+    public static final int SYS_shutdown = 48;
+    public static final int SYS_bind = 49;
+    public static final int SYS_getsockname = 51;
+    public static final int SYS_getpeername = 52;
+    public static final int SYS_setsockopt = 54;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_fcntl = 72;
@@ -177,6 +187,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.fstat((int) a1, a2);
             case SYS_lstat:
                 return posix.lstat(a1, a2);
+            case SYS_poll:
+                return posix.poll(a1, (int) a2, (int) a3);
             case SYS_lseek:
                 return posix.lseek((int) a1, a2, (int) a3);
             case SYS_mmap:
@@ -209,6 +221,24 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.dup2((int) a1, (int) a2);
             case SYS_getpid:
                 return posix.getpid();
+            case SYS_socket:
+                return posix.socket((int) a1, (int) a2, (int) a3);
+            case SYS_connect:
+                return posix.connect((int) a1, a2, (int) a3);
+            case SYS_recvfrom:
+                return posix.recvfrom((int) a1, a2, a3, (int) a4, a5, a6);
+            case SYS_recvmsg:
+                return posix.recvmsg((int) a1, a2, (int) a3);
+            case SYS_shutdown:
+                return posix.shutdown((int) a1, (int) a2);
+            case SYS_bind:
+                return posix.bind((int) a1, a2, (int) a3);
+            case SYS_getsockname:
+                return posix.getsockname((int) a1, a2, a3);
+            case SYS_getpeername:
+                return posix.getpeername((int) a1, a2, a3);
+            case SYS_setsockopt:
+                return posix.setsockopt((int) a1, (int) a2, (int) a3, a4, (int) a5);
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
                 if (posix.isStrace()) {

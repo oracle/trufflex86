@@ -8,6 +8,7 @@ public class Syscalls {
     public static final int SYS_stat = 4;
     public static final int SYS_fstat = 5;
     public static final int SYS_lstat = 6;
+    public static final int SYS_poll = 7;
     public static final int SYS_lseek = 8;
     public static final int SYS_mmap = 9;
     public static final int SYS_mprotect = 10;
@@ -24,6 +25,15 @@ public class Syscalls {
     public static final int SYS_dup = 32;
     public static final int SYS_dup2 = 33;
     public static final int SYS_getpid = 39;
+    public static final int SYS_socket = 41;
+    public static final int SYS_connect = 42;
+    public static final int SYS_recvfrom = 45;
+    public static final int SYS_recvmsg = 47;
+    public static final int SYS_shutdown = 48;
+    public static final int SYS_bind = 49;
+    public static final int SYS_getsockname = 51;
+    public static final int SYS_getpeername = 52;
+    public static final int SYS_setsockopt = 54;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_fcntl = 72;

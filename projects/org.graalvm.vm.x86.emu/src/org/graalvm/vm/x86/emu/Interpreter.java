@@ -165,6 +165,8 @@ public class Interpreter {
                 return posix.fstat((int) a1, a2);
             case Syscalls.SYS_lstat:
                 return posix.lstat(a1, a2);
+            case Syscalls.SYS_poll:
+                return posix.poll(a1, (int) a2, (int) a3);
             case Syscalls.SYS_lseek:
                 return posix.lseek((int) a1, a2, (int) a3);
             case Syscalls.SYS_mmap:
@@ -197,6 +199,24 @@ public class Interpreter {
                 return posix.dup2((int) a1, (int) a2);
             case Syscalls.SYS_getpid:
                 return posix.getpid();
+            case Syscalls.SYS_socket:
+                return posix.socket((int) a1, (int) a2, (int) a3);
+            case Syscalls.SYS_connect:
+                return posix.connect((int) a1, a2, (int) a3);
+            case Syscalls.SYS_recvfrom:
+                return posix.recvfrom((int) a1, a2, a3, (int) a4, a5, a6);
+            case Syscalls.SYS_recvmsg:
+                return posix.recvmsg((int) a1, a2, (int) a3);
+            case Syscalls.SYS_shutdown:
+                return posix.shutdown((int) a1, (int) a2);
+            case Syscalls.SYS_bind:
+                return posix.bind((int) a1, a2, (int) a3);
+            case Syscalls.SYS_getsockname:
+                return posix.getsockname((int) a1, a2, a3);
+            case Syscalls.SYS_getpeername:
+                return posix.getpeername((int) a1, a2, a3);
+            case Syscalls.SYS_setsockopt:
+                return posix.setsockopt((int) a1, (int) a2, (int) a3, a4, (int) a5);
             case Syscalls.SYS_exit:
             case Syscalls.SYS_exit_group: // TODO: implement difference
                 if (posix.isStrace()) {

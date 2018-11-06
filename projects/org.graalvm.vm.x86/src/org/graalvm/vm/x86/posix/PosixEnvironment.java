@@ -40,10 +40,14 @@ import com.everyware.posix.api.Utsname;
 import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.FileDescriptorManager;
 import com.everyware.posix.api.io.Iovec;
+import com.everyware.posix.api.io.Pollfd;
 import com.everyware.posix.api.io.Stat;
 import com.everyware.posix.api.io.Stream;
 import com.everyware.posix.api.linux.Sysinfo;
 import com.everyware.posix.api.mem.Mman;
+import com.everyware.posix.api.net.Msghdr;
+import com.everyware.posix.api.net.RecvResult;
+import com.everyware.posix.api.net.Sockaddr;
 import com.everyware.posix.elf.Elf;
 import com.everyware.posix.elf.ProgramHeader;
 import com.everyware.posix.elf.Section;
@@ -190,6 +194,14 @@ public class PosixEnvironment {
             return null;
         } else {
             return mem.getPosixPointer(addr);
+        }
+    }
+
+    private PosixPointer sockaddrPointer(long addr) {
+        if (addr == 0) {
+            return null;
+        } else {
+            return new SockaddrPointer(mem.getPosixPointer(addr));
         }
     }
 
@@ -900,6 +912,192 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "sigaltstack failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int poll(long fds, int nfds, int timeout) throws SyscallException {
+        try {
+            PosixPointer pfds = posixPointer(fds);
+            Pollfd[] parsed = new Pollfd[nfds];
+            PosixPointer ptr = pfds;
+            for (int i = 0; i < nfds; i++) {
+                parsed[i] = new Pollfd();
+                ptr = parsed[i].read(ptr);
+            }
+
+            int result = posix.poll(parsed, nfds, timeout);
+
+            if (result > 0) {
+                ptr = pfds;
+                for (int i = 0; i < nfds; i++) {
+                    ptr = parsed[i].write(ptr);
+                }
+            }
+
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "poll failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int socket(int domain, int type, int protocol) throws SyscallException {
+        try {
+            return posix.socket(domain, type, protocol);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "socket failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int connect(int socket, long address, int addressLen) throws SyscallException {
+        try {
+            return posix.connect(socket, sockaddrPointer(address), addressLen);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "connect failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int bind(int socket, long address, int addressLen) throws SyscallException {
+        try {
+            return posix.bind(socket, sockaddrPointer(address), addressLen);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "bind failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int getsockname(int socket, long address, long address_len) throws SyscallException {
+        try {
+            Sockaddr sa = posix.getsockname(socket);
+            sa.write(sockaddrPointer(address));
+            posixPointer(address_len).setI32(sa.getSize());
+            return 0;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getsockname failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int getpeername(int socket, long address, long address_len) throws SyscallException {
+        try {
+            Sockaddr sa = posix.getpeername(socket);
+            sa.write(sockaddrPointer(address));
+            posixPointer(address_len).setI32(sa.getSize());
+            return 0;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getpeername failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int setsockopt(int sock, int level, int option_name, long option_value, int option_len) throws SyscallException {
+        if (option_len != 4) {
+            log.log(Level.WARNING, "Invalid option_len " + option_len + " in setsockopt");
+            throw new SyscallException(Errno.EINVAL);
+        }
+        try {
+            int val = posixPointer(option_value).getI32();
+            return posix.setsockopt(sock, level, option_name, val);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "getsockname failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int shutdown(int socket, int how) throws SyscallException {
+        try {
+            return posix.shutdown(socket, how);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "shutdown failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public long recvfrom(int sock, long buffer, long length, int flags, long address, long address_len) throws SyscallException {
+        try {
+            RecvResult result = posix.recvfrom(sock, posixPointer(buffer), length, flags);
+            if (address != 0) {
+                result.sa.write(sockaddrPointer(address));
+            }
+            if (address_len != 0) {
+                posixPointer(address_len).setI32(16);
+            }
+            return result.length;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "recvfrom failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    private Msghdr parseMsghdr64(PosixPointer p) {
+        PosixPointer ptr = p;
+        Msghdr msghdr = new Msghdr();
+
+        long msg_name = ptr.getI64();
+        int msg_namelen = (int) ptr.add(8).getI64();
+        ptr = ptr.add(16);
+        if (msg_name != 0) {
+            msghdr.msg_name = Sockaddr.get(sockaddrPointer(msg_name), msg_namelen);
+        }
+        long iov = ptr.getI64();
+        msghdr.msg_iovlen = (int) ptr.add(8).getI64();
+        msghdr.msg_iov = getIov64(iov, msghdr.msg_iovlen);
+        ptr = ptr.add(16);
+        // TODO: parse msg_control
+        msghdr.msg_control = null;
+        ptr = ptr.add(16);
+        msghdr.msg_flags = ptr.getI32();
+        return msghdr;
+    }
+
+    public long recvmsg(int socket, long message, int flags) throws SyscallException {
+        try {
+            PosixPointer ptr = posixPointer(message);
+            Msghdr msg = parseMsghdr64(ptr);
+            long result = posix.recvmsg(socket, msg, flags);
+            PosixPointer msg_name = sockaddrPointer(ptr.getI64());
+            if (msg_name != null && msg.msg_name != null) {
+                msg.msg_name.write64(msg_name);
+                ptr.add(8).setI32(msg.msg_name.getSize());
+            }
+            PosixPointer msg_control = posixPointer(ptr.add(32).getI64());
+            int msg_controllen = ptr.add(40).getI32();
+            if (msg_control != null && msg_controllen > 0) {
+                if (msg.msg_control == null) {
+                    ptr.add(40).setI64(0);
+                } else {
+                    ptr.add(40).setI64(16 + msg.msg_control.cmsg_data.length);
+                }
+            } else {
+                ptr.add(40).setI64(0);
+            }
+            ptr.add(48).setI32(msg.msg_flags);
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "recvmsg failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }

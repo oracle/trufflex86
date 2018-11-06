@@ -40,6 +40,9 @@ public class LoaderNode extends AMD64Node {
             Map<String, String> env = new HashMap<>();
             env.put("PATH", System.getenv("PATH"));
             env.put("LANG", System.getenv("LANG"));
+            if (System.getenv("DISPLAY") != null) {
+                env.put("DISPLAY", System.getenv("DISPLAY"));
+            }
             return env;
         } else {
             return System.getenv();
