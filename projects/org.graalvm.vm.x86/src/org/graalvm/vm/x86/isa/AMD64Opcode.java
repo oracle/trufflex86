@@ -250,6 +250,8 @@ public class AMD64Opcode {
 
     public static final byte PEXTRW_R_X_I = (byte) 0xC5;
 
+    public static final byte PINSRW_X_RM_I = (byte) 0xC4;
+
     public static final byte PMAXUB_X_XM = (byte) 0xDE;
 
     public static final byte PMINUB_X_XM = (byte) 0xDA;
