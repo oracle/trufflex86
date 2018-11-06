@@ -186,6 +186,12 @@ suite = {
       "testProject" : True,
     },
 
+    "org.graalvm.vm.x86.testcases.gcc" : {
+      "subDir" : "tests",
+      "class" : "VMX86TestSuite",
+      "testProject" : True,
+    },
+
     "benchmarksgame" : {
       "subDir" : "tests",
       "native" : True,
@@ -276,6 +282,7 @@ suite = {
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
         "org.graalvm.vm.x86.testcases.sulong.asm",
+        "org.graalvm.vm.x86.testcases.gcc",
         "benchmarksgame",
         "mx:JUNIT",
       ],
@@ -462,6 +469,7 @@ suite = {
         "org.graalvm.vm.x86.testcases.c",
         "org.graalvm.vm.x86.testcases.sulong.asm",
         "benchmarksgame",
+        "org.graalvm.vm.x86.testcases.gcc",
         "org.graalvm.vm.x86.nfi.test.native"
       ],
       "javaProperties" : {

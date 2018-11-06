@@ -54,4 +54,4 @@ lib/libc.o: lib/libc.c
 %.elf: %.o
 	$(QUIET)mkdir -p $(shell dirname $@)
 	$(QUIET)echo "[CCLD]      $@"
-	$(QUIET)$(CC) $(LDFLAGS) $(LDSTATIC) -o "$@" "$<"
+	$(QUIET)$(CC) $(LDFLAGS) $(LDSTATIC) -o "$@" "$<" -lm
