@@ -98,6 +98,11 @@ def runTrcview(args=None, out=None):
     vmArgs, trcviewArgs = truffle_extract_VM_args(args)
     return mx.run_java(getCommonOptions(False) + vmArgs + getTrcviewClasspathOptions() + ['org.graalvm.vm.x86.trcview.ui.MainWindow'] + trcviewArgs, out=out)
 
+def runTrcdump(args=None, out=None):
+    """CLI tool to convert binary execution traces to ascii format"""
+    vmArgs, trcviewArgs = truffle_extract_VM_args(args)
+    return mx.run_java(getCommonOptions(False) + vmArgs + getTrcviewClasspathOptions() + ['org.graalvm.vm.x86.trcview.TextDump'] + trcviewArgs, out=out)
+
 def _unittest_config_participant(config):
     (vmArgs, mainClass, mainClassArgs) = config
     vmArgs = getCommonOptions(True) + vmArgs
@@ -134,5 +139,6 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
 
 mx.update_commands(_suite, {
     'vmx86' : [runAMD64, ''],
-    'trcview' : [runTrcview, '']
+    'trcview' : [runTrcview, ''],
+    'trcdump' : [runTrcdump, '']
 })

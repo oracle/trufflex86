@@ -121,6 +121,6 @@ public class SystemLogRecord extends Record {
         if (throwable != null) {
             error = "\n" + throwable;
         }
-        return String.format("[%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL] %2$08x %3$s %4$c %5$s%6$s%n", new Date(time), threadID, src, lvl, message, error);
+        return String.format("[%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL] %2$08x %3$s %4$c %5$s%6$s", new Date(time), threadID, src, lvl, message, error);
     }
 }
