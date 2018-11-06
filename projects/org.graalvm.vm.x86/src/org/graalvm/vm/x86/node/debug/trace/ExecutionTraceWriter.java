@@ -90,4 +90,12 @@ public class ExecutionTraceWriter implements Closeable {
             log.log(Level.WARNING, "Error while writing memory access: " + e.getMessage(), e);
         }
     }
+
+    public synchronized void flush() {
+        try {
+            out.flush();
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while flushing trace data: " + e.getMessage(), e);
+        }
+    }
 }

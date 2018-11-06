@@ -50,12 +50,12 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
 
 public class AMD64BasicBlock extends AMD64Node {
-    @CompilationFinal private static boolean DEBUG = getBoolean(Options.DEBUG_EXEC);
-    @CompilationFinal private static boolean DEBUG_TRACE = getBoolean(Options.DEBUG_EXEC_TRACE);
-    @CompilationFinal private static boolean PRINT_SYMBOL = getBoolean(Options.DEBUG_PRINT_SYMBOLS);
-    @CompilationFinal private static boolean PRINT_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
-    @CompilationFinal private static boolean PRINT_ONCE = getBoolean(Options.DEBUG_PRINT_ONCE);
-    @CompilationFinal private static boolean PRINT_ARGS = getBoolean(Options.DEBUG_PRINT_ARGS);
+    private static final boolean DEBUG = getBoolean(Options.DEBUG_EXEC);
+    private static final boolean DEBUG_TRACE = getBoolean(Options.DEBUG_EXEC_TRACE);
+    private static final boolean PRINT_SYMBOL = getBoolean(Options.DEBUG_PRINT_SYMBOLS);
+    private static final boolean PRINT_STATE = getBoolean(Options.DEBUG_PRINT_STATE);
+    private static final boolean PRINT_ONCE = getBoolean(Options.DEBUG_PRINT_ONCE);
+    private static final boolean PRINT_ARGS = getBoolean(Options.DEBUG_PRINT_ARGS);
 
     @CompilationFinal private static boolean DEBUG_COMPILER = false;
 
@@ -228,6 +228,11 @@ public class AMD64BasicBlock extends AMD64Node {
     }
 
     @TruffleBoundary
+    private void flushTrace() {
+        traceWriter.flush();
+    }
+
+    @TruffleBoundary
     private void trace(long pc, AMD64Instruction insn) {
         if (PRINT_SYMBOL) {
             AMD64Context ctx = ctxref.get();
@@ -363,6 +368,9 @@ public class AMD64BasicBlock extends AMD64Node {
             throw e;
         } catch (Throwable t) {
             updateInstructionCount(frame, n);
+            if (DEBUG && DEBUG_TRACE) {
+                flushTrace();
+            }
             CompilerDirectives.transferToInterpreter();
             throw new CpuRuntimeException(pc, t);
         }
