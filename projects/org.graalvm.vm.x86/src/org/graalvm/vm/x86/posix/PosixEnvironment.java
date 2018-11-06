@@ -101,10 +101,17 @@ public class PosixEnvironment {
     }
 
     public Symbol getSymbol(long pc) {
-        return symbolResolver.getSymbol(pc);
+        if (symbolResolver != null) {
+            return symbolResolver.getSymbol(pc);
+        } else {
+            return null;
+        }
     }
 
     public long getBase(long pc) {
+        if (libraries == null) {
+            return 0;
+        }
         Long result = libraries.floorKey(pc);
         if (result == null) {
             return -1;
@@ -114,7 +121,11 @@ public class PosixEnvironment {
     }
 
     public String getFilename(long pc) {
-        return libraries.floorEntry(pc).getValue();
+        if (libraries != null) {
+            return libraries.floorEntry(pc).getValue();
+        } else {
+            return null;
+        }
     }
 
     private void loadSymbols(int fildes, long offset, long ptr, long length) {
