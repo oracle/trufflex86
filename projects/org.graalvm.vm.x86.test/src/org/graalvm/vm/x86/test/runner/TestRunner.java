@@ -51,7 +51,7 @@ public class TestRunner {
 
         int status = result.asInt();
 
-        assertEquals(code, status);
+        assertEquals(code, (byte) status); // return code is only 8bit in Linux
         assertArrayEquals(stdout, out.toByteArray());
         assertArrayEquals(stderr, err.toByteArray());
     }
@@ -78,7 +78,7 @@ public class TestRunner {
 
         int status = result.asInt();
 
-        assertEquals(code, status);
+        assertEquals(code, (byte) status); // return code is only 8bit in Linux
         assertEquals(stdout, new String(out.toByteArray(), StandardCharsets.UTF_8));
         assertEquals(stderr, new String(err.toByteArray(), StandardCharsets.UTF_8));
     }
@@ -106,7 +106,7 @@ public class TestRunner {
         int status = result.asInt();
 
         Encoder b64 = Base64.getEncoder();
-        assertEquals(code, status);
+        assertEquals(code, (byte) status); // return code is only 8bit in Linux
         assertEquals(stdout, b64.encodeToString(out.toByteArray()));
         assertEquals(stderr, new String(err.toByteArray(), StandardCharsets.UTF_8));
     }
