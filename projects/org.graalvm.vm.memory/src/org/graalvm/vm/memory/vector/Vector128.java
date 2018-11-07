@@ -822,6 +822,17 @@ public class Vector128 implements Cloneable {
     }
 
     @ExplodeLoop
+    public Vector128 shlPackedI16(int n) {
+        short[] shorts = getShorts();
+        short[] result = new short[shorts.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        for (int i = 0; i < shorts.length; i++) {
+            result[i] = (short) (shorts[i] << n);
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
     public Vector128 shlPackedI32(int n) {
         int[] ints = getInts();
         int[] result = new int[ints.length];

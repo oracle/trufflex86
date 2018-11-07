@@ -229,6 +229,9 @@ public class AMD64Opcode {
 
     public static final byte ORPD_X_XM = 0x56;
 
+    public static final byte PACKSSWB_X_XM = (byte) 0x63;
+    public static final byte PACKSSDW_X_XM = (byte) 0x6B;
+
     public static final byte PACKUSWB_X_XM = (byte) 0x67;
 
     public static final byte PADDB_X_XM = (byte) 0xFC;
@@ -251,6 +254,8 @@ public class AMD64Opcode {
     public static final byte PEXTRW_R_X_I = (byte) 0xC5;
 
     public static final byte PINSRW_X_RM_I = (byte) 0xC4;
+
+    public static final byte PMADDWD_X_XM = (byte) 0xF5;
 
     public static final byte PMAXUB_X_XM = (byte) 0xDE;
 
@@ -278,6 +283,8 @@ public class AMD64Opcode {
 
     public static final byte PSHUFD = 0x70;
 
+    public static final byte PSLLW_XM_I = 0x71;
+
     public static final byte PSLLD_XM_I = 0x72;
 
     public static final byte PSLLD_X_XM = (byte) 0xF2;
@@ -289,6 +296,7 @@ public class AMD64Opcode {
     public static final byte PSRLD_X_XM = (byte) 0xD2;
 
     public static final byte PSUBB = (byte) 0xF8;
+    public static final byte PSUBW = (byte) 0xF9;
     public static final byte PSUBD = (byte) 0xFA;
     public static final byte PSUBQ = (byte) 0xFB;
 

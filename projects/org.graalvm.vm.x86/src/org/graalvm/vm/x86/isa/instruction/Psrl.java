@@ -44,7 +44,7 @@ public abstract class Psrl extends AMD64Instruction {
         }
 
         public Psrlw(long pc, byte[] instruction, OperandDecoder operands, int shamt) {
-            super(pc, instruction, operands.getAVXOperand2(128), new ImmediateOperand(shamt), "psrlw");
+            super(pc, instruction, operands.getAVXOperand1(128), new ImmediateOperand(shamt), "psrlw");
         }
 
         @Override
