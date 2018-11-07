@@ -56,10 +56,10 @@ public class LoaderNode extends AMD64Node {
         Path cwd = Paths.get(".").toAbsolutePath().normalize();
         FileSystem fs;
 
-        String fsroot = System.getProperty("vm.power.fsroot");
+        String fsroot = Options.getString(Options.FSROOT);
         if (fsroot != null) {
             fs = new NativeFileSystem(vfs, fsroot);
-            String cwdprop = System.getProperty("vm.power.cwd");
+            String cwdprop = Options.getString(Options.CWD);
             if (cwdprop != null) {
                 cwd = Paths.get(cwdprop);
             } else {

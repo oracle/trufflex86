@@ -38,6 +38,9 @@ public class Options {
     // POSIX functions
     public static final BooleanOption USE_STATIC_TIME = new BooleanOption("posix.time.static", false);
 
+    public static final StringOption FSROOT = new StringOption("vmx86.fsroot", null);
+    public static final StringOption CWD = new StringOption("vmx86.cwd", null);
+
     // CPUID
     public static final StringOption CPUID_BRAND = new StringOption("vmx86.cpuid.brand", "VMX86 on Graal/Truffle");
     public static final StringOption VENDOR_ID = new StringOption("vmx86.cpuid.vendor", "VMX86onGraal");
