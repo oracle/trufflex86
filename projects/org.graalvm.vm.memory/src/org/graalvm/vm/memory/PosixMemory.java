@@ -3,6 +3,7 @@ package org.graalvm.vm.memory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class PosixMemory extends Memory {
@@ -168,5 +169,11 @@ public class PosixMemory extends Memory {
     @Override
     public long size() {
         return ptr.size();
+    }
+
+    @Override
+    public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
+        return "[" + (readonly ? "ro" : "rw") + ":" + ptr.toString() + "]";
     }
 }

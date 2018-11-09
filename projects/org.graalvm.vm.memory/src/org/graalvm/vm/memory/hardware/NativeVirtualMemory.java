@@ -331,6 +331,23 @@ public class NativeVirtualMemory extends VirtualMemory {
             } catch (SegmentationViolation e) {
                 // this could be a SIGBUS when accessing a mmap'd file
             }
+        } else {
+            // clear
+            int i = 0;
+            try {
+                for (i = 0; i < page.size - 8; i += 8) {
+                    setI64(page.base + i, 0);
+                }
+            } catch (SegmentationViolation e) {
+                // this could be a SIGBUS when accessing a mmap'd file
+            }
+            try {
+                for (; i < page.size; i++) {
+                    setI8(page.base + i, (byte) 0);
+                }
+            } catch (SegmentationViolation e) {
+                // this could be a SIGBUS when accessing a mmap'd file
+            }
         }
 
         try {

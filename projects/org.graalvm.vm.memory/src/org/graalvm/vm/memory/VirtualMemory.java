@@ -21,6 +21,7 @@ public abstract class VirtualMemory {
 
     protected static final boolean DEBUG = getBoolean("mem.debug", false);
     protected static final boolean VIRTUAL = getBoolean("mem.virtual", false);
+    protected static final boolean VERIFY = getBoolean("mem.verify", false);
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
@@ -47,7 +48,15 @@ public abstract class VirtualMemory {
     @CompilationFinal MemoryAccessListener logger;
 
     public static final VirtualMemory create() {
-        if (DEBUG || VIRTUAL) {
+        if (VERIFY) {
+            if (!NativeVirtualMemory.isSupported()) {
+                log.warning("native memory not supported, therefore virtual memory verification is impossible");
+            } else {
+                log.info("using virtual memory verifier");
+                return new VirtualMemoryVerifier();
+            }
+        }
+        if (VIRTUAL) {
             return new JavaVirtualMemory();
         } else if (NativeVirtualMemory.isSupported()) {
             return new HybridVirtualMemory();
