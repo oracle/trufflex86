@@ -368,10 +368,10 @@ public class AMD64BasicBlock extends AMD64Node {
             throw e;
         } catch (Throwable t) {
             updateInstructionCount(frame, n);
+            CompilerDirectives.transferToInterpreter();
             if (DEBUG && DEBUG_TRACE) {
                 flushTrace();
             }
-            CompilerDirectives.transferToInterpreter();
             throw new CpuRuntimeException(pc, t);
         }
         if (DEBUG && PRINT_ONCE) {

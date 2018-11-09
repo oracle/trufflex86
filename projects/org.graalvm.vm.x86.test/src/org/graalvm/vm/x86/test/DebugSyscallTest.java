@@ -24,7 +24,7 @@ public class DebugSyscallTest {
     public void setup() {
         stdout = new ByteArrayOutputStream();
         vm = new JavaVirtualMemory();
-        posix = new PosixEnvironment(vm, "x86_64");
+        posix = new PosixEnvironment(vm, "x86_64", null);
         posix.setStandardOut(stdout);
     }
 

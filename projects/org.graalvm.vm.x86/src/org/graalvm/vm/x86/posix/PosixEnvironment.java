@@ -20,6 +20,7 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
+import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 
 import com.everyware.posix.api.BytePosixPointer;
 import com.everyware.posix.api.CString;
@@ -76,9 +77,12 @@ public class PosixEnvironment {
     private NavigableMap<Long, String> libraries;
     private SymbolResolver symbolResolver;
 
-    public PosixEnvironment(VirtualMemory mem, String arch) {
+    private final ExecutionTraceWriter traceWriter;
+
+    public PosixEnvironment(VirtualMemory mem, String arch, ExecutionTraceWriter traceWriter) {
         this.mem = mem;
         this.arch = arch;
+        this.traceWriter = traceWriter;
         posix = new Posix();
         strace = System.getProperty("posix.strace") != null;
         if (DEBUG) {
@@ -690,6 +694,26 @@ public class PosixEnvironment {
         return posix.getpid(); // TODO: implement tid
     }
 
+    private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result) {
+        if (traceWriter != null) {
+            traceWriter.mmap(addr, length, prot, flags, fildes, offset, result, null);
+        }
+    }
+
+    private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result, PosixPointer ptr) {
+        if (traceWriter != null) {
+            byte[] data = new byte[(int) length];
+            try {
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = ptr.add(i).getI8();
+                }
+            } catch (Throwable t) {
+                // swallow
+            }
+            traceWriter.mmap(addr, length, prot, flags, fildes, offset, result, data);
+        }
+    }
+
     public long mmap(long addr, long length, int pr, int fl, int fildes, long offset) throws SyscallException {
         int flags = fl | Mman.MAP_PRIVATE;
         int prot = pr | Mman.PROT_WRITE;
@@ -714,6 +738,7 @@ public class PosixEnvironment {
                     page = mem.allocate(mem.roundToPageSize(length));
                 }
                 page.x = BitTest.test(prot, Mman.PROT_EXEC);
+                logMmap(addr, length, pr, fl, fildes, offset, page.base);
                 return page.base;
             }
             PosixPointer p = new PosixVirtualMemoryPointer(mem, addr);
@@ -732,11 +757,13 @@ public class PosixEnvironment {
             if (DEBUG) {
                 loadSymbols(fildes, offset, result, length);
             }
+            logMmap(addr, length, pr, fl, fildes, offset, result, ptr);
             return result;
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "mmap failed: " + Errno.toString(e.getErrno()));
             }
+            logMmap(addr, length, pr, fl, fildes, offset, -e.getErrno());
             throw new SyscallException(e.getErrno());
         }
     }
@@ -748,10 +775,16 @@ public class PosixEnvironment {
         try {
             // return posix.munmap(posixPointer(addr), length);
             mem.remove(addr, mem.roundToPageSize(length));
+            if (traceWriter != null) {
+                traceWriter.munmap(addr, length, 0);
+            }
             return 0;
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "munmap failed: " + Errno.toString(e.getErrno()));
+            }
+            if (traceWriter != null) {
+                traceWriter.munmap(addr, length, -e.getErrno());
             }
             throw new SyscallException(e.getErrno());
         }
@@ -766,9 +799,18 @@ public class PosixEnvironment {
             boolean w = BitTest.test(prot, Mman.PROT_WRITE);
             boolean x = BitTest.test(prot, Mman.PROT_EXEC);
             mem.mprotect(addr, size, r, w, x);
+            if (traceWriter != null) {
+                traceWriter.mprotect(addr, size, prot, 0);
+            }
         } catch (PosixException e) {
+            if (traceWriter != null) {
+                traceWriter.mprotect(addr, size, prot, -e.getErrno());
+            }
             throw new SyscallException(e.getErrno());
         } catch (SegmentationViolation e) {
+            if (traceWriter != null) {
+                traceWriter.mprotect(addr, size, prot, -Errno.ENOMEM);
+            }
             throw new SyscallException(Errno.ENOMEM);
         }
         return 0;

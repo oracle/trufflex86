@@ -91,6 +91,34 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    public synchronized void mmap(long addr, long len, int prot, int flags, int fildes, long off, long result, byte[] data) {
+        MmapRecord record = new MmapRecord(addr, len, prot, flags, fildes, off, result);
+        record.setData(data);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing mmap: " + e.getMessage(), e);
+        }
+    }
+
+    public synchronized void munmap(long addr, long len, int result) {
+        MunmapRecord record = new MunmapRecord(addr, len, result);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing munmap: " + e.getMessage(), e);
+        }
+    }
+
+    public synchronized void mprotect(long addr, long len, int prot, int result) {
+        MprotectRecord record = new MprotectRecord(addr, len, prot, result);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing mprotect: " + e.getMessage(), e);
+        }
+    }
+
     public synchronized void flush() {
         try {
             out.flush();

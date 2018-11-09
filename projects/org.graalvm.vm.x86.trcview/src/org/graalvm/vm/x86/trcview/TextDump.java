@@ -11,6 +11,9 @@ import java.io.PrintWriter;
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
 import org.graalvm.vm.x86.node.debug.trace.MemoryEventRecord;
+import org.graalvm.vm.x86.node.debug.trace.MmapRecord;
+import org.graalvm.vm.x86.node.debug.trace.MprotectRecord;
+import org.graalvm.vm.x86.node.debug.trace.MunmapRecord;
 import org.graalvm.vm.x86.node.debug.trace.Record;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.node.debug.trace.SystemLogRecord;
@@ -26,12 +29,14 @@ public class TextDump {
         boolean dumpCalls = true;
         boolean dumpPC = true;
         boolean dumpState = true;
+        boolean dumpMman = true;
         if (args.length > 2) {
             dumpMemory = false;
             dumpLog = false;
             dumpCalls = false;
             dumpPC = false;
             dumpState = false;
+            dumpMman = false;
             for (int i = 2; i < args.length; i++) {
                 switch (args[i]) {
                     case "+mem":
@@ -39,6 +44,12 @@ public class TextDump {
                         break;
                     case "-mem":
                         dumpMemory = false;
+                        break;
+                    case "+mman":
+                        dumpMman = true;
+                        break;
+                    case "-mman":
+                        dumpMman = false;
                         break;
                     case "+log":
                         dumpLog = true;
@@ -93,6 +104,18 @@ public class TextDump {
                     }
                 } else if (record instanceof CallArgsRecord) {
                     if (dumpCalls) {
+                        out.println(record.toString());
+                    }
+                } else if (record instanceof MmapRecord) {
+                    if (dumpMman) {
+                        out.println(record.toString());
+                    }
+                } else if (record instanceof MunmapRecord) {
+                    if (dumpMman) {
+                        out.println(record.toString());
+                    }
+                } else if (record instanceof MprotectRecord) {
+                    if (dumpMman) {
                         out.println(record.toString());
                     }
                 } else if (record instanceof StepRecord) {

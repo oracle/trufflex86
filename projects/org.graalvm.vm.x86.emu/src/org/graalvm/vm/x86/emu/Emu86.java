@@ -1,10 +1,14 @@
 package org.graalvm.vm.x86.emu;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
@@ -14,6 +18,7 @@ import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
 import org.graalvm.vm.x86.ElfLoader;
 import org.graalvm.vm.x86.Options;
+import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.PosixException;
@@ -24,15 +29,28 @@ import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
 
 public class Emu86 {
+    private static final Logger log = Trace.create(Emu86.class);
+
     public static final long STACK_SIZE = 8 * 1024 * 1024; // 8M
     public static final long STACK_ADDRESS = 0x7fff6c845000L;
     // public static final long STACK_ADDRESS = 0xf6fff000L;
     // public static final long STACK_ADDRESS = 0x0000800000000000L;
     public static final long STACK_BASE = STACK_ADDRESS - STACK_SIZE;
 
+    private static final boolean BINARY_TRACE = Options.getBoolean(Options.DEBUG_EXEC_TRACE);
+    private static final String TRACE_FILE = Options.getString(Options.DEBUG_EXEC_TRACEFILE);
+
     private static void run(Ptrace ptrace, String[] args) throws PosixException, IOException {
+        ExecutionTraceWriter trace = null;
+        if (BINARY_TRACE) {
+            try {
+                trace = new ExecutionTraceWriter(new BufferedOutputStream(new FileOutputStream(TRACE_FILE)));
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Cannot open trace file: " + e.getMessage(), e);
+            }
+        }
         PtraceVirtualMemory mem = new PtraceVirtualMemory(ptrace);
-        PosixEnvironment posix = new PosixEnvironment(mem, "x86_64");
+        PosixEnvironment posix = new PosixEnvironment(mem, "x86_64", trace);
         posix.setStandardIn(System.in);
         posix.setStandardOut(System.out);
         posix.setStandardErr(System.err);
@@ -42,13 +60,17 @@ public class Emu86 {
         // ptrace.syscall(1, 1, addr, 5, 0, 0, 0);
         // ptrace.munmap(addr, 4096);
 
-        ElfLoader loader = new ElfLoader();
+        ElfLoader loader = new ElfLoader(trace);
         loader.setPosixEnvironment(posix);
         loader.setVirtualMemory(mem);
         if (Options.getBoolean(Options.DEBUG_STATIC_ENV)) {
             Map<String, String> env = new HashMap<>();
             env.put("PATH", System.getenv("PATH"));
             env.put("LANG", System.getenv("LANG"));
+            env.put("HOME", System.getenv("HOME"));
+            if (System.getenv("DISPLAY") != null) {
+                env.put("DISPLAY", System.getenv("DISPLAY"));
+            }
             loader.setEnvironment(env);
         } else {
             loader.setEnvironment(System.getenv());
@@ -70,10 +92,10 @@ public class Emu86 {
         Path cwd = Paths.get(".").toAbsolutePath().normalize();
         FileSystem fs;
 
-        String fsroot = System.getProperty("vm.power.fsroot");
+        String fsroot = Options.getString(Options.FSROOT);
         if (fsroot != null) {
             fs = new NativeFileSystem(vfs, fsroot);
-            String cwdprop = System.getProperty("vm.power.cwd");
+            String cwdprop = Options.getString(Options.CWD);
             if (cwdprop != null) {
                 cwd = Paths.get(cwdprop);
             } else {
@@ -125,7 +147,7 @@ public class Emu86 {
         }
         ptrace.setRegisters(regs);
 
-        Interpreter interp = new Interpreter(ptrace, posix, mem, loader.getSymbols());
+        Interpreter interp = new Interpreter(ptrace, posix, mem, loader.getSymbols(), trace);
         int code;
         try {
             code = interp.execute();

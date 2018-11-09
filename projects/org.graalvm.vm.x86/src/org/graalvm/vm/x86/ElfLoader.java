@@ -17,6 +17,7 @@ import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.everyware.posix.api.BytePosixPointer;
@@ -25,6 +26,7 @@ import com.everyware.posix.api.Posix;
 import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.io.Fcntl;
 import com.everyware.posix.api.io.Stat;
+import com.everyware.posix.api.mem.Mman;
 import com.everyware.posix.elf.Elf;
 import com.everyware.posix.elf.ProgramHeader;
 import com.everyware.posix.elf.Symbol;
@@ -138,7 +140,10 @@ public class ElfLoader {
     private int ptrsz;
     private long brk;
 
-    public ElfLoader() {
+    private final ExecutionTraceWriter traceWriter;
+
+    public ElfLoader(ExecutionTraceWriter traceWriter) {
+        this.traceWriter = traceWriter;
         progname = "";
         args = new String[0];
         env = new String[0];
@@ -219,6 +224,10 @@ public class ElfLoader {
         MemoryPage elfhdrpage = new MemoryPage(elfhdrmem, load_addr, elf.e_phoff + elf.e_phnum * elf.e_phentsize, filename);
         memory.add(elfhdrpage);
 
+        if (traceWriter != null) {
+            traceWriter.mmap(load_addr, elfhdrpage.size, Mman.PROT_READ | Mman.PROT_WRITE, Mman.MAP_PRIVATE | Mman.MAP_FIXED, -1, 0, elfhdrpage.base, data);
+        }
+
         for (ProgramHeader hdr : elf.getProgramHeaders()) {
             if (hdr.getType() == Elf.PT_LOAD) {
                 long size = hdr.getMemorySize();
@@ -247,6 +256,21 @@ public class ElfLoader {
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
                 memory.add(p);
+
+                if (traceWriter != null) {
+                    int prot = 0;
+                    if (p.r) {
+                        prot |= Mman.PROT_READ;
+                    }
+                    if (p.w) {
+                        prot |= Mman.PROT_WRITE;
+                    }
+                    if (p.x) {
+                        prot |= Mman.PROT_EXEC;
+                    }
+                    traceWriter.mmap(start, p.size, prot, Mman.MAP_PRIVATE | Mman.MAP_FIXED, -1, off, p.base, load);
+                }
+
                 long end = load_bias + hdr.getVirtualAddress() + segment.length;
                 if (brk < load_bias + hdr.getVirtualAddress() + hdr.getMemorySize()) {
                     brk = end;
@@ -323,6 +347,20 @@ public class ElfLoader {
                     p.w = hdr.getFlag(Elf.PF_W);
                     p.x = hdr.getFlag(Elf.PF_X);
                     memory.add(p);
+
+                    if (traceWriter != null) {
+                        int prot = 0;
+                        if (p.r) {
+                            prot |= Mman.PROT_READ;
+                        }
+                        if (p.w) {
+                            prot |= Mman.PROT_WRITE;
+                        }
+                        if (p.x) {
+                            prot |= Mman.PROT_EXEC;
+                        }
+                        traceWriter.mmap(base + hdr.getVirtualAddress(), p.size, prot, Mman.MAP_PRIVATE | Mman.MAP_FIXED, -1, fileOffset, p.base, segment);
+                    }
                 }
             }
 

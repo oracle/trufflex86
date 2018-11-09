@@ -78,7 +78,7 @@ public class AMD64Context {
             MemoryAccessTracer memoryTracer = new MemoryAccessTracer(traceWriter);
             memory.setAccessLogger(memoryTracer);
         }
-        posix = new PosixEnvironment(memory, ARCH_NAME);
+        posix = new PosixEnvironment(memory, ARCH_NAME, traceWriter);
         posix.setStandardIn(env.in());
         posix.setStandardOut(env.out());
         posix.setStandardErr(env.err());

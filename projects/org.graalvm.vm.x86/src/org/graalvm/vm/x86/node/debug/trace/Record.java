@@ -50,6 +50,15 @@ public abstract class Record {
             case SystemLogRecord.MAGIC:
                 record = new SystemLogRecord();
                 break;
+            case MmapRecord.MAGIC:
+                record = new MmapRecord();
+                break;
+            case MunmapRecord.MAGIC:
+                record = new MunmapRecord();
+                break;
+            case MprotectRecord.MAGIC:
+                record = new MprotectRecord();
+                break;
             case EofRecord.MAGIC:
                 record = new EofRecord();
                 break;

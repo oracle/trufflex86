@@ -1,7 +1,5 @@
 package org.graalvm.vm.x86.emu;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.NavigableMap;
 import java.util.logging.Level;
@@ -36,7 +34,6 @@ public class Interpreter {
     private static final boolean useInstructionCount = Options.getBoolean(Options.RDTSC_USE_INSTRUCTION_COUNT);
 
     private static final boolean BINARY_TRACE = Options.getBoolean(Options.DEBUG_EXEC_TRACE);
-    private static final String TRACE_FILE = Options.getString(Options.DEBUG_EXEC_TRACEFILE);
 
     private static final long SYSCALL = 0x050F;
     private static final long CPUID = 0xA20F;
@@ -45,31 +42,25 @@ public class Interpreter {
     private static final long REP_STOSD = 0xABF3;
     private static final long REP_STOSQ = 0xAB48F3;
 
-    private Ptrace ptrace;
+    private final Ptrace ptrace;
     private Registers regs;
-    private PosixEnvironment posix;
-    private PtraceVirtualMemory memory;
+    private final PosixEnvironment posix;
+    private final PtraceVirtualMemory memory;
 
     private SymbolResolver symbolResolver;
 
-    private ExecutionTraceWriter trace;
+    private final ExecutionTraceWriter trace;
 
     private long insncnt;
 
-    public Interpreter(Ptrace ptrace, PosixEnvironment posix, PtraceVirtualMemory memory, NavigableMap<Long, Symbol> symbols) throws PosixException {
+    public Interpreter(Ptrace ptrace, PosixEnvironment posix, PtraceVirtualMemory memory, NavigableMap<Long, Symbol> symbols, ExecutionTraceWriter trace) throws PosixException {
         this.ptrace = ptrace;
         this.posix = posix;
         this.memory = memory;
+        this.trace = trace;
         regs = ptrace.getRegisters();
         symbolResolver = new SymbolResolver(symbols);
         insncnt = 0;
-        if (BINARY_TRACE) {
-            try {
-                trace = new ExecutionTraceWriter(new BufferedOutputStream(new FileOutputStream(TRACE_FILE)));
-            } catch (IOException e) {
-                log.log(Level.WARNING, "Cannot open trace file: " + e.getMessage(), e);
-            }
-        }
     }
 
     public void close() throws IOException {

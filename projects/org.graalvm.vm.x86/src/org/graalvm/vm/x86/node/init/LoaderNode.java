@@ -40,6 +40,7 @@ public class LoaderNode extends AMD64Node {
             Map<String, String> env = new HashMap<>();
             env.put("PATH", System.getenv("PATH"));
             env.put("LANG", System.getenv("LANG"));
+            env.put("HOME", System.getenv("HOME"));
             if (System.getenv("DISPLAY") != null) {
                 env.put("DISPLAY", System.getenv("DISPLAY"));
             }
@@ -82,7 +83,7 @@ public class LoaderNode extends AMD64Node {
 
     public Object execute(VirtualFrame frame, String execfn, String[] args) {
         AMD64Context ctx = getContextReference().get();
-        ElfLoader loader = new ElfLoader();
+        ElfLoader loader = new ElfLoader(ctx.getTraceWriter());
         loader.setPosixEnvironment(ctx.getPosixEnvironment());
         loader.setVirtualMemory(ctx.getMemory());
         loader.setSP(readSP.executeI64(frame));
@@ -116,7 +117,7 @@ public class LoaderNode extends AMD64Node {
 
     public Object executeELF(VirtualFrame frame, String execfn, String[] args, byte[] elf) {
         AMD64Context ctx = getContextReference().get();
-        ElfLoader loader = new ElfLoader();
+        ElfLoader loader = new ElfLoader(ctx.getTraceWriter());
         loader.setPosixEnvironment(ctx.getPosixEnvironment());
         loader.setVirtualMemory(ctx.getMemory());
         loader.setSP(readSP.executeI64(frame));

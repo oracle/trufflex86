@@ -43,7 +43,7 @@ public class ElfLoaderTest {
         mem.add(stack);
 
         // setup posix environment and create executable at /tmp/test
-        env = new PosixEnvironment(mem, "x86_64");
+        env = new PosixEnvironment(mem, "x86_64", null);
         FileSystem tmpfs = new Tmpfs(env.getVFS());
         Posix posix = env.getPosix();
         posix.mkdir("/tmp", 0755);
@@ -54,7 +54,7 @@ public class ElfLoaderTest {
         posix.write(fd, ptr, program.length);
         posix.close(fd);
 
-        loader = new ElfLoader();
+        loader = new ElfLoader(null);
         Map<String, String> environ = new HashMap<>();
         environ.put("PATH", "/bin:/usr/bin");
         loader.setEnvironment(environ);
