@@ -17,9 +17,66 @@ import org.graalvm.vm.x86.node.debug.trace.SystemLogRecord;
 
 public class TextDump {
     public static void main(String[] args) throws IOException {
-        if (args.length != 2) {
-            System.out.println("Usage: trcdump in.trc out.log");
+        if (args.length < 2) {
+            System.out.println("Usage: trcdump in.trc out.log [record types]");
             System.exit(1);
+        }
+        boolean dumpMemory = true;
+        boolean dumpLog = true;
+        boolean dumpCalls = true;
+        boolean dumpPC = true;
+        boolean dumpState = true;
+        if (args.length > 2) {
+            dumpMemory = false;
+            dumpLog = false;
+            dumpCalls = false;
+            dumpPC = false;
+            dumpState = false;
+            for (int i = 2; i < args.length; i++) {
+                switch (args[i]) {
+                    case "+mem":
+                        dumpMemory = true;
+                        break;
+                    case "-mem":
+                        dumpMemory = false;
+                        break;
+                    case "+log":
+                        dumpLog = true;
+                        break;
+                    case "-log":
+                        dumpLog = false;
+                        break;
+                    case "+calls":
+                        dumpCalls = true;
+                        break;
+                    case "-calls":
+                        dumpCalls = false;
+                        break;
+                    case "+pc":
+                        dumpPC = true;
+                        break;
+                    case "-pc":
+                        dumpPC = false;
+                        break;
+                    case "+state":
+                        dumpState = true;
+                        break;
+                    case "-state":
+                        dumpState = false;
+                        break;
+                    case "+step":
+                        dumpPC = true;
+                        dumpState = true;
+                        break;
+                    case "-step":
+                        dumpPC = false;
+                        dumpState = false;
+                        break;
+                    default:
+                        System.err.println("Unknown option: " + args[i]);
+                        System.exit(1);
+                }
+            }
         }
         try (InputStream fin = new BufferedInputStream(new FileInputStream(args[0]));
                         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(args[1])));
@@ -27,17 +84,29 @@ public class TextDump {
             Record record;
             while ((record = in.read()) != null) {
                 if (record instanceof MemoryEventRecord) {
-                    out.println(record.toString());
+                    if (dumpMemory) {
+                        out.println(record.toString());
+                    }
                 } else if (record instanceof SystemLogRecord) {
-                    out.println(record.toString());
+                    if (dumpLog) {
+                        out.println(record.toString());
+                    }
                 } else if (record instanceof CallArgsRecord) {
-                    out.println(record.toString());
+                    if (dumpCalls) {
+                        out.println(record.toString());
+                    }
                 } else if (record instanceof StepRecord) {
                     StepRecord step = (StepRecord) record;
-                    out.println("----------------");
-                    out.println(step.getLocation());
-                    out.println();
-                    out.println(step.getState());
+                    if (dumpState) {
+                        out.println("----------------");
+                    }
+                    if (dumpPC) {
+                        out.println(step.getLocation());
+                    }
+                    if (dumpState) {
+                        out.println();
+                        out.println(step.getState());
+                    }
                 }
             }
         }
