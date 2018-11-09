@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.posix;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -122,7 +123,12 @@ public class PosixEnvironment {
 
     public String getFilename(long pc) {
         if (libraries != null) {
-            return libraries.floorEntry(pc).getValue();
+            Entry<Long, String> entry = libraries.floorEntry(pc);
+            if (entry != null) {
+                return entry.getValue();
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
