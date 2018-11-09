@@ -380,6 +380,13 @@ public class MemoryAllocator {
     }
 
     public void free(long addr, long size) {
+        if (Long.compareUnsigned(addr, memoryBase) < 0) {
+            return;
+        }
+        if (Long.compareUnsigned(addr, memoryBase + memorySize) >= 0) {
+            return;
+        }
+
         // TODO: fix all the bugs
         check(addr);
         check(size);
@@ -601,7 +608,7 @@ public class MemoryAllocator {
             }
         }
         // TODO: unreachable?
-        assert false;
+        assert false : String.format("free(0x%x, %d)", addr, size);
         compact(start);
         usedMemory -= size - remaining;
 
