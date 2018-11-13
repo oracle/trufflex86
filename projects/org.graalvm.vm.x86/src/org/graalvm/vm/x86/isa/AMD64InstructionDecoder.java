@@ -2152,45 +2152,42 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.BTS_RM_I8: {
                         Args args = new Args(code, rex, segment, addressOverride);
+                        byte imm = code.read8();
                         switch (args.modrm.getReg()) {
                             case 4: { // BT RM,I8
-                                byte imm = code.read8();
                                 if (rex != null && rex.w) {
-                                    return new Btq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else if (sizeOverride) {
-                                    return new Btw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else {
-                                    return new Btl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 }
                             }
                             case 5: { // BTS RM,I8
-                                byte imm = code.read8();
                                 if (rex != null && rex.w) {
-                                    return new Btsq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btsq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else if (sizeOverride) {
-                                    return new Btsw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btsw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else {
-                                    return new Btsl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btsl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 }
                             }
                             case 6: { // BTR RM,I8
-                                byte imm = code.read8();
                                 if (rex != null && rex.w) {
-                                    return new Btrq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btrq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else if (sizeOverride) {
-                                    return new Btrw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btrw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else {
-                                    return new Btrl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btrl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 }
                             }
                             case 7: { // BTC RM,I8
-                                byte imm = code.read8();
                                 if (rex != null && rex.w) {
-                                    return new Btcq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btcq(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else if (sizeOverride) {
-                                    return new Btcw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btcw(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 } else {
-                                    return new Btcl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder(), imm);
+                                    return new Btcl(pc, args.getOp2(instruction, instructionLength, new byte[]{imm}, 1), args.getOperandDecoder(), imm);
                                 }
                             }
                             default:
