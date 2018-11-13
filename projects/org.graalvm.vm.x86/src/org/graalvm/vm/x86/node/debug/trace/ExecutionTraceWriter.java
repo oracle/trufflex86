@@ -119,6 +119,15 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    public synchronized void brk(long addr, long result) {
+        BrkRecord record = new BrkRecord(addr, result);
+        try {
+            record.write(out);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while writing brk: " + e.getMessage(), e);
+        }
+    }
+
     public synchronized void flush() {
         try {
             out.flush();

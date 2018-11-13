@@ -23,6 +23,14 @@ public class MunmapRecord extends Record {
         this.result = result;
     }
 
+    public long getAddress() {
+        return addr;
+    }
+
+    public long getLength() {
+        return len;
+    }
+
     @Override
     protected int size() {
         return 2 * 8 + 4;
@@ -44,6 +52,6 @@ public class MunmapRecord extends Record {
 
     @Override
     public String toString() {
-        return String.format("munmap(0x%016x, %d)", addr, len);
+        return String.format("munmap(0x%016x, %d) = 0x%08x", addr, len, result);
     }
 }

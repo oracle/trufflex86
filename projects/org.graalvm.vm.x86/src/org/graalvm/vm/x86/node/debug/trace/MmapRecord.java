@@ -101,6 +101,6 @@ public class MmapRecord extends Record {
 
     @Override
     public String toString() {
-        return String.format("mmap(0x%016x, %d, %s, %s, %d, %d)", addr, len, Mman.prot(prot), Mman.flags(flags), fildes, off);
+        return String.format("mmap(0x%016x, %d, %s, %s, %d, %d) = 0x%016x", addr, len, Mman.prot(prot), Mman.flags(flags), fildes, off, result);
     }
 }

@@ -400,6 +400,9 @@ public class ElfLoader {
         assert brk % PAGE_SIZE == 0 : String.format("unaligned: 0x%016X", brk);
 
         memory.setBrk(brk);
+        if (traceWriter != null) {
+            traceWriter.brk(0, brk);
+        }
 
         String stackvalue = getString(Options.STACK_CONTENT);
         if (stackvalue != null) {

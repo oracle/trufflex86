@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import org.graalvm.vm.x86.node.debug.trace.BrkRecord;
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
 import org.graalvm.vm.x86.node.debug.trace.MemoryEventRecord;
@@ -115,6 +116,10 @@ public class TextDump {
                         out.println(record.toString());
                     }
                 } else if (record instanceof MprotectRecord) {
+                    if (dumpMman) {
+                        out.println(record.toString());
+                    }
+                } else if (record instanceof BrkRecord) {
                     if (dumpMman) {
                         out.println(record.toString());
                     }

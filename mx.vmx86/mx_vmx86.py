@@ -88,6 +88,10 @@ def getTrcviewClasspathOptions():
     """gets the classpath of the trcview distributions"""
     return mx.get_runtime_jvm_args(['VM', 'VMX86_TRCVIEW', 'CORE', 'POSIX'])
 
+def getEmu86ClasspathOptions():
+    """gets the classpath of the emu86 distributions"""
+    return mx.get_runtime_jvm_args(['VM', 'VM_EMU86', 'CORE', 'POSIX'])
+
 def runAMD64(args=None, out=None):
     """uses vmx86 to execute a Linux/x86_64 ELF binary"""
     vmArgs, vmx86Args = truffle_extract_VM_args(args)
@@ -102,6 +106,11 @@ def runTrcdump(args=None, out=None):
     """CLI tool to convert binary execution traces to ascii format"""
     vmArgs, trcviewArgs = truffle_extract_VM_args(args)
     return mx.run_java(getCommonOptions(False) + vmArgs + getTrcviewClasspathOptions() + ['org.graalvm.vm.x86.trcview.TextDump'] + trcviewArgs, out=out)
+
+def runTrchk(args=None, out=None):
+    """Verify binary execution traces by replaying them on the host CPU"""
+    vmArgs, trchkArgs = truffle_extract_VM_args(args)
+    return mx.run_java(getCommonOptions(False) + vmArgs + getEmu86ClasspathOptions() + ['org.graalvm.vm.x86.emu.Verify86'] + trchkArgs, out=out)
 
 def _unittest_config_participant(config):
     (vmArgs, mainClass, mainClassArgs) = config
@@ -140,5 +149,6 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
 mx.update_commands(_suite, {
     'vmx86' : [runAMD64, ''],
     'trcview' : [runTrcview, ''],
-    'trcdump' : [runTrcdump, '']
+    'trcdump' : [runTrcdump, ''],
+    'trchk' : [runTrchk, '']
 })

@@ -26,6 +26,22 @@ public class MprotectRecord extends Record {
         this.result = result;
     }
 
+    public long getAddress() {
+        return addr;
+    }
+
+    public long getLength() {
+        return len;
+    }
+
+    public int getProtection() {
+        return prot;
+    }
+
+    public long getResult() {
+        return result;
+    }
+
     @Override
     protected int size() {
         return 2 * 8 + 2 * 4;
@@ -49,6 +65,6 @@ public class MprotectRecord extends Record {
 
     @Override
     public String toString() {
-        return String.format("mprotect(0x%016x, %d, %s)", addr, len, Mman.prot(prot));
+        return String.format("mprotect(0x%016x, %d, %s) = 0x%08x", addr, len, Mman.prot(prot), result);
     }
 }

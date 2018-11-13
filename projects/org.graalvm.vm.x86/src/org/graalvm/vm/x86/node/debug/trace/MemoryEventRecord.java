@@ -80,6 +80,10 @@ public class MemoryEventRecord extends Record {
         return value64;
     }
 
+    public Vector128 getVector() {
+        return value128;
+    }
+
     public void setValue(byte value) {
         this.size = 1;
         this.value64 = value;

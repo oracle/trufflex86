@@ -11,7 +11,7 @@ import com.everyware.util.io.WordOutputStream;
 public class CpuStateRecord extends Record {
     public static final int MAGIC = 0x43505530; // CPU0
 
-    private CpuState state;
+    private final CpuState state;
 
     CpuStateRecord() {
         this(new CpuState());
@@ -20,6 +20,10 @@ public class CpuStateRecord extends Record {
     public CpuStateRecord(CpuState state) {
         super(MAGIC);
         this.state = state;
+    }
+
+    public CpuState getState() {
+        return state;
     }
 
     @Override

@@ -105,6 +105,10 @@ public class PosixEnvironment {
         this.execfn = execfn;
     }
 
+    public ExecutionTraceWriter getTraceWriter() {
+        return traceWriter;
+    }
+
     public Symbol getSymbol(long pc) {
         if (symbolResolver != null) {
             return symbolResolver.getSymbol(pc);

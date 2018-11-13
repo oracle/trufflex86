@@ -22,6 +22,7 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 
+import com.everyware.posix.api.mem.Mman;
 import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -116,6 +117,9 @@ public class InitializerNode extends AMD64Node {
         Memory stackMemory = new ByteMemory(stacksize, false);
         MemoryPage stack = new MemoryPage(stackMemory, stackbase, stacksize, "[stack]");
         memory.add(stack);
+        if (ctx.getTraceWriter() != null) {
+            ctx.getTraceWriter().mmap(stack.base, stack.size, Mman.PROT_READ | Mman.PROT_WRITE, Mman.MAP_FIXED | Mman.MAP_ANONYMOUS, -1, 0, stack.base, null);
+        }
         long sp = AMD64.STACK_ADDRESS - 16;
         assert (sp & 0xf) == 0;
         gpr[Register.RSP.getID()].executeI64(frame, sp);

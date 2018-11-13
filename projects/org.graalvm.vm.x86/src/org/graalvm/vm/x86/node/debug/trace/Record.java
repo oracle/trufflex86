@@ -59,6 +59,9 @@ public abstract class Record {
             case MprotectRecord.MAGIC:
                 record = new MprotectRecord();
                 break;
+            case BrkRecord.MAGIC:
+                record = new BrkRecord();
+                break;
             case EofRecord.MAGIC:
                 record = new EofRecord();
                 break;

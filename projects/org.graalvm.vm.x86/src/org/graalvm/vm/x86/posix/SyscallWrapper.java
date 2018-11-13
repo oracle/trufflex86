@@ -106,12 +106,18 @@ public class SyscallWrapper extends AMD64Node {
             if (posix.isStrace()) {
                 log.log(Level.INFO, () -> String.format("brk(NULL) = 0x%016x", brk));
             }
+            if (posix.getTraceWriter() != null) {
+                posix.getTraceWriter().brk(addr, brk);
+            }
             return brk;
         } else {
             long newbrk = addr;
             long brk = memory.brk(newbrk);
             if (posix.isStrace()) {
                 log.log(Level.INFO, () -> String.format("brk(0x%016x) = 0x%016x", newbrk, brk));
+            }
+            if (posix.getTraceWriter() != null) {
+                posix.getTraceWriter().brk(addr, brk);
             }
             return brk;
         }

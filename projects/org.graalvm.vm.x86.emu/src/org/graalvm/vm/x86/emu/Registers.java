@@ -115,6 +115,13 @@ public class Registers {
         return buf.toString();
     }
 
+    public void setXMM(int i, Vector128 vec) {
+        long hi = vec.getI64(0);
+        long lo = vec.getI64(1);
+        Endianess.set64bitLE(xmm_space, 16 * i, lo);
+        Endianess.set64bitLE(xmm_space, 16 * i + 8, hi);
+    }
+
     public CpuState toCpuState() {
         CpuState state = new CpuState();
         state.rax = rax;
