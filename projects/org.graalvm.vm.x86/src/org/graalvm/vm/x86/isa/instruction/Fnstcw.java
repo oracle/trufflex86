@@ -40,7 +40,7 @@ public class Fnstcw extends AMD64Instruction {
             writeDst = operand.createWrite(state, next());
         }
         // TODO: write FPU CW
-        writeDst.executeI16(frame, (short) 0);
+        writeDst.executeI16(frame, (short) 0x037F);
         return next();
     }
 
