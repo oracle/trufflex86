@@ -212,6 +212,7 @@ import org.graalvm.vm.x86.isa.instruction.Movhlps;
 import org.graalvm.vm.x86.isa.instruction.Movhpd;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToMem;
 import org.graalvm.vm.x86.isa.instruction.Movhps.MovhpsToReg;
+import org.graalvm.vm.x86.isa.instruction.Movlhps;
 import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movlps;
 import org.graalvm.vm.x86.isa.instruction.Movmskpd;
@@ -2717,7 +2718,11 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.MOVHPD_X_M64: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
-                            return new MovhpsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (args.getOperandDecoder().getOperand1(OperandDecoder.R64) instanceof RegisterOperand) {
+                                return new Movlhps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new MovhpsToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else if (sizeOverride) {
                             return new Movhpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
