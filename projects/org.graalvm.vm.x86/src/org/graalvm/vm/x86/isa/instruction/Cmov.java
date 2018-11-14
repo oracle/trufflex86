@@ -17,6 +17,7 @@ public abstract class Cmov extends AMD64Instruction {
     private final Operand operand2;
 
     @Child protected WriteNode writeDst;
+    @Child protected ReadNode readDst;
     @Child protected ReadNode readSrc;
 
     protected Cmov(long pc, byte[] instruction, String name, Operand operand1, Operand operand2) {
@@ -33,6 +34,7 @@ public abstract class Cmov extends AMD64Instruction {
     protected void createChildNodes() {
         ArchitecturalState state = getState();
         readSrc = operand2.createRead(state, next());
+        readDst = operand1.createRead(state, next());
         writeDst = operand1.createWrite(state, next());
     }
 
@@ -66,6 +68,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!cf && !zf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -83,6 +88,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!cf && !zf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -99,6 +107,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean zf = readZF.execute(frame);
             if (!cf && !zf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -132,6 +143,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!cf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -148,6 +162,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!cf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -163,6 +180,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean cf = readCF.execute(frame);
             if (!cf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -196,6 +216,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (cf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -212,6 +235,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (cf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -227,6 +253,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean cf = readCF.execute(frame);
             if (cf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -263,6 +292,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (cf || zf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -280,6 +312,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (cf || zf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -296,6 +331,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean zf = readZF.execute(frame);
             if (cf || zf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -329,6 +367,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (zf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -345,6 +386,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (zf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -360,6 +404,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean zf = readZF.execute(frame);
             if (zf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -399,6 +446,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!zf && (sf == of)) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -417,6 +467,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!zf && (sf == of)) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -434,6 +487,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (!zf && (sf == of)) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -470,6 +526,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf == of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -487,6 +546,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf == of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -503,6 +565,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (sf == of) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -539,6 +604,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf != of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -556,6 +624,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf != of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -572,6 +643,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (sf != of) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -611,6 +685,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (zf || (sf != of)) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -629,6 +706,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (zf || (sf != of)) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -646,6 +726,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (zf || (sf != of)) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -679,6 +762,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!zf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -695,6 +781,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!zf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -710,6 +799,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean zf = readZF.execute(frame);
             if (!zf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -743,6 +835,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -759,6 +854,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -774,6 +872,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (!of) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -807,6 +908,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!pf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -823,6 +927,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!pf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -838,6 +945,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean pf = readPF.execute(frame);
             if (!pf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -871,6 +981,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!sf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -887,6 +1000,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (!sf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -902,6 +1018,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean sf = readSF.execute(frame);
             if (!sf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -935,6 +1054,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (of) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -951,6 +1073,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (of) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -966,6 +1091,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean of = readOF.execute(frame);
             if (of) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -999,6 +1127,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (pf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -1015,6 +1146,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (pf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -1030,6 +1164,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean pf = readPF.execute(frame);
             if (pf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
@@ -1063,6 +1200,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf) {
                 short value = readSrc.executeI16(frame);
                 writeDst.executeI16(frame, value);
+            } else {
+                short value = readDst.executeI16(frame);
+                writeDst.executeI16(frame, value);
             }
             return next();
         }
@@ -1079,6 +1219,9 @@ public abstract class Cmov extends AMD64Instruction {
             if (sf) {
                 int value = readSrc.executeI32(frame);
                 writeDst.executeI32(frame, value);
+            } else {
+                int value = readDst.executeI32(frame);
+                writeDst.executeI32(frame, value);
             }
             return next();
         }
@@ -1094,6 +1237,9 @@ public abstract class Cmov extends AMD64Instruction {
             boolean sf = readSF.execute(frame);
             if (sf) {
                 long value = readSrc.executeI64(frame);
+                writeDst.executeI64(frame, value);
+            } else {
+                long value = readDst.executeI64(frame);
                 writeDst.executeI64(frame, value);
             }
             return next();
