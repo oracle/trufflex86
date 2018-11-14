@@ -45,7 +45,7 @@ public class Unpcklps extends AMD64Instruction {
         Vector128 src = readOp2.executeI128(frame);
         int[] d = dst.getInts();
         int[] s = src.getInts();
-        Vector128 result = new Vector128(s[1], d[1], s[0], d[0]);
+        Vector128 result = new Vector128(s[2], d[2], s[3], d[3]);
         writeDst.executeI128(frame, result);
         return next();
     }
