@@ -30,6 +30,7 @@ public class Registers {
     public long fs_base;
     public long gs_base;
     public long mxcsr;
+    public long fcwd;
     public final byte[] xmm_space = new byte[256];
 
     public boolean printSSE = true;

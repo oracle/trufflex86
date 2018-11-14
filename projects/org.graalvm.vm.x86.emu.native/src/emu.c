@@ -251,6 +251,9 @@ JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_readRegisters
 	jfieldID mxcsr = (*env)->GetFieldID(env, clazz, "mxcsr", "J");
 	(*env)->SetLongField(env, o, mxcsr, fpregs.mxcsr);
 
+	jfieldID fcwd = (*env)->GetFieldID(env, clazz, "fcwd", "J");
+	(*env)->SetLongField(env, o, fcwd, fpregs.cwd);
+
 	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
 	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
 
@@ -339,6 +342,9 @@ JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_writeRegisters
 
 	jfieldID mxcsr = (*env)->GetFieldID(env, clazz, "mxcsr", "J");
 	fpregs.mxcsr = (*env)->GetLongField(env, o, mxcsr);
+
+	jfieldID fcwd = (*env)->GetFieldID(env, clazz, "fcwd", "J");
+	fpregs.cwd = (*env)->GetLongField(env, o, fcwd);
 
 	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
 	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
