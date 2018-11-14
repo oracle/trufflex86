@@ -40,8 +40,8 @@ public class Cvtdq2pd extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         Vector128 value = readSrc.executeI128(frame);
-        long high = value.getI64(0);
-        long low = value.getI64(1);
+        long high = value.getI32(2);
+        long low = value.getI32(3);
         // TODO: rounding mode
         Vector128 vec = new Vector128((double) high, (double) low);
         writeDst.executeI128(frame, vec);
