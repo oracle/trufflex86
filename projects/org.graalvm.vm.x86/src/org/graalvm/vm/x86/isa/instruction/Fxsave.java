@@ -58,6 +58,14 @@ public class Fxsave extends AMD64Instruction {
             memory.executeI128(ptr, xmm);
             ptr += 16;
         }
+
+        memory.executeI16(addr, (short) 0x037F); // default FCW
+        memory.executeI32(addr + 24, 0x1F80); // default MXCSR
+        ptr = addr + 32;
+        for (int i = 0; i < 8; i++) { // set ST/MM registers to zero
+            memory.executeI64(ptr + 16 * i, 0);
+            memory.executeI64(ptr + 16 * i + 8, 0);
+        }
         return next();
     }
 
