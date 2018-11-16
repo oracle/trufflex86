@@ -747,7 +747,7 @@ public class Vector128 implements Cloneable {
         short[] result = new short[shorts.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
         for (int i = 0; i < shorts.length; i++) {
-            result[i] = (short) (shorts[i] >>> n);
+            result[i] = (short) (Short.toUnsignedInt(shorts[i]) >>> n);
         }
         return new Vector128(result);
     }

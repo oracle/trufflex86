@@ -276,4 +276,12 @@ public class Vector128Test {
         Vector128 ref = new Vector128(0xff00ff00ff00ff00L, 0xff00ff00ff00ff00L);
         assertEquals(ref, act);
     }
+
+    @Test
+    public void testShrPackedI16() {
+        Vector128 vec = new Vector128(0xffffffffffffffffL, 0xffffffffffffffffL);
+        Vector128 act = vec.shrPackedI16(8);
+        Vector128 ref = new Vector128(0x00ff00ff00ff00ffL, 0x00ff00ff00ff00ffL);
+        assertEquals(ref, act);
+    }
 }
