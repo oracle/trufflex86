@@ -44,7 +44,7 @@ public abstract class Psra extends AMD64Instruction {
         }
 
         public Psraw(long pc, byte[] instruction, OperandDecoder operands, int shamt) {
-            super(pc, instruction, operands.getAVXOperand2(128), new ImmediateOperand(shamt), "psraw");
+            super(pc, instruction, operands.getAVXOperand1(128), new ImmediateOperand(shamt), "psraw");
         }
 
         @Override
