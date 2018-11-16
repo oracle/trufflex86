@@ -31,16 +31,21 @@ public class Registers {
     public long gs_base;
     public long mxcsr;
     public long fcwd;
+    public final byte[] st_space = new byte[128];
     public final byte[] xmm_space = new byte[256];
 
     public boolean printSSE = true;
 
-    private Vector128 getXMM(int i) {
-        byte[] data = new byte[16];
-        for (int j = 0; j < 16; j++) {
-            data[j] = xmm_space[i * 16 + 15 - j];
-        }
-        return new Vector128(data);
+    public Vector128 getST(int i) {
+        long lo = Endianess.get64bitLE(st_space, 16 * i);
+        long hi = Endianess.get64bitLE(st_space, 16 * i + 8);
+        return new Vector128(hi, lo);
+    }
+
+    public Vector128 getXMM(int i) {
+        long lo = Endianess.get64bitLE(xmm_space, 16 * i);
+        long hi = Endianess.get64bitLE(xmm_space, 16 * i + 8);
+        return new Vector128(hi, lo);
     }
 
     private long getRFL() {
@@ -114,6 +119,13 @@ public class Registers {
             }
         }
         return buf.toString();
+    }
+
+    public void setST(int i, Vector128 vec) {
+        long hi = vec.getI64(0);
+        long lo = vec.getI64(1);
+        Endianess.set64bitLE(st_space, 16 * i, lo);
+        Endianess.set64bitLE(st_space, 16 * i + 8, hi);
     }
 
     public void setXMM(int i, Vector128 vec) {

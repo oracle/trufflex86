@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.VirtualMemory;
@@ -41,7 +43,11 @@ public class Verify86 {
     private static final long REP_STOSD = 0xABF3;
     private static final long REP_STOSQ = 0xAB48F3;
     private static final long REP_CMPSB = 0xA6F3;
+    private static final long REP_MOVSQ = 0xA548F3;
     private static final long REPNZ_SCASB = 0xAEF2;
+
+    private static final Set<String> MNEMONIC_MEM_CHECK;
+    private static final Set<String> MNEMONIC_MEM_IGNORE;
 
     private final Ptrace ptrace;
     private Registers regs;
@@ -54,6 +60,29 @@ public class Verify86 {
     private long currentBrk;
     private boolean transfer;
     private StepRecord lastStep;
+
+    static {
+        MNEMONIC_MEM_CHECK = new HashSet<>();
+        MNEMONIC_MEM_CHECK.add("syscall");
+        MNEMONIC_MEM_CHECK.add("cmp");
+        MNEMONIC_MEM_CHECK.add("test");
+        MNEMONIC_MEM_CHECK.add("call");
+        MNEMONIC_MEM_CHECK.add("jmp");
+        MNEMONIC_MEM_CHECK.add("push");
+        MNEMONIC_MEM_CHECK.add("fxrstor");
+
+        MNEMONIC_MEM_IGNORE = new HashSet<>();
+        MNEMONIC_MEM_IGNORE.add("adc");
+        MNEMONIC_MEM_IGNORE.add("add");
+        MNEMONIC_MEM_IGNORE.add("sub");
+        MNEMONIC_MEM_IGNORE.add("inc");
+        MNEMONIC_MEM_IGNORE.add("dec");
+        MNEMONIC_MEM_IGNORE.add("xchg");
+        MNEMONIC_MEM_IGNORE.add("cmpxchg");
+        MNEMONIC_MEM_IGNORE.add("and");
+        MNEMONIC_MEM_IGNORE.add("or");
+        MNEMONIC_MEM_IGNORE.add("xor");
+    }
 
     public Verify86(Ptrace ptrace, PtraceVirtualMemory memory, ExecutionTraceReader trace) throws PosixException {
         this.ptrace = ptrace;
@@ -112,6 +141,10 @@ public class Verify86 {
             regs.gs_base = state.gs;
             regs.rflags = state.getRFL();
             regs.mxcsr = 0x1f80;
+            regs.fcwd = 0x037f;
+            for (int i = 0; i < 8; i++) {
+                regs.setST(i, Vector128.ZERO);
+            }
             for (int i = 0; i < 16; i++) {
                 regs.setXMM(i, state.xmm[i]);
             }
@@ -139,12 +172,19 @@ public class Verify86 {
             check("fs", state.fs, regs.fs_base);
             check("gs", state.gs, regs.gs_base);
             // check("mxcsr", 0x1f80, regs.mxcsr);
-            CpuState ref = regs.toCpuState();
+            // check("fcwd", 0x037f, regs.fcwd);
             for (int i = 0; i < 16; i++) {
-                check("xmm" + i, state.xmm[i], ref.xmm[i]);
+                check("xmm" + i, state.xmm[i], regs.getXMM(i));
+            }
+            for (int i = 0; i < 8; i++) {
+                check("mm" + i, Vector128.ZERO, regs.getST(i));
             }
             if (regs.mxcsr != 0x1f80) {
                 regs.mxcsr = 0x1f80;
+                ptrace.setRegisters(regs);
+            }
+            if (regs.fcwd != 0x037f) {
+                regs.fcwd = 0x037f;
                 ptrace.setRegisters(regs);
             }
         }
@@ -167,7 +207,8 @@ public class Verify86 {
             transfer = true;
             regs.rip += 2;
             ptrace.setRegisters(regs);
-        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFF) == REP_STOSD) || ((insn & 0xFFFFFF) == REP_STOSQ) || ((insn & 0xFFFF) == REP_CMPSB) || ((insn & 0xFFFF) == REPNZ_SCASB)) {
+        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFF) == REP_STOSD) || ((insn & 0xFFFFFF) == REP_STOSQ) || ((insn & 0xFFFF) == REP_CMPSB) || ((insn & 0xFFFFFF) == REP_MOVSQ) ||
+                        ((insn & 0xFFFF) == REPNZ_SCASB)) {
             // step next
             long rip = regs.rip;
             do {
@@ -219,6 +260,12 @@ public class Verify86 {
         }
     }
 
+    // NOTE: to use memory watches, set memwatchAddress to the memory address and memwatchValue to
+    // the expected value at that address
+    private boolean check = false;
+    private long memwatchAddress = 0;
+    private long memwatchValue = 0;
+
     public int execute() throws PosixException, IOException {
         try {
             while (true) {
@@ -228,8 +275,21 @@ public class Verify86 {
                 }
                 if (currentRecord instanceof MemoryEventRecord) {
                     MemoryEventRecord evt = (MemoryEventRecord) currentRecord;
+                    String mnemonic = null;
+                    if (lastStep != null) {
+                        mnemonic = lastStep.getLocation().getMnemonic();
+                    }
+                    if ((evt.getAddress() & 0xFFFFFFFFFFFFFFF0L) == (memwatchAddress & 0xFFFFFFFFFFFFFFF0L)) {
+                        if (!check && evt.getAddress() == memwatchAddress && evt.getValue() == memwatchValue) {
+                            log.info("[MEM] found: " + evt);
+                            check = true;
+                        } else {
+                            log.info("[MEM] " + evt);
+                        }
+                        // checkRead(evt);
+                    }
                     if (evt.isWrite()) {
-                        if (lastStep == null || lastStep.getLocation().getAssembly()[0].equals("syscall")) {
+                        if (lastStep == null || mnemonic.equals("syscall")) {
                             // write (initialization / syscall)
                             switch (evt.getSize()) {
                                 case 1:
@@ -252,12 +312,31 @@ public class Verify86 {
                             }
                         } else {
                             // read (normal instruction)
-                            // log.info("[MEM] " + evt);
                             checkRead(evt);
                         }
                     } else {
-                        // log.info("[MEM] " + evt);
-                        // checkRead(evt);
+                        if (mnemonic != null && MNEMONIC_MEM_CHECK.contains(mnemonic)) {
+                            // read (syscall)
+                            checkRead(evt);
+                        } else {
+                            if (lastStep == null) {
+                                // read (no previous step)
+                                checkRead(evt);
+                            } else {
+                                String[] cmd = lastStep.getLocation().getAssembly();
+                                if (cmd.length == 1) {
+                                    checkRead(evt);
+                                } else if (cmd.length > 1 && cmd[1].contains("[")) {
+                                    if (!MNEMONIC_MEM_IGNORE.contains(mnemonic)) {
+                                        log.info("[MEM] ignoring " + evt + ": " + lastStep.getLocation().getDisassembly());
+                                    }
+                                    // don't check (instruction probably contains a store operation)
+                                } else {
+                                    // read (normal instruction)
+                                    checkRead(evt);
+                                }
+                            }
+                        }
                     }
                 } else if (currentRecord instanceof MmapRecord) {
                     MmapRecord mmap = (MmapRecord) currentRecord;
@@ -306,6 +385,13 @@ public class Verify86 {
                     // log.info("[STEP] " + currentRecord);
                     step();
                     lastStep = (StepRecord) currentRecord;
+                    if (check) {
+                        if (memory.getI64(memwatchAddress) != memwatchValue) {
+                            log.severe("[MEMWATCH] 0x" + HexFormatter.tohex(memwatchAddress, 16) + " was overwritten with 0x" + HexFormatter.tohex(memory.getI64(0x00007fff6c8441e8L), 16));
+                            log.severe("[MEMWATCH] Instruction: " + currentRecord);
+                            check = false;
+                        }
+                    }
                 } else if (currentRecord instanceof SystemLogRecord) {
                     log.info("[LOG] " + currentRecord);
                 } else if (currentRecord instanceof CallArgsRecord) {

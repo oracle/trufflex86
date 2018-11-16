@@ -254,6 +254,20 @@ JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_readRegisters
 	jfieldID fcwd = (*env)->GetFieldID(env, clazz, "fcwd", "J");
 	(*env)->SetLongField(env, o, fcwd, fpregs.cwd);
 
+	jfieldID st_space = (*env)->GetFieldID(env, clazz, "st_space", "[B");
+	jbyteArray sts = (*env)->GetObjectField(env, o, st_space);
+
+	JNI_CHECK(jbyte* st_data = (*env)->GetPrimitiveArrayCritical(env, sts, NULL));
+	if(!st_data) {
+		jclass clazz = (*env)->FindClass(env, "java/lang/RuntimeException");
+		(*env)->ThrowNew(env, clazz, "error while locking array");
+		return;
+	}
+
+	memcpy(st_data, fpregs.st_space, 128);
+
+	(*env)->ReleasePrimitiveArrayCritical(env, sts, st_data, 0);
+
 	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
 	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
 
@@ -345,6 +359,19 @@ JNIEXPORT void JNICALL Java_org_graalvm_vm_x86_emu_Ptrace_writeRegisters
 
 	jfieldID fcwd = (*env)->GetFieldID(env, clazz, "fcwd", "J");
 	fpregs.cwd = (*env)->GetLongField(env, o, fcwd);
+
+	jfieldID st_space = (*env)->GetFieldID(env, clazz, "st_space", "[B");
+	jbyteArray sts = (*env)->GetObjectField(env, o, st_space);
+
+	JNI_CHECK(jbyte* st_data = (*env)->GetPrimitiveArrayCritical(env, sts, NULL));
+	if(!st_data) {
+		jclass clazz = (*env)->FindClass(env, "java/lang/RuntimeException");
+		(*env)->ThrowNew(env, clazz, "error while locking array");
+		return;
+	}
+
+	memcpy(fpregs.st_space, st_data, 128);
+	JNI_CHECK((*env)->ReleasePrimitiveArrayCritical(env, sts, st_data, 0));
 
 	jfieldID xmm_space = (*env)->GetFieldID(env, clazz, "xmm_space", "[B");
 	jbyteArray xmms = (*env)->GetObjectField(env, o, xmm_space);
