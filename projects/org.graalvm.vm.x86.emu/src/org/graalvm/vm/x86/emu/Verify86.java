@@ -82,6 +82,9 @@ public class Verify86 {
         MNEMONIC_MEM_IGNORE.add("and");
         MNEMONIC_MEM_IGNORE.add("or");
         MNEMONIC_MEM_IGNORE.add("xor");
+        MNEMONIC_MEM_IGNORE.add("sar");
+        MNEMONIC_MEM_IGNORE.add("shr");
+        MNEMONIC_MEM_IGNORE.add("shl");
     }
 
     public Verify86(Ptrace ptrace, PtraceVirtualMemory memory, ExecutionTraceReader trace) throws PosixException {
