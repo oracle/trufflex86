@@ -1102,6 +1102,23 @@ public class PosixEnvironment {
         }
     }
 
+    public long sendto(int socket, long buf, long len, @SuppressWarnings("unused") int flags, long dest_addr, int addrlen) throws SyscallException {
+        try {
+            // TODO: implement as:
+            // return posix.sendto(socket, posixPointer(buf), len, flags,
+            // sockaddrPointer(dest_addr), addrlen);
+            if (dest_addr != 0 || addrlen != 0) {
+                throw new SyscallException(Errno.EINVAL);
+            }
+            return posix.write(socket, posixPointer(buf), len);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "sendto failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long recvfrom(int sock, long buffer, long length, int flags, long address, long address_len) throws SyscallException {
         try {
             RecvResult result = posix.recvfrom(sock, posixPointer(buffer), length, flags);

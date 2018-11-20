@@ -27,6 +27,7 @@ public class Syscalls {
     public static final int SYS_getpid = 39;
     public static final int SYS_socket = 41;
     public static final int SYS_connect = 42;
+    public static final int SYS_sendto = 44;
     public static final int SYS_recvfrom = 45;
     public static final int SYS_recvmsg = 47;
     public static final int SYS_shutdown = 48;

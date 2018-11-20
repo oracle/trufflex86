@@ -44,6 +44,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_getpid = 39;
     public static final int SYS_socket = 41;
     public static final int SYS_connect = 42;
+    public static final int SYS_sendto = 44;
     public static final int SYS_recvfrom = 45;
     public static final int SYS_recvmsg = 47;
     public static final int SYS_shutdown = 48;
@@ -231,6 +232,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.socket((int) a1, (int) a2, (int) a3);
             case SYS_connect:
                 return posix.connect((int) a1, a2, (int) a3);
+            case SYS_sendto:
+                return posix.sendto((int) a1, a2, a3, (int) a4, a5, (int) a6);
             case SYS_recvfrom:
                 return posix.recvfrom((int) a1, a2, a3, (int) a4, a5, a6);
             case SYS_recvmsg:

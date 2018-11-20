@@ -194,6 +194,8 @@ public class Interpreter {
                 return posix.socket((int) a1, (int) a2, (int) a3);
             case Syscalls.SYS_connect:
                 return posix.connect((int) a1, a2, (int) a3);
+            case Syscalls.SYS_sendto:
+                return posix.sendto((int) a1, a2, a3, (int) a4, a5, (int) a6);
             case Syscalls.SYS_recvfrom:
                 return posix.recvfrom((int) a1, a2, a3, (int) a4, a5, a6);
             case Syscalls.SYS_recvmsg:
