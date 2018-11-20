@@ -43,6 +43,7 @@ public class Verify86 {
     private static final long REP_STOSD = 0xABF3;
     private static final long REP_STOSQ = 0xAB48F3;
     private static final long REP_CMPSB = 0xA6F3;
+    private static final long REP_MOVSB = 0xA4F3;
     private static final long REP_MOVSQ = 0xA548F3;
     private static final long REPNZ_SCASB = 0xAEF2;
 
@@ -79,12 +80,18 @@ public class Verify86 {
         MNEMONIC_MEM_IGNORE.add("dec");
         MNEMONIC_MEM_IGNORE.add("xchg");
         MNEMONIC_MEM_IGNORE.add("cmpxchg");
+        MNEMONIC_MEM_IGNORE.add("xadd");
         MNEMONIC_MEM_IGNORE.add("and");
         MNEMONIC_MEM_IGNORE.add("or");
         MNEMONIC_MEM_IGNORE.add("xor");
+        MNEMONIC_MEM_IGNORE.add("not");
         MNEMONIC_MEM_IGNORE.add("sar");
         MNEMONIC_MEM_IGNORE.add("shr");
         MNEMONIC_MEM_IGNORE.add("shl");
+        MNEMONIC_MEM_IGNORE.add("mul");
+        MNEMONIC_MEM_IGNORE.add("imul");
+        MNEMONIC_MEM_IGNORE.add("div");
+        MNEMONIC_MEM_IGNORE.add("idiv");
     }
 
     public Verify86(Ptrace ptrace, PtraceVirtualMemory memory, ExecutionTraceReader trace) throws PosixException {
@@ -210,7 +217,8 @@ public class Verify86 {
             transfer = true;
             regs.rip += 2;
             ptrace.setRegisters(regs);
-        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFF) == REP_STOSD) || ((insn & 0xFFFFFF) == REP_STOSQ) || ((insn & 0xFFFF) == REP_CMPSB) || ((insn & 0xFFFFFF) == REP_MOVSQ) ||
+        } else if ((insn & 0xFFFF) == REP_STOSB || ((insn & 0xFFFF) == REP_STOSD) || ((insn & 0xFFFFFF) == REP_STOSQ) || ((insn & 0xFFFF) == REP_CMPSB) || ((insn & 0xFFFF) == REP_MOVSB) ||
+                        ((insn & 0xFFFFFF) == REP_MOVSQ) ||
                         ((insn & 0xFFFF) == REPNZ_SCASB)) {
             // step next
             long rip = regs.rip;
