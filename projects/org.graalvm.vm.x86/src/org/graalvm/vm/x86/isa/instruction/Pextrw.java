@@ -43,7 +43,7 @@ public class Pextrw extends AMD64Instruction {
     @Override
     public long executeInstruction(VirtualFrame frame) {
         Vector128 src = readSrc.executeI128(frame);
-        int sel = imm & 0x3;
+        int sel = imm & 0x7;
         short result = src.getI16(7 - sel);
         if (writeDst instanceof RegisterWriteNode) {
             writeDst.executeI64(frame, Short.toUnsignedLong(result));

@@ -45,7 +45,7 @@ public class Pinsrw extends AMD64Instruction {
     public long executeInstruction(VirtualFrame frame) {
         Vector128 vec = readOp1.executeI128(frame);
         short word = readOp2.executeI16(frame);
-        int sel = imm & 0x3;
+        int sel = imm & 0x7;
         vec.setI16(7 - sel, word);
         writeDst.executeI128(frame, vec);
         return next();
