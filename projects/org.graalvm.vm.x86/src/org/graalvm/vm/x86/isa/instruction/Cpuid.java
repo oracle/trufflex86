@@ -90,7 +90,7 @@ public class Cpuid extends AMD64Instruction {
                 // 27:20 - Extended Family
                 a = PROCESSOR_INFO;
                 b = BRAND_INDEX | (CLFLUSH_LINE_SIZE << 8);
-                c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.SSE42 | CpuidBits.POPCNT | CpuidBits.RDRND;
+                c = CpuidBits.SSE3 | CpuidBits.SSE41 | CpuidBits.POPCNT | CpuidBits.RDRND;
                 d = CpuidBits.TSC | CpuidBits.CMOV | CpuidBits.CLFSH | CpuidBits.FXSR | CpuidBits.SSE | CpuidBits.SSE2;
                 break;
             case 7:
