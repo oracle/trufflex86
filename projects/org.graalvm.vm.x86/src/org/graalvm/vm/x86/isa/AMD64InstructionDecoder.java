@@ -2141,6 +2141,16 @@ public class AMD64InstructionDecoder {
                             return new Btl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         }
                     }
+                    case AMD64Opcode.BTR_RM_R: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (rex != null && rex.w) {
+                            return new Btrq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Btrw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Btrl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
+                    }
                     case AMD64Opcode.BTS_RM_R: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (rex != null && rex.w) {
