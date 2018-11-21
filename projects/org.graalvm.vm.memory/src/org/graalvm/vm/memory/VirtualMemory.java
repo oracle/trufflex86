@@ -19,9 +19,9 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 public abstract class VirtualMemory {
     private static final Logger log = Trace.create(VirtualMemory.class);
 
-    protected static final boolean DEBUG = getBoolean("mem.debug", false);
-    protected static final boolean VIRTUAL = getBoolean("mem.virtual", false);
-    protected static final boolean VERIFY = getBoolean("mem.verify", false);
+    protected static final boolean DEBUG = MemoryOptions.MEM_DEBUG.get();
+    protected static final boolean VIRTUAL = MemoryOptions.MEM_VIRTUAL.get();
+    protected static final boolean VERIFY = MemoryOptions.MEM_VERIFY.get();
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
@@ -86,11 +86,6 @@ public abstract class VirtualMemory {
     public void setAccessLogger(MemoryAccessListener logger) {
         this.logger = logger;
         enableAccessTrace = true;
-    }
-
-    protected static boolean getBoolean(String name, boolean fallback) {
-        String value = System.getProperty(name, Boolean.toString(fallback));
-        return value.equalsIgnoreCase("true") || value.equals("1");
     }
 
     public void set32bit() {

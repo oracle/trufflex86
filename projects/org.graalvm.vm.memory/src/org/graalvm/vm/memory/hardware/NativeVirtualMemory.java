@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixMemory;
 import org.graalvm.vm.memory.VirtualMemory;
@@ -30,6 +31,7 @@ public class NativeVirtualMemory extends VirtualMemory {
     private static final Logger log = Trace.create(NativeVirtualMemory.class);
 
     private static final String ARCH = System.getProperty("os.arch");
+    private static final boolean BYPASS_SEGFAULT_CHECK = MemoryOptions.BYPASS_SEGFAULT_CHECK.get();
 
     public static final long LOW = getLow();
     public static final long HIGH = getHigh();
@@ -99,6 +101,9 @@ public class NativeVirtualMemory extends VirtualMemory {
             throw new IllegalArgumentException("physical area is too small");
         }
         updateMemoryMap();
+        if (BYPASS_SEGFAULT_CHECK) {
+            log.warning("Ignoring segfaults in guest program");
+        }
     }
 
     private List<MemorySegment> getMemoryMap() throws IOException {
@@ -154,6 +159,9 @@ public class NativeVirtualMemory extends VirtualMemory {
     }
 
     private static void checkSegfault(long address, long phy) {
+        if (BYPASS_SEGFAULT_CHECK) {
+            return;
+        }
         long segfault = MMU.getSegfaultAddress();
         if (segfault == phy) {
             CompilerDirectives.transferToInterpreter();
