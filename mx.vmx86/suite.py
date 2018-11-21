@@ -22,6 +22,14 @@ suite = {
           {"url" : "https://github.com/oracle/graal", "kind" : "git"},
           {"url" : "https://curio.ssw.jku.at/nexus/content/repositories/snapshots", "kind" : "binary"},
         ]
+      },
+      {
+        "name" : "core",
+        "subdir" : False,
+        "version" : "7a6dd23447a63556b83823c4ffd5dea0898673a8",
+        "urls" : [
+          {"url" : "https://github.com/pekd/core", "kind" : "git"},
+        ]
       }
     ]
   },
@@ -44,22 +52,6 @@ suite = {
   },
 
   "libraries" : {
-    "CORE" : {
-      "path" : "lib/core.jar",
-      "urls" : [
-        "https://orakel.has.enough.coffee/repo/everyware/core.jar"
-      ],
-      "sha1" : "36c9a9cf2f0eccbcf8eba8852cfa4a1bf1abbed8",
-    },
-
-    "POSIX" : {
-      "path" : "lib/posix.jar",
-      "urls" : [
-        "https://orakel.has.enough.coffee/repo/everyware/posix.jar"
-      ],
-      "sha1" : "cf98face2e4536e657fa53f718143ba4cead35e0",
-    },
-
     "XED" : {
       "path" : "lib/xed.tar.gz",
       "urls" : [
@@ -77,8 +69,8 @@ suite = {
       "sourceDirs" : ["src"],
       "jniHeaders" : True,
       "dependencies" : [
-        "CORE",
-        "POSIX",
+        "core:CORE",
+        "core:POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
       ],
@@ -126,8 +118,8 @@ suite = {
       "sourceDirs" : ["src"],
       "dependencies" : [
         "org.graalvm.vm.memory",
-        "CORE",
-        "POSIX",
+        "core:CORE",
+        "core:POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
@@ -151,7 +143,7 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "CORE",
+        "core:CORE",
         "sdk:LAUNCHER_COMMON"
       ],
       "javaCompliance" : "1.8+",
@@ -310,8 +302,8 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.memory",
         "org.graalvm.vm.x86",
-        "CORE",
-        "POSIX"
+        "core:CORE",
+        "core:POSIX"
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
@@ -386,13 +378,9 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86",
       ],
-      "exclude" : [
-        "CORE",
-        "POSIX",
-      ],
       "distDependencies" : [
-        "CORE",
-        "POSIX",
+        "core:CORE",
+        "core:POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
       ]
@@ -436,6 +424,7 @@ suite = {
       "mainClass" : "org.graalvm.vm.x86.launcher.AMD64Launcher",
       "dependencies" : ["org.graalvm.vm.x86.launcher"],
       "distDependencies" : [
+        "core:CORE",
         "sdk:LAUNCHER_COMMON",
       ],
     },
@@ -454,6 +443,8 @@ suite = {
       ],
       "overlaps" : [
         "VM",
+        "core:CORE",
+        "core:POSIX",
         "sdk:GRAAL_SDK",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
@@ -487,10 +478,10 @@ suite = {
         "org.graalvm.vm.memory.test"
       ],
       "distDependencies" : [
-        "CORE",
-        "POSIX",
         "VM",
         "VM_TESTCASES",
+        "core:CORE",
+        "core:POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
         "truffle:TRUFFLE_TCK",
@@ -521,9 +512,9 @@ suite = {
         "org.graalvm.vm.x86.emu"
       ],
       "distDependencies" : [
-        "CORE",
-        "POSIX",
-        "VM"
+        "VM",
+        "core:CORE",
+        "core:POSIX"
       ],
     },
 
