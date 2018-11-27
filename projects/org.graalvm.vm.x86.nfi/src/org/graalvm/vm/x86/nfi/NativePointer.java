@@ -13,4 +13,13 @@ public class NativePointer implements TruffleObject {
     public ForeignAccess getForeignAccess() {
         return NativePointerMessageResolutionForeign.ACCESS;
     }
+
+    @Override
+    public String toString() {
+        if (value == 0) {
+            return "NativePointer[NULL]";
+        } else {
+            return String.format("NativePointer[0x%x]", value);
+        }
+    }
 }
