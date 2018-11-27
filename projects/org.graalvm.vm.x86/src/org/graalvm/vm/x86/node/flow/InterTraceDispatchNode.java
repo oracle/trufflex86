@@ -120,6 +120,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         try {
             if (USE_LOOP_NODE) {
                 loop.executeLoop(frame);
+                CompilerDirectives.transferToInterpreter();
                 throw new AssertionError("loop node must not return");
             } else {
                 while (true) {
