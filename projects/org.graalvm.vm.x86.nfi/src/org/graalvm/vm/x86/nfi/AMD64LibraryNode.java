@@ -9,7 +9,9 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.node.AMD64RootNode;
 
 import com.everyware.posix.api.CString;
+import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
@@ -47,6 +49,12 @@ public class AMD64LibraryNode extends AMD64RootNode {
         VirtualMemory mem = ctx.getMemory();
         long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
         MemoryPage scratch = mem.allocate(len);
+        try {
+            mem.mprotect(scratch.base, scratch.size, true, true, true);
+        } catch (PosixException e) {
+            CompilerDirectives.transferToInterpreter();
+            throw new RuntimeException(e);
+        }
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, scratch.base);
         strcpy(ptr, libname);
         ctx.setScratchMemory(scratch.base);

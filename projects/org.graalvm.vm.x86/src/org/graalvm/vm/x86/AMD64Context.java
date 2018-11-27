@@ -10,7 +10,9 @@ import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
 import org.graalvm.vm.x86.node.debug.trace.MemoryAccessTracer;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
+import org.graalvm.vm.x86.posix.SyscallException;
 
+import com.everyware.posix.api.Errno;
 import com.everyware.posix.api.Stack;
 import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -63,6 +65,8 @@ public class AMD64Context {
 
     private ExecutionTraceWriter traceWriter;
     private LogStreamHandler logHandler;
+
+    private InteropCallback interopCallback;
 
     public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd) {
         this(language, env, fd, null, null);
@@ -283,5 +287,21 @@ public class AMD64Context {
 
     LogStreamHandler getLogHandler() {
         return logHandler;
+    }
+
+    public void setInteropCallback(InteropCallback callback) {
+        this.interopCallback = callback;
+    }
+
+    public void clearInteropCallback() {
+        interopCallback = null;
+    }
+
+    public long interopCall(int nr, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
+        if (interopCallback == null) {
+            return -Errno.ENOSYS;
+        } else {
+            return interopCallback.call(nr, a1, a2, a3, a4, a5, a6);
+        }
     }
 }

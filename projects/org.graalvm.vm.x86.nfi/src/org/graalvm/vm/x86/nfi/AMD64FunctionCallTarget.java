@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
+import java.util.List;
+
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.node.AMD64RootNode;
 
@@ -19,6 +21,8 @@ public class AMD64FunctionCallTarget extends AMD64RootNode {
     public Object execute(VirtualFrame frame) {
         AMD64Function func = (AMD64Function) frame.getArguments()[0];
         Object[] args = (Object[]) frame.getArguments()[1];
-        return target.execute(frame, func, args);
+        @SuppressWarnings("unchecked")
+        List<Object> objects = (List<Object>) frame.getArguments()[2];
+        return target.execute(frame, func, args, objects);
     }
 }

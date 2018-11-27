@@ -1,5 +1,8 @@
 package org.graalvm.vm.x86.nfi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsStringNode;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
@@ -28,8 +31,9 @@ public class AMD64FunctionMessageResolution {
 
         public Object access(AMD64Function receiver, Object[] args) {
             NativeSignature signature = receiver.getSignature();
-            long result = (long) lookup.call(new Object[]{receiver, args});
-            return converter.execute(signature.getRetType(), result);
+            List<Object> objects = new ArrayList<>();
+            long result = (long) lookup.call(new Object[]{receiver, args, objects});
+            return converter.execute(signature.getRetType(), result, objects);
         }
     }
 

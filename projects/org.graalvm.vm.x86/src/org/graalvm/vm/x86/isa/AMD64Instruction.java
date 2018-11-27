@@ -14,6 +14,7 @@ import org.graalvm.vm.x86.node.AMD64Node;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class AMD64Instruction extends AMD64Node {
@@ -39,6 +40,11 @@ public abstract class AMD64Instruction extends AMD64Node {
     public abstract long executeInstruction(VirtualFrame frame);
 
     protected abstract String[] disassemble();
+
+    @Override
+    protected ContextReference<AMD64Context> getContextReference() {
+        return AMD64Language.getCurrentContextReference();
+    }
 
     protected AMD64Context getContext() {
         return AMD64Language.getCurrentContextReference().get();

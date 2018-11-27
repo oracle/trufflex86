@@ -18,7 +18,9 @@ import org.graalvm.vm.x86.posix.SyscallWrapper;
 
 import com.everyware.posix.api.Errno;
 import com.everyware.util.log.Trace;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class Syscall extends AMD64Instruction {
@@ -34,6 +36,8 @@ public class Syscall extends AMD64Instruction {
     @Child private RegisterReadNode readR9;
     @Child private RegisterWriteNode writeRAX;
 
+    @CompilationFinal private ContextReference<AMD64Context> ctxRef;
+
     public Syscall(long pc, byte[] instruction) {
         super(pc, instruction);
 
@@ -47,7 +51,8 @@ public class Syscall extends AMD64Instruction {
     protected void createChildNodes() {
         assert syscall == null;
 
-        AMD64Context ctx = getContext();
+        ctxRef = getContextReference();
+        AMD64Context ctx = ctxRef.get();
         RegisterAccessFactory reg = ctx.getState().getRegisters();
         PosixEnvironment posix = ctx.getPosixEnvironment();
         VirtualMemory memory = ctx.getMemory();
@@ -77,11 +82,29 @@ public class Syscall extends AMD64Instruction {
         } catch (SyscallException e) {
             result = -e.getValue();
             if (e.getValue() == Errno.ENOSYS) {
-                log(rax);
+                if ((int) (rax >> 16) == 0xBEEF) {
+                    // interop call
+                    int id = (int) (rax & 0xFFFF);
+                    try {
+                        result = interopCall(id, rdi, rsi, rdx, r10, r8, r9);
+                    } catch (SyscallException ex) {
+                        result = -ex.getValue();
+                        if (ex.getValue() == Errno.ENOSYS) {
+                            log(rax);
+                        }
+                    }
+                } else {
+                    log(rax);
+                }
             }
         }
         writeRAX.executeI64(frame, result);
         return next();
+    }
+
+    @TruffleBoundary
+    private long interopCall(int id, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
+        return ctxRef.get().interopCall(id, a1, a2, a3, a4, a5, a6);
     }
 
     @TruffleBoundary

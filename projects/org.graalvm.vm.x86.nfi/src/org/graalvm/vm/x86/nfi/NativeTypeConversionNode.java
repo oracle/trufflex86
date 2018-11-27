@@ -1,12 +1,20 @@
 package org.graalvm.vm.x86.nfi;
 
+import java.util.List;
+
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
 
 public class NativeTypeConversionNode extends Node {
-    public Object execute(NativeTypeMirror type, long value) {
+    @TruffleBoundary
+    private static Object get(List<Object> objects, int id) {
+        return objects.get(id);
+    }
+
+    public Object execute(NativeTypeMirror type, long value, List<Object> objects) {
         switch (type.getKind()) {
             case SIMPLE: {
                 NativeSimpleTypeMirror mirror = (NativeSimpleTypeMirror) type;
@@ -31,8 +39,12 @@ public class NativeTypeConversionNode extends Node {
                         if (value == 0) {
                             return new NativePointer(value);
                         } else {
-                            CompilerDirectives.transferToInterpreter();
-                            throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
+                            if (!MagicValues.isObject(value)) {
+                                CompilerDirectives.transferToInterpreter();
+                                throw new AssertionError("Unsupported type: " + mirror.getSimpleType() + " (" + String.format("0x%x", value) + ")");
+                            } else {
+                                return get(objects, (int) value);
+                            }
                         }
                     case VOID:
                         return new NativePointer(0);
