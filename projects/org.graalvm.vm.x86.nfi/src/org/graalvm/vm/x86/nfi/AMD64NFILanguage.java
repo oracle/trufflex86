@@ -16,6 +16,9 @@ public class AMD64NFILanguage extends AMD64Language {
     protected CallTarget parse(ParsingRequest request) throws Exception {
         CharSequence library = request.getSource().getCharacters();
         NativeLibraryDescriptor descriptor = Parser.parseLibraryDescriptor(library);
+        if (descriptor.getFilename() == null) {
+            throw new UnsatisfiedLinkError();
+        }
         return Truffle.getRuntime().createCallTarget(new AMD64LibraryNode(this, fd, descriptor));
     }
 }
