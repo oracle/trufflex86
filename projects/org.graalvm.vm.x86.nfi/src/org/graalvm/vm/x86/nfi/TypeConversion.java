@@ -56,6 +56,26 @@ public class TypeConversion extends Node {
             return arg;
         }
 
+        @Specialization
+        protected long executeI1(boolean arg) {
+            return arg ? 1 : 0;
+        }
+
+        @Specialization
+        protected long executeF32(float arg) {
+            return (long) arg;
+        }
+
+        @Specialization
+        protected long executeF64(double arg) {
+            return (long) arg;
+        }
+
+        @Specialization
+        protected long executeChar(char arg) {
+            return arg;
+        }
+
         @Specialization(guards = "checkIsPointer(isPointer, arg)")
         @SuppressWarnings("unused")
         protected long serializePointer(TruffleObject arg,
