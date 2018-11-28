@@ -58,12 +58,12 @@ public class ForbiddenNFITest {
         return (TruffleObject) runWithPolyglot.getTruffleTestEnv().parse(source).call();
     }
 
+    // NOTE: unlike the default Truffle NFI, this interpreter does not need nativeAccess
     @Test
     public void loadDefault() {
         eval("default");
     }
 
-    // NOTE: unlike the default Truffle NFI, this interpreter does not need nativeAccess
     @Test
     public void loadTestLib() {
         eval("load '%s'", nativeTestLib);
