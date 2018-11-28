@@ -40,24 +40,18 @@
  */
 package org.graalvm.vm.x86.nfi.test;
 
-import org.graalvm.polyglot.Context;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.tck.TruffleRunner;
 
-// TODO: make sure that a single context can load multiple libraries!
 public class LoadNFILibraryTest extends NFITest {
     private final String nativeTestLib = NFITest.TEST_LIBRARY;
 
-    @Rule public TruffleRunner.RunWithPolyglotRule runWithPolyglot = new TruffleRunner.RunWithPolyglotRule(Context.newBuilder().allowNativeAccess(false));
-
-    private TruffleObject eval(String format, Object... args) {
+    private static TruffleObject eval(String format, Object... args) {
         Source source = Source.newBuilder("amd64nfi", String.format(format, args), "LoadLibraryTest").build();
         CallTarget target = runWithPolyglot.getTruffleTestEnv().parse(source);
         return (TruffleObject) target.call();

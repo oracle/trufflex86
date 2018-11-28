@@ -67,6 +67,7 @@ public class AMD64Context {
     private LogStreamHandler logHandler;
 
     private InteropCallback interopCallback;
+    private InteropFunctionPointers interopPointers;
 
     public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd) {
         this(language, env, fd, null, null);
@@ -121,6 +122,7 @@ public class AMD64Context {
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
         symbolResolver = new SymbolResolver(symbols);
+        scratchMemory = 0;
     }
 
     public TruffleLanguage<AMD64Context> getLanguage() {
@@ -303,5 +305,13 @@ public class AMD64Context {
         } else {
             return interopCallback.call(nr, a1, a2, a3, a4, a5, a6);
         }
+    }
+
+    public void setInteropFunctionPointers(InteropFunctionPointers pointers) {
+        interopPointers = pointers;
+    }
+
+    public InteropFunctionPointers getInteropFunctionPointers() {
+        return interopPointers;
     }
 }

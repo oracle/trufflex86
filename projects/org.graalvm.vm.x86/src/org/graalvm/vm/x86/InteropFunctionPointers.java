@@ -1,4 +1,4 @@
-package org.graalvm.vm.x86.nfi;
+package org.graalvm.vm.x86;
 
 public class InteropFunctionPointers {
     public final long loadLibrary;

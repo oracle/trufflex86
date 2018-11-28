@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.InteropFunctionPointers;
 import org.graalvm.vm.x86.node.AMD64Node;
 
 import com.oracle.truffle.api.CompilerDirectives;

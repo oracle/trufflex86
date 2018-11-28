@@ -9,6 +9,7 @@ import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.InteropFunctionPointers;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.IllegalInstructionException;
@@ -116,6 +117,8 @@ public class InterpreterRootNode extends AMD64Node {
             }
         } catch (InteropReturnException e) {
             return e.getValue();
+        } catch (ProcessExitException e) {
+            throw new UnsatisfiedLinkError();
         }
     }
 

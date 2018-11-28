@@ -6,6 +6,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.InteropFunctionPointers;
 import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.posix.InteropErrorException;
 
@@ -42,24 +43,31 @@ public class AMD64LibraryNode extends AMD64RootNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        InteropFunctionPointers ptrs = interpreter.execute(frame);
         ContextReference<AMD64Context> ctxref = getContextReference();
         AMD64Context ctx = ctxref.get();
+        VirtualMemory mem = ctx.getMemory();
+
+        InteropFunctionPointers ptrs = ctx.getInteropFunctionPointers();
+        if (ptrs == null) {
+            ptrs = interpreter.execute(frame);
+            ctx.setInteropFunctionPointers(ptrs);
+
+            long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
+            MemoryPage scratch = mem.allocate(len);
+            try {
+                mem.mprotect(scratch.base, scratch.size, true, true, true);
+            } catch (PosixException e) {
+                CompilerDirectives.transferToInterpreter();
+                throw new RuntimeException(e);
+            }
+            ctx.setScratchMemory(scratch.base);
+        }
+
+        PosixPointer ptr = new PosixVirtualMemoryPointer(mem, ctx.getScratchMemory());
 
         // load library
-        VirtualMemory mem = ctx.getMemory();
-        long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
-        MemoryPage scratch = mem.allocate(len);
-        try {
-            mem.mprotect(scratch.base, scratch.size, true, true, true);
-        } catch (PosixException e) {
-            CompilerDirectives.transferToInterpreter();
-            throw new RuntimeException(e);
-        }
-        PosixPointer ptr = new PosixVirtualMemoryPointer(mem, scratch.base);
         strcpy(ptr, libname);
-        ctx.setScratchMemory(scratch.base);
-        long interoplibname = scratch.base;
+        long interoplibname = ctx.getScratchMemory();
 
         long handle;
         try {
