@@ -60,9 +60,9 @@ public class InterpreterRootNode extends AMD64Node {
         writeMemory = new MemoryWriteNode(state.getMemory());
     }
 
-    public InterpreterRootNode(ArchitecturalState state, String programName, String libraryName) {
+    public InterpreterRootNode(ArchitecturalState state, String programName) {
         this(state);
-        initializer = new InitializerNode(state, programName, new String[]{programName, libraryName});
+        initializer = new InitializerNode(state, programName, new String[]{programName});
     }
 
     public InteropFunctionPointers executeInit(VirtualFrame frame) {

@@ -41,7 +41,6 @@
 package org.graalvm.vm.x86.nfi.test;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.oracle.truffle.api.CallTarget;
@@ -57,7 +56,6 @@ public class LoadNFILibraryTest extends NFITest {
         return (TruffleObject) target.call();
     }
 
-    @Ignore
     @Test
     public void loadDefault() {
         TruffleObject library = eval("default");

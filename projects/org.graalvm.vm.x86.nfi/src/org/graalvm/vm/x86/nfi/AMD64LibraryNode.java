@@ -32,7 +32,7 @@ public class AMD64LibraryNode extends AMD64RootNode {
         super(language, fd);
         this.libname = descriptor.getFilename();
         ArchitecturalState state = language.getContextReference().get().getState();
-        interpreter = new InterpreterStartNode(descriptor.getFilename());
+        interpreter = new InterpreterStartNode();
         root = new InterpreterRootNode(state);
     }
 
@@ -66,8 +66,12 @@ public class AMD64LibraryNode extends AMD64RootNode {
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, ctx.getScratchMemory());
 
         // load library
-        strcpy(ptr, libname);
         long interoplibname = ctx.getScratchMemory();
+        if (libname != null) {
+            strcpy(ptr, libname);
+        } else {
+            interoplibname = 0;
+        }
 
         long handle;
         try {

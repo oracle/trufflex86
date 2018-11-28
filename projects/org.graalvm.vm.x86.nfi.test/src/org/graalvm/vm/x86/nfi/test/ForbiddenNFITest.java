@@ -58,7 +58,7 @@ public class ForbiddenNFITest {
         return (TruffleObject) runWithPolyglot.getTruffleTestEnv().parse(source).call();
     }
 
-    @Test(expected = UnsatisfiedLinkError.class)
+    @Test
     public void loadDefault() {
         eval("default");
     }

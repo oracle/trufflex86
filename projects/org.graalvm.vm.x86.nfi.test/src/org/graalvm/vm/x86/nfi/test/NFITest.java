@@ -89,7 +89,6 @@ public class NFITest {
     }
 
     private static final class LookupAndBindNode extends RootNode {
-
         @Child Node lookupSymbol = Message.READ.createNode();
         @Child Node bind = Message.INVOKE.createNode();
 
@@ -114,7 +113,6 @@ public class NFITest {
     }
 
     protected abstract static class NFITestRootNode extends RootNode {
-
         protected NFITestRootNode() {
             super(null);
         }
@@ -138,7 +136,6 @@ public class NFITest {
     }
 
     protected static class SendExecuteNode extends NFITestRootNode {
-
         private final TruffleObject receiver;
 
         @Child Node execute;

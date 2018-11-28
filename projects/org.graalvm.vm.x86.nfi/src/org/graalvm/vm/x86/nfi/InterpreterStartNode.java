@@ -14,13 +14,7 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterStartNode extends AMD64Node {
-    private String libraryName;
-
     @Child private InterpreterRootNode interpreter;
-
-    public InterpreterStartNode(String libraryName) {
-        this.libraryName = libraryName;
-    }
 
     @TruffleBoundary
     private static String getLibnfiPath() {
@@ -50,7 +44,7 @@ public class InterpreterStartNode extends AMD64Node {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         TruffleLanguage<AMD64Context> language = getRootNode().getLanguage(AMD64NFILanguage.class);
         ArchitecturalState state = language.getContextReference().get().getState();
-        interpreter = insert(new InterpreterRootNode(state, getLibnfiPath(), libraryName));
+        interpreter = insert(new InterpreterRootNode(state, getLibnfiPath()));
         return interpreter.executeInit(frame);
     }
 }
