@@ -171,7 +171,6 @@ public class NumericNFITest extends NFITest {
         }
     }
 
-    @Ignore
     @Test
     public void testCallback(@Inject(TestCallbackNode.class) CallTarget callTarget) {
         TruffleObject callback = new TestCallback(1, (args) -> {
