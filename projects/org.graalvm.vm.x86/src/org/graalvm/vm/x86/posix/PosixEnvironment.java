@@ -143,8 +143,21 @@ public class PosixEnvironment {
     }
 
     private void loadSymbols(int fildes, long offset, long ptr, long length) {
-        log.log(Levels.INFO, "Loading symbols for file " + fildes + " (pointer: " + HexFormatter.tohex(ptr, 16) + ", file offset: " + HexFormatter.tohex(offset, 16) + "-" +
-                        HexFormatter.tohex(offset + length, 16) + ")");
+        log.log(Levels.INFO, () -> {
+            String filename = null;
+            try {
+                filename = posix.getFileDescriptor(fildes).name;
+            } catch (Throwable t) {
+                // ignore
+            }
+
+            if (filename == null) {
+                filename = "/proc/self/fd/" + fildes;
+            }
+
+            return "Loading symbols for file " + filename + " (fd: " + fildes + ", pointer: " + HexFormatter.tohex(ptr, 16) + ", file offset: " + HexFormatter.tohex(offset, 16) + "-" +
+                            HexFormatter.tohex(offset + length, 16) + ")";
+        });
         try {
             // check if this is an ELF file
             byte[] magic = new byte[4];
