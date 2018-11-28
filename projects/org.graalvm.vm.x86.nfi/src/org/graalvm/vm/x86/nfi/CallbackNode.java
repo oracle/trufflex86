@@ -112,6 +112,8 @@ public abstract class CallbackNode extends Node {
                         return asPointer.execute((TruffleObject) result).value;
                     case OBJECT:
                         return getObject(objects, result);
+                    case VOID:
+                        return 0;
                     default:
                         CompilerDirectives.transferToInterpreter();
                         throw new AssertionError("unsupported type: " + type.getSimpleType());
