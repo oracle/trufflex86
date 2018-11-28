@@ -7,6 +7,7 @@ import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.node.AMD64RootNode;
+import org.graalvm.vm.x86.posix.InteropErrorException;
 
 import com.everyware.posix.api.CString;
 import com.everyware.posix.api.PosixException;
@@ -59,7 +60,13 @@ public class AMD64LibraryNode extends AMD64RootNode {
         strcpy(ptr, libname);
         ctx.setScratchMemory(scratch.base);
         long interoplibname = scratch.base;
-        long handle = root.executeInterop(frame, ctx.getSigaltstack(), ctx.getReturnAddress(), ptrs.loadLibrary, interoplibname, 0, 0, 0, 0, 0);
+
+        long handle;
+        try {
+            handle = root.executeInterop(frame, ctx.getSigaltstack(), ctx.getReturnAddress(), ptrs.loadLibrary, interoplibname, 0, 0, 0, 0, 0);
+        } catch (InteropErrorException e) {
+            throw new UnsatisfiedLinkError(e.getMessage());
+        }
 
         return new AMD64Library(ctxref, ptrs.loadLibrary, ptrs.releaseLibrary, ptrs.getSymbol, handle);
     }

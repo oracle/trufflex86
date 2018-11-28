@@ -81,6 +81,8 @@ public class InterpreterRootNode extends AMD64Node {
             AMD64Context ctx = getContextReference().get();
             ctx.setStateSnapshot(state);
             return new InteropFunctionPointers(e.getLoadLibrary(), e.getReleaseLibrary(), e.getSymbol());
+        } catch (ProcessExitException e) {
+            throw new UnsatisfiedLinkError("Initialization failed with error code " + e.getCode());
         }
     }
 
