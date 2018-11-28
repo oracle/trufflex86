@@ -1,9 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
-import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
-import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.InteropFunctionPointers;
@@ -11,9 +9,7 @@ import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.posix.InteropErrorException;
 
 import com.everyware.posix.api.CString;
-import com.everyware.posix.api.PosixException;
 import com.everyware.posix.api.PosixPointer;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
@@ -22,7 +18,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.nfi.types.NativeLibraryDescriptor;
 
 public class AMD64LibraryNode extends AMD64RootNode {
-    @Child private InterpreterStartNode interpreter;
+    @Child private AMD64ContextInitializerNode initializer = new AMD64ContextInitializerNode();
 
     @Child private InterpreterRootNode root;
 
@@ -32,7 +28,6 @@ public class AMD64LibraryNode extends AMD64RootNode {
         super(language, fd);
         this.libname = descriptor.getFilename();
         ArchitecturalState state = language.getContextReference().get().getState();
-        interpreter = new InterpreterStartNode();
         root = new InterpreterRootNode(state);
     }
 
@@ -49,18 +44,8 @@ public class AMD64LibraryNode extends AMD64RootNode {
 
         InteropFunctionPointers ptrs = ctx.getInteropFunctionPointers();
         if (ptrs == null) {
-            ptrs = interpreter.execute(frame);
-            ctx.setInteropFunctionPointers(ptrs);
-
-            long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
-            MemoryPage scratch = mem.allocate(len);
-            try {
-                mem.mprotect(scratch.base, scratch.size, true, true, true);
-            } catch (PosixException e) {
-                CompilerDirectives.transferToInterpreter();
-                throw new RuntimeException(e);
-            }
-            ctx.setScratchMemory(scratch.base);
+            initializer.execute(frame);
+            ptrs = ctx.getInteropFunctionPointers();
         }
 
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, ctx.getScratchMemory());
