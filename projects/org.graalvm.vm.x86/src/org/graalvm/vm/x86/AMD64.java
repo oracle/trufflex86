@@ -18,10 +18,9 @@ public class AMD64 {
 
     // @formatter:off
     public static final byte[] RETURN_CODE = {
-                    0x48, (byte) 0x89, (byte) 0xc7,             // mov    rdi,rax
-                    0x48, (byte) 0xb8, 0x02, 0x00, (byte) 0xde, // mov    rax,0xc0de0002
-                    (byte) 0xc0, 0x00, 0x00, 0x00, 0x00,
-                    0x0f, 0x05                                  // syscall
+                    0x48, (byte) 0x89, (byte) 0xc7,                     // mov    rdi,rax
+                    (byte) 0xb8, 0x02, 0x00, (byte) 0xde, (byte) 0xc0,  // mov    eax,0xc0de0002
+                    0x0f, 0x05,                                         // syscall
     };
     // @formatter:on
 }
