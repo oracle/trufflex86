@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF32NodeGen;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
@@ -122,6 +124,146 @@ public class TypeConversion extends Node {
                         @Cached("createIsBoxed()") Node isBoxed,
                         @Cached("createUnbox()") Node unbox,
                         @Cached("createRecursive()") AsI64Node recursive) {
+            try {
+                Object value = ForeignAccess.sendUnbox(unbox, arg);
+                return recursive.execute(value);
+            } catch (UnsupportedMessageException ex) {
+                CompilerDirectives.transferToInterpreter();
+                throw ex.raise();
+            }
+        }
+
+        protected static boolean checkIsBoxed(Node isBoxed, TruffleObject object) {
+            return ForeignAccess.sendIsBoxed(isBoxed, object);
+        }
+
+        static Node createIsBoxed() {
+            return Message.IS_BOXED.createNode();
+        }
+
+        static Node createUnbox() {
+            return Message.UNBOX.createNode();
+        }
+    }
+
+    abstract static class AsF32Node extends TypeConversion {
+        abstract float execute(Object arg);
+
+        @Specialization
+        protected float executeI1(boolean arg) {
+            return arg ? 1 : 0;
+        }
+
+        @Specialization
+        protected float executeI8(byte arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected float executeI16(short arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected float executeI32(int arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected float executeI64(long arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected float executeF32(float arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected float executeF64(double arg) {
+            return (float) arg;
+        }
+
+        static AsF32Node createRecursive() {
+            return AsF32NodeGen.create();
+        }
+
+        @SuppressWarnings("unused")
+        @Specialization(guards = "checkIsBoxed(isBoxed, arg)")
+        protected float unbox(TruffleObject arg,
+                        @Cached("createIsBoxed()") Node isBoxed,
+                        @Cached("createUnbox()") Node unbox,
+                        @Cached("createRecursive()") AsF32Node recursive) {
+            try {
+                Object value = ForeignAccess.sendUnbox(unbox, arg);
+                return recursive.execute(value);
+            } catch (UnsupportedMessageException ex) {
+                CompilerDirectives.transferToInterpreter();
+                throw ex.raise();
+            }
+        }
+
+        protected static boolean checkIsBoxed(Node isBoxed, TruffleObject object) {
+            return ForeignAccess.sendIsBoxed(isBoxed, object);
+        }
+
+        static Node createIsBoxed() {
+            return Message.IS_BOXED.createNode();
+        }
+
+        static Node createUnbox() {
+            return Message.UNBOX.createNode();
+        }
+    }
+
+    abstract static class AsF64Node extends TypeConversion {
+        abstract double execute(Object arg);
+
+        @Specialization
+        protected double executeI1(boolean arg) {
+            return arg ? 1 : 0;
+        }
+
+        @Specialization
+        protected double executeI8(byte arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeI16(short arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeI32(int arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeI64(long arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeF32(float arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeF64(double arg) {
+            return arg;
+        }
+
+        static AsF64Node createRecursive() {
+            return AsF64NodeGen.create();
+        }
+
+        @SuppressWarnings("unused")
+        @Specialization(guards = "checkIsBoxed(isBoxed, arg)")
+        protected double unbox(TruffleObject arg,
+                        @Cached("createIsBoxed()") Node isBoxed,
+                        @Cached("createUnbox()") Node unbox,
+                        @Cached("createRecursive()") AsF64Node recursive) {
             try {
                 Object value = ForeignAccess.sendUnbox(unbox, arg);
                 return recursive.execute(value);

@@ -18,6 +18,8 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.nfi.types.NativeSignature;
+import com.oracle.truffle.nfi.types.NativeSimpleType;
+import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
 
 public class AMD64FunctionCallNode extends AMD64Node {
@@ -40,6 +42,15 @@ public class AMD64FunctionCallNode extends AMD64Node {
     public long execute(VirtualFrame frame, AMD64Function func, Object[] args, List<Object> objects) {
         AMD64Context ctx = getContextReference().get();
         NativeSignature signature = func.getSignature();
+
+        boolean returnFloat = false;
+
+        if (signature.getRetType().getKind() == NativeTypeMirror.Kind.SIMPLE) {
+            NativeSimpleTypeMirror type = (NativeSimpleTypeMirror) signature.getRetType();
+            if (type.getSimpleType() == NativeSimpleType.DOUBLE || type.getSimpleType() == NativeSimpleType.FLOAT) {
+                returnFloat = true;
+            }
+        }
 
         VirtualMemory mem = ctx.getMemory();
         long pname = ctx.getScratchMemory();
@@ -67,10 +78,17 @@ public class AMD64FunctionCallNode extends AMD64Node {
         long sp = ctx.getSigaltstack();
         long ret = ctx.getReturnAddress();
         long[] rawargs = new long[6];
+        long[] floatargs = new long[8];
+        int intidx = 0;
+        int floatidx = 0;
         for (int i = 0; i < args.length; i++) {
             NativeTypeMirror type = getType(signature, i);
             ConversionResult result = converter.execute(type, ptr, args[i], objects);
-            rawargs[i] = result.value;
+            if (result.isFloat) {
+                floatargs[floatidx++] = result.value;
+            } else {
+                rawargs[intidx++] = result.value;
+            }
             ptr = result.ptr;
         }
 
@@ -81,10 +99,19 @@ public class AMD64FunctionCallNode extends AMD64Node {
         long a5 = rawargs[4];
         long a6 = rawargs[5];
 
+        long f1 = floatargs[0];
+        long f2 = floatargs[1];
+        long f3 = floatargs[2];
+        long f4 = floatargs[3];
+        long f5 = floatargs[4];
+        long f6 = floatargs[5];
+        long f7 = floatargs[6];
+        long f8 = floatargs[7];
+
         ctx.setInteropCallback(cb);
 
         try {
-            return root.executeInterop(frame, sp, ret, func.getFunction(), a1, a2, a3, a4, a5, a6);
+            return root.executeInterop(frame, sp, ret, func.getFunction(), a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8, returnFloat);
         } finally {
             ctx.clearInteropCallback();
         }

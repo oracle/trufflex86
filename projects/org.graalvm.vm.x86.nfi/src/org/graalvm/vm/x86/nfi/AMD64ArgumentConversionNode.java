@@ -3,9 +3,13 @@ package org.graalvm.vm.x86.nfi;
 import java.util.Arrays;
 import java.util.List;
 
+import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
+import org.graalvm.vm.x86.nfi.TypeConversion.AsF64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsI64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsPointerNode;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsStringNode;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF32NodeGen;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
@@ -24,6 +28,8 @@ import com.oracle.truffle.nfi.types.NativeTypeMirror;
 public class AMD64ArgumentConversionNode extends Node {
     @Child private AsPointerNode asPointer = AsPointerNodeGen.create();
     @Child private AsI64Node asI64 = AsI64NodeGen.create();
+    @Child private AsF32Node asF32 = AsF32NodeGen.create();
+    @Child private AsF64Node asF64 = AsF64NodeGen.create();
     @Child private AsStringNode asString = AsStringNodeGen.create(true);
 
     // @formatter:off
@@ -83,6 +89,10 @@ public class AMD64ArgumentConversionNode extends Node {
                     }
                     case OBJECT:
                         return new ConversionResult(MagicValues.encodeObject(add(objects, arg)), ptr);
+                    case FLOAT:
+                        return new ConversionResult(asF32.execute(arg), ptr);
+                    case DOUBLE:
+                        return new ConversionResult(asF64.execute(arg), ptr);
                     default:
                         CompilerDirectives.transferToInterpreter();
                         throw new AssertionError("unsupported type: " + mirror.getSimpleType());

@@ -26,6 +26,7 @@ import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializerNode;
 import org.graalvm.vm.x86.posix.InteropInitException;
 import org.graalvm.vm.x86.posix.InteropReturnException;
+import org.graalvm.vm.x86.posix.InteropReturnResult;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.everyware.posix.api.Signal;
@@ -88,6 +89,11 @@ public class InterpreterRootNode extends AMD64Node {
     }
 
     public long executeInterop(VirtualFrame frame, long sp, long ret, long pc, long a1, long a2, long a3, long a4, long a5, long a6) {
+        return executeInterop(frame, sp, ret, pc, a1, a2, a3, a4, a5, a6, 0, 0, 0, 0, 0, 0, 0, 0, false);
+    }
+
+    public long executeInterop(VirtualFrame frame, long sp, long ret, long pc, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5, long f6,
+                    long f7, long f8, boolean returnFloat) {
         AMD64Context ctx = getContextReference().get();
         CpuState state = new CpuState();
         state.rip = pc;
@@ -101,6 +107,14 @@ public class InterpreterRootNode extends AMD64Node {
         for (int i = 0; i < 16; i++) {
             state.xmm[i] = new Vector128();
         }
+        state.xmm[0].setI64(1, f1);
+        state.xmm[1].setI64(1, f2);
+        state.xmm[2].setI64(1, f3);
+        state.xmm[3].setI64(1, f4);
+        state.xmm[4].setI64(1, f5);
+        state.xmm[5].setI64(1, f6);
+        state.xmm[6].setI64(1, f7);
+        state.xmm[7].setI64(1, f8);
         state.fs = ctx.getStateSnapshot().fs;
         state.gs = ctx.getStateSnapshot().gs;
         writeState.execute(frame, state);
@@ -117,6 +131,13 @@ public class InterpreterRootNode extends AMD64Node {
             }
         } catch (InteropReturnException e) {
             return e.getValue();
+        } catch (InteropReturnResult e) {
+            state = e.getState();
+            if (returnFloat) {
+                return state.xmm[0].getI64(1);
+            } else {
+                return state.rdi;
+            }
         } catch (ProcessExitException e) {
             throw new UnsatisfiedLinkError();
         }

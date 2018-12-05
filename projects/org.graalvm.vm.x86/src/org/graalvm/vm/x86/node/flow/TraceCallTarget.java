@@ -14,6 +14,8 @@ import org.graalvm.vm.x86.isa.ReturnException;
 import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
+import org.graalvm.vm.x86.posix.InteropReturnException;
+import org.graalvm.vm.x86.posix.InteropReturnResult;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -128,11 +130,15 @@ public class TraceCallTarget extends AMD64RootNode {
         }
         long pc;
         boolean ret = false;
+        boolean interopRet = false;
         try {
             pc = dispatch.execute(frame);
         } catch (ReturnException e) {
             pc = e.getBTA();
             ret = true;
+        } catch (InteropReturnException e) {
+            pc = 0; // dummy value, never used
+            interopRet = true;
         }
         if (gprReadMask == null && !TRUFFLE_CALLS) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
@@ -169,6 +175,8 @@ public class TraceCallTarget extends AMD64RootNode {
             result = read.execute(frame, pc);
             if (ret) {
                 throw new RetException(result);
+            } else if (interopRet) {
+                throw new InteropReturnResult(result);
             } else {
                 return result;
             }
@@ -181,6 +189,9 @@ public class TraceCallTarget extends AMD64RootNode {
             if (ret) {
                 CompilerDirectives.transferToInterpreter();
                 throw new AssertionError("ret must not happen without TRUFFLE_CALLS");
+            }
+            if (interopRet) {
+                throw new InteropReturnResult(result);
             }
             return result;
         }

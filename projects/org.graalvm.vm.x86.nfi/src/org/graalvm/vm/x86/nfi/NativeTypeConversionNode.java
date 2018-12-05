@@ -48,6 +48,10 @@ public class NativeTypeConversionNode extends Node {
                         }
                     case VOID:
                         return new NativePointer(0);
+                    case FLOAT:
+                        return Float.intBitsToFloat((int) value);
+                    case DOUBLE:
+                        return Double.longBitsToDouble(value);
                     default:
                         CompilerDirectives.transferToInterpreter();
                         throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
