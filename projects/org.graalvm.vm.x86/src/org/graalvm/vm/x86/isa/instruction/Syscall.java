@@ -9,6 +9,7 @@ import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
+import org.graalvm.vm.x86.node.ReadFlagsNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
@@ -34,7 +35,10 @@ public class Syscall extends AMD64Instruction {
     @Child private RegisterReadNode readR10;
     @Child private RegisterReadNode readR8;
     @Child private RegisterReadNode readR9;
+    @Child private ReadFlagsNode readFlags;
     @Child private RegisterWriteNode writeRAX;
+    @Child private RegisterWriteNode writeRCX;
+    @Child private RegisterWriteNode writeR11;
 
     @CompilationFinal private ContextReference<AMD64Context> ctxRef;
 
@@ -44,7 +48,7 @@ public class Syscall extends AMD64Instruction {
         // Linux specific
         setGPRReadOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RDI), new RegisterOperand(Register.RSI), new RegisterOperand(Register.RDX),
                         new RegisterOperand(Register.R10), new RegisterOperand(Register.R8), new RegisterOperand(Register.R9));
-        setGPRWriteOperands(new RegisterOperand(Register.RAX));
+        setGPRWriteOperands(new RegisterOperand(Register.RAX), new RegisterOperand(Register.RCX), new RegisterOperand(Register.R11));
     }
 
     @Override
@@ -65,6 +69,9 @@ public class Syscall extends AMD64Instruction {
         readR8 = reg.getRegister(Register.R8).createRead();
         readR9 = reg.getRegister(Register.R9).createRead();
         writeRAX = reg.getRegister(Register.RAX).createWrite();
+        writeRCX = reg.getRegister(Register.RCX).createWrite();
+        writeR11 = reg.getRegister(Register.R11).createWrite();
+        readFlags = reg.createReadFlags();
     }
 
     @Override
@@ -98,7 +105,10 @@ public class Syscall extends AMD64Instruction {
                 }
             }
         }
+        long rflags = readFlags.executeI64(frame);
         writeRAX.executeI64(frame, result);
+        writeRCX.executeI64(frame, next());
+        writeR11.executeI64(frame, rflags);
         return next();
     }
 
