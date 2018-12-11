@@ -15,6 +15,6 @@ public class SyscallTest {
 
     @Test
     public void syscallRegs() throws Exception {
-        TestRunner.run("syscall-regs.elf", new String[0], "", "rcx = 0000000000401591\nr11 = 0000000000000206\n", "", 0);
+        TestRunner.run("syscall-regs.elf", new String[0], "", "rcx = 000000000040159a\nr11 = 0000000000000206\n", "", 0);
     }
 }
