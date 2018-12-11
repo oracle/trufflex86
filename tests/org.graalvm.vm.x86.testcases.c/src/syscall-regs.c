@@ -13,9 +13,14 @@ void asm_sc0(int64_t* rip, int64_t* rflags)
 	register int64_t rcx asm("rcx");
 	register int64_t r11 asm("r11");
 
-	asm volatile("syscall" : "=a"(result)
+	long rfl = 0x206;
+
+	asm volatile("push %[rfl]\n\t"
+		     "popf\n\t"
+		     "syscall" : "=a"(result)
 			       : "a"(id), "D"(a1), "S"(a2), "d"(a3),
-				 "r"(rcx), "r"(r11)
+				 "r"(rcx), "r"(r11),
+				 [rfl] "r" (rfl)
 			       : "memory");
 
 	*rip = rcx;
