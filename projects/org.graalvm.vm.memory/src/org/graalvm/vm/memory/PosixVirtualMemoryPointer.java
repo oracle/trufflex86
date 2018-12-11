@@ -1,5 +1,8 @@
 package org.graalvm.vm.memory;
 
+import org.graalvm.vm.memory.exception.SegmentationViolation;
+
+import com.everyware.posix.api.MemoryFaultException;
 import com.everyware.posix.api.PosixPointer;
 
 public class PosixVirtualMemoryPointer implements PosixPointer {
@@ -22,43 +25,75 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
     }
 
     @Override
-    public byte getI8() {
-        return memory.getI8(offset);
+    public byte getI8() throws MemoryFaultException {
+        try {
+            return memory.getI8(offset);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public short getI16() {
-        return memory.getI16(offset);
+    public short getI16() throws MemoryFaultException {
+        try {
+            return memory.getI16(offset);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public int getI32() {
-        return memory.getI32(offset);
+    public int getI32() throws MemoryFaultException {
+        try {
+            return memory.getI32(offset);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public long getI64() {
-        return memory.getI64(offset);
+    public long getI64() throws MemoryFaultException {
+        try {
+            return memory.getI64(offset);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public void setI8(byte val) {
-        memory.setI8(offset, val);
+    public void setI8(byte val) throws MemoryFaultException {
+        try {
+            memory.setI8(offset, val);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public void setI16(short val) {
-        memory.setI16(offset, val);
+    public void setI16(short val) throws MemoryFaultException {
+        try {
+            memory.setI16(offset, val);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public void setI32(int val) {
-        memory.setI32(offset, val);
+    public void setI32(int val) throws MemoryFaultException {
+        try {
+            memory.setI32(offset, val);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override
-    public void setI64(long val) {
-        memory.setI64(offset, val);
+    public void setI64(long val) throws MemoryFaultException {
+        try {
+            memory.setI64(offset, val);
+        } catch (SegmentationViolation e) {
+            throw new MemoryFaultException(e);
+        }
     }
 
     @Override

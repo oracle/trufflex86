@@ -33,6 +33,7 @@ import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.everyware.posix.api.MemoryFaultException;
 import com.everyware.posix.elf.Symbol;
 import com.everyware.util.log.Levels;
 import com.everyware.util.log.Trace;
@@ -333,11 +334,19 @@ public class TraceDispatchNode extends AMD64Node {
             } catch (Throwable t) {
                 Trace.log.printf("Error while retrieving instruction at 0x%016x\n", e.getPC());
             }
-            e.getCause().printStackTrace(Trace.log);
-            if (e.getCause() instanceof SegmentationViolation) {
-                memory.printLayout(Trace.log);
-            }
             writePC.executeI64(frame, pc);
+            if (e.getCause() instanceof SegmentationViolation) {
+                e.getCause().printStackTrace(Trace.log);
+                memory.printLayout(Trace.log);
+            } else if (e.getCause() instanceof MemoryFaultException && e.getCause().getCause() instanceof SegmentationViolation) {
+                Throwable cause = e.getCause().getCause();
+                // unwrap SegmentationViolation if it is nested in a MemoryFaultException
+                cause.printStackTrace(Trace.log);
+                memory.printLayout(Trace.log);
+                throw new CpuRuntimeException(e.getPC(), cause);
+            } else {
+                e.getCause().printStackTrace(Trace.log);
+            }
             throw e;
             // dump();
         } catch (Throwable t) {
