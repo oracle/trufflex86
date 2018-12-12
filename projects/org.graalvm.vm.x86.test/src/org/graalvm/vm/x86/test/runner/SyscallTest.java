@@ -43,6 +43,9 @@ public class SyscallTest {
                     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
                     "AAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
+    private static final String SHELLCODE_ZERO = "ylFerA8FuDwAAAAx/w8FSGVsbG8" +
+                    "gd29ybGQh";
+
     @Test
     public void id() throws Exception {
         TestRunner.run("syscall-id.elf", new String[0], "", "uid=1000, gid=1000\n", "", 0);
@@ -62,6 +65,13 @@ public class SyscallTest {
     @Test
     public void shellcode9Bytes() throws Exception {
         TestRunner.runBinary("shellcode-9byte.asm.elf", new String[0], "", SHELLCODE_OUTPUT, "", 0);
+    }
+
+    @Test
+    public void shellcode9BytesZero() throws Exception {
+        byte[] buf = Base64.getDecoder().decode(SHELLCODE_ZERO);
+        String stdout = Base64.getEncoder().encodeToString(Arrays.copyOf(buf, 4069));
+        TestRunner.runBinary("shellcode-9byte.asm.elf", new String[0], "", stdout, "", 0);
     }
 
     @Test
