@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.ByteMemory;
-import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.util.HexFormatter;
@@ -316,6 +315,10 @@ public class ElfLoader {
             Elf interpelf = new Elf(interpbin);
             if (elf.ei_class != interpelf.ei_class) {
                 throw new IOException("invalid interpreter ELFCLASS");
+            }
+
+            if (elf.e_machine != interpelf.e_machine) {
+                throw new IOException("invalid interpreter machine id");
             }
 
             if (interpelf.e_type == Elf.ET_DYN) {
