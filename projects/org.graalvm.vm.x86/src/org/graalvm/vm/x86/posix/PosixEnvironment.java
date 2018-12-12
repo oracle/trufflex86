@@ -282,6 +282,12 @@ public class PosixEnvironment {
         posix.setTTY(FileDescriptorManager.STDERR, out);
     }
 
+    public void setStandardIO(InputStream in, OutputStream out, OutputStream err) {
+        posix.setTTY(FileDescriptorManager.STDIN, in, out);
+        posix.setTTY(FileDescriptorManager.STDOUT, in, out);
+        setStandardErr(err);
+    }
+
     public int open(long pathname, int flags, int mode) throws SyscallException {
         try {
             return posix.open(cstr(pathname), flags, mode);

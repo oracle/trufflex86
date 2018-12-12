@@ -84,9 +84,7 @@ public class AMD64Context {
             memory.setAccessLogger(memoryTracer);
         }
         posix = new PosixEnvironment(memory, ARCH_NAME, traceWriter);
-        posix.setStandardIn(env.in());
-        posix.setStandardOut(env.out());
-        posix.setStandardErr(env.err());
+        posix.setStandardIO(env.in(), env.out(), env.err());
         args = env.getApplicationArguments();
         assert REGISTER_NAMES.length == 16;
         gpr = new FrameSlot[REGISTER_NAMES.length];

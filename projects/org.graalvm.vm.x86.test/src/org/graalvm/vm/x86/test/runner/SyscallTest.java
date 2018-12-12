@@ -70,4 +70,9 @@ public class SyscallTest {
         String stdout = Base64.getEncoder().encodeToString(Arrays.copyOf(buf, 4096));
         TestRunner.runBinary("write-long.elf", new String[0], "", stdout, "", 0);
     }
+
+    @Test
+    public void testWriteStdin() throws Exception {
+        TestRunner.run("write-stdin.asm.elf", new String[0], "", "this is hot shit!\n", "", 0);
+    }
 }

@@ -26,7 +26,7 @@ suite = {
       {
         "name" : "core",
         "subdir" : False,
-        "version" : "da84eafcbcd38ae66ab9de4392468ab2e9bc8882",
+        "version" : "466510f358aaa6195cb606317d1481f784b5542f",
         "urls" : [
           {"url" : "https://github.com/pekd/core", "kind" : "git"},
         ]
