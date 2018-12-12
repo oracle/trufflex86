@@ -101,9 +101,22 @@ public class NativeVirtualMemory extends VirtualMemory {
             throw new IllegalArgumentException("physical area is too small");
         }
         updateMemoryMap();
+        reset();
         if (BYPASS_SEGFAULT_CHECK) {
             log.warning("Ignoring segfaults in guest program");
         }
+    }
+
+    // unmap native memory and then map it again to clear all previous mappings and initialize the
+    // memory to all zeros
+    public void reset() {
+        try {
+            MMU.munmap(physicalLo, physicalHi - physicalLo);
+            MMU.mmap(physicalLo, physicalHi - physicalLo, false, false, false, true, true, false, -1, 0);
+        } catch (PosixException e) {
+            log.log(Levels.ERROR, "Error while initializing native memory: " + e);
+        }
+        updateMemoryMap();
     }
 
     private List<MemorySegment> getMemoryMap() throws IOException {
