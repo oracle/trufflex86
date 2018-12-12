@@ -121,10 +121,10 @@ public class ElfLoader {
     public static final long LOAD_BIAS = getLong(Options.LOAD_BIAS);
 
     private Elf elf;
-    private long load_addr;
     private long load_bias;
     private long base;
     private long entry;
+    private long phoff = -1;
 
     private long sp;
     private long pc;
@@ -216,20 +216,11 @@ public class ElfLoader {
         if (LOAD_BIAS != 0) {
             load_bias = LOAD_BIAS;
         }
-        load_addr = load_bias + getLowAddress(elf);
 
         symbols = new TreeMap<>();
 
-        Memory elfhdrmem = new ByteMemory(data, false);
-        MemoryPage elfhdrpage = new MemoryPage(elfhdrmem, load_addr, elf.e_phoff + elf.e_phnum * elf.e_phentsize, filename);
-        memory.add(elfhdrpage);
-
-        if (traceWriter != null) {
-            traceWriter.mmap(load_addr, elfhdrpage.size, Mman.PROT_READ | Mman.PROT_WRITE, Mman.MAP_PRIVATE | Mman.MAP_FIXED, -1, 0, elfhdrpage.base, data);
-        }
-
         for (ProgramHeader hdr : elf.getProgramHeaders()) {
-            if (hdr.getType() == Elf.PT_LOAD) {
+            if (hdr.getType() == Elf.PT_LOAD || hdr.getType() == Elf.PT_PHDR) {
                 long size = hdr.getMemorySize();
                 long offset = load_bias + hdr.getVirtualAddress();
                 long fileOffset = hdr.getOffset();
@@ -256,6 +247,10 @@ public class ElfLoader {
                 p.w = hdr.getFlag(Elf.PF_W);
                 p.x = hdr.getFlag(Elf.PF_X);
                 memory.add(p);
+
+                if (hdr.getType() == Elf.PT_PHDR) {
+                    phoff = offset;
+                }
 
                 if (traceWriter != null) {
                     int prot = 0;
@@ -545,7 +540,9 @@ public class ElfLoader {
         // ptr = setPair(mem, ptr, AT_DCACHEBSIZE, Power.DCACHE_LINE_SIZE);
         // ptr = setPair(mem, ptr, AT_ICACHEBSIZE, Power.ICACHE_LINE_SIZE);
         // ptr = setPair(mem, ptr, AT_UCACHEBSIZE, 0);
-        ptr = setPair32(mem, ptr, AT_PHDR, (int) (load_addr + elf.e_phoff));
+        if (phoff != -1) {
+            ptr = setPair32(mem, ptr, AT_PHDR, (int) phoff);
+        }
         ptr = setPair32(mem, ptr, AT_PHENT, elf.e_phentsize);
         ptr = setPair32(mem, ptr, AT_PHNUM, elf.e_phnum);
         ptr = setPair32(mem, ptr, AT_PAGESZ, PAGE_SIZE);
@@ -665,7 +662,9 @@ public class ElfLoader {
         // ptr = setPair(mem, ptr, AT_DCACHEBSIZE, Power.DCACHE_LINE_SIZE);
         // ptr = setPair(mem, ptr, AT_ICACHEBSIZE, Power.ICACHE_LINE_SIZE);
         // ptr = setPair(mem, ptr, AT_UCACHEBSIZE, 0);
-        ptr = setPair64(mem, ptr, AT_PHDR, load_addr + elf.e_phoff);
+        if (phoff != -1) {
+            ptr = setPair64(mem, ptr, AT_PHDR, phoff);
+        }
         ptr = setPair64(mem, ptr, AT_PHENT, elf.e_phentsize);
         ptr = setPair64(mem, ptr, AT_PHNUM, elf.e_phnum);
         ptr = setPair64(mem, ptr, AT_PAGESZ, PAGE_SIZE);
