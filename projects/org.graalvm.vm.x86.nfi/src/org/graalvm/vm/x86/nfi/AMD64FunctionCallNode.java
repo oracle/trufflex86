@@ -55,9 +55,15 @@ public class AMD64FunctionCallNode extends AMD64Node {
         VirtualMemory mem = ctx.getMemory();
         long pname = ctx.getScratchMemory();
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, pname);
+        long callbacks = ctx.getCallbackMemory();
+        PosixPointer callbackptr = new PosixVirtualMemoryPointer(mem, callbacks);
 
         InteropCallback cb = new InteropCallback() {
             public long call(int id, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
+                return call(id, a1, a2, a3, a4, a5, a6, 0, 0, 0, 0, 0, 0, 0, 0);
+            }
+
+            public long call(int id, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5, long f6, long f7, long f8) throws SyscallException {
                 CompilerAsserts.neverPartOfCompilation();
 
                 if (id < 0 || id > objects.size()) {
@@ -71,7 +77,7 @@ public class AMD64FunctionCallNode extends AMD64Node {
                 }
 
                 Callback callback = (Callback) objects.get(id);
-                return foreignCall.execute(callback.signature, objects, callback.object, a1, a2, a3, a4, a5, a6);
+                return foreignCall.execute(callback.signature, objects, callback.object, a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8);
             }
         };
 
@@ -83,7 +89,7 @@ public class AMD64FunctionCallNode extends AMD64Node {
         int floatidx = 0;
         for (int i = 0; i < args.length; i++) {
             NativeTypeMirror type = getType(signature, i);
-            ConversionResult result = converter.execute(type, ptr, args[i], objects);
+            ConversionResult result = converter.execute(type, ptr, args[i], objects, callbackptr);
             if (result.isFloat) {
                 floatargs[floatidx++] = result.value;
             } else {

@@ -160,6 +160,11 @@ public class TypeConversion extends Node {
         }
 
         @Specialization
+        protected float executeI16(char arg) {
+            return arg;
+        }
+
+        @Specialization
         protected float executeI16(short arg) {
             return arg;
         }
@@ -226,6 +231,11 @@ public class TypeConversion extends Node {
 
         @Specialization
         protected double executeI8(byte arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected double executeI16(char arg) {
             return arg;
         }
 

@@ -2,8 +2,12 @@ package org.graalvm.vm.x86.nfi;
 
 import java.util.List;
 
+import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
+import org.graalvm.vm.x86.nfi.TypeConversion.AsF64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsI64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsPointerNode;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF32NodeGen;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 
@@ -19,16 +23,21 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeSignature;
+import com.oracle.truffle.nfi.types.NativeSimpleType;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
 
 public abstract class CallbackNode extends Node {
-    public abstract long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6);
+    public abstract long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5,
+                    long f6, long f7, long f8);
 
     @Child private NativeTypeConversionNode argConverter = new NativeTypeConversionNode();
 
     @Child private AsPointerNode asPointer = AsPointerNodeGen.create();
     @Child private AsI64Node asI64 = AsI64NodeGen.create();
+    @Child private AsF32Node asF32 = AsF32NodeGen.create();
+    @Child private AsF64Node asF64 = AsF64NodeGen.create();
 
     @TruffleBoundary
     protected static Object get(List<Object> list, int index) {
@@ -64,34 +73,29 @@ public abstract class CallbackNode extends Node {
     }
 
     @Specialization
-    public long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6, @Cached("createExecute()") Node execute) {
-        long[] rawargs = new long[getArgCount(signature)];
-        int argcnt = rawargs.length;
-        if (argcnt > 6) {
-            argcnt = 6;
-        }
+    protected long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5,
+                    long f6, long f7, long f8, @Cached("createExecute()") Node execute) {
+        long[] iargs = {a1, a2, a3, a4, a5, a6};
+        long[] fargs = {f1, f2, f3, f4, f5, f6, f7, f8};
 
-        // NOTE: fallthrough is intended!
-        switch (argcnt) {
-            case 6:
-                rawargs[5] = a6;
-            case 5:
-                rawargs[4] = a5;
-            case 4:
-                rawargs[3] = a4;
-            case 3:
-                rawargs[2] = a3;
-            case 2:
-                rawargs[1] = a2;
-            case 1:
-                rawargs[0] = a1;
-        }
+        Object[] args = new Object[getArgCount(signature)];
 
-        Object[] args = new Object[rawargs.length];
-
-        for (int i = 0; i < argcnt; i++) {
+        int iidx = 0;
+        int fidx = 0;
+        for (int i = 0; i < args.length; i++) {
             NativeTypeMirror type = getType(signature, i);
-            args[i] = argConverter.execute(type, rawargs[i], objects);
+            long raw;
+            if (type.getKind() == Kind.SIMPLE) {
+                NativeSimpleTypeMirror t = (NativeSimpleTypeMirror) type;
+                if (t.getSimpleType() == NativeSimpleType.FLOAT || t.getSimpleType() == NativeSimpleType.DOUBLE) {
+                    raw = fargs[fidx++];
+                } else {
+                    raw = iargs[iidx++];
+                }
+            } else {
+                raw = iargs[iidx++];
+            }
+            args[i] = argConverter.execute(type, raw, objects);
         }
 
         try {
@@ -114,6 +118,10 @@ public abstract class CallbackNode extends Node {
                         return getObject(objects, result);
                     case VOID:
                         return 0;
+                    case FLOAT:
+                        return Float.floatToRawIntBits(asF32.execute(result));
+                    case DOUBLE:
+                        return Double.doubleToRawLongBits(asF64.execute(result));
                     default:
                         CompilerDirectives.transferToInterpreter();
                         throw new AssertionError("unsupported type: " + type.getSimpleType());

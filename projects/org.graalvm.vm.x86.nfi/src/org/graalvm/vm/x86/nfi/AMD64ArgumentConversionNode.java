@@ -1,6 +1,5 @@
 package org.graalvm.vm.x86.nfi;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
@@ -22,8 +21,10 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
 import com.oracle.truffle.nfi.types.NativeSignature;
+import com.oracle.truffle.nfi.types.NativeSimpleType;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
 
 public class AMD64ArgumentConversionNode extends Node {
     @Child private AsPointerNode asPointer = AsPointerNodeGen.create();
@@ -31,23 +32,6 @@ public class AMD64ArgumentConversionNode extends Node {
     @Child private AsF32Node asF32 = AsF32NodeGen.create();
     @Child private AsF64Node asF64 = AsF64NodeGen.create();
     @Child private AsStringNode asString = AsStringNodeGen.create(true);
-
-    // @formatter:off
-    private static final byte[] CALLBACK_TEMPLATE = {
-            /* 0 */   (byte) 0xb8, 0x01, 0x02, (byte) 0xef, (byte) 0xbe, // mov    eax,0xbeef0201
-            /* 5 */   0x49, (byte) 0x89, (byte) 0xca,                    // mov    r10,rcx
-            /* 8 */   0x0f, 0x05,                                        // syscall
-            /* a */   (byte) 0xc3                                        // ret
-    };
-    // @formatter:on
-
-    @TruffleBoundary
-    private static PosixPointer createCallback(PosixPointer dst, int id) {
-        byte[] code = Arrays.copyOf(CALLBACK_TEMPLATE, CALLBACK_TEMPLATE.length);
-        code[0x01] = (byte) id;
-        code[0x02] = (byte) (id >> 8);
-        return CString.memcpy(dst, code, code.length);
-    }
 
     @TruffleBoundary
     private static PosixPointer strcpy(PosixPointer dst, String src) {
@@ -61,8 +45,22 @@ public class AMD64ArgumentConversionNode extends Node {
         return id;
     }
 
+    @TruffleBoundary
+    private static boolean isFloatCallback(NativeSignature signature) {
+        List<NativeTypeMirror> types = signature.getArgTypes();
+        for (NativeTypeMirror type : types) {
+            if (type.getKind() == Kind.SIMPLE) {
+                NativeSimpleTypeMirror t = (NativeSimpleTypeMirror) type;
+                if (t.getSimpleType() == NativeSimpleType.FLOAT || t.getSimpleType() == NativeSimpleType.DOUBLE) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // TODO: use proper conversion messages and cache the type
-    public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg, List<Object> objects) {
+    public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg, List<Object> objects, PosixPointer callbacksptr) {
         switch (type.getKind()) {
             case SIMPLE: {
                 NativeSimpleTypeMirror mirror = (NativeSimpleTypeMirror) type;
@@ -101,8 +99,18 @@ public class AMD64ArgumentConversionNode extends Node {
             case FUNCTION: {
                 NativeSignature signature = ((NativeFunctionTypeMirror) type).getSignature();
                 Callback cb = new Callback(signature, (TruffleObject) arg);
-                PosixPointer out = createCallback(ptr, add(objects, cb));
-                return new ConversionResult(ptr.getAddress(), out);
+                boolean fret = false;
+                if (signature.getRetType().getKind() == Kind.SIMPLE) {
+                    NativeSimpleTypeMirror rettype = (NativeSimpleTypeMirror) signature.getRetType();
+                    fret = rettype.getSimpleType() == NativeSimpleType.FLOAT || rettype.getSimpleType() == NativeSimpleType.DOUBLE;
+                }
+                int id = add(objects, cb);
+                long callback = CallbackCode.getCallbackAddress(callbacksptr.getAddress(), id);
+                PosixPointer callbackdata = CallbackCode.getCallbackDataPointer(callbacksptr, id);
+                callbackdata.setI16((short) id);
+                boolean isFloat = fret || isFloatCallback(signature);
+                callbackdata.add(2).setI8((byte) (isFloat ? 1 : 0));
+                return new ConversionResult(callback, ptr);
             }
             default:
                 CompilerDirectives.transferToInterpreter();

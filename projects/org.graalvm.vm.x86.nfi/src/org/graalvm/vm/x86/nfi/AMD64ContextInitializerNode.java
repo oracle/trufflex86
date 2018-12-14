@@ -28,12 +28,24 @@ public class AMD64ContextInitializerNode extends AMD64Node {
             long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
             MemoryPage scratch = mem.allocate(len);
             try {
-                mem.mprotect(scratch.base, scratch.size, true, true, true);
+                mem.mprotect(scratch.base, scratch.size, true, true, false);
             } catch (PosixException e) {
                 CompilerDirectives.transferToInterpreter();
                 throw new RuntimeException(e);
             }
             ctx.setScratchMemory(scratch.base);
+
+            MemoryPage callbacks = mem.allocate(4096);
+            for (int i = 0; i < 128; i++) {
+                CallbackCode.writeCallback(mem, callbacks.base, i);
+            }
+            try {
+                mem.mprotect(callbacks.base, callbacks.size, true, true, true);
+            } catch (PosixException e) {
+                CompilerDirectives.transferToInterpreter();
+                throw new RuntimeException(e);
+            }
+            ctx.setCallbackMemory(callbacks.base);
         }
     }
 }

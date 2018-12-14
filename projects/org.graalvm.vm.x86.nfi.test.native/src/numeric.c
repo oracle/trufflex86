@@ -13,7 +13,7 @@ typedef type (*fnptr_##name)(type); \
 \
 fnptr_##name callback_ret_##name() { \
 	return increment_##name; \
-} \
+}
 
 GEN_NUMERIC_TEST(SINT8, int8_t)
 GEN_NUMERIC_TEST(UINT8, uint8_t)

@@ -61,8 +61,7 @@ public class NumericNFITest extends NFITest {
                     NativeSimpleType.UINT16, NativeSimpleType.SINT16,
                     NativeSimpleType.UINT32, NativeSimpleType.SINT32,
                     NativeSimpleType.UINT64, NativeSimpleType.SINT64,
-                    // TODO: reactivate!
-                    // NativeSimpleType.FLOAT, NativeSimpleType.DOUBLE
+                    NativeSimpleType.FLOAT, NativeSimpleType.DOUBLE
     };
 
     @Parameters(name = "{0}")

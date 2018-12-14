@@ -117,6 +117,8 @@ public class AMD64Opcode {
 
     public static final byte INC_RM = (byte) 0xFF;
 
+    public static final byte INT1 = (byte) 0xF1;
+
     public static final byte JA = 0x77;
     public static final byte JAE = 0x73;
     public static final byte JB = 0x72;

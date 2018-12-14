@@ -62,6 +62,7 @@ public class AMD64Context {
     private CpuState snapshot;
     private long returnAddress;
     private long scratchMemory;
+    private long callbacks;
 
     private ExecutionTraceWriter traceWriter;
     private LogStreamHandler logHandler;
@@ -281,6 +282,14 @@ public class AMD64Context {
         return scratchMemory;
     }
 
+    public void setCallbackMemory(long address) {
+        callbacks = address;
+    }
+
+    public long getCallbackMemory() {
+        return callbacks;
+    }
+
     public ExecutionTraceWriter getTraceWriter() {
         return traceWriter;
     }
@@ -299,9 +308,17 @@ public class AMD64Context {
 
     public long interopCall(int nr, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
         if (interopCallback == null) {
-            return -Errno.ENOSYS;
+            throw new SyscallException(Errno.ENOSYS);
         } else {
             return interopCallback.call(nr, a1, a2, a3, a4, a5, a6);
+        }
+    }
+
+    public long interopCall(int nr, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5, long f6, long f7, long f8) throws SyscallException {
+        if (interopCallback == null) {
+            throw new SyscallException(Errno.ENOSYS);
+        } else {
+            return interopCallback.call(nr, a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8);
         }
     }
 

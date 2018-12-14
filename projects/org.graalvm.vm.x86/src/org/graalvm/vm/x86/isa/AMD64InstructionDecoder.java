@@ -164,6 +164,7 @@ import org.graalvm.vm.x86.isa.instruction.Inc.Incb;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incl;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incq;
 import org.graalvm.vm.x86.isa.instruction.Inc.Incw;
+import org.graalvm.vm.x86.isa.instruction.Int1;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Ja;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jae;
 import org.graalvm.vm.x86.isa.instruction.Jcc.Jb;
@@ -891,6 +892,8 @@ public class AMD64InstructionDecoder {
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
             }
+            case AMD64Opcode.INT1:
+                return new Int1(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.JA: {
                 byte rel8 = code.read8();
                 instruction[instructionLength++] = rel8;
