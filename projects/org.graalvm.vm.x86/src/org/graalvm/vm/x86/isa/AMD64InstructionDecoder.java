@@ -45,6 +45,7 @@ import org.graalvm.vm.x86.isa.instruction.Bts.Btsw;
 import org.graalvm.vm.x86.isa.instruction.Call.CallAbsolute;
 import org.graalvm.vm.x86.isa.instruction.Call.CallRelative;
 import org.graalvm.vm.x86.isa.instruction.Cdq;
+import org.graalvm.vm.x86.isa.instruction.Clc;
 import org.graalvm.vm.x86.isa.instruction.Cld;
 import org.graalvm.vm.x86.isa.instruction.Cmov.Cmovael;
 import org.graalvm.vm.x86.isa.instruction.Cmov.Cmovaeq;
@@ -390,6 +391,7 @@ import org.graalvm.vm.x86.isa.instruction.Shufpd;
 import org.graalvm.vm.x86.isa.instruction.Shufps;
 import org.graalvm.vm.x86.isa.instruction.Sqrtsd;
 import org.graalvm.vm.x86.isa.instruction.Sqrtss;
+import org.graalvm.vm.x86.isa.instruction.Stc;
 import org.graalvm.vm.x86.isa.instruction.Stmxcsr;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosb;
 import org.graalvm.vm.x86.isa.instruction.Stos.Stosd;
@@ -688,6 +690,8 @@ public class AMD64InstructionDecoder {
                 } else {
                     return new Cwde(pc, Arrays.copyOf(instruction, instructionLength));
                 }
+            case AMD64Opcode.CLC:
+                return new Clc(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.CLD:
                 return new Cld(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.CMP_AL_I: {
@@ -1669,6 +1673,8 @@ public class AMD64InstructionDecoder {
                 }
                 return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
             }
+            case AMD64Opcode.STC:
+                return new Stc(pc, Arrays.copyOf(instruction, instructionLength));
             case AMD64Opcode.STOSB: {
                 assert segment == null;
                 assert !isREPNZ;

@@ -49,6 +49,8 @@ public class AMD64Opcode {
     public static final byte CDQE = (byte) 0x98;
     public static final byte CDQ = (byte) 0x99;
 
+    public static final byte CLC = (byte) 0xF8;
+
     public static final byte CLD = (byte) 0xFC;
 
     public static final byte CMOVA = 0x47;
@@ -377,6 +379,8 @@ public class AMD64Opcode {
     public static final byte SHUFPS_X_XM_I8 = (byte) 0xC6;
 
     public static final byte SQRTSD_X_XM = 0x51;
+
+    public static final byte STC = (byte) 0xF9;
 
     public static final byte STOSB = (byte) 0xAA;
     public static final byte STOS = (byte) 0xAB;
