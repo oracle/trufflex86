@@ -510,4 +510,9 @@ public class SulongAsm {
     public void xchg004() throws Exception {
         TestRunner.run("xchg004.elf", new String[0], "", "", "", 1);
     }
+
+    @Test
+    public void pmovmskb() throws Exception {
+        TestRunner.run("pmovmskb.elf", new String[0], "", "mask 0x96a5\n", "", 0);
+    }
 }
