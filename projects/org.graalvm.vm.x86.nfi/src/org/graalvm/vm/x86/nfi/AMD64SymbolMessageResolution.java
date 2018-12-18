@@ -65,6 +65,13 @@ public class AMD64SymbolMessageResolution {
         }
     }
 
+    @Resolve(message = "AS_POINTER")
+    abstract static class AsNativePointerNode extends Node {
+        public long access(AMD64Symbol receiver) {
+            return receiver.getAddress();
+        }
+    }
+
     @CanResolve
     abstract static class CanResolveAMD64SymbolNode extends Node {
         public boolean test(TruffleObject receiver) {

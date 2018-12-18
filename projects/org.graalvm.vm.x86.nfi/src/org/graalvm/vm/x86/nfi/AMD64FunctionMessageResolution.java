@@ -97,6 +97,13 @@ public class AMD64FunctionMessageResolution {
         }
     }
 
+    @Resolve(message = "AS_POINTER")
+    abstract static class AsNativePointerNode extends Node {
+        public long access(AMD64Function receiver) {
+            return receiver.getFunction();
+        }
+    }
+
     @CanResolve
     abstract static class CanResolveAMD64FunctionNode extends Node {
         public boolean test(TruffleObject receiver) {
