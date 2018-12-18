@@ -1,9 +1,11 @@
 package org.graalvm.vm.x86.nfi;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.graalvm.vm.x86.AMD64Context;
+import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.InteropFunctionPointers;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -22,7 +24,8 @@ public class InterpreterStartNode extends AMD64Node {
         if (path != null) {
             return path;
         } else {
-            File f = new File("build/libnfi.so");
+            String defaultPath = AMD64Language.getHome() + File.separator + "libnfi.so";
+            File f = new File(defaultPath);
             if (f.exists()) {
                 try {
                     return f.getCanonicalPath();
@@ -30,11 +33,25 @@ public class InterpreterStartNode extends AMD64Node {
                     return null;
                 }
             } else {
-                f = new File("../../build/libnfi.so");
-                try {
-                    return f.getCanonicalPath();
-                } catch (IOException e) {
-                    return null;
+                f = new File("build/libnfi.so");
+                if (f.exists()) {
+                    try {
+                        return f.getCanonicalPath();
+                    } catch (IOException e) {
+                        return null;
+                    }
+                } else {
+                    f = new File("../../build/libnfi.so");
+                    if (f.exists()) {
+                        try {
+                            return f.getCanonicalPath();
+                        } catch (IOException e) {
+                            return null;
+                        }
+                    } else {
+                        // get exception for default path
+                        return defaultPath;
+                    }
                 }
             }
         }

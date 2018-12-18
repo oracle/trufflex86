@@ -67,4 +67,8 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
     public static TruffleLanguage<AMD64Context> getCurrentLanguage() {
         return getCurrentLanguage(AMD64Language.class);
     }
+
+    public static String getHome() {
+        return getCurrentLanguage(AMD64Language.class).getLanguageHome();
+    }
 }

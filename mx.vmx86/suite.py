@@ -377,8 +377,10 @@ suite = {
       "sourcesPath" : "build/vmx86.src.zip",
       "dependencies" : [
         "org.graalvm.vm.x86",
+        "org.graalvm.vm.x86.nfi",
       ],
       "distDependencies" : [
+        "VM_NFI_NATIVE",
         "core:CORE",
         "core:POSIX",
         "truffle:TRUFFLE_API",
@@ -524,7 +526,7 @@ suite = {
       "description" : "vmx86 support distribution for the GraalVM",
       "layout": {
         "native-image.properties" : "file:mx.vmx86/native-image.properties",
-        "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>"],
+        "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:vmx86:VM_NFI_NATIVE/<lib:nfi>"],
         "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a"],
       },
     },
