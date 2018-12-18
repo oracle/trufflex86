@@ -3,6 +3,8 @@ package org.graalvm.vm.memory.exception;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 
+import com.oracle.truffle.api.CompilerAsserts;
+
 public class SegmentationViolation extends RuntimeException {
     private static final long serialVersionUID = 6904011763641924860L;
 
@@ -40,6 +42,7 @@ public class SegmentationViolation extends RuntimeException {
 
     @Override
     public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
         if (page != null) {
             return String.format(
                             "Invalid memory access at 0x%016X (page base: 0x%016X, page end: 0x%019X)",

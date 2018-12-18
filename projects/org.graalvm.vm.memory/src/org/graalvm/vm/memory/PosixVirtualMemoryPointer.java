@@ -4,6 +4,8 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 
 import com.everyware.posix.api.MemoryFaultException;
 import com.everyware.posix.api.PosixPointer;
+import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.CompilerDirectives;
 
 public class PosixVirtualMemoryPointer implements PosixPointer {
     private final VirtualMemory memory;
@@ -29,6 +31,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             return memory.getI8(offset);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -38,6 +41,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             return memory.getI16(offset);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -47,6 +51,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             return memory.getI32(offset);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -56,6 +61,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             return memory.getI64(offset);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -65,6 +71,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             memory.setI8(offset, val);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -74,6 +81,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             memory.setI16(offset, val);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -83,6 +91,7 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             memory.setI32(offset, val);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
@@ -92,12 +101,14 @@ public class PosixVirtualMemoryPointer implements PosixPointer {
         try {
             memory.setI64(offset, val);
         } catch (SegmentationViolation e) {
+            CompilerDirectives.transferToInterpreter();
             throw new MemoryFaultException(e);
         }
     }
 
     @Override
     public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
         return String.format("PosixVirtualMemoryPointer[0x%016X]", offset);
     }
 }
