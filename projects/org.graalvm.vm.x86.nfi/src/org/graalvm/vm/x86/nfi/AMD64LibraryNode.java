@@ -65,6 +65,6 @@ public class AMD64LibraryNode extends AMD64RootNode {
             throw new UnsatisfiedLinkError(e.getMessage());
         }
 
-        return new AMD64Library(ctxref, ptrs.loadLibrary, ptrs.releaseLibrary, ptrs.getSymbol, handle);
+        return new AMD64Library(ctxref, ptrs.loadLibrary, ptrs.releaseLibrary, ptrs.getSymbol, handle, libname);
     }
 }
