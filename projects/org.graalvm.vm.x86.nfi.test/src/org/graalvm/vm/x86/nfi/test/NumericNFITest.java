@@ -203,7 +203,6 @@ public class NumericNFITest extends NFITest {
         }
     }
 
-    @Ignore
     @Test
     public void testCallbackRet(@Inject(TestCallbackRetNode.class) CallTarget callTarget) {
         Object ret = callTarget.call();

@@ -1,7 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.graalvm.vm.x86.AMD64Context;

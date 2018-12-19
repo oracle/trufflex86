@@ -104,6 +104,13 @@ public class AMD64FunctionMessageResolution {
         }
     }
 
+    @Resolve(message = "IS_NULL")
+    abstract static class IsNullNativePointerNode extends Node {
+        public boolean access(AMD64Function receiver) {
+            return receiver.getFunction() == 0;
+        }
+    }
+
     @CanResolve
     abstract static class CanResolveAMD64FunctionNode extends Node {
         public boolean test(TruffleObject receiver) {

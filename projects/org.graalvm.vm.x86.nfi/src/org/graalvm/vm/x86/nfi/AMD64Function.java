@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.interop.ForeignAccess;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.nfi.types.NativeSignature;
@@ -29,5 +30,11 @@ public class AMD64Function implements TruffleObject {
 
     public ForeignAccess getForeignAccess() {
         return AMD64FunctionMessageResolutionForeign.ACCESS;
+    }
+
+    @Override
+    public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
+        return String.format("AMD64Function[%s=0x%016x]", name, function);
     }
 }

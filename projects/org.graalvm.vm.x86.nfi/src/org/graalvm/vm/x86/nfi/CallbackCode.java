@@ -9,7 +9,7 @@ public class CallbackCode {
 
     // @formatter:off
     private static final byte[] CALLBACK = {
-            /* 00 */  0x49, (byte) 0xba, 0x00, 0x00, 0x00, 0x00, 0x00,  // movabs rcx,0x0000000000000000
+            /* 00 */  0x49, (byte) 0xba, 0x00, 0x00, 0x00, 0x00, 0x00,  // movabs r10,0x0000000000000000
             /* 07 */  0x00, 0x00, 0x00,
             /* 0a */  0x41, (byte) 0x8a, (byte) 0x42, (byte) 0x02,      // mov    al,BYTE PTR [r10+0x2]
             /* 0e */  (byte) 0x84, (byte) 0xc0,                         // test   al,al

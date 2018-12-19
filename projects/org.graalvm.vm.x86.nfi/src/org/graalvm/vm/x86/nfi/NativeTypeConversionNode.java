@@ -2,9 +2,13 @@ package org.graalvm.vm.x86.nfi;
 
 import java.util.List;
 
+import org.graalvm.vm.memory.util.HexFormatter;
+
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
+import com.oracle.truffle.nfi.types.NativeSignature;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
 
@@ -57,8 +61,11 @@ public class NativeTypeConversionNode extends Node {
                         throw new AssertionError("Unsupported type: " + mirror.getSimpleType());
                 }
             }
-            case FUNCTION:
-                return new NativePointer(value);
+            case FUNCTION: {
+                NativeFunctionTypeMirror func = (NativeFunctionTypeMirror) type;
+                NativeSignature signature = func.getSignature();
+                return new AMD64Function("sub_" + HexFormatter.tohex(value, 8), value, signature);
+            }
             default:
                 CompilerDirectives.transferToInterpreter();
                 throw new AssertionError("Unsupported type: " + type.getKind());
