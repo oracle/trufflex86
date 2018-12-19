@@ -293,7 +293,12 @@ public class TraceDispatchNode extends AMD64Node {
 
             String filename = null;
             VirtualMemory mem = ctx.getMemory();
-            MemoryPage page = mem.get(e.getPC());
+            MemoryPage page = null;
+            try {
+                page = mem.get(e.getPC());
+            } catch (SegmentationViolation ex) {
+                // ignore
+            }
             if (page != null && page.name != null) {
                 filename = page.name;
             }
