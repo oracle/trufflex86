@@ -112,6 +112,10 @@ public class AMD64ArgumentConversionNode extends Node {
                 callbackdata.add(2).setI8((byte) (isFloat ? 1 : 0));
                 return new ConversionResult(callback, ptr);
             }
+            case ENV: {
+                long env = callbacksptr.getAddress() + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT;
+                return new ConversionResult(env, ptr);
+            }
             default:
                 CompilerDirectives.transferToInterpreter();
                 throw new AssertionError("unsupported type: " + type.getKind());
