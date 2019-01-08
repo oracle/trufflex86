@@ -32,7 +32,7 @@ public class AMD64ArgumentConversionNode extends Node {
     @Child private AsStringNode asString = AsStringNodeGen.create(true);
 
     // TODO: use proper conversion messages and cache the type
-    public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg, List<Object> objects, PosixPointer callbacksptr) {
+    public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg, List<Object> objects, PosixPointer callbacksptr, long envptr) {
         switch (type.getKind()) {
             case SIMPLE: {
                 NativeSimpleTypeMirror mirror = (NativeSimpleTypeMirror) type;
@@ -85,8 +85,7 @@ public class AMD64ArgumentConversionNode extends Node {
                 return new ConversionResult(callback, ptr);
             }
             case ENV: {
-                long env = callbacksptr.getAddress() + Addresses.OFFSET_TRUFFLENATIVEAPI_PTR;
-                return new ConversionResult(env, ptr);
+                return new ConversionResult(envptr, ptr);
             }
             default:
                 CompilerDirectives.transferToInterpreter();

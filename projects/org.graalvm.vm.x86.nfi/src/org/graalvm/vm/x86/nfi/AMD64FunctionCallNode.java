@@ -58,6 +58,7 @@ public class AMD64FunctionCallNode extends AMD64Node {
         PosixPointer ptr = new PosixVirtualMemoryPointer(mem, pname);
         long callbacks = ctx.getCallbackMemory();
         PosixPointer callbackptr = new PosixVirtualMemoryPointer(mem, callbacks);
+        long envptr = ctx.getInteropFunctionPointers().truffleEnv;
 
         InteropCallback cb = new InteropCallback() {
             public long call(int id, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
@@ -93,9 +94,9 @@ public class AMD64FunctionCallNode extends AMD64Node {
         for (int i = 0; i < signature.getFixedArgCount(); i++) {
             NativeTypeMirror type = getType(signature, i);
             if (type.getKind() == Kind.ENV) {
-                rawargs[intidx++] = converter.execute(type, ptr, null, null, callbackptr).value;
+                rawargs[intidx++] = converter.execute(type, ptr, null, null, callbackptr, envptr).value;
             } else {
-                ConversionResult result = converter.execute(type, ptr, args[argidx++], objects, callbackptr);
+                ConversionResult result = converter.execute(type, ptr, args[argidx++], objects, callbackptr, envptr);
                 if (result.isFloat) {
                     floatargs[floatidx++] = result.value;
                 } else {

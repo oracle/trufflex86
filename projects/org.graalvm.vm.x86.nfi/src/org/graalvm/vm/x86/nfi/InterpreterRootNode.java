@@ -82,7 +82,7 @@ public class InterpreterRootNode extends AMD64Node {
             CpuState state = readCpuState.execute(frame, readPC.executeI64(frame));
             AMD64Context ctx = getContextReference().get();
             ctx.setStateSnapshot(state);
-            return new InteropFunctionPointers(e.getLoadLibrary(), e.getReleaseLibrary(), e.getSymbol());
+            return new InteropFunctionPointers(e.getLoadLibrary(), e.getReleaseLibrary(), e.getSymbol(), e.getTruffleEnv());
         } catch (ProcessExitException e) {
             throw new UnsatisfiedLinkError("Initialization failed with error code " + e.getCode());
         }

@@ -323,7 +323,7 @@ public class SyscallWrapper extends AMD64Node {
                 posix.printk(a1, a2, a3, a4, a5, a6, a7);
                 return 0;
             case SYS_interop_init:
-                throw new InteropInitException(a1, a2, a3);
+                throw new InteropInitException(a1, a2, a3, a4);
             case SYS_interop_return:
                 throw new InteropReturnException(a1);
             case SYS_interop_error:

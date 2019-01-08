@@ -35,13 +35,10 @@ public class AMD64ContextInitializerNode extends AMD64Node {
             }
             ctx.setScratchMemory(scratch.base);
 
-            MemoryPage callbacks = mem.allocate(8192, "[callbacks]");
+            MemoryPage callbacks = mem.allocate(4096, "[callbacks]");
             for (int i = 0; i < 128; i++) {
-                CallbackCode.writeCallback(mem, callbacks.base + Addresses.OFFSET_CALLBACKS, i);
+                CallbackCode.writeCallback(mem, callbacks.base, i);
             }
-            TruffleNativeAPI.writeCode(mem, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_CODE);
-            TruffleNativeAPI.writeStruct(mem, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_CODE);
-            mem.setI64(callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_PTR, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT);
             try {
                 mem.mprotect(callbacks.base, callbacks.size, true, true, true);
             } catch (PosixException e) {

@@ -11,6 +11,44 @@
 
 #define	STACK_SIZE		(4 * 1024 * 1024)	// 4MB
 
+typedef void* TruffleContext;
+typedef void* TruffleObject;
+typedef const struct TruffleNativeAPI *TruffleEnv;
+
+struct TruffleNativeAPI {
+	TruffleContext *(*getTruffleContext)(TruffleEnv *env);
+	TruffleObject (*newObjectRef)(TruffleEnv *env, TruffleObject object);
+	void (*releaseObjectRef)(TruffleEnv *env, TruffleObject object);
+	TruffleObject (*releaseAndReturn)(TruffleEnv *env, TruffleObject object);
+	int (*isSameObject)(TruffleEnv *env, TruffleObject object1, TruffleObject object2);
+	void (*newClosureRef)(TruffleEnv *env, void *closure);
+	void (*releaseClosureRef)(TruffleEnv *env, void *closure);
+	TruffleObject (*getClosureObject)(TruffleEnv *env, void *closure);
+};
+
+static TruffleContext* getTruffleContext(TruffleEnv* env);
+static TruffleObject newObjectRef(TruffleEnv *env, TruffleObject object);
+static void releaseObjectRef(TruffleEnv *env, TruffleObject object);
+static TruffleObject releaseAndReturn(TruffleEnv *env, TruffleObject object);
+static int isSameObject(TruffleEnv *env, TruffleObject object1, TruffleObject object2);
+static void newClosureRef(TruffleEnv *env, void *closure);
+static void releaseClosureRef(TruffleEnv *env, void *closure);
+static TruffleObject getClosureObject(TruffleEnv *env, void *closure);
+
+static const struct TruffleNativeAPI native_api = {
+	.getTruffleContext = getTruffleContext,
+	.newObjectRef = newObjectRef,
+	.releaseObjectRef = releaseObjectRef,
+	.releaseAndReturn = releaseAndReturn,
+	.isSameObject = isSameObject,
+	.newClosureRef = newClosureRef,
+	.releaseClosureRef = releaseClosureRef,
+	.getClosureObject = getClosureObject
+};
+
+static const TruffleEnv native_env = &native_api;
+
+/* interop functions for native library access */
 void report_error(const char* msg)
 {
 	if(syscall(SYS_interop_error, msg) == -1) {
@@ -55,6 +93,47 @@ void* get_symbol(void* handle, const char* name)
 	}
 }
 
+/* NFI TruffleEnv implementation */
+static TruffleContext* getTruffleContext(TruffleEnv* env)
+{
+	return NULL;
+}
+
+static TruffleObject newObjectRef(TruffleEnv *env, TruffleObject object)
+{
+	return object;
+}
+
+static void releaseObjectRef(TruffleEnv *env, TruffleObject object)
+{
+	/* nothing */
+}
+
+static TruffleObject releaseAndReturn(TruffleEnv *env, TruffleObject object)
+{
+	return object;
+}
+
+static int isSameObject(TruffleEnv *env, TruffleObject object1, TruffleObject object2)
+{
+	return object1 == object2;
+}
+
+static void newClosureRef(TruffleEnv *env, void *closure)
+{
+	/* nothing */
+}
+
+static void releaseClosureRef(TruffleEnv *env, void *closure)
+{
+	/* nothing */
+}
+
+static TruffleObject getClosureObject(TruffleEnv *env, void *closure)
+{
+	return closure;
+}
+
 int main(void)
 {
 	stack_t ss;
@@ -77,7 +156,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
-	if(syscall(SYS_interop_init, load_library, release_library, get_symbol) == -1) {
+	if(syscall(SYS_interop_init, load_library, release_library, get_symbol, &native_env) == -1) {
 		if(errno == ENOSYS) {
 			fprintf(stderr, "Interop is not supported!\n");
 			return EXIT_FAILURE;

@@ -88,7 +88,7 @@ public abstract class CallbackNode extends Node {
             } else {
                 raw = iargs[iidx++];
             }
-            args[idx++] = argConverter.execute(type, raw, objects, callbacks);
+            args[idx++] = argConverter.execute(type, raw, objects);
         }
 
         try {

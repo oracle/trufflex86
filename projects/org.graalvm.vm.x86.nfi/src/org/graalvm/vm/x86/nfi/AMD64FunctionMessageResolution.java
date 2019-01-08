@@ -38,7 +38,7 @@ public class AMD64FunctionMessageResolution {
             NativeSignature signature = receiver.getSignature();
             List<Object> objects = new ArrayList<>();
             long result = (long) execute.call(new Object[]{receiver, args, objects});
-            return converter.execute(signature.getRetType(), result, objects, 0);
+            return converter.execute(signature.getRetType(), result, objects);
         }
     }
 
