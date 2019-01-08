@@ -33,7 +33,6 @@ import java.util.Collection;
 import org.graalvm.vm.x86.nfi.test.interop.BoxedPrimitive;
 import org.graalvm.vm.x86.nfi.test.interop.TestCallback;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -225,7 +224,6 @@ public class NumericNFITest extends NFITest {
         }
     }
 
-    @Ignore
     @Test
     public void testPingPong(@Inject(TestPingPongNode.class) CallTarget callTarget) {
 

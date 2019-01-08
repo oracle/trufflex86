@@ -24,7 +24,7 @@ import com.oracle.truffle.nfi.types.Parser;
 @MessageResolution(receiverType = AMD64Function.class)
 public class AMD64FunctionMessageResolution {
     @Resolve(message = "EXECUTE")
-    abstract static class LookupSymbolNode extends Node {
+    abstract static class ExecuteFunctionNode extends Node {
         private RootCallTarget execute = Truffle.getRuntime().createCallTarget(createCallTarget());
         @Child private AsStringNode asString = AsStringNodeGen.create(true);
         @Child private NativeTypeConversionNode converter = new NativeTypeConversionNode();
@@ -38,7 +38,7 @@ public class AMD64FunctionMessageResolution {
             NativeSignature signature = receiver.getSignature();
             List<Object> objects = new ArrayList<>();
             long result = (long) execute.call(new Object[]{receiver, args, objects});
-            return converter.execute(signature.getRetType(), result, objects);
+            return converter.execute(signature.getRetType(), result, objects, 0);
         }
     }
 

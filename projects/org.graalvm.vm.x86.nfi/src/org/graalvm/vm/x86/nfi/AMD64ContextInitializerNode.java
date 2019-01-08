@@ -26,7 +26,7 @@ public class AMD64ContextInitializerNode extends AMD64Node {
             ctx.setInteropFunctionPointers(ptrs);
 
             long len = mem.roundToPageSize(AMD64.SCRATCH_SIZE);
-            MemoryPage scratch = mem.allocate(len);
+            MemoryPage scratch = mem.allocate(len, "[scratch]");
             try {
                 mem.mprotect(scratch.base, scratch.size, true, true, false);
             } catch (PosixException e) {
@@ -35,12 +35,13 @@ public class AMD64ContextInitializerNode extends AMD64Node {
             }
             ctx.setScratchMemory(scratch.base);
 
-            MemoryPage callbacks = mem.allocate(8192);
+            MemoryPage callbacks = mem.allocate(8192, "[callbacks]");
             for (int i = 0; i < 128; i++) {
                 CallbackCode.writeCallback(mem, callbacks.base + Addresses.OFFSET_CALLBACKS, i);
             }
             TruffleNativeAPI.writeCode(mem, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_CODE);
             TruffleNativeAPI.writeStruct(mem, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_CODE);
+            mem.setI64(callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_PTR, callbacks.base + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT);
             try {
                 mem.mprotect(callbacks.base, callbacks.size, true, true, true);
             } catch (PosixException e) {

@@ -228,9 +228,9 @@ public class PtraceVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public MemoryPage allocate(long size) {
+    public MemoryPage allocate(long size, String name) {
         long base = allocateRegion(size);
-        MemoryPage page = new MemoryPage(new NullMemory(bigEndian, size), base, size);
+        MemoryPage page = new MemoryPage(new NullMemory(bigEndian, size), base, size, name);
         add(page);
         return page;
     }

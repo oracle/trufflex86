@@ -61,8 +61,8 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
-    public MemoryPage allocate(long size) {
-        return nmem.allocate(size);
+    public MemoryPage allocate(long size, String name) {
+        return nmem.allocate(size, name);
     }
 
     @Override

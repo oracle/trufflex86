@@ -40,7 +40,7 @@ public class TruffleNativeAPI {
                     /* 21 */ (byte) 0xc3,                    // ret
     };
 
-    public static final int[] OFFSETS = {0x00, 0x03, 0x07, 0x0b, 0x15, 0x18, 0x1b};
+    public static final int[] OFFSETS = {0x00, 0x03, 0x07, 0x0b, 0x0f, 0x19, 0x1c, 0x1f};
 
     public static void writeCode(VirtualMemory mem, long ptr) {
         for (int i = 0; i < CODE.length; i++) {

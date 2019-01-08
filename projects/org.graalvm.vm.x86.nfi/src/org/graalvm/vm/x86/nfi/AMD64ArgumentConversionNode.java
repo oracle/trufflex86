@@ -13,10 +13,8 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 
-import com.everyware.posix.api.CString;
 import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
@@ -32,32 +30,6 @@ public class AMD64ArgumentConversionNode extends Node {
     @Child private AsF32Node asF32 = AsF32NodeGen.create();
     @Child private AsF64Node asF64 = AsF64NodeGen.create();
     @Child private AsStringNode asString = AsStringNodeGen.create(true);
-
-    @TruffleBoundary
-    private static PosixPointer strcpy(PosixPointer dst, String src) {
-        return CString.strcpy(dst, src);
-    }
-
-    @TruffleBoundary
-    private static int add(List<Object> objects, Object object) {
-        int id = objects.size();
-        objects.add(object);
-        return id;
-    }
-
-    @TruffleBoundary
-    private static boolean isFloatCallback(NativeSignature signature) {
-        List<NativeTypeMirror> types = signature.getArgTypes();
-        for (NativeTypeMirror type : types) {
-            if (type.getKind() == Kind.SIMPLE) {
-                NativeSimpleTypeMirror t = (NativeSimpleTypeMirror) type;
-                if (t.getSimpleType() == NativeSimpleType.FLOAT || t.getSimpleType() == NativeSimpleType.DOUBLE) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     // TODO: use proper conversion messages and cache the type
     public ConversionResult execute(NativeTypeMirror type, PosixPointer ptr, Object arg, List<Object> objects, PosixPointer callbacksptr) {
@@ -81,12 +53,12 @@ public class AMD64ArgumentConversionNode extends Node {
                         if (str == null) {
                             return new ConversionResult(0, ptr);
                         } else {
-                            PosixPointer out = strcpy(ptr, str);
+                            PosixPointer out = Util.strcpy(ptr, str);
                             return new ConversionResult(ptr.getAddress(), out);
                         }
                     }
                     case OBJECT:
-                        return new ConversionResult(MagicValues.encodeObject(add(objects, arg)), ptr);
+                        return new ConversionResult(MagicValues.encodeObject(Util.add(objects, arg)), ptr);
                     case FLOAT:
                         return new ConversionResult(asF32.execute(arg), ptr);
                     case DOUBLE:
@@ -104,16 +76,16 @@ public class AMD64ArgumentConversionNode extends Node {
                     NativeSimpleTypeMirror rettype = (NativeSimpleTypeMirror) signature.getRetType();
                     fret = rettype.getSimpleType() == NativeSimpleType.FLOAT || rettype.getSimpleType() == NativeSimpleType.DOUBLE;
                 }
-                int id = add(objects, cb);
+                int id = Util.add(objects, cb);
                 long callback = CallbackCode.getCallbackAddress(callbacksptr.getAddress(), id);
                 PosixPointer callbackdata = CallbackCode.getCallbackDataPointer(callbacksptr, id);
                 callbackdata.setI16((short) id);
-                boolean isFloat = fret || isFloatCallback(signature);
+                boolean isFloat = fret || Util.isFloatCallback(signature);
                 callbackdata.add(2).setI8((byte) (isFloat ? 1 : 0));
                 return new ConversionResult(callback, ptr);
             }
             case ENV: {
-                long env = callbacksptr.getAddress() + Addresses.OFFSET_TRUFFLENATIVEAPI_STRUCT;
+                long env = callbacksptr.getAddress() + Addresses.OFFSET_TRUFFLENATIVEAPI_PTR;
                 return new ConversionResult(env, ptr);
             }
             default:

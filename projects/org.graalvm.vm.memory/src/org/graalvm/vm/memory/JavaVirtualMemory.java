@@ -196,13 +196,13 @@ public class JavaVirtualMemory extends VirtualMemory {
 
     @TruffleBoundary
     @Override
-    public MemoryPage allocate(long size) {
+    public MemoryPage allocate(long size, String name) {
         long base = allocator.alloc(size);
         if (base == 0) {
             return null;
         } else {
             Memory mem = new ByteMemory(size, bigEndian);
-            MemoryPage page = new MemoryPage(mem, base, size);
+            MemoryPage page = new MemoryPage(mem, base, size, name);
             add(page);
             return page;
         }

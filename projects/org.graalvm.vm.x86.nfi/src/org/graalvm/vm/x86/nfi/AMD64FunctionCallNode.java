@@ -21,6 +21,7 @@ import com.oracle.truffle.nfi.types.NativeSignature;
 import com.oracle.truffle.nfi.types.NativeSimpleType;
 import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
 import com.oracle.truffle.nfi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
 
 public class AMD64FunctionCallNode extends AMD64Node {
     private static final Logger log = Trace.create(AMD64FunctionCallNode.class);
@@ -77,7 +78,8 @@ public class AMD64FunctionCallNode extends AMD64Node {
                 }
 
                 Callback callback = (Callback) objects.get(id);
-                return foreignCall.execute(callback.signature, objects, callback.object, a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8);
+                long result = foreignCall.execute(callback.signature, objects, callback.object, a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8);
+                return result;
             }
         };
 
@@ -87,15 +89,20 @@ public class AMD64FunctionCallNode extends AMD64Node {
         long[] floatargs = new long[8];
         int intidx = 0;
         int floatidx = 0;
-        for (int i = 0; i < args.length; i++) {
+        int argidx = 0;
+        for (int i = 0; i < signature.getFixedArgCount(); i++) {
             NativeTypeMirror type = getType(signature, i);
-            ConversionResult result = converter.execute(type, ptr, args[i], objects, callbackptr);
-            if (result.isFloat) {
-                floatargs[floatidx++] = result.value;
+            if (type.getKind() == Kind.ENV) {
+                rawargs[intidx++] = converter.execute(type, ptr, null, null, callbackptr).value;
             } else {
-                rawargs[intidx++] = result.value;
+                ConversionResult result = converter.execute(type, ptr, args[argidx++], objects, callbackptr);
+                if (result.isFloat) {
+                    floatargs[floatidx++] = result.value;
+                } else {
+                    rawargs[intidx++] = result.value;
+                }
+                ptr = result.ptr;
             }
-            ptr = result.ptr;
         }
 
         long a1 = rawargs[0];
@@ -118,6 +125,9 @@ public class AMD64FunctionCallNode extends AMD64Node {
 
         try {
             return root.executeInterop(frame, sp, ret, func.getFunction(), a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8, returnFloat);
+        } catch (Throwable t) {
+            mem.dump(0x7f0000001000L, 256);
+            throw t;
         } finally {
             ctx.clearInteropCallback();
         }

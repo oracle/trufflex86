@@ -161,7 +161,11 @@ public abstract class VirtualMemory {
 
     public abstract void remove(long addr, long len) throws PosixException;
 
-    public abstract MemoryPage allocate(long size);
+    public MemoryPage allocate(long size) {
+        return allocate(size, null);
+    }
+
+    public abstract MemoryPage allocate(long size, String name);
 
     public MemoryPage allocate(Memory memory, long size, String name) {
         return allocate(memory, size, name, 0);

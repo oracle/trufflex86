@@ -18,7 +18,7 @@ public class NativeTypeConversionNode extends Node {
         return objects.get(id);
     }
 
-    public Object execute(NativeTypeMirror type, long value, List<Object> objects) {
+    public Object execute(NativeTypeMirror type, long value, List<Object> objects, long callbacksptr) {
         switch (type.getKind()) {
             case SIMPLE: {
                 NativeSimpleTypeMirror mirror = (NativeSimpleTypeMirror) type;
@@ -64,7 +64,11 @@ public class NativeTypeConversionNode extends Node {
             case FUNCTION: {
                 NativeFunctionTypeMirror func = (NativeFunctionTypeMirror) type;
                 NativeSignature signature = func.getSignature();
-                return new AMD64Function("sub_" + HexFormatter.tohex(value, 8), value, signature);
+                return new AMD64Function("sub_" + HexFormatter.tohex(value, 1), value, signature);
+            }
+            case ENV: {
+                long env = callbacksptr + Addresses.OFFSET_TRUFFLENATIVEAPI_PTR;
+                return env;
             }
             default:
                 CompilerDirectives.transferToInterpreter();

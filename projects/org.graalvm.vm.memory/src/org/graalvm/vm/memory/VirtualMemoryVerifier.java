@@ -47,9 +47,9 @@ public class VirtualMemoryVerifier extends VirtualMemory {
     }
 
     @Override
-    public MemoryPage allocate(long size) {
+    public MemoryPage allocate(long size, String name) {
         CompilerAsserts.neverPartOfCompilation();
-        MemoryPage page = nmem.allocate(size);
+        MemoryPage page = nmem.allocate(size, name);
         Memory mem = new ByteMemory(new byte[(int) page.size], false);
         MemoryPage pag = new MemoryPage(mem, page.base, page.size, page.name, page.fileOffset);
         jmem.add(pag);
