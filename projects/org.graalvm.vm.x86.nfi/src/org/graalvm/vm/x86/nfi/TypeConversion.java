@@ -297,7 +297,12 @@ public class TypeConversion extends Node {
     }
 
     abstract static class AsPointerNode extends TypeConversion {
-        abstract NativePointer execute(TruffleObject arg);
+        abstract NativePointer execute(Object arg);
+
+        @Specialization
+        protected NativePointer fromLong(long arg) {
+            return new NativePointer(arg);
+        }
 
         @Specialization(guards = "checkIsPointer(isPointer, arg)")
         @SuppressWarnings("unused")
@@ -327,7 +332,7 @@ public class TypeConversion extends Node {
                         @Cached("createRecursive()") AsPointerNode recursive) {
             try {
                 Object nativeObj = ForeignAccess.sendToNative(toNative, arg);
-                return recursive.execute((TruffleObject) nativeObj);
+                return recursive.execute(nativeObj);
             } catch (UnsupportedMessageException ex) {
                 CompilerDirectives.transferToInterpreter();
                 throw UnsupportedTypeException.raise(ex, new Object[]{arg});

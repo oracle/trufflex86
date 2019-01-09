@@ -47,7 +47,7 @@ public class AMD64ArgumentConversionNode extends Node {
                     case UINT64:
                         return new ConversionResult(asI64.execute(arg), ptr);
                     case POINTER:
-                        return new ConversionResult(asPointer.execute((TruffleObject) arg).value, ptr);
+                        return new ConversionResult(asPointer.execute(arg).value, ptr);
                     case STRING: {
                         String str = asString.execute(arg);
                         if (str == null) {
