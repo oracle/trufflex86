@@ -64,12 +64,14 @@ public class TraceDispatchNode extends AMD64Node {
     private final CodeReader reader;
 
     @Child private RegisterReadNode readPC;
+    @Child private RegisterReadNode readRSP;
     @Child private RegisterWriteNode writePC;
 
     public TraceDispatchNode(ArchitecturalState state) {
         memory = state.getMemory();
         reader = new CodeMemoryReader(memory, 0);
         readPC = state.getRegisters().getPC().createRead();
+        readRSP = state.getRegisters().getRegister(Register.RSP).createRead();
         writePC = state.getRegisters().getPC().createWrite();
         blocks = new AMD64BasicBlock[maxBlockCount + 1];
         usedBlocks = 0;
@@ -351,6 +353,14 @@ public class TraceDispatchNode extends AMD64Node {
                 throw new CpuRuntimeException(e.getPC(), cause);
             } else {
                 e.getCause().printStackTrace(Trace.log);
+            }
+            try {
+                long rsp = readRSP.executeI64(frame);
+                Trace.log.printf("\nRSP=0x%016x\n", rsp);
+                rsp &= ~0xF;
+                memory.dump(rsp, 512);
+            } catch (SegmentationViolation t) {
+                Trace.log.println("Error while retrieving stack memory content.");
             }
             throw e;
             // dump();

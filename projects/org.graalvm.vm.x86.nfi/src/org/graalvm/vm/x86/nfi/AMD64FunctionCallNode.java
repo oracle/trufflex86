@@ -126,9 +126,6 @@ public class AMD64FunctionCallNode extends AMD64Node {
 
         try {
             return root.executeInterop(frame, sp, ret, func.getFunction(), a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8, returnFloat);
-        } catch (Throwable t) {
-            mem.dump(0x7f0000001000L, 256);
-            throw t;
         } finally {
             ctx.clearInteropCallback();
         }
