@@ -4,6 +4,7 @@ public class MemoryOptions {
     public static final BooleanOption MEM_DEBUG = new BooleanOption("mem.debug", false);
     public static final BooleanOption MEM_VIRTUAL = new BooleanOption("mem.virtual", false);
     public static final BooleanOption MEM_VERIFY = new BooleanOption("mem.verify", false);
+    public static final BooleanOption MEM_MAP_NATIVE = new BooleanOption("mem.mapnative", false);
 
     public static final BooleanOption BYPASS_SEGFAULT_CHECK = new BooleanOption("mem.native.bypasssegfaults", false);
 

@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.memory.MemoryOptions;
+import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF32NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
@@ -297,10 +299,25 @@ public class TypeConversion extends Node {
     }
 
     abstract static class AsPointerNode extends TypeConversion {
+        protected static final boolean MEM_MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
+
         abstract NativePointer execute(Object arg);
 
         @Specialization
+        protected NativePointer fromNativePointer(NativePointer arg) {
+            return arg;
+        }
+
+        @Specialization
+        protected NativePointer fromString(AMD64String arg) {
+            return new NativePointer(arg.ptr);
+        }
+
+        @Specialization
         protected NativePointer fromLong(long arg) {
+            if (MEM_MAP_NATIVE && arg > 0) {
+                return new NativePointer(VirtualMemory.toMappedNative(arg));
+            }
             return new NativePointer(arg);
         }
 
@@ -311,6 +328,9 @@ public class TypeConversion extends Node {
                         @Cached("createAsPointer()") Node asPointer) {
             try {
                 long pointer = ForeignAccess.sendAsPointer(asPointer, arg);
+                if (MEM_MAP_NATIVE && pointer > 0) {
+                    return new NativePointer(VirtualMemory.toMappedNative(pointer));
+                }
                 return new NativePointer(pointer);
             } catch (UnsupportedMessageException ex) {
                 CompilerDirectives.transferToInterpreter();

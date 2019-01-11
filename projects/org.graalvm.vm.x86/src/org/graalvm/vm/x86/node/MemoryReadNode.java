@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.node;
 
 import org.graalvm.vm.memory.JavaVirtualMemory;
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.HybridVirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
@@ -18,7 +19,14 @@ import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI32No
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI64NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI8NodeGen;
 
+import com.everyware.util.UnsafeHolder;
+
+import sun.misc.Unsafe;
+
 public class MemoryReadNode extends AMD64Node {
+    protected static final boolean MAP_NATIVE_MEMORY = MemoryOptions.MEM_MAP_NATIVE.get();
+    protected static final Unsafe unsafe = MAP_NATIVE_MEMORY ? UnsafeHolder.getUnsafe() : null;
+
     private final VirtualMemory memory;
 
     @Child private HybridMemoryReadI8Node readI8;
@@ -45,6 +53,9 @@ public class MemoryReadNode extends AMD64Node {
         if (readI8 != null) {
             return readI8.executeI8(address);
         } else {
+            if (unsafe != null && address < 0) {
+                return unsafe.getByte(VirtualMemory.fromMappedNative(address));
+            }
             return memory.getI8(address);
         }
     }
@@ -53,6 +64,9 @@ public class MemoryReadNode extends AMD64Node {
         if (readI16 != null) {
             return readI16.executeI16(address);
         } else {
+            if (unsafe != null && address < 0) {
+                return unsafe.getShort(VirtualMemory.fromMappedNative(address));
+            }
             return memory.getI16(address);
         }
     }
@@ -61,6 +75,9 @@ public class MemoryReadNode extends AMD64Node {
         if (readI32 != null) {
             return readI32.executeI32(address);
         } else {
+            if (unsafe != null && address < 0) {
+                return unsafe.getInt(VirtualMemory.fromMappedNative(address));
+            }
             return memory.getI32(address);
         }
     }
@@ -69,6 +86,9 @@ public class MemoryReadNode extends AMD64Node {
         if (readI64 != null) {
             return readI64.executeI64(address);
         } else {
+            if (unsafe != null && address < 0) {
+                return unsafe.getLong(VirtualMemory.fromMappedNative(address));
+            }
             return memory.getI64(address);
         }
     }
@@ -77,15 +97,41 @@ public class MemoryReadNode extends AMD64Node {
         if (readI128 != null) {
             return readI128.executeI128(address);
         } else {
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                long lo = unsafe.getLong(base);
+                long hi = unsafe.getLong(base + 8);
+                return new Vector128(hi, lo);
+            }
             return memory.getI128(address);
         }
     }
 
     public Vector256 executeI256(long address) {
+        if (unsafe != null && address < 0) {
+            long base = VirtualMemory.fromMappedNative(address);
+            long l1 = unsafe.getLong(base);
+            long l2 = unsafe.getLong(base + 8);
+            long l3 = unsafe.getLong(base + 16);
+            long l4 = unsafe.getLong(base + 24);
+            return new Vector256(new long[]{l4, l3, l2, l1});
+        }
         return memory.getI256(address);
     }
 
     public Vector512 executeI512(long address) {
+        if (unsafe != null && address < 0) {
+            long base = VirtualMemory.fromMappedNative(address);
+            long l1 = unsafe.getLong(base);
+            long l2 = unsafe.getLong(base + 8);
+            long l3 = unsafe.getLong(base + 16);
+            long l4 = unsafe.getLong(base + 24);
+            long l5 = unsafe.getLong(base + 24);
+            long l6 = unsafe.getLong(base + 24);
+            long l7 = unsafe.getLong(base + 24);
+            long l8 = unsafe.getLong(base + 24);
+            return new Vector512(new long[]{l8, l7, l6, l5, l4, l3, l2, l1});
+        }
         return memory.getI512(address);
     }
 }

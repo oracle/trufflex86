@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 
@@ -13,6 +14,8 @@ import com.oracle.truffle.api.nodes.Node;
 
 @MessageResolution(receiverType = AMD64String.class)
 public class AMD64StringMessageResolution {
+    protected static final boolean MEM_MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
+
     @Resolve(message = "UNBOX")
     abstract static class UnboxNode extends Node {
         public String access(AMD64String receiver) {
@@ -57,7 +60,12 @@ public class AMD64StringMessageResolution {
     @Resolve(message = "AS_POINTER")
     abstract static class AsPointerNode extends Node {
         public long access(AMD64String receiver) {
-            return receiver.ptr;
+            if (MEM_MAP_NATIVE) {
+                VirtualMemory mem = AMD64NFILanguage.getCurrentContextReference().get().getMemory();
+                return mem.getNativeAddress(receiver.ptr);
+            } else {
+                return receiver.ptr;
+            }
         }
     }
 

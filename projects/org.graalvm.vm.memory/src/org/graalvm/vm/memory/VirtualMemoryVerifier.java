@@ -27,6 +27,11 @@ public class VirtualMemoryVerifier extends VirtualMemory {
     }
 
     @Override
+    public long getNativeAddress(long addr) {
+        return nmem.getNativeAddress(addr);
+    }
+
+    @Override
     public void setAccessLogger(MemoryAccessListener logger) {
         super.setAccessLogger(logger);
         jmem.setAccessLogger(logger);

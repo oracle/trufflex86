@@ -77,6 +77,7 @@ public class NativeVirtualMemory extends VirtualMemory {
             }
             return true;
         } catch (IOException e) {
+            log.log(Level.INFO, "memory region for native memory already mapped");
             return false;
         }
     }
@@ -285,6 +286,13 @@ public class NativeVirtualMemory extends VirtualMemory {
         long phy = phy(addr);
         NativeMemory.i64B(phy, val);
         checkSegfault(address, phy);
+    }
+
+    @Override
+    public long getNativeAddress(long address) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        return phy;
     }
 
     @Override

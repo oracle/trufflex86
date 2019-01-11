@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.node;
 
 import org.graalvm.vm.memory.JavaVirtualMemory;
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.HybridVirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
@@ -18,7 +19,14 @@ import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI32
 import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI64NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNodeFactory.HybridMemoryWriteI8NodeGen;
 
+import com.everyware.util.UnsafeHolder;
+
+import sun.misc.Unsafe;
+
 public class MemoryWriteNode extends AMD64Node {
+    protected static final boolean MAP_NATIVE_MEMORY = MemoryOptions.MEM_MAP_NATIVE.get();
+    protected static final Unsafe unsafe = MAP_NATIVE_MEMORY ? UnsafeHolder.getUnsafe() : null;
+
     private final VirtualMemory memory;
 
     @Child private HybridMemoryWriteI8Node writeI8;
@@ -45,7 +53,11 @@ public class MemoryWriteNode extends AMD64Node {
         if (writeI8 != null) {
             writeI8.executeI8(address, value);
         } else {
-            memory.setI8(address, value);
+            if (unsafe != null && address < 0) {
+                unsafe.putByte(VirtualMemory.fromMappedNative(address), value);
+            } else {
+                memory.setI8(address, value);
+            }
         }
     }
 
@@ -53,7 +65,11 @@ public class MemoryWriteNode extends AMD64Node {
         if (writeI16 != null) {
             writeI16.executeI16(address, value);
         } else {
-            memory.setI16(address, value);
+            if (unsafe != null && address < 0) {
+                unsafe.putShort(VirtualMemory.fromMappedNative(address), value);
+            } else {
+                memory.setI16(address, value);
+            }
         }
     }
 
@@ -61,7 +77,11 @@ public class MemoryWriteNode extends AMD64Node {
         if (writeI32 != null) {
             writeI32.executeI32(address, value);
         } else {
-            memory.setI32(address, value);
+            if (unsafe != null && address < 0) {
+                unsafe.putInt(VirtualMemory.fromMappedNative(address), value);
+            } else {
+                memory.setI32(address, value);
+            }
         }
     }
 
@@ -69,7 +89,11 @@ public class MemoryWriteNode extends AMD64Node {
         if (writeI64 != null) {
             writeI64.executeI64(address, value);
         } else {
-            memory.setI64(address, value);
+            if (unsafe != null && address < 0) {
+                unsafe.putLong(VirtualMemory.fromMappedNative(address), value);
+            } else {
+                memory.setI64(address, value);
+            }
         }
     }
 
@@ -77,15 +101,41 @@ public class MemoryWriteNode extends AMD64Node {
         if (writeI128 != null) {
             writeI128.executeI128(address, value);
         } else {
-            memory.setI128(address, value);
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                unsafe.putLong(base, value.getI64(1));
+                unsafe.putLong(base + 8, value.getI64(0));
+            } else {
+                memory.setI128(address, value);
+            }
         }
     }
 
     public void executeI256(long address, Vector256 value) {
-        memory.setI256(address, value);
+        if (unsafe != null && address < 0) {
+            long base = VirtualMemory.fromMappedNative(address);
+            unsafe.putLong(base, value.getI64(3));
+            unsafe.putLong(base + 8, value.getI64(2));
+            unsafe.putLong(base + 16, value.getI64(1));
+            unsafe.putLong(base + 24, value.getI64(0));
+        } else {
+            memory.setI256(address, value);
+        }
     }
 
     public void executeI512(long address, Vector512 value) {
-        memory.setI512(address, value);
+        if (unsafe != null && address < 0) {
+            long base = VirtualMemory.fromMappedNative(address);
+            unsafe.putLong(base, value.getI64(7));
+            unsafe.putLong(base + 8, value.getI64(6));
+            unsafe.putLong(base + 16, value.getI64(5));
+            unsafe.putLong(base + 24, value.getI64(4));
+            unsafe.putLong(base + 32, value.getI64(3));
+            unsafe.putLong(base + 40, value.getI64(2));
+            unsafe.putLong(base + 48, value.getI64(1));
+            unsafe.putLong(base + 56, value.getI64(0));
+        } else {
+            memory.setI512(address, value);
+        }
     }
 }

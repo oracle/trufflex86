@@ -1,5 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.memory.MemoryOptions;
+import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsStringNode;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 
@@ -17,6 +19,8 @@ import com.oracle.truffle.nfi.types.Parser;
 
 @MessageResolution(receiverType = AMD64Symbol.class)
 public class AMD64SymbolMessageResolution {
+    protected static final boolean MEM_MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
+
     @TruffleBoundary
     private static NativeSignature parseSignature(String signature) {
         return Parser.parseSignature(signature);
@@ -68,7 +72,12 @@ public class AMD64SymbolMessageResolution {
     @Resolve(message = "AS_POINTER")
     abstract static class AsNativePointerNode extends Node {
         public long access(AMD64Symbol receiver) {
-            return receiver.getAddress();
+            if (MEM_MAP_NATIVE) {
+                VirtualMemory mem = AMD64NFILanguage.getCurrentContextReference().get().getMemory();
+                return mem.getNativeAddress(receiver.getAddress());
+            } else {
+                return receiver.getAddress();
+            }
         }
     }
 

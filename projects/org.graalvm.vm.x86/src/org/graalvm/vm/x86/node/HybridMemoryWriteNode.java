@@ -1,12 +1,19 @@
 package org.graalvm.vm.x86.node;
 
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 
+import com.everyware.util.UnsafeHolder;
 import com.oracle.truffle.api.dsl.Specialization;
 
+import sun.misc.Unsafe;
+
 public abstract class HybridMemoryWriteNode extends AMD64Node {
+    protected static final boolean MAP_NATIVE_MEMORY = MemoryOptions.MEM_MAP_NATIVE.get();
+    protected static final Unsafe unsafe = MAP_NATIVE_MEMORY ? UnsafeHolder.getUnsafe() : null;
+
     protected final VirtualMemory vmem;
     protected final NativeVirtualMemory nmem;
 
@@ -22,7 +29,12 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
         public abstract void executeI8(long address, byte value);
 
-        @Specialization(guards = {"isNativeMemory(address)"})
+        @Specialization(guards = {"isMappedNativeMemory(address)"})
+        protected void executeI8MappedNative(long address, byte value) {
+            unsafe.putByte(VirtualMemory.fromMappedNative(address), value);
+        }
+
+        @Specialization(guards = {"!isMappedNativeMemory(address)", "isNativeMemory(address)"})
         protected void executeI8Native(long address, byte value) {
             nmem.setI8(address, value);
         }
@@ -40,7 +52,12 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
         public abstract void executeI16(long address, short value);
 
-        @Specialization(guards = {"isNativeMemory(address)"})
+        @Specialization(guards = {"isMappedNativeMemory(address)"})
+        protected void executeI16MappedNative(long address, short value) {
+            unsafe.putShort(VirtualMemory.fromMappedNative(address), value);
+        }
+
+        @Specialization(guards = {"!isMappedNativeMemory(address)", "isNativeMemory(address)"})
         protected void executeI16Native(long address, short value) {
             nmem.setI16(address, value);
         }
@@ -58,7 +75,12 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
         public abstract void executeI32(long address, int value);
 
-        @Specialization(guards = {"isNativeMemory(address)"})
+        @Specialization(guards = {"isMappedNativeMemory(address)"})
+        protected void executeI32MappedNative(long address, int value) {
+            unsafe.putInt(VirtualMemory.fromMappedNative(address), value);
+        }
+
+        @Specialization(guards = {"!isMappedNativeMemory(address)", "isNativeMemory(address)"})
         protected void executeI32Native(long address, int value) {
             nmem.setI32(address, value);
         }
@@ -76,7 +98,12 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
         public abstract void executeI64(long address, long value);
 
-        @Specialization(guards = {"isNativeMemory(address)"})
+        @Specialization(guards = {"isMappedNativeMemory(address)"})
+        protected void executeI64MappedNative(long address, long value) {
+            unsafe.putLong(VirtualMemory.fromMappedNative(address), value);
+        }
+
+        @Specialization(guards = {"!isMappedNativeMemory(address)", "isNativeMemory(address)"})
         protected void executeI64Native(long address, long value) {
             nmem.setI64(address, value);
         }
@@ -94,7 +121,14 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
         public abstract void executeI128(long address, Vector128 value);
 
-        @Specialization(guards = {"isNativeMemory(address)"})
+        @Specialization(guards = {"isMappedNativeMemory(address)"})
+        protected void executeI128MappedNative(long address, Vector128 value) {
+            long base = VirtualMemory.fromMappedNative(address);
+            unsafe.putLong(base, value.getI64(1));
+            unsafe.putLong(base + 8, value.getI64(0));
+        }
+
+        @Specialization(guards = {"!isMappedNativeMemory(address)", "isNativeMemory(address)"})
         protected void executeI128Native(long address, Vector128 value) {
             nmem.setI128(address, value);
         }
@@ -107,5 +141,9 @@ public abstract class HybridMemoryWriteNode extends AMD64Node {
 
     protected boolean isNativeMemory(long address) {
         return Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0;
+    }
+
+    protected boolean isMappedNativeMemory(long address) {
+        return MAP_NATIVE_MEMORY && address < 0;
     }
 }

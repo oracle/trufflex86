@@ -22,12 +22,15 @@ public abstract class VirtualMemory {
     protected static final boolean DEBUG = MemoryOptions.MEM_DEBUG.get();
     protected static final boolean VIRTUAL = MemoryOptions.MEM_VIRTUAL.get();
     protected static final boolean VERIFY = MemoryOptions.MEM_VERIFY.get();
+    protected static final boolean MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
 
     public static final long PAGE_SIZE = 4096;
     public static final long PAGE_MASK = ~(PAGE_SIZE - 1);
 
     public static final long POINTER_BASE = 0x00007f0000000000L;
     public static final long POINTER_END = 0x00007fff00000000L;
+
+    public static final long MAPPED_NATIVE_BIT = 1L << 63;
 
     protected final long pointerBase;
     protected final long pointerEnd;
@@ -108,6 +111,22 @@ public abstract class VirtualMemory {
         bigEndian = true;
     }
 
+    public static final long toMappedNative(long address) {
+        if (address == 0) {
+            return 0;
+        } else {
+            return address | MAPPED_NATIVE_BIT;
+        }
+    }
+
+    public static final long fromMappedNative(long address) {
+        return address & ~MAPPED_NATIVE_BIT;
+    }
+
+    public static final boolean isMappedNative(long address) {
+        return MAP_NATIVE && address < 0;
+    }
+
     public long addr(long addr) {
         return addr & mask;
     }
@@ -151,6 +170,12 @@ public abstract class VirtualMemory {
         } else {
             return base;
         }
+    }
+
+    public long getNativeAddress(long address) {
+        // Note: some memory implementations like PtraceVirtualMemory or
+        // JavaVirtualMemory cannot provide a native address
+        return address;
     }
 
     public MemoryPage get(@SuppressWarnings("unused") long addr) {

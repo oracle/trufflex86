@@ -107,7 +107,7 @@ public abstract class CallbackNode extends Node {
                         case SINT64:
                             return asI64.execute(result);
                         case POINTER:
-                            return asPointer.execute((TruffleObject) result).value;
+                            return asPointer.execute(result).value;
                         case OBJECT:
                             return Util.getObject(objects, result);
                         case VOID:
