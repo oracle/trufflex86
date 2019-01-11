@@ -17,6 +17,7 @@ public class MMU {
     private static final Logger log = Trace.create(MMU.class);
 
     @CompilationFinal private static boolean initialized = false;
+    @CompilationFinal private static boolean loaded = false;
     private static final Unsafe unsafe = UnsafeHolder.getUnsafe();
     @CompilationFinal private static long ptr;
 
@@ -26,7 +27,9 @@ public class MMU {
             throw new IllegalStateException("already initialized");
         }
         try {
-            loadLibrary();
+            if (!loaded) {
+                loadLibrary();
+            }
             ptr = setup(lo, hi);
             if (ptr == 0) {
                 log.log(Level.INFO, "cannot setup VM handler");
@@ -62,6 +65,12 @@ public class MMU {
 
     private static void loadLibrary() throws UnsatisfiedLinkError {
         System.loadLibrary("memory");
+        loaded = true;
+    }
+
+    public static void loadLibrary(String name) throws UnsatisfiedLinkError {
+        System.load(name);
+        loaded = true;
     }
 
     private static native long setup(long lo, long hi) throws PosixException;

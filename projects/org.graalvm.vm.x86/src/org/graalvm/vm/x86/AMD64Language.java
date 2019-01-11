@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
+import org.graalvm.vm.memory.hardware.MMU;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
 
@@ -25,6 +26,12 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
 
     @Override
     protected AMD64Context createContext(Env env) {
+        try {
+            // try to load libmemory from language home
+            MMU.loadLibrary(getLanguageHome() + "/libmemory.so");
+        } catch (UnsatisfiedLinkError e) {
+            // ignore
+        }
         if (DEBUG && DEBUG_TRACE) {
             String traceFile = Options.getString(Options.DEBUG_EXEC_TRACEFILE);
             log.info("Opening trace file " + traceFile);
