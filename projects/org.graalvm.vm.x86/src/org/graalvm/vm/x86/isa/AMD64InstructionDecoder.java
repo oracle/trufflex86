@@ -390,6 +390,7 @@ import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdq;
 import org.graalvm.vm.x86.isa.instruction.Shrd.Shrdw;
 import org.graalvm.vm.x86.isa.instruction.Shufpd;
 import org.graalvm.vm.x86.isa.instruction.Shufps;
+import org.graalvm.vm.x86.isa.instruction.Sqrtpd;
 import org.graalvm.vm.x86.isa.instruction.Sqrtsd;
 import org.graalvm.vm.x86.isa.instruction.Sqrtss;
 import org.graalvm.vm.x86.isa.instruction.Stc;
@@ -3535,7 +3536,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.SQRTSD_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPZ) {
+                        if (sizeOverride) {
+                            return new Sqrtpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPZ) {
                             return new Sqrtss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (isREPNZ) {
                             return new Sqrtsd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
