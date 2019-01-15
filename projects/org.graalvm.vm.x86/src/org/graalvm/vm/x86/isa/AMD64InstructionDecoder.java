@@ -492,32 +492,32 @@ public class AMD64InstructionDecoder {
                     segment = SegmentRegister.CS;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 case AMD64InstructionPrefix.SEGMENT_OVERRIDE_DS:
                     segment = SegmentRegister.DS;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 case AMD64InstructionPrefix.SEGMENT_OVERRIDE_ES:
                     segment = SegmentRegister.ES;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 case AMD64InstructionPrefix.SEGMENT_OVERRIDE_FS:
                     segment = SegmentRegister.FS;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 case AMD64InstructionPrefix.SEGMENT_OVERRIDE_GS:
                     segment = SegmentRegister.GS;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 case AMD64InstructionPrefix.SEGMENT_OVERRIDE_SS:
                     segment = SegmentRegister.SS;
                     op = code.read8();
                     instruction[instructionLength++] = op;
-                    break;
+                    continue;
                 default:
                     decode = false;
             }
