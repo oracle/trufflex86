@@ -297,6 +297,8 @@ public class AMD64Opcode {
 
     public static final byte PSLLDQ = 0x73;
 
+    public static final byte PSLLQ_X_XM = (byte) 0xF3;
+
     public static final byte PSRAD_X_XM = (byte) 0xE2;
 
     public static final byte PSRLD_X_XM = (byte) 0xD2;

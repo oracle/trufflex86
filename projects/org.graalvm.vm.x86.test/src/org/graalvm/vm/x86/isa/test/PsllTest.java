@@ -19,6 +19,9 @@ public class PsllTest extends InstructionTest {
     private static final byte[] MACHINECODE4 = {0x66, 0x0f, 0x71, (byte) 0xf5, 0x02};
     private static final String ASSEMBLY4 = "psllw\txmm5,0x2";
 
+    private static final byte[] MACHINECODE5 = {0x66, 0x0f, (byte) 0xf3, (byte) 0xeb};
+    private static final String ASSEMBLY5 = "psllq\txmm5,xmm3";
+
     @Test
     public void test1() {
         check(MACHINECODE1, ASSEMBLY1, Pslld.class);
@@ -37,5 +40,10 @@ public class PsllTest extends InstructionTest {
     @Test
     public void test4() {
         check(MACHINECODE4, ASSEMBLY4, Psllw.class);
+    }
+
+    @Test
+    public void test5() {
+        check(MACHINECODE5, ASSEMBLY5, Psllq.class);
     }
 }
