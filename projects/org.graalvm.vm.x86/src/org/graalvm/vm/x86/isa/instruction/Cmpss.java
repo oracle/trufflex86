@@ -35,6 +35,8 @@ public abstract class Cmpss extends AMD64Instruction {
 
     public static Cmpss create(long pc, byte[] instruction, OperandDecoder operands, byte imm) {
         switch (imm & 0x7) {
+            case 0:
+                return new Cmpeqss(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 1:
                 return new Cmpltss(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
             case 2:
@@ -55,9 +57,26 @@ public abstract class Cmpss extends AMD64Instruction {
         writeDst = operand1.createWrite(state, next());
     }
 
+    public static class Cmpeqss extends Cmpss {
+        protected Cmpeqss(long pc, byte[] instruction, Operand operand1, Operand operand2) {
+            super(pc, instruction, operand1, operand2, "cmpeqss", (byte) 0);
+        }
+
+        @Override
+        public long executeInstruction(VirtualFrame frame) {
+            Vector128 dst = readSrc1.executeI128(frame);
+            Vector128 src = readSrc2.executeI128(frame);
+            float a = dst.getF32(3);
+            float b = src.getF32(3);
+            dst.setI32(3, a == b ? 0xFFFFFFFF : 0x00000000);
+            writeDst.executeI128(frame, dst);
+            return next();
+        }
+    }
+
     public static class Cmpltss extends Cmpss {
         protected Cmpltss(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpltss", (byte) 2);
+            super(pc, instruction, operand1, operand2, "cmpltss", (byte) 1);
         }
 
         @Override
@@ -91,7 +110,7 @@ public abstract class Cmpss extends AMD64Instruction {
 
     public static class Cmpnltss extends Cmpss {
         protected Cmpnltss(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpnltss", (byte) 2);
+            super(pc, instruction, operand1, operand2, "cmpnltss", (byte) 5);
         }
 
         @Override
@@ -108,7 +127,7 @@ public abstract class Cmpss extends AMD64Instruction {
 
     public static class Cmpnless extends Cmpss {
         protected Cmpnless(long pc, byte[] instruction, Operand operand1, Operand operand2) {
-            super(pc, instruction, operand1, operand2, "cmpnless", (byte) 2);
+            super(pc, instruction, operand1, operand2, "cmpnless", (byte) 6);
         }
 
         @Override
