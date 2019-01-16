@@ -5,7 +5,7 @@ import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
-import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
+import org.graalvm.vm.x86.node.AVXRegisterReadNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
@@ -42,8 +42,12 @@ public abstract class Movsd extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             long value = readSrc.executeI64(frame);
-            Vector128 vec = new Vector128(0, value);
-            writeDst.executeI128(frame, vec);
+            if (readSrc instanceof AVXRegisterReadNode) {
+                writeDst.executeI64(frame, value);
+            } else {
+                Vector128 vec = new Vector128(0, value);
+                writeDst.executeI128(frame, vec);
+            }
             return next();
         }
     }
@@ -56,12 +60,7 @@ public abstract class Movsd extends AMD64Instruction {
         @Override
         public long executeInstruction(VirtualFrame frame) {
             long value = readSrc.executeI64(frame);
-            if (writeDst instanceof AVXRegisterWriteNode) {
-                Vector128 vec = new Vector128(0, value);
-                writeDst.executeI128(frame, vec);
-            } else {
-                writeDst.executeI64(frame, value);
-            }
+            writeDst.executeI64(frame, value);
             return next();
         }
     }
