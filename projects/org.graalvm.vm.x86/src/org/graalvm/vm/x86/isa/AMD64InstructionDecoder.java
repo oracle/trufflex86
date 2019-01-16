@@ -219,6 +219,7 @@ import org.graalvm.vm.x86.isa.instruction.Movlpd;
 import org.graalvm.vm.x86.isa.instruction.Movlps;
 import org.graalvm.vm.x86.isa.instruction.Movmskpd;
 import org.graalvm.vm.x86.isa.instruction.Movntdq;
+import org.graalvm.vm.x86.isa.instruction.Movq.MovqToX;
 import org.graalvm.vm.x86.isa.instruction.Movq.MovqToXM;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsb;
 import org.graalvm.vm.x86.isa.instruction.Movs.Movsd;
@@ -2794,7 +2795,7 @@ public class AMD64InstructionDecoder {
                     case AMD64Opcode.MOVQ_X_XM: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (isREPZ) {
-                            return new MovqToReg(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            return new MovqToX(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
                             if (rex != null && rex.w) {
                                 return new MovqToRM(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());

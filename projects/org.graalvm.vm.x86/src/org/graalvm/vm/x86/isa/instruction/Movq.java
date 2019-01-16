@@ -34,8 +34,8 @@ public abstract class Movq extends AMD64Instruction {
         writeDst = operand1.createWrite(state, next());
     }
 
-    public static class MovqToReg extends Movq {
-        public MovqToReg(long pc, byte[] instruction, OperandDecoder operands) {
+    public static class MovqToX extends Movq {
+        public MovqToX(long pc, byte[] instruction, OperandDecoder operands) {
             super(pc, instruction, operands.getAVXOperand2(128), operands.getAVXOperand1(128));
         }
 
