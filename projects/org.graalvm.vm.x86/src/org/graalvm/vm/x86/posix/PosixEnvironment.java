@@ -754,9 +754,13 @@ public class PosixEnvironment {
                 }
                 MemoryPage page;
                 try {
-                    if (BitTest.test(flags, Mman.MAP_FIXED)) {
+                    if (BitTest.test(flags, Mman.MAP_FIXED) || addr != 0) {
+                        long aligned = addr;
+                        if (!BitTest.test(flags, Mman.MAP_FIXED)) {
+                            aligned = mem.pageStart(addr);
+                        }
                         Memory bytes = new ByteMemory(length, false);
-                        page = new MemoryPage(bytes, mem.addr(addr), mem.roundToPageSize(length));
+                        page = new MemoryPage(bytes, mem.addr(aligned), mem.roundToPageSize(length));
                         mem.add(page);
                     } else {
                         page = mem.allocate(mem.roundToPageSize(length));
