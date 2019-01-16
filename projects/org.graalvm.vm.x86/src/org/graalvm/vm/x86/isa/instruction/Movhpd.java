@@ -57,10 +57,12 @@ public class Movhpd extends AMD64Instruction {
 
     @Override
     public long executeInstruction(VirtualFrame frame) {
-        long value = readSrc.executeI64(frame);
         if (toMemory) {
+            Vector128 vec = readSrc.executeI128(frame);
+            long value = vec.getI64(0);
             writeDst.executeI64(frame, value);
         } else {
+            long value = readSrc.executeI64(frame);
             Vector128 vec = readDst.executeI128(frame);
             vec.setI64(0, value);
             writeDst.executeI128(frame, vec);
