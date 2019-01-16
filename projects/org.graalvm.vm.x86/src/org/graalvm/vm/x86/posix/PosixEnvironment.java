@@ -753,12 +753,16 @@ public class PosixEnvironment {
                                     length, Mman.prot(prot), Mman.flags(flags), fildes, offset));
                 }
                 MemoryPage page;
-                if (BitTest.test(flags, Mman.MAP_FIXED)) {
-                    Memory bytes = new ByteMemory(length, false);
-                    page = new MemoryPage(bytes, mem.addr(addr), mem.roundToPageSize(length));
-                    mem.add(page);
-                } else {
-                    page = mem.allocate(mem.roundToPageSize(length));
+                try {
+                    if (BitTest.test(flags, Mman.MAP_FIXED)) {
+                        Memory bytes = new ByteMemory(length, false);
+                        page = new MemoryPage(bytes, mem.addr(addr), mem.roundToPageSize(length));
+                        mem.add(page);
+                    } else {
+                        page = mem.allocate(mem.roundToPageSize(length));
+                    }
+                } catch (OutOfMemoryError e) {
+                    throw new SyscallException(Errno.ENOMEM);
                 }
                 page.x = BitTest.test(prot, Mman.PROT_EXEC);
                 logMmap(addr, length, pr, fl, fildes, offset, page.base);
