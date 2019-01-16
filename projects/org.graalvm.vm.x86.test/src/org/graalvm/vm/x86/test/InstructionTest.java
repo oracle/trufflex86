@@ -19,7 +19,7 @@ public class InstructionTest {
 
     protected void check(byte[] code, String asm, Class<? extends AMD64Instruction> clazz) {
         AMD64Instruction insn = decode(code);
-        assertTrue(clazz.isInstance(insn));
+        assertTrue("wrong class: " + insn.getClass().getCanonicalName() + ", expected: " + clazz.getCanonicalName(), clazz.isInstance(insn));
         assertEquals(asm, insn.getDisassembly());
     }
 }
