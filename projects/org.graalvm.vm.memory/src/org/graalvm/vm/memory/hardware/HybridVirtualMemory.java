@@ -12,10 +12,15 @@ import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 
 import com.everyware.posix.api.PosixException;
+import com.everyware.util.UnsafeHolder;
+
+import sun.misc.Unsafe;
 
 public class HybridVirtualMemory extends VirtualMemory {
     private final JavaVirtualMemory jmem;
     private final NativeVirtualMemory nmem;
+
+    private final Unsafe unsafe = MAP_NATIVE ? UnsafeHolder.getUnsafe() : null;
 
     public HybridVirtualMemory() {
         jmem = new JavaVirtualMemory();
@@ -90,7 +95,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public boolean contains(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return true;
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.contains(address);
         } else {
             return jmem.contains(address);
@@ -99,7 +106,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public boolean isExecutable(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return false; // mapped host process memory is *not* executable
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.isExecutable(address);
         } else {
             return jmem.isExecutable(address);
@@ -108,7 +117,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public byte getI8(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return unsafe.getByte(fromMappedNative(address));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI8(address);
         } else {
             return jmem.getI8(address);
@@ -117,7 +128,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public short getI16(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return unsafe.getShort(fromMappedNative(address));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI16(address);
         } else {
             return jmem.getI16(address);
@@ -126,7 +139,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public int getI32(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return unsafe.getInt(fromMappedNative(address));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI32(address);
         } else {
             return jmem.getI32(address);
@@ -135,7 +150,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public long getI64(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return unsafe.getLong(fromMappedNative(address));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI64(address);
         } else {
             return jmem.getI64(address);
@@ -144,7 +161,12 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public Vector128 getI128(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            long lo = unsafe.getLong(base);
+            long hi = unsafe.getLong(base + 8);
+            return new Vector128(hi, lo);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI128(address);
         } else {
             return jmem.getI128(address);
@@ -153,7 +175,14 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public Vector256 getI256(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            long i4 = unsafe.getLong(base);
+            long i3 = unsafe.getLong(base + 8);
+            long i2 = unsafe.getLong(base + 16);
+            long i1 = unsafe.getLong(base + 24);
+            return new Vector256(new long[]{i1, i2, i3, i4});
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI256(address);
         } else {
             return jmem.getI256(address);
@@ -162,7 +191,18 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public Vector512 getI512(long address) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            long i8 = unsafe.getLong(base);
+            long i7 = unsafe.getLong(base + 8);
+            long i6 = unsafe.getLong(base + 16);
+            long i5 = unsafe.getLong(base + 24);
+            long i4 = unsafe.getLong(base + 32);
+            long i3 = unsafe.getLong(base + 40);
+            long i2 = unsafe.getLong(base + 48);
+            long i1 = unsafe.getLong(base + 56);
+            return new Vector512(new long[]{i1, i2, i3, i4, i5, i6, i7, i8});
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             return nmem.getI512(address);
         } else {
             return jmem.getI512(address);
@@ -171,7 +211,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI8(long address, byte val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            unsafe.putByte(fromMappedNative(address), val);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI8(address, val);
         } else {
             jmem.setI8(address, val);
@@ -180,7 +222,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI16(long address, short val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            unsafe.putShort(fromMappedNative(address), val);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI16(address, val);
         } else {
             jmem.setI16(address, val);
@@ -189,7 +233,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI32(long address, int val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            unsafe.putInt(fromMappedNative(address), val);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI32(address, val);
         } else {
             jmem.setI32(address, val);
@@ -198,7 +244,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI64(long address, long val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            unsafe.putLong(fromMappedNative(address), val);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI64(address, val);
         } else {
             jmem.setI64(address, val);
@@ -207,7 +255,11 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI128(long address, Vector128 val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            unsafe.putLong(base, val.getI64(1));
+            unsafe.putLong(base + 8, val.getI64(0));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI128(address, val);
         } else {
             jmem.setI128(address, val);
@@ -216,7 +268,11 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI128(long address, long hi, long lo) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            unsafe.putLong(base, lo);
+            unsafe.putLong(base + 8, hi);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI128(address, hi, lo);
         } else {
             jmem.setI128(address, hi, lo);
@@ -225,7 +281,13 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI256(long address, Vector256 val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            unsafe.putLong(base, val.getI64(3));
+            unsafe.putLong(base + 8, val.getI64(2));
+            unsafe.putLong(base + 16, val.getI64(1));
+            unsafe.putLong(base + 24, val.getI64(0));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI256(address, val);
         } else {
             jmem.setI256(address, val);
@@ -234,7 +296,17 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void setI512(long address, Vector512 val) {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            long base = fromMappedNative(address);
+            unsafe.putLong(base, val.getI64(7));
+            unsafe.putLong(base + 8, val.getI64(6));
+            unsafe.putLong(base + 16, val.getI64(5));
+            unsafe.putLong(base + 24, val.getI64(4));
+            unsafe.putLong(base + 32, val.getI64(3));
+            unsafe.putLong(base + 40, val.getI64(2));
+            unsafe.putLong(base + 48, val.getI64(1));
+            unsafe.putLong(base + 56, val.getI64(0));
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.setI512(address, val);
         } else {
             jmem.setI512(address, val);
@@ -243,7 +315,9 @@ public class HybridVirtualMemory extends VirtualMemory {
 
     @Override
     public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
-        if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+        if (MAP_NATIVE && address < 0) {
+            return; // no mprotect for mapped host process memory
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
             nmem.mprotect(address, len, r, w, x);
         } else {
             jmem.mprotect(address, len, r, w, x);
