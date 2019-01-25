@@ -68,7 +68,7 @@ public class AMD64FunctionCallNode extends AMD64Node {
             public long call(int id, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5, long f6, long f7, long f8) throws SyscallException {
                 CompilerAsserts.neverPartOfCompilation();
 
-                if (id < 0 || id > objects.size()) {
+                if (id < 0 || id >= objects.size()) {
                     log.warning("Unknown callback: " + id);
                     throw new SyscallException(Errno.ENOSYS);
                 }
@@ -91,19 +91,37 @@ public class AMD64FunctionCallNode extends AMD64Node {
         int intidx = 0;
         int floatidx = 0;
         int argidx = 0;
+        int stackargcnt = args.length - rawargs.length;
+        if (stackargcnt > 0) {
+            sp -= stackargcnt * 8;
+        }
         for (int i = 0; i < signature.getFixedArgCount(); i++) {
             NativeTypeMirror type = getType(signature, i);
             if (type.getKind() == Kind.ENV) {
-                rawargs[intidx++] = converter.execute(type, ptr, null, null, callbackptr, envptr).value;
+                long value = converter.execute(type, ptr, null, null, callbackptr, envptr).value;
+                if (intidx >= rawargs.length) {
+                    sp += 8;
+                    mem.setI64(sp, value);
+                } else {
+                    rawargs[intidx++] = value;
+                }
             } else {
                 ConversionResult result = converter.execute(type, ptr, args[argidx++], objects, callbackptr, envptr);
                 if (result.isFloat) {
                     floatargs[floatidx++] = result.value;
                 } else {
-                    rawargs[intidx++] = result.value;
+                    if (intidx >= rawargs.length) {
+                        sp += 8;
+                        mem.setI64(sp, result.value);
+                    } else {
+                        rawargs[intidx++] = result.value;
+                    }
                 }
                 ptr = result.ptr;
             }
+        }
+        if (stackargcnt > 0) {
+            sp -= stackargcnt * 8;
         }
 
         long a1 = rawargs[0];

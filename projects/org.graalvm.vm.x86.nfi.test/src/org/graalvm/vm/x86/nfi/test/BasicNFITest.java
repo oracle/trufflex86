@@ -86,6 +86,16 @@ public class BasicNFITest extends NFITest {
         }
     }
 
+    public static class TestTenargs extends NFITestRootNode {
+        private final TruffleObject tenargs = lookupAndBind("tenargs", "(sint32,sint32,sint32,sint32,sint32,sint32,sint32,sint32,sint32,sint32):sint32");
+        @Child private Node executeTenargs = Message.EXECUTE.createNode();
+
+        @Override
+        public Object executeTest(VirtualFrame frame) throws InteropException {
+            return ForeignAccess.sendExecute(executeTenargs, tenargs, frame.getArguments());
+        }
+    }
+
     @Test
     public void testFourtytwo(@Inject(TestFourtytwo.class) CallTarget target) {
         Object ret = target.call();
@@ -126,5 +136,21 @@ public class BasicNFITest extends NFITest {
     public void testAddToF64(@Inject(TestAddToF64.class) CallTarget target) {
         Object ret = target.call(17, 39);
         Assert.assertEquals(56.0, ret);
+    }
+
+    @Test
+    public void testTenargs(@Inject(TestTenargs.class) CallTarget target) {
+        int[] args = {17, 39, 2, 71, 68, 633215858, 1316, 465, 64562, 684233};
+        int result = 0;
+        for (int i = 0; i < args.length; i++) {
+            result <<= 1;
+            result += args[i];
+        }
+        Object[] oargs = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            oargs[i] = args[i];
+        }
+        Object ret = target.call(oargs);
+        Assert.assertEquals(result, ret);
     }
 }

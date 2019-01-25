@@ -2,7 +2,7 @@
 
 all: bin/${LIBTEST}
 
-OBJECTS		=	fourtytwo.o inc.o add.o null.o numeric.o string.o object.o errno.o
+OBJECTS		=	fourtytwo.o inc.o add.o null.o numeric.o string.o object.o errno.o args.o
 
 OBJECTFILES	=	${OBJECTS:%.o=bin/%.o}
 CFLAGS		+=	-I$(VPATH)/include
