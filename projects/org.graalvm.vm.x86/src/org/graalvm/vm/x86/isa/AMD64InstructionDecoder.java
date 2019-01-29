@@ -146,6 +146,7 @@ import org.graalvm.vm.x86.isa.instruction.Divpd;
 import org.graalvm.vm.x86.isa.instruction.Divps;
 import org.graalvm.vm.x86.isa.instruction.Divsd;
 import org.graalvm.vm.x86.isa.instruction.Divss;
+import org.graalvm.vm.x86.isa.instruction.Emms;
 import org.graalvm.vm.x86.isa.instruction.Endbr32;
 import org.graalvm.vm.x86.isa.instruction.Endbr64;
 import org.graalvm.vm.x86.isa.instruction.Fldcw;
@@ -2531,7 +2532,16 @@ public class AMD64InstructionDecoder {
                                         default:
                                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                                     }
+                                default:
+                                    return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                             }
+                        } else {
+                            return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.EMMS: {
+                        if (np) {
+                            return new Emms(pc, Arrays.copyOf(instruction, instructionLength));
                         } else {
                             return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                         }
