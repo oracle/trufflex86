@@ -111,7 +111,7 @@ public abstract class VirtualMemory {
         bigEndian = true;
     }
 
-    public static final long toMappedNative(long address) {
+    public long toMappedNative(long address) {
         if (address == 0) {
             return 0;
         } else {

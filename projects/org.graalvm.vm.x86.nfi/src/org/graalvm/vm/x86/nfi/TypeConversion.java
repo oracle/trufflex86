@@ -2,6 +2,8 @@ package org.graalvm.vm.x86.nfi;
 
 import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.AMD64Context;
+import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF32NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
@@ -314,9 +316,9 @@ public class TypeConversion extends Node {
         }
 
         @Specialization
-        protected NativePointer fromLong(long arg) {
+        protected NativePointer fromLong(long arg, @Cached("getVirtualMemory()") VirtualMemory mem) {
             if (MEM_MAP_NATIVE && arg > 0) {
-                return new NativePointer(VirtualMemory.toMappedNative(arg));
+                return new NativePointer(mem.toMappedNative(arg));
             }
             return new NativePointer(arg);
         }
@@ -325,11 +327,12 @@ public class TypeConversion extends Node {
         @SuppressWarnings("unused")
         protected NativePointer serializePointer(TruffleObject arg,
                         @Cached("createIsPointer()") Node isPointer,
-                        @Cached("createAsPointer()") Node asPointer) {
+                        @Cached("createAsPointer()") Node asPointer,
+                        @Cached("getVirtualMemory()") VirtualMemory mem) {
             try {
                 long pointer = ForeignAccess.sendAsPointer(asPointer, arg);
                 if (MEM_MAP_NATIVE && pointer > 0) {
-                    return new NativePointer(VirtualMemory.toMappedNative(pointer));
+                    return new NativePointer(mem.toMappedNative(pointer));
                 }
                 return new NativePointer(pointer);
             } catch (UnsupportedMessageException ex) {
@@ -377,6 +380,11 @@ public class TypeConversion extends Node {
 
         static AsPointerNode createRecursive() {
             return AsPointerNodeGen.create();
+        }
+
+        static VirtualMemory getVirtualMemory() {
+            AMD64Context ctx = AMD64Language.getCurrentContextReference().get();
+            return ctx.getMemory();
         }
     }
 

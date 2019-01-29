@@ -36,6 +36,15 @@ public class HybridVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public long toMappedNative(long address) {
+        if (Long.compareUnsigned(address, nmem.getPhysicalLow()) >= 0 && Long.compareUnsigned(address, nmem.getPhysicalHigh()) <= 0) {
+            return address - nmem.getPhysicalLow() + nmem.getVirtualLow();
+        } else {
+            return super.toMappedNative(address);
+        }
+    }
+
+    @Override
     public long getNativeAddress(long addr) {
         if (Long.compareUnsigned(addr, nmem.getVirtualHigh()) >= 0) {
             return jmem.getNativeAddress(addr);
