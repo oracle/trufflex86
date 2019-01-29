@@ -18,6 +18,8 @@ public class AMD64Opcode {
 
     public static final byte ADDSD_X_XM = 0x58;
 
+    public static final byte ADDSUBPS_X_XM = (byte) 0xD0;
+
     public static final byte AND_A_I8 = 0x24;
     public static final byte AND_A_I = 0x25;
     public static final byte AND_RM_I8 = (byte) 0x83;

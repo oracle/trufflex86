@@ -14,6 +14,7 @@ import org.graalvm.vm.x86.isa.instruction.Addpd;
 import org.graalvm.vm.x86.isa.instruction.Addps;
 import org.graalvm.vm.x86.isa.instruction.Addsd;
 import org.graalvm.vm.x86.isa.instruction.Addss;
+import org.graalvm.vm.x86.isa.instruction.Addsubps;
 import org.graalvm.vm.x86.isa.instruction.And.Andb;
 import org.graalvm.vm.x86.isa.instruction.And.Andl;
 import org.graalvm.vm.x86.isa.instruction.And.Andq;
@@ -2074,6 +2075,14 @@ public class AMD64InstructionDecoder {
                             return new Addss(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else if (sizeOverride) {
                             return new Addpd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.ADDSUBPS_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (isREPNZ) {
+                            return new Addsubps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }

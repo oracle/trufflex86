@@ -51,6 +51,10 @@ public class Vector128 implements Cloneable {
         assert data.length == 4;
     }
 
+    public Vector128(float a1, float a2, float a3, float a4) {
+        this(Float.floatToRawIntBits(a1), Float.floatToRawIntBits(a2), Float.floatToRawIntBits(a3), Float.floatToRawIntBits(a4));
+    }
+
     public Vector128(float[] data) {
         this(Float.floatToRawIntBits(data[0]), Float.floatToRawIntBits(data[1]), Float.floatToRawIntBits(data[2]), Float.floatToRawIntBits(data[3]));
         assert data.length == 4;
