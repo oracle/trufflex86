@@ -126,6 +126,8 @@ import org.graalvm.vm.x86.isa.instruction.Cvtsi2sd.Cvtsi2sdq;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssl;
 import org.graalvm.vm.x86.isa.instruction.Cvtsi2ss.Cvtsi2ssq;
 import org.graalvm.vm.x86.isa.instruction.Cvtss2sd;
+import org.graalvm.vm.x86.isa.instruction.Cvtss2si.Cvtss2sil;
+import org.graalvm.vm.x86.isa.instruction.Cvtss2si.Cvtss2siq;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2sil;
 import org.graalvm.vm.x86.isa.instruction.Cvttsd2si.Cvttsd2siq;
 import org.graalvm.vm.x86.isa.instruction.Cvttss2si.Cvttss2sil;
@@ -2451,6 +2453,12 @@ public class AMD64InstructionDecoder {
                                 return new Cvtsd2siq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
                                 return new Cvtsd2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
+                        } else if (isREPZ) {
+                            if (rex != null && rex.w) {
+                                return new Cvtss2siq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Cvtss2sil(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             }
                         }
                         return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
