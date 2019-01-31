@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.isa.test;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2ps;
 import org.graalvm.vm.x86.isa.instruction.Cvtpd2ps;
+import org.graalvm.vm.x86.isa.instruction.Cvtps2dq;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2si.Cvtsd2siq;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2ss;
@@ -39,6 +40,9 @@ public class CvtTest extends InstructionTest {
 
     private static final byte[] MACHINECODE9 = {(byte) 0xf3, 0x48, 0x0f, 0x2d, (byte) 0xf0};
     private static final String ASSEMBLY9 = "cvtss2si\trsi,xmm0";
+
+    private static final byte[] MACHINECODE10 = {0x66, 0x0f, 0x5b, (byte) 0xc0};
+    private static final String ASSEMBLY10 = "cvtps2dq\txmm0,xmm0";
 
     @Test
     public void test1() {
@@ -83,5 +87,10 @@ public class CvtTest extends InstructionTest {
     @Test
     public void test9() {
         check(MACHINECODE9, ASSEMBLY9, Cvtss2siq.class);
+    }
+
+    @Test
+    public void test10() {
+        check(MACHINECODE10, ASSEMBLY10, Cvtps2dq.class);
     }
 }

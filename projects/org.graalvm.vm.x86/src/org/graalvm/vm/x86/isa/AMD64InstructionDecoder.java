@@ -117,6 +117,7 @@ import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2ps;
 import org.graalvm.vm.x86.isa.instruction.Cvtpd2ps;
+import org.graalvm.vm.x86.isa.instruction.Cvtps2dq;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2si.Cvtsd2sil;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2si.Cvtsd2siq;
@@ -2442,6 +2443,8 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (np) {
                             return new Cvtdq2ps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (sizeOverride) {
+                            return new Cvtps2dq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
