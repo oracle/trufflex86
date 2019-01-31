@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.posix;
 
-import com.everyware.posix.api.PosixPointer;
+import org.graalvm.vm.posix.api.PosixPointer;
 
 public class SockaddrPointer implements PosixPointer {
     private PosixPointer ptr;

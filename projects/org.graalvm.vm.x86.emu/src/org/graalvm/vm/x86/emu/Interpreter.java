@@ -5,7 +5,11 @@ import java.util.NavigableMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.elf.Symbol;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -21,11 +25,6 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallNames;
-
-import com.everyware.posix.api.Errno;
-import com.everyware.posix.api.PosixException;
-import com.everyware.posix.elf.Symbol;
-import com.everyware.util.log.Trace;
 
 public class Interpreter {
     private static final Logger log = Trace.create(Interpreter.class);

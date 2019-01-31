@@ -4,9 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.everyware.posix.elf.Elf;
-import com.everyware.posix.elf.Section;
-import com.everyware.util.ResourceLoader;
+import org.graalvm.vm.posix.elf.Elf;
+import org.graalvm.vm.posix.elf.Section;
+import org.graalvm.vm.util.ResourceLoader;
 
 public class TestDataLoader {
     public static byte[] loadFile(String name) throws IOException {

@@ -5,8 +5,7 @@ import java.io.IOException;
 
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
-
-import com.everyware.posix.api.PosixException;
+import org.graalvm.vm.posix.api.PosixException;
 
 public class Ptrace implements Closeable {
     private static native int fork(String cmd) throws PosixException;

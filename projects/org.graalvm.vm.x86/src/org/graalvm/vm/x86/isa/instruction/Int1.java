@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -17,7 +18,6 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
-import com.everyware.posix.api.Errno;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;

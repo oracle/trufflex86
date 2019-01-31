@@ -1,8 +1,7 @@
 package org.graalvm.vm.x86.nfi;
 
 import org.graalvm.vm.memory.VirtualMemory;
-
-import com.everyware.posix.api.PosixPointer;
+import org.graalvm.vm.posix.api.PosixPointer;
 
 public class CallbackCode {
     public static final long DATA_OFFSET = 3584;

@@ -8,10 +8,10 @@ import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.api.PosixPointer;
+import org.graalvm.vm.util.log.Trace;
 
-import com.everyware.posix.api.PosixException;
-import com.everyware.posix.api.PosixPointer;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;

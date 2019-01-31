@@ -1,13 +1,13 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import org.graalvm.vm.math.LongDivision;
+import org.graalvm.vm.math.LongDivision.Result;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
-import org.graalvm.vm.x86.math.LongDivision;
-import org.graalvm.vm.x86.math.LongDivision.Result;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 

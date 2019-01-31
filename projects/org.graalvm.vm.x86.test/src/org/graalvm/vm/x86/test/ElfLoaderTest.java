@@ -14,17 +14,16 @@ import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
+import org.graalvm.vm.posix.api.BytePosixPointer;
+import org.graalvm.vm.posix.api.CString;
+import org.graalvm.vm.posix.api.Posix;
+import org.graalvm.vm.posix.api.io.Fcntl;
+import org.graalvm.vm.posix.vfs.FileSystem;
+import org.graalvm.vm.posix.vfs.Tmpfs;
 import org.graalvm.vm.x86.ElfLoader;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.everyware.posix.api.BytePosixPointer;
-import com.everyware.posix.api.CString;
-import com.everyware.posix.api.Posix;
-import com.everyware.posix.api.io.Fcntl;
-import com.everyware.posix.vfs.FileSystem;
-import com.everyware.posix.vfs.Tmpfs;
 
 public class ElfLoaderTest {
     private JavaVirtualMemory mem;

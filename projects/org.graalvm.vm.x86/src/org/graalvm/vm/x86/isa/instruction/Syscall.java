@@ -4,6 +4,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -17,8 +19,6 @@ import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallNames;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;

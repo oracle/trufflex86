@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.nfi;
 
-import com.everyware.posix.api.PosixPointer;
+import org.graalvm.vm.posix.api.PosixPointer;
 
 public class ConversionResult {
     public final long value;

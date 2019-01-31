@@ -3,9 +3,9 @@ package org.graalvm.vm.x86.nfi;
 import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.CString;
+import org.graalvm.vm.posix.api.PosixPointer;
 
-import com.everyware.posix.api.CString;
-import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.interop.CanResolve;
 import com.oracle.truffle.api.interop.MessageResolution;
 import com.oracle.truffle.api.interop.Resolve;

@@ -10,9 +10,9 @@ import java.nio.file.Paths;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 

@@ -3,11 +3,10 @@ package org.graalvm.vm.x86.test.trace;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.graalvm.vm.util.io.BEOutputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
 import org.junit.Test;
-
-import com.everyware.util.io.BEOutputStream;
-import com.everyware.util.io.WordOutputStream;
 
 public class LocationRecordTest {
     @Test

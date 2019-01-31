@@ -16,17 +16,16 @@ import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.vfs.FileSystem;
+import org.graalvm.vm.posix.vfs.NativeFileSystem;
+import org.graalvm.vm.posix.vfs.VFS;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.ElfLoader;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
-
-import com.everyware.posix.api.PosixException;
-import com.everyware.posix.vfs.FileSystem;
-import com.everyware.posix.vfs.NativeFileSystem;
-import com.everyware.posix.vfs.VFS;
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 
 public class Emu86 {
     private static final Logger log = Trace.create(Emu86.class);

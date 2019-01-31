@@ -17,15 +17,15 @@ public class Ioctls {
     public static final int FIOCLEX = 0x5451;
 
     static {
-        ioctls.put(TCGETS, com.everyware.posix.api.io.Ioctls.TCGETS);
-        ioctls.put(TCSETS, com.everyware.posix.api.io.Ioctls.TCSETS);
-        ioctls.put(TCSETSW, com.everyware.posix.api.io.Ioctls.TCSETSF);
-        ioctls.put(TCSETSW, com.everyware.posix.api.io.Ioctls.TCSETSW);
-        ioctls.put(TIOCGWINSZ, com.everyware.posix.api.io.Ioctls.TIOCGWINSZ);
-        ioctls.put(TIOCOUTQ, com.everyware.posix.api.io.Ioctls.TIOCOUTQ);
-        ioctls.put(TIOCSWINSZ, com.everyware.posix.api.io.Ioctls.TIOCSWINSZ);
-        ioctls.put(FIONCLEX, com.everyware.posix.api.io.Ioctls.FIONCLEX);
-        ioctls.put(FIOCLEX, com.everyware.posix.api.io.Ioctls.FIOCLEX);
+        ioctls.put(TCGETS, org.graalvm.vm.posix.api.io.Ioctls.TCGETS);
+        ioctls.put(TCSETS, org.graalvm.vm.posix.api.io.Ioctls.TCSETS);
+        ioctls.put(TCSETSW, org.graalvm.vm.posix.api.io.Ioctls.TCSETSF);
+        ioctls.put(TCSETSW, org.graalvm.vm.posix.api.io.Ioctls.TCSETSW);
+        ioctls.put(TIOCGWINSZ, org.graalvm.vm.posix.api.io.Ioctls.TIOCGWINSZ);
+        ioctls.put(TIOCOUTQ, org.graalvm.vm.posix.api.io.Ioctls.TIOCOUTQ);
+        ioctls.put(TIOCSWINSZ, org.graalvm.vm.posix.api.io.Ioctls.TIOCSWINSZ);
+        ioctls.put(FIONCLEX, org.graalvm.vm.posix.api.io.Ioctls.FIONCLEX);
+        ioctls.put(FIOCLEX, org.graalvm.vm.posix.api.io.Ioctls.FIOCLEX);
     }
 
     public static int translate(int request) {
@@ -38,6 +38,6 @@ public class Ioctls {
         int type = Ioctl._IOC_TYPE(request);
         int nr = Ioctl._IOC_NR(request);
         int size = Ioctl._IOC_SIZE(request);
-        return com.everyware.posix.api.io.Ioctl._IOC(dir, type, nr, size);
+        return org.graalvm.vm.posix.api.io.Ioctl._IOC(dir, type, nr, size);
     }
 }

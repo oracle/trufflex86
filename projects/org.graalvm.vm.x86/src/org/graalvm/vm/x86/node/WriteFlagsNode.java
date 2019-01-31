@@ -1,10 +1,10 @@
 package org.graalvm.vm.x86.node;
 
+import org.graalvm.vm.util.BitTest;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.Flags;
 
-import com.everyware.util.BitTest;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

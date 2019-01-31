@@ -2,12 +2,12 @@ package org.graalvm.vm.x86.nfi;
 
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.InteropFunctionPointers;
 import org.graalvm.vm.x86.node.AMD64Node;
 
-import com.everyware.posix.api.PosixException;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.VirtualFrame;

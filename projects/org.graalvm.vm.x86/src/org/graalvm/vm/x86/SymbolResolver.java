@@ -2,10 +2,11 @@ package org.graalvm.vm.x86;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import org.graalvm.vm.posix.elf.Symbol;
+
 import java.util.NavigableMap;
 import java.util.TreeMap;
-
-import com.everyware.posix.elf.Symbol;
 
 public class SymbolResolver {
     private final NavigableMap<Long, Symbol> symbols;

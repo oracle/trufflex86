@@ -5,12 +5,12 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.CString;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.AMD64Node;
 
-import com.everyware.posix.api.CString;
-import com.everyware.posix.api.Errno;
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;

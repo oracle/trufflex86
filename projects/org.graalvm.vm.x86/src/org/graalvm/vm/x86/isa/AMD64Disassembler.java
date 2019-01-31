@@ -3,9 +3,9 @@ package org.graalvm.vm.x86.isa;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.everyware.posix.elf.Elf;
-import com.everyware.posix.elf.ProgramHeader;
-import com.everyware.posix.elf.Symbol;
+import org.graalvm.vm.posix.elf.Elf;
+import org.graalvm.vm.posix.elf.ProgramHeader;
+import org.graalvm.vm.posix.elf.Symbol;
 
 public class AMD64Disassembler {
     public static String disassemble(Elf elf) {

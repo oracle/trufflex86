@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.isa.AVXRegister;
 
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;

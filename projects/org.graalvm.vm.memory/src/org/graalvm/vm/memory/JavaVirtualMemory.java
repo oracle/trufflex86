@@ -11,10 +11,10 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.util.io.Endianess;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.posix.api.PosixException;
-import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;

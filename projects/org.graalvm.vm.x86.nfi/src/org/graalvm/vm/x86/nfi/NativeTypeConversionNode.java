@@ -2,7 +2,7 @@ package org.graalvm.vm.x86.nfi;
 
 import java.util.List;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.util.HexFormatter;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;

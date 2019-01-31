@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;

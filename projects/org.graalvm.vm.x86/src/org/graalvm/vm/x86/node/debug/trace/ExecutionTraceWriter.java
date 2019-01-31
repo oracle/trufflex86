@@ -10,12 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.util.io.BEOutputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CpuState;
-
-import com.everyware.util.io.BEOutputStream;
-import com.everyware.util.io.WordOutputStream;
-import com.everyware.util.log.Trace;
 
 public class ExecutionTraceWriter implements Closeable {
     private static final Logger log = Trace.create(ExecutionTraceWriter.class);

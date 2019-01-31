@@ -21,11 +21,10 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
+import org.graalvm.vm.util.log.Trace;
+import org.graalvm.vm.util.ui.MessageBox;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
-
-import com.everyware.util.log.Trace;
-import com.everyware.util.ui.MessageBox;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {

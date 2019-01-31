@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.isa;
 
-import com.everyware.posix.elf.ProgramHeader;
+import org.graalvm.vm.posix.elf.ProgramHeader;
 
 public class CodeSegmentReader extends CodeReader {
     private long vaddr;

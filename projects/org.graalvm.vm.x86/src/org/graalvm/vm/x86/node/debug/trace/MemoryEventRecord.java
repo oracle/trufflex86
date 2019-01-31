@@ -2,12 +2,11 @@ package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.IOException;
 
-import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.memory.util.Stringify;
 import org.graalvm.vm.memory.vector.Vector128;
-
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 
 public class MemoryEventRecord extends Record {
     public static final int MAGIC = 0x4d454d30; // MEM0

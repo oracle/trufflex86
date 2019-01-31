@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.graalvm.vm.memory.util.HexFormatter;
-
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 
 public class LocationRecord extends Record {
     public static final int MAGIC = 0x4c4f4330; // LOC0

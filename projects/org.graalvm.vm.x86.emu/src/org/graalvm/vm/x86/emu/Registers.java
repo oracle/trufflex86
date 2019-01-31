@@ -1,12 +1,11 @@
 package org.graalvm.vm.x86.emu;
 
-import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.util.BitTest;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.io.Endianess;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Flags;
-
-import com.everyware.util.BitTest;
-import com.everyware.util.io.Endianess;
 
 public class Registers {
     public long rax;

@@ -4,8 +4,8 @@ import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.util.UnsafeHolder;
 
-import com.everyware.util.UnsafeHolder;
 import com.oracle.truffle.api.dsl.Specialization;
 
 import sun.misc.Unsafe;

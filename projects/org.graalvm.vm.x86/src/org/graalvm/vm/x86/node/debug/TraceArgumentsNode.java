@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.node.debug;
 
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.posix.elf.Symbol;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
@@ -11,7 +12,6 @@ import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 
-import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;

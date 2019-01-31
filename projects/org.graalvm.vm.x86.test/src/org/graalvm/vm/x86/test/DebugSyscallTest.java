@@ -7,13 +7,12 @@ import java.io.ByteArrayOutputStream;
 import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.CString;
+import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.everyware.posix.api.CString;
-import com.everyware.posix.api.PosixPointer;
 
 public class DebugSyscallTest {
     private PosixEnvironment posix;

@@ -1,10 +1,9 @@
 package org.graalvm.vm.x86.isa;
 
-import org.graalvm.vm.memory.util.HexFormatter;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector512;
-
-import com.everyware.util.BitTest;
+import org.graalvm.vm.util.BitTest;
+import org.graalvm.vm.util.HexFormatter;
 
 /*-
     RAX=0000000000000000 RBX=0000000000000000 RCX=0000000000000000 RDX=0000000000000000

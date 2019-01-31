@@ -10,9 +10,8 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
-
-import com.everyware.posix.api.PosixException;
-import com.everyware.util.UnsafeHolder;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.util.UnsafeHolder;
 
 import sun.misc.Unsafe;
 

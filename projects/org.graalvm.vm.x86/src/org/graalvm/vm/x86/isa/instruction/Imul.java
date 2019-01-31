@@ -1,5 +1,6 @@
 package org.graalvm.vm.x86.isa.instruction;
 
+import org.graalvm.vm.math.LongMultiplication;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -13,7 +14,6 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.everyware.math.LongMultiplication;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Imul extends AMD64Instruction {

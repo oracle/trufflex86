@@ -2,10 +2,10 @@ package org.graalvm.vm.memory.svm;
 
 import org.graalvm.nativeimage.Platform;
 import org.graalvm.nativeimage.Platforms;
+import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.word.PointerBase;
 import org.graalvm.word.WordFactory;
 
-import com.everyware.posix.api.PosixException;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
 import com.oracle.svm.core.posix.headers.Errno;

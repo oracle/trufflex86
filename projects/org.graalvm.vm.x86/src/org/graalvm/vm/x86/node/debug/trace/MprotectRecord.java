@@ -2,9 +2,9 @@ package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.IOException;
 
-import com.everyware.posix.api.mem.Mman;
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
+import org.graalvm.vm.posix.api.mem.Mman;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 
 public class MprotectRecord extends Record {
     public static final int MAGIC = 0x50524f54;

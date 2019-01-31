@@ -1,8 +1,7 @@
 package org.graalvm.vm.memory;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
-
-import com.everyware.util.io.Endianess;
+import org.graalvm.vm.util.io.Endianess;
 
 public class ByteMemory extends Memory {
     private byte[] data;

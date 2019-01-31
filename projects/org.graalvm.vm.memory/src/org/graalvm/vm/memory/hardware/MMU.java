@@ -3,11 +3,12 @@ package org.graalvm.vm.memory.hardware;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.posix.api.PosixException;
-import com.everyware.util.UnsafeHolder;
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.util.UnsafeHolder;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
+
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 

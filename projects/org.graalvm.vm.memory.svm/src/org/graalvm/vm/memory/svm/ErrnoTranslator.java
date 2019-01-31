@@ -90,8 +90,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.util.log.Trace;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.util.log.Trace;
 
 public class ErrnoTranslator {
     private static final Logger log = Trace.create(ErrnoTranslator.class);

@@ -3,9 +3,8 @@ package org.graalvm.vm.memory.test;
 import static org.junit.Assert.assertEquals;
 
 import org.graalvm.vm.memory.util.Stringify;
+import org.graalvm.vm.posix.elf.Elf;
 import org.junit.Test;
-
-import com.everyware.posix.elf.Elf;
 
 public class StringifyTest {
     @Test

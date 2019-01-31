@@ -10,6 +10,8 @@ import org.graalvm.vm.memory.ByteMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.mem.Mman;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Register;
@@ -22,8 +24,6 @@ import org.graalvm.vm.x86.node.AVXRegisterWriteNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 
-import com.everyware.posix.api.mem.Mman;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;

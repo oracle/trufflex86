@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.spi.FileTypeDetector;
 
-import com.everyware.posix.elf.Elf;
-import com.everyware.util.io.Endianess;
+import org.graalvm.vm.posix.elf.Elf;
+import org.graalvm.vm.util.io.Endianess;
 
 public final class ElfFileDetector extends FileTypeDetector {
     @Override

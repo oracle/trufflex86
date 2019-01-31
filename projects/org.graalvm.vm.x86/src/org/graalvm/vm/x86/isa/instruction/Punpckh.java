@@ -1,6 +1,7 @@
 package org.graalvm.vm.x86.isa.instruction;
 
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.util.io.Endianess;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
@@ -8,7 +9,6 @@ import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
-import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Punpckh extends AMD64Instruction {

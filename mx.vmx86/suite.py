@@ -22,14 +22,6 @@ suite = {
           {"url" : "https://github.com/oracle/graal", "kind" : "git"},
           {"url" : "https://curio.ssw.jku.at/nexus/content/repositories/snapshots", "kind" : "binary"},
         ]
-      },
-      {
-        "name" : "core",
-        "subdir" : False,
-        "version" : "466510f358aaa6195cb606317d1481f784b5542f",
-        "urls" : [
-          {"url" : "https://github.com/pekd/core", "kind" : "git"},
-        ]
       }
     ]
   },
@@ -71,8 +63,8 @@ suite = {
       "sourceDirs" : ["src"],
       "jniHeaders" : True,
       "dependencies" : [
-        "core:CORE",
-        "core:POSIX",
+        "org.graalvm.vm.util",
+        "org.graalvm.vm.posix",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
       ],
@@ -120,8 +112,7 @@ suite = {
       "sourceDirs" : ["src"],
       "dependencies" : [
         "org.graalvm.vm.memory",
-        "core:CORE",
-        "core:POSIX",
+        "org.graalvm.vm.math",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI"
       ],
@@ -145,7 +136,7 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "core:CORE",
+        "org.graalvm.vm.util",
         "sdk:LAUNCHER_COMMON"
       ],
       "javaCompliance" : "1.8+",
@@ -303,9 +294,7 @@ suite = {
       "jniHeaders" : True,
       "dependencies" : [
         "org.graalvm.vm.memory",
-        "org.graalvm.vm.x86",
-        "core:CORE",
-        "core:POSIX"
+        "org.graalvm.vm.x86"
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
@@ -370,6 +359,69 @@ suite = {
       "workingSets" : "vmx86",
       "testProject" : True,
     },
+
+    "org.graalvm.vm.util" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "checkstyle" : "org.graalvm.vm.util",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
+
+    "org.graalvm.vm.math" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "checkstyle" : "org.graalvm.vm.math",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
+
+    "org.graalvm.vm.posix" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.util"
+      ],
+      "checkstyle" : "org.graalvm.vm.posix",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
+
+    "org.graalvm.vm.util.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.util",
+        "mx:JUNIT",
+      ],
+      "checkstyle" : "org.graalvm.vm.util",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
+
+    "org.graalvm.vm.math.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.math",
+        "mx:JUNIT",
+      ],
+      "checkstyle" : "org.graalvm.vm.math",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
+
+    "org.graalvm.vm.posix.test" : {
+      "subDir" : "projects",
+      "sourceDirs" : ["src"],
+      "dependencies" : [
+        "org.graalvm.vm.posix",
+        "mx:JUNIT",
+      ],
+      "checkstyle" : "org.graalvm.vm.posix",
+      "javaCompliance" : "1.8+",
+      "workingSets" : "core",
+    },
   },
 
   "distributions" : {
@@ -383,8 +435,8 @@ suite = {
       ],
       "distDependencies" : [
         "VM_NFI_NATIVE",
-        "core:CORE",
-        "core:POSIX",
+        "CORE",
+        "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
       ]
@@ -428,7 +480,7 @@ suite = {
       "mainClass" : "org.graalvm.vm.x86.launcher.AMD64Launcher",
       "dependencies" : ["org.graalvm.vm.x86.launcher"],
       "distDependencies" : [
-        "core:CORE",
+        "CORE",
         "sdk:LAUNCHER_COMMON",
       ],
     },
@@ -447,8 +499,8 @@ suite = {
       ],
       "overlaps" : [
         "VM",
-        "core:CORE",
-        "core:POSIX",
+        "CORE",
+        "POSIX",
         "sdk:GRAAL_SDK",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
@@ -484,8 +536,8 @@ suite = {
       "distDependencies" : [
         "VM",
         "VM_TESTCASES",
-        "core:CORE",
-        "core:POSIX",
+        "CORE",
+        "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
         "truffle:TRUFFLE_TCK",
@@ -517,8 +569,8 @@ suite = {
       ],
       "distDependencies" : [
         "VM",
-        "core:CORE",
-        "core:POSIX"
+        "CORE",
+        "POSIX"
       ],
     },
 
@@ -532,5 +584,59 @@ suite = {
         "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a"],
       },
     },
+
+    "CORE" : {
+      "path" : "build/core.jar",
+      "subDir" : "core",
+      "sourcesPath" : "build/core.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.util",
+        "org.graalvm.vm.math",
+      ]
+    },
+
+    "POSIX" : {
+      "path" : "build/posix.jar",
+      "subDir" : "core",
+      "sourcesPath" : "build/posix.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.posix",
+      ],
+      "distDependencies" : [
+        "CORE"
+      ]
+    },
+
+    "CORE_TEST" : {
+      "path" : "build/core_test.jar",
+      "subDir" : "core",
+      "sourcesPath" : "build/core_test.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.util.test",
+        "org.graalvm.vm.math.test",
+      ],
+      "exclude" : [
+        "mx:JUNIT"
+      ],
+      "distDependencies" : [
+        "CORE",
+      ]
+    },
+
+    "POSIX_TEST" : {
+      "path" : "build/posix_test.jar",
+      "subDir" : "core",
+      "sourcesPath" : "build/posix_test.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.posix.test"
+      ],
+      "exclude" : [
+        "mx:JUNIT"
+      ],
+      "distDependencies" : [
+        "CORE",
+        "POSIX"
+      ]
+    }
   }
 }

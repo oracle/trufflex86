@@ -7,10 +7,9 @@ import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.PosixException;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.everyware.posix.api.PosixException;
 
 public class VirtualMemoryTest {
     private VirtualMemory vm;

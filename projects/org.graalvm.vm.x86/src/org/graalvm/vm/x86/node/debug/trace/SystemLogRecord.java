@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import com.everyware.util.StackTraceUtil;
-import com.everyware.util.StringUtils;
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
+import org.graalvm.vm.util.StackTraceUtil;
+import org.graalvm.vm.util.StringUtils;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 
 public class SystemLogRecord extends Record {
     public static final int MAGIC = 0x4c4f4752; // LOGR

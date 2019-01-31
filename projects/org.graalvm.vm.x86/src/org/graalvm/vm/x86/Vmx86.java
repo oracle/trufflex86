@@ -3,10 +3,10 @@ package org.graalvm.vm.x86;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.x86.node.InterpreterStartNode;
 import org.graalvm.vm.x86.node.init.InitializerNode;
 
-import com.everyware.posix.elf.Elf;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;

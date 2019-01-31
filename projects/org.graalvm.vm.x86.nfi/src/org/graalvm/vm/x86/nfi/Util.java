@@ -2,8 +2,9 @@ package org.graalvm.vm.x86.nfi;
 
 import java.util.List;
 
-import com.everyware.posix.api.CString;
-import com.everyware.posix.api.PosixPointer;
+import org.graalvm.vm.posix.api.CString;
+import org.graalvm.vm.posix.api.PosixPointer;
+
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.nfi.types.NativeSignature;
 import com.oracle.truffle.nfi.types.NativeSimpleType;

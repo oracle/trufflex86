@@ -7,10 +7,10 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.hardware.MMU;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
 
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 

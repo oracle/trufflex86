@@ -34,7 +34,6 @@ Clone the Graal repository as well as this repository:
 ```
 git clone https://github.com/oracle/graal
 git clone https://github.com/graalvm/vmx86
-git clone https://github.com/pekd/core
 ```
 
 Set `JAVA_HOME` to a JDK >= 1.8, e.g.:

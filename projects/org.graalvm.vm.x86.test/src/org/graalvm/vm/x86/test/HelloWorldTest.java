@@ -4,14 +4,13 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.x86.isa.AMD64Disassembler;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.everyware.posix.elf.Elf;
 
 public class HelloWorldTest {
     @Test

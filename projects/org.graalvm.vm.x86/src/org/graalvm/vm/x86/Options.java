@@ -3,7 +3,7 @@ package org.graalvm.vm.x86;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.everyware.util.log.Trace;
+import org.graalvm.vm.util.log.Trace;
 
 public class Options {
     private static final Logger log = Trace.create(Options.class);

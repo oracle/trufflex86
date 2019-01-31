@@ -5,6 +5,10 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.vfs.FileSystem;
+import org.graalvm.vm.posix.vfs.NativeFileSystem;
+import org.graalvm.vm.posix.vfs.VFS;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.ElfLoader;
@@ -15,10 +19,6 @@ import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 
-import com.everyware.posix.api.PosixException;
-import com.everyware.posix.vfs.FileSystem;
-import com.everyware.posix.vfs.NativeFileSystem;
-import com.everyware.posix.vfs.VFS;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;

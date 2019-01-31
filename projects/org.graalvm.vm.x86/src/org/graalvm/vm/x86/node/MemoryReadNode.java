@@ -8,6 +8,7 @@ import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.util.UnsafeHolder;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI128Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI16Node;
 import org.graalvm.vm.x86.node.HybridMemoryReadNode.HybridMemoryReadI32Node;
@@ -18,8 +19,6 @@ import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI16No
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI32NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI64NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryReadNodeFactory.HybridMemoryReadI8NodeGen;
-
-import com.everyware.util.UnsafeHolder;
 
 import sun.misc.Unsafe;
 

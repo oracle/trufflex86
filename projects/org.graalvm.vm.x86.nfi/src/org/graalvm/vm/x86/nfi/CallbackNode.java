@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
@@ -15,7 +16,6 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsF64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 
-import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;

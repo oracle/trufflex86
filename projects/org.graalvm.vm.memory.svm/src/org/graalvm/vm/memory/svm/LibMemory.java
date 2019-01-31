@@ -7,10 +7,9 @@ import org.graalvm.nativeimage.c.CContext;
 import org.graalvm.nativeimage.c.function.CFunction;
 import org.graalvm.nativeimage.c.function.CLibrary;
 import org.graalvm.nativeimage.c.type.CIntPointer;
+import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.word.PointerBase;
 import org.graalvm.word.WordFactory;
-
-import com.everyware.posix.api.PosixException;
 
 @CLibrary("memory")
 @Platforms(Platform.LINUX.class)

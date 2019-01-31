@@ -126,7 +126,7 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
     dir_name='amd64',
     license_files=[],
     third_party_license_files=[],
-    truffle_jars=['vmx86:VM', 'vmx86:VM_MEMORY_SVM', 'core:CORE', 'core:POSIX'],
+    truffle_jars=['vmx86:VM', 'vmx86:VM_MEMORY_SVM', 'vmx86:CORE', 'vmx86:POSIX'],
     support_distributions=[
         'vmx86:VMX86_GRAALVM_SUPPORT'
     ],

@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.isa;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.util.HexFormatter;
 
 public class IllegalInstructionException extends RuntimeException {
     private static final long serialVersionUID = -2754913616070473400L;

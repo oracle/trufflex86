@@ -48,8 +48,7 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
-
-import com.everyware.util.log.Trace;
+import org.graalvm.vm.util.log.Trace;
 
 public class AMD64Launcher extends AbstractLanguageLauncher {
     public static void main(String[] args) {

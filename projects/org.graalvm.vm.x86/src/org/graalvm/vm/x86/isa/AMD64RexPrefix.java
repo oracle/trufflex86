@@ -1,6 +1,6 @@
 package org.graalvm.vm.x86.isa;
 
-import com.everyware.util.BitTest;
+import org.graalvm.vm.util.BitTest;
 
 // manual p69
 public class AMD64RexPrefix {

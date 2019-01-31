@@ -1,9 +1,9 @@
 package org.graalvm.vm.memory;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.posix.api.MemoryFaultException;
+import org.graalvm.vm.posix.api.PosixPointer;
 
-import com.everyware.posix.api.MemoryFaultException;
-import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 

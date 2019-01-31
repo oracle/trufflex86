@@ -16,13 +16,12 @@ import java.util.logging.Logger;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.Vmx86;
 import org.graalvm.vm.x86.test.TestOptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.everyware.util.log.Trace;
 
 public class HostTest {
     private static final Logger log = Trace.create(HostTest.class);

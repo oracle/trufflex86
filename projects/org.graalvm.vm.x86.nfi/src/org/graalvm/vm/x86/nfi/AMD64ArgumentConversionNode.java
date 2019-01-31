@@ -2,6 +2,7 @@ package org.graalvm.vm.x86.nfi;
 
 import java.util.List;
 
+import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsI64Node;
@@ -13,7 +14,6 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsI64NodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 
-import com.everyware.posix.api.PosixPointer;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;

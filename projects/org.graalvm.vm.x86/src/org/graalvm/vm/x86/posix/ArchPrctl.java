@@ -1,12 +1,12 @@
 package org.graalvm.vm.x86.posix;
 
+import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.node.AMD64Node;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 
-import com.everyware.posix.api.Errno;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

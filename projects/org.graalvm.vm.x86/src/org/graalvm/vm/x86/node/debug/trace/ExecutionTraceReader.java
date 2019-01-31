@@ -4,8 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.everyware.util.io.BEInputStream;
-import com.everyware.util.io.WordInputStream;
+import org.graalvm.vm.util.io.BEInputStream;
+import org.graalvm.vm.util.io.WordInputStream;
 
 public class ExecutionTraceReader implements Closeable {
     private WordInputStream in;

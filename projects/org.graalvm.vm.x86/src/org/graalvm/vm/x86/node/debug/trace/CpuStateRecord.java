@@ -3,10 +3,9 @@ package org.graalvm.vm.x86.node.debug.trace;
 import java.io.IOException;
 
 import org.graalvm.vm.memory.vector.Vector128;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
 import org.graalvm.vm.x86.isa.CpuState;
-
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
 
 public class CpuStateRecord extends Record {
     public static final int MAGIC = 0x43505530; // CPU0

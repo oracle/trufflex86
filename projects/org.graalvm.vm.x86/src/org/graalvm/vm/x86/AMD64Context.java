@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.NavigableMap;
 
 import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.Stack;
+import org.graalvm.vm.posix.elf.Symbol;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
@@ -12,9 +15,6 @@ import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.posix.api.Stack;
-import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.frame.FrameDescriptor;

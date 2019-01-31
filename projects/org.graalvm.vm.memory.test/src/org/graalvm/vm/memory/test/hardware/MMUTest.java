@@ -9,11 +9,10 @@ import static org.junit.Assert.fail;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.hardware.NativeMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
+import org.graalvm.vm.posix.api.PosixException;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.everyware.posix.api.PosixException;
 
 public class MMUTest {
     private NativeVirtualMemory mem;

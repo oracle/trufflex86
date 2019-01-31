@@ -2,13 +2,12 @@ package org.graalvm.vm.x86.test;
 
 import static org.junit.Assert.assertEquals;
 
+import org.graalvm.vm.posix.elf.Elf;
+import org.graalvm.vm.posix.elf.ProgramHeader;
 import org.graalvm.vm.x86.isa.CodeSegmentReader;
 import org.graalvm.vm.x86.node.flow.AMD64BasicBlock;
 import org.graalvm.vm.x86.node.flow.AMD64BasicBlockParser;
 import org.junit.Test;
-
-import com.everyware.posix.elf.Elf;
-import com.everyware.posix.elf.ProgramHeader;
 
 public class BasicBlockParserTest {
     @Test

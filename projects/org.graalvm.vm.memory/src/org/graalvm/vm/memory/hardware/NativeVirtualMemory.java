@@ -19,11 +19,11 @@ import org.graalvm.vm.memory.hardware.linux.MemorySegment;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 
-import com.everyware.posix.api.Errno;
-import com.everyware.posix.api.PosixException;
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 

@@ -4,11 +4,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.graalvm.vm.memory.util.HexFormatter;
-
-import com.everyware.util.io.WordInputStream;
-import com.everyware.util.io.WordOutputStream;
-import com.everyware.util.log.Trace;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.io.WordInputStream;
+import org.graalvm.vm.util.io.WordOutputStream;
+import org.graalvm.vm.util.log.Trace;
 
 public abstract class Record {
     private static final Logger log = Trace.create(Record.class);

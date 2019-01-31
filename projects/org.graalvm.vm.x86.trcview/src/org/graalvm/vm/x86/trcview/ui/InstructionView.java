@@ -21,7 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
@@ -30,8 +31,6 @@ import org.graalvm.vm.x86.trcview.io.Node;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
 import org.graalvm.vm.x86.trcview.ui.event.CallListener;
 import org.graalvm.vm.x86.trcview.ui.event.ChangeListener;
-
-import com.everyware.util.log.Trace;
 
 @SuppressWarnings("serial")
 public class InstructionView extends JPanel {

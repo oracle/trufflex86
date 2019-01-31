@@ -2,14 +2,14 @@ package org.graalvm.vm.x86.isa.instruction;
 
 import java.util.logging.Logger;
 
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.Operand;
 import org.graalvm.vm.x86.isa.OperandDecoder;
 import org.graalvm.vm.x86.node.ReadNode;
 
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

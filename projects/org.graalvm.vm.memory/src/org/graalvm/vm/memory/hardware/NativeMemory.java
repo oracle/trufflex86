@@ -2,7 +2,7 @@ package org.graalvm.vm.memory.hardware;
 
 import java.nio.ByteOrder;
 
-import com.everyware.util.UnsafeHolder;
+import org.graalvm.vm.util.UnsafeHolder;
 
 import sun.misc.Unsafe;
 

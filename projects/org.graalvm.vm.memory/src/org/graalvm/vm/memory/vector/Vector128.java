@@ -1,9 +1,9 @@
 package org.graalvm.vm.memory.vector;
 
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.util.BitTest;
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.io.Endianess;
 
-import com.everyware.util.BitTest;
-import com.everyware.util.io.Endianess;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.ValueType;
 import com.oracle.truffle.api.nodes.ExplodeLoop;

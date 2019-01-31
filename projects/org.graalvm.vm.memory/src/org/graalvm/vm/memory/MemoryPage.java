@@ -6,9 +6,9 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 
-import com.everyware.util.log.Levels;
-import com.everyware.util.log.Trace;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class MemoryPage {

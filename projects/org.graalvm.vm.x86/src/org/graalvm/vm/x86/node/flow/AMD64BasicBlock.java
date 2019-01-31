@@ -9,7 +9,8 @@ import java.util.Set;
 
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
-import org.graalvm.vm.memory.util.HexFormatter;
+import org.graalvm.vm.posix.elf.Symbol;
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.ArchitecturalState;
@@ -38,7 +39,6 @@ import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
-import com.everyware.posix.elf.Symbol;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
