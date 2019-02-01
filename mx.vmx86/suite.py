@@ -29,17 +29,9 @@ suite = {
   "javac.lint.overrides" : "none",
 
   "licenses" : {
-    "GPLv3" : {
-      "name" : "GNU General Public License, version 3",
-      "url" : "https://opensource.org/licenses/GPL-3.0",
-    },
-    "MPL-1.1" : {
-      "name" : "Mozilla Public License 1.1",
-      "url" : "https://opensource.org/licenses/MPL-1.1"
-    },
-    "MPL-2.0" : {
-      "name" : "Mozilla Public License 2.0",
-      "url" : "https://opensource.org/licenses/MPL-2.0"
+    "UPL" : {
+      "name" : "Universal Permissive License, Version 1.0",
+      "url" : "http://opensource.org/licenses/UPL",
     }
   },
 
@@ -55,7 +47,7 @@ suite = {
     },
   },
 
-  "defaultLicense" : "GPLv3",
+  "defaultLicense" : "UPL",
 
   "projects" : {
     "org.graalvm.vm.memory" : {
