@@ -355,7 +355,6 @@ suite = {
     "org.graalvm.vm.util" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
-      "checkstyle" : "org.graalvm.vm.util",
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -363,7 +362,9 @@ suite = {
     "org.graalvm.vm.math" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
-      "checkstyle" : "org.graalvm.vm.math",
+      "dependencies" : [
+        "truffle:TRUFFLE_API",
+      ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -374,7 +375,6 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.util"
       ],
-      "checkstyle" : "org.graalvm.vm.posix",
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -386,7 +386,6 @@ suite = {
         "org.graalvm.vm.util",
         "mx:JUNIT",
       ],
-      "checkstyle" : "org.graalvm.vm.util",
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -398,7 +397,6 @@ suite = {
         "org.graalvm.vm.math",
         "mx:JUNIT",
       ],
-      "checkstyle" : "org.graalvm.vm.math",
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -410,7 +408,6 @@ suite = {
         "org.graalvm.vm.posix",
         "mx:JUNIT",
       ],
-      "checkstyle" : "org.graalvm.vm.posix",
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -584,6 +581,9 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.util",
         "org.graalvm.vm.math",
+      ],
+      "distDependencies" : [
+        "truffle:TRUFFLE_API",
       ]
     },
 
