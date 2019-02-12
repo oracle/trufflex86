@@ -98,6 +98,8 @@ public class Posix {
 
 	private final Sigset sigmask;
 
+	public static final boolean WARN_ON_FILE_DELETE = System.getProperty("posix.warn.delete") != null;
+
 	public Posix() {
 		fds = new FileDescriptorManager();
 		strace = System.getProperty("posix.strace") != null;

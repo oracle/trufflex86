@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.io.Stat;
 import org.graalvm.vm.util.log.Levels;
@@ -111,7 +112,9 @@ public class NativeDirectory extends VFSDirectory {
 	@Override
 	public void delete(String name) throws PosixException {
 		Path path = absolutePath.resolve(name);
-		log.log(Levels.WARNING, "Deleting file '" + path + "'");
+		if(Posix.WARN_ON_FILE_DELETE) {
+			log.log(Levels.WARNING, "Deleting file '" + path + "'");
+		}
 		try {
 			Files.delete(path);
 		} catch(NoSuchFileException e) {

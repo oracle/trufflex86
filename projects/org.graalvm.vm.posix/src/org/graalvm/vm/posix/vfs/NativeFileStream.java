@@ -57,6 +57,7 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.posix.api.ByteBufferPosixPointer;
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.posix.api.io.Stat;
@@ -98,7 +99,7 @@ public class NativeFileStream extends Stream {
 				if(isdir(path)) {
 					throw new PosixException(Errno.EISDIR);
 				}
-				if(path.toFile().exists()) {
+				if(path.toFile().exists() && Posix.WARN_ON_FILE_DELETE) {
 					log.log(Levels.WARNING,
 							String.format("opening existing file '%s' in O_WRONLY mode!",
 									path.toString()));
@@ -114,7 +115,7 @@ public class NativeFileStream extends Stream {
 				if(isdir(path)) {
 					throw new PosixException(Errno.EISDIR);
 				}
-				if(path.toFile().exists()) {
+				if(path.toFile().exists() && Posix.WARN_ON_FILE_DELETE) {
 					log.log(Levels.WARNING,
 							String.format("opening existing file '%s' in O_RDWR mode!",
 									path.toString()));
