@@ -48,9 +48,9 @@ import org.junit.Test;
 import sun.misc.Unsafe;
 
 public class UnsafeTest {
-	@Test
-	public void test() {
-		Unsafe unsafe = UnsafeHolder.getUnsafe();
-		assertNotNull(unsafe);
-	}
+    @Test
+    public void test() {
+        Unsafe unsafe = UnsafeHolder.getUnsafe();
+        assertNotNull(unsafe);
+    }
 }

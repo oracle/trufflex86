@@ -57,50 +57,50 @@ import org.graalvm.vm.posix.api.io.Stat;
 import org.graalvm.vm.posix.api.io.termios.Termios;
 
 public class TTYStream extends PipeStream {
-	private final Termios termios;
-	private final Winsize winsize;
+    private final Termios termios;
+    private final Winsize winsize;
 
-	public TTYStream(InputStream in) {
-		super(in);
-		termios = Termios.getDefaultTerminal();
-		winsize = new Winsize();
-		statusFlags = Fcntl.O_RDONLY;
-	}
+    public TTYStream(InputStream in) {
+        super(in);
+        termios = Termios.getDefaultTerminal();
+        winsize = new Winsize();
+        statusFlags = Fcntl.O_RDONLY;
+    }
 
-	public TTYStream(OutputStream out) {
-		super(out);
-		termios = Termios.getDefaultTerminal();
-		winsize = new Winsize();
-		statusFlags = Fcntl.O_WRONLY;
-	}
+    public TTYStream(OutputStream out) {
+        super(out);
+        termios = Termios.getDefaultTerminal();
+        winsize = new Winsize();
+        statusFlags = Fcntl.O_WRONLY;
+    }
 
-	public TTYStream(InputStream in, OutputStream out) {
-		super(in, out);
-		termios = Termios.getDefaultTerminal();
-		winsize = new Winsize();
-		statusFlags = Fcntl.O_RDWR;
-	}
+    public TTYStream(InputStream in, OutputStream out) {
+        super(in, out);
+        termios = Termios.getDefaultTerminal();
+        winsize = new Winsize();
+        statusFlags = Fcntl.O_RDWR;
+    }
 
-	@Override
-	public void stat(Stat buf) throws PosixException {
-		super.stat(buf);
-		buf.st_mode = S_IFCHR | S_IRUSR | S_IWUSR | S_IWGRP;
-	}
+    @Override
+    public void stat(Stat buf) throws PosixException {
+        super.stat(buf);
+        buf.st_mode = S_IFCHR | S_IRUSR | S_IWUSR | S_IWGRP;
+    }
 
-	@Override
-	public int ioctl(long request, PosixPointer argp) throws PosixException {
-		switch((int) request) {
-		case Ioctls.TCGETS:
-			termios.write(argp);
-			return 0;
-		case Ioctls.TIOCGWINSZ:
-			winsize.write(argp);
-			return 0;
-		case Ioctls.TIOCSWINSZ:
-			winsize.read(argp);
-			return 0;
-		default:
-			return super.ioctl(request, argp);
-		}
-	}
+    @Override
+    public int ioctl(long request, PosixPointer argp) throws PosixException {
+        switch ((int) request) {
+            case Ioctls.TCGETS:
+                termios.write(argp);
+                return 0;
+            case Ioctls.TIOCGWINSZ:
+                winsize.write(argp);
+                return 0;
+            case Ioctls.TIOCSWINSZ:
+                winsize.read(argp);
+                return 0;
+            default:
+                return super.ioctl(request, argp);
+        }
+    }
 }

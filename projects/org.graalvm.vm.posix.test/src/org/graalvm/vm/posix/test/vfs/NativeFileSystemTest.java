@@ -62,75 +62,73 @@ import org.graalvm.vm.posix.vfs.VFSEntry;
 import org.junit.Test;
 
 public class NativeFileSystemTest {
-	@Test
-	public void testRoot() throws PosixException, IOException {
-		NativeFileSystem fs = new NativeFileSystem(null, "/");
-		long atime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:lastAccessTime")).toMillis();
-		long mtime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:lastModifiedTime")).toMillis();
-		long ctime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:ctime")).toMillis();
-		VFSDirectory root = fs.getRoot();
-		assertEquals(0, root.getUID());
-		assertEquals(0, root.getGID());
-		assertEquals(mtime, root.mtime().getTime());
-		assertEquals(atime, root.atime().getTime());
-		assertEquals(ctime, root.ctime().getTime());
-		assertEquals(0755, root.getPermissions() & 0777);
-	}
+    @Test
+    public void testRoot() throws PosixException, IOException {
+        NativeFileSystem fs = new NativeFileSystem(null, "/");
+        long atime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:lastAccessTime")).toMillis();
+        long mtime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:lastModifiedTime")).toMillis();
+        long ctime = ((FileTime) Files.getAttribute(Paths.get("/"), "unix:ctime")).toMillis();
+        VFSDirectory root = fs.getRoot();
+        assertEquals(0, root.getUID());
+        assertEquals(0, root.getGID());
+        assertEquals(mtime, root.mtime().getTime());
+        assertEquals(atime, root.atime().getTime());
+        assertEquals(ctime, root.ctime().getTime());
+        assertEquals(0755, root.getPermissions() & 0777);
+    }
 
-	@Test
-	public void testProc001() throws PosixException {
-		NativeFileSystem fs = new NativeFileSystem(null, "/proc");
-		VFSDirectory root = fs.getRoot();
-		List<VFSEntry> entries = root.readdir();
-		assertEquals(1, entries.stream().filter((x) -> x.getName().equals("cpuinfo")).count());
-	}
+    @Test
+    public void testProc001() throws PosixException {
+        NativeFileSystem fs = new NativeFileSystem(null, "/proc");
+        VFSDirectory root = fs.getRoot();
+        List<VFSEntry> entries = root.readdir();
+        assertEquals(1, entries.stream().filter((x) -> x.getName().equals("cpuinfo")).count());
+    }
 
-	@Test
-	public void testMount001() throws PosixException, IOException {
-		NativeFileSystem fs = new NativeFileSystem(null, "/");
-		VFS vfs = new VFS();
-		vfs.mount("/", fs);
+    @Test
+    public void testMount001() throws PosixException, IOException {
+        NativeFileSystem fs = new NativeFileSystem(null, "/");
+        VFS vfs = new VFS();
+        vfs.mount("/", fs);
 
-		BasicFileAttributes info = Files
-				.getFileAttributeView(Paths.get("/proc"), BasicFileAttributeView.class)
-				.readAttributes();
+        BasicFileAttributes info = Files.getFileAttributeView(Paths.get("/proc"), BasicFileAttributeView.class).readAttributes();
 
-		Stat buf = new Stat();
-		vfs.stat("/proc", buf);
+        Stat buf = new Stat();
+        vfs.stat("/proc", buf);
 
-		assertEquals(info.size(), buf.st_size);
-		assertEquals(info.lastModifiedTime().toMillis(), buf.st_mtim.toMillis());
+        assertEquals(info.size(), buf.st_size);
+        assertEquals(info.lastModifiedTime().toMillis(), buf.st_mtim.toMillis());
 
-		byte[] ref = Files.readAllBytes(Paths.get("/proc/cpuinfo"));
-		byte[] act = new byte[ref.length];
-		Stream in = vfs.open("/proc/cpuinfo", Fcntl.O_RDONLY, 0);
-		assertEquals(act.length, in.read(act, 0, act.length));
-		in.close();
-		assertArrayEquals(ref, act);
-	}
+        byte[] ref = Files.readAllBytes(Paths.get("/proc/cpuinfo"));
+        byte[] act = new byte[ref.length];
+        Stream in = vfs.open("/proc/cpuinfo", Fcntl.O_RDONLY, 0);
+        assertEquals(act.length, in.read(act, 0, act.length));
+        in.close();
+        assertArrayEquals(ref, act);
+    }
 
-	@Test
-	public void testSymlink001() throws PosixException, IOException {
-		NativeFileSystem fs = new NativeFileSystem(null, "/");
-		VFS vfs = new VFS();
-		vfs.mount("/", fs);
+    @Test
+    public void testSymlink001() throws PosixException, IOException {
+        NativeFileSystem fs = new NativeFileSystem(null, "/");
+        VFS vfs = new VFS();
+        vfs.mount("/", fs);
 
-		byte[] ref = Files.readAllBytes(Paths.get("/proc/self/cmdline"));
-		byte[] act = new byte[ref.length];
-		Stream in = vfs.open("/proc/self/cmdline", Fcntl.O_RDONLY, 0);
-		assertEquals(act.length, in.read(act, 0, act.length));
-		in.close();
-		assertArrayEquals(ref, act);
-	}
+        byte[] ref = Files.readAllBytes(Paths.get("/proc/self/cmdline"));
+        byte[] act = new byte[ref.length];
+        Stream in = vfs.open("/proc/self/cmdline", Fcntl.O_RDONLY, 0);
+        assertEquals(act.length, in.read(act, 0, act.length));
+        in.close();
+        assertArrayEquals(ref, act);
+    }
 
-	@Test
-	public void testSymlink002() throws PosixException, IOException {
-		NativeFileSystem fs = new NativeFileSystem(null, "/");
-		VFS vfs = new VFS();
-		vfs.mount("/", fs);
+    @Test
+    public void testSymlink002() throws PosixException, IOException {
+        NativeFileSystem fs = new NativeFileSystem(null, "/");
+        VFS vfs = new VFS();
+        vfs.mount("/", fs);
 
-		String ref = Files.readSymbolicLink(Paths.get("/proc/self/exe")).toString();
-		String act = vfs.readlink("/proc/self/exe");
-		assertEquals(ref, act);
-	}
+        String ref = Files.readSymbolicLink(Paths.get("/proc/self/exe")).toString();
+        String act = vfs.readlink("/proc/self/exe");
+        assertEquals(ref, act);
+    }
 }

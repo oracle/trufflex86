@@ -176,6 +176,7 @@ public class NativeVirtualMemory extends VirtualMemory {
         try {
             map = getMemoryMap();
         } catch (IOException e) {
+            CompilerDirectives.transferToInterpreter();
             log.log(Level.WARNING, "Cannot retrieve memory region info", e);
         }
     }

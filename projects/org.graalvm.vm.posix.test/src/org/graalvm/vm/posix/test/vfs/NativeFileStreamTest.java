@@ -52,20 +52,20 @@ import org.graalvm.vm.posix.vfs.NativeFileStream;
 import org.junit.Test;
 
 public class NativeFileStreamTest {
-	@Test
-	public void testOpen1() throws Exception {
-		NativeFileStream stream = new NativeFileStream(Paths.get("/proc/cpuinfo"), Fcntl.O_RDONLY);
-		assertEquals(0, stream.close());
-	}
+    @Test
+    public void testOpen1() throws Exception {
+        NativeFileStream stream = new NativeFileStream(Paths.get("/proc/cpuinfo"), Fcntl.O_RDONLY);
+        assertEquals(0, stream.close());
+    }
 
-	@Test
-	public void testNonExistent1() throws Exception {
-		try {
-			NativeFileStream stream = new NativeFileStream(Paths.get("/nonexistent"), Fcntl.O_RDONLY);
-			fail();
-			stream.close();
-		} catch(PosixException e) {
-			assertEquals(Errno.ENOENT, e.getErrno());
-		}
-	}
+    @Test
+    public void testNonExistent1() throws Exception {
+        try {
+            NativeFileStream stream = new NativeFileStream(Paths.get("/nonexistent"), Fcntl.O_RDONLY);
+            fail();
+            stream.close();
+        } catch (PosixException e) {
+            assertEquals(Errno.ENOENT, e.getErrno());
+        }
+    }
 }
