@@ -55,7 +55,7 @@ import org.graalvm.vm.posix.api.PosixPointer;
 public class Linux {
     private Futex futex = new Futex();
 
-    class Line {
+    static class Line {
         public final String name;
         public final long value;
 
