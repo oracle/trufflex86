@@ -143,7 +143,7 @@ public class ExceptionIdTest {
 
     @Test
     public void testResourceNotFound() {
-        assertEquals("CEVU0012W: Resource \"the-resource.xml\" not found for class com.everyware.the.clazz",
+        assertEquals("UTIL0002W: Resource \"the-resource.xml\" not found for class com.everyware.the.clazz",
                         Messages.NO_RESOURCE.format("com.everyware.the.clazz", "the-resource.xml"));
     }
 
