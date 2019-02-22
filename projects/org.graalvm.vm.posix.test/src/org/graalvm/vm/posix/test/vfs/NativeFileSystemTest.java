@@ -43,6 +43,7 @@ package org.graalvm.vm.posix.test.vfs;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -102,7 +103,14 @@ public class NativeFileSystemTest {
         byte[] ref = Files.readAllBytes(Paths.get("/proc/cpuinfo"));
         byte[] act = new byte[ref.length];
         Stream in = vfs.open("/proc/cpuinfo", Fcntl.O_RDONLY, 0);
-        assertEquals(act.length, in.read(act, 0, act.length));
+        ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+        int n;
+        while ((n = in.read(act, 0, 4096)) > 0) {
+            tmp.write(act, 0, n);
+        }
+        tmp.close();
+        act = tmp.toByteArray();
+        assertEquals(ref.length, act.length);
         in.close();
         assertArrayEquals(ref, act);
     }
