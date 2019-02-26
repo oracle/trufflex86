@@ -42,9 +42,13 @@ package org.graalvm.vm.x86.node.flow;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.graalvm.vm.posix.elf.Symbol;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
@@ -57,6 +61,7 @@ import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.posix.InteropReturnException;
 import org.graalvm.vm.x86.posix.InteropReturnResult;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -65,17 +70,21 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class TraceCallTarget extends AMD64RootNode {
-    @CompilationFinal public static boolean TRUFFLE_CALLS = getBoolean(Options.TRUFFLE_CALLS);
+    private static final Logger log = Trace.create(TraceCallTarget.class);
+
+    public static final boolean TRUFFLE_CALLS = getBoolean(Options.TRUFFLE_CALLS);
 
     @Child private InitializeFromCpuStateNode write = new InitializeFromCpuStateNode();
     @Child private CopyToCpuStateNode read = new CopyToCpuStateNode();
     @Child private TraceDispatchNode dispatch;
 
-    @CompilationFinal private static boolean CHECK = false;
+    private static final boolean CHECK = getBoolean(Options.TRACE_STATE_CHECK);
 
     protected TraceCallTarget(TruffleLanguage<AMD64Context> language, FrameDescriptor fd) {
         super(language, fd);
     }
+
+    @CompilationFinal private Symbol sym = null;
 
     @CompilationFinal(dimensions = 1) private boolean[] gprReadMask = null;
     @CompilationFinal(dimensions = 1) private boolean[] gprWriteMask = null;
@@ -157,12 +166,18 @@ public class TraceCallTarget extends AMD64RootNode {
 
     @Override
     public CpuState execute(VirtualFrame frame) {
+        CpuState initialState = (CpuState) frame.getArguments()[0];
         if (dispatch == null) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
+            AMD64Context ctx = getContextReference().get();
+            ArchitecturalState state = ctx.getState();
             dispatch = insert(new TraceDispatchNode(state));
+            try {
+                sym = ctx.getSymbolResolver().getSymbol(initialState.rip);
+            } catch (Throwable t) {
+                log.log(Level.WARNING, "Cannot resolve symbol: " + t, t);
+            }
         }
-        CpuState initialState = (CpuState) frame.getArguments()[0];
         if (gprReadMask != null && !TRUFFLE_CALLS) {
             write.execute(frame, initialState, gprReadMask, avxReadMask);
         } else {
@@ -248,11 +263,16 @@ public class TraceCallTarget extends AMD64RootNode {
 
     @Override
     public String toString() {
+        CompilerAsserts.neverPartOfCompilation();
         long addr = dispatch.getStartAddress();
         if (addr == -1) {
             return "TraceCallTarget[???]";
         } else {
-            return String.format("TraceCallTarget[0x%016x]", addr);
+            if (sym != null) {
+                return String.format("TraceCallTarget[0x%016x#%s]", addr, sym.getName());
+            } else {
+                return String.format("TraceCallTarget[0x%016x]", addr);
+            }
         }
     }
 }

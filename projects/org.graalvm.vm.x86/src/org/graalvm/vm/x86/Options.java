@@ -66,6 +66,7 @@ public class Options {
     public static final BooleanOption PRINT_DISPATCH_STATS = new BooleanOption("vmx86.dispatch.stats", false);
     public static final BooleanOption USE_LOOP_NODE = new BooleanOption("vmx86.dispatch.loop", true);
     public static final BooleanOption TRUFFLE_CALLS = new BooleanOption("vmx86.exec.calls", false);
+    public static final BooleanOption TRACE_STATE_CHECK = new BooleanOption("vmx86.exec.check", false);
 
     // ELF loader
     public static final LongOption LOAD_BIAS = new LongOption("vmx86.elf.load_bias", 0);
