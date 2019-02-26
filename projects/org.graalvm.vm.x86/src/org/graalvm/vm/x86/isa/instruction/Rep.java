@@ -53,6 +53,7 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -142,6 +143,12 @@ public class Rep extends AMD64Instruction {
             }
             return ops;
         }
+
+        @Override
+        public String toString() {
+            CompilerAsserts.neverPartOfCompilation();
+            return String.format("RepBody[0x%016x]", insn.getPC());
+        }
     }
 
     private static class RepzBody extends AMD64Node implements RepeatingNode, UsesRegisters {
@@ -204,6 +211,12 @@ public class Rep extends AMD64Instruction {
             }
             return ops;
         }
+
+        @Override
+        public String toString() {
+            CompilerAsserts.neverPartOfCompilation();
+            return String.format("RepzBody[0x%016x]", insn.getPC());
+        }
     }
 
     private static class RepnzBody extends AMD64Node implements RepeatingNode, UsesRegisters {
@@ -265,6 +278,12 @@ public class Rep extends AMD64Instruction {
                 ops[i++] = new RegisterOperand(r);
             }
             return ops;
+        }
+
+        @Override
+        public String toString() {
+            CompilerAsserts.neverPartOfCompilation();
+            return String.format("RepnzBody[0x%016x]", insn.getPC());
         }
     }
 
