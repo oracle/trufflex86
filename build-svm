@@ -5,7 +5,6 @@ GRAAL=$ROOT/graal
 TRUFFLE=$ROOT/graal/truffle
 SVM=$GRAAL/substratevm
 VMX86=$ROOT/vmx86
-CORE=$ROOT/core
 
 (cd $SVM && mx native-image \
 		--tool:truffle \
@@ -15,5 +14,5 @@ CORE=$ROOT/core
 		-H:CLibraryPath=$VMX86/mxbuild/linux-amd64/VMX86_GRAALVM_SUPPORT/clibraries/linux-amd64 \
 		-Dgraal.TruffleCompilationExceptionsArePrinted=true \
 		-Dgraal.ExitVMOnException=true \
-		-cp $CORE/build/core.jar:$CORE/build/posix.jar:$GRAAL/sdk/mxbuild/dists/jdk11/graal-sdk.jar:$TRUFFLE/mxbuild/dists/jdk11/truffle-api.jar:$TRUFFLE/mxbuild/dists/jdk11/truffle-nfi.jar:$VMX86/build/vmx86.jar:$VMX86/build/memory-svm.jar \
+		-cp $VMX86/build/core.jar:$VMX86/build/posix.jar:$GRAAL/sdk/mxbuild/dists/jdk11/graal-sdk.jar:$TRUFFLE/mxbuild/dists/jdk11/truffle-api.jar:$TRUFFLE/mxbuild/dists/jdk11/truffle-nfi.jar:$VMX86/build/vmx86.jar:$VMX86/build/memory-svm.jar \
 		org.graalvm.vm.x86.AMD64VM)
