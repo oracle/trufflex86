@@ -269,7 +269,12 @@ public class TraceCallTarget extends AMD64RootNode {
             return "TraceCallTarget[???]";
         } else {
             if (sym != null) {
-                return String.format("TraceCallTarget[0x%016x#%s]", addr, sym.getName());
+                long start = sym.getValue();
+                if (start != addr) {
+                    return String.format("TraceCallTarget[0x%016x#%s+0x%x]", addr, sym.getName(), addr - start);
+                } else {
+                    return String.format("TraceCallTarget[0x%016x#%s]", addr, sym.getName());
+                }
             } else {
                 return String.format("TraceCallTarget[0x%016x]", addr);
             }
