@@ -54,6 +54,7 @@ import org.graalvm.vm.x86.node.debug.trace.MemoryAccessTracer;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
+import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
@@ -98,6 +99,7 @@ public class AMD64Context {
     private SymbolResolver symbolResolver;
 
     private TraceRegistry traces;
+    private SubstitutionRegistry substitutions;
 
     private CpuState snapshot;
     private long returnAddress;
@@ -158,6 +160,7 @@ public class AMD64Context {
         id = frameDescriptor.addFrameSlot("id", FrameSlotKind.Boolean);
         instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
         traces = new TraceRegistry(language, frameDescriptor);
+        substitutions = new SubstitutionRegistry();
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
         symbolResolver = new SymbolResolver(symbols);
@@ -287,6 +290,10 @@ public class AMD64Context {
 
     public TraceRegistry getTraceRegistry() {
         return traces;
+    }
+
+    public SubstitutionRegistry getSubstitutionRegistry() {
+        return substitutions;
     }
 
     public long getSigaltstack() {

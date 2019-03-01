@@ -88,6 +88,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
+import com.oracle.truffle.api.profiles.BranchProfile;
 
 public class AMD64BasicBlock extends AMD64Node {
     private static final boolean DEBUG = getBoolean(Options.DEBUG_EXEC);
@@ -126,6 +127,9 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @CompilationFinal public int successor1;
     @CompilationFinal public int successor2;
+
+    private final BranchProfile profile = BranchProfile.create();
+    private final BranchProfile exceptionProfile = BranchProfile.create();
 
     public AMD64BasicBlock(AMD64Instruction[] instructions) {
         this(instructions, true);
@@ -363,6 +367,7 @@ public class AMD64BasicBlock extends AMD64Node {
 
     @ExplodeLoop
     public long execute(VirtualFrame frame) {
+        profile.enter();
         if (DEBUG_COMPILER) {
             if (CompilerDirectives.inInterpreter()) {
                 printf("0x%016x: interpreter (%d insns)\n", instructions[0].getPC(), instructions.length);
@@ -404,6 +409,7 @@ public class AMD64BasicBlock extends AMD64Node {
                 }
             }
         } catch (ProcessExitException | ReturnException | InteropException e) {
+            exceptionProfile.enter();
             updateInstructionCount(frame, n);
             throw e;
         } catch (Throwable t) {

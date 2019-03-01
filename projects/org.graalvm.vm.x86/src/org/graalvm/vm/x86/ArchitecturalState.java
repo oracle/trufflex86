@@ -44,6 +44,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.x86.node.MemoryReadNode;
 import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.flow.TraceRegistry;
+import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 
@@ -52,6 +53,7 @@ public class ArchitecturalState {
     private final VirtualMemory memory;
     private final FrameSlot instructionCount;
     private final TraceRegistry traces;
+    private final SubstitutionRegistry substitutions;
 
     public ArchitecturalState(AMD64Context context) {
         registerAccess = new RegisterAccessFactory(context.getGPRs(), context.getZMMs(), context.getXMMs(), context.getXMMF32(), context.getXMMF64(), context.getXMMType(), context.getFS(),
@@ -60,6 +62,7 @@ public class ArchitecturalState {
         memory = context.getMemory();
         instructionCount = context.getInstructionCount();
         traces = context.getTraceRegistry();
+        substitutions = context.getSubstitutionRegistry();
     }
 
     public RegisterAccessFactory getRegisters() {
@@ -84,5 +87,9 @@ public class ArchitecturalState {
 
     public TraceRegistry getTraceRegistry() {
         return traces;
+    }
+
+    public SubstitutionRegistry getSubstitutions() {
+        return substitutions;
     }
 }

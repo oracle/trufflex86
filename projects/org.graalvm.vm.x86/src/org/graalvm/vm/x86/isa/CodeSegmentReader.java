@@ -40,6 +40,7 @@
  */
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.posix.elf.ProgramHeader;
 
 public class CodeSegmentReader extends CodeReader {
@@ -78,6 +79,16 @@ public class CodeSegmentReader extends CodeReader {
         faddr++;
         vaddr++;
         return value;
+    }
+
+    @Override
+    public byte peek8(int offset) {
+        long ptr = faddr + offset;
+        assert (int) ptr == ptr;
+        if (ptr < 0 || ptr >= elf.length) {
+            throw new SegmentationViolation(ptr);
+        }
+        return elf[(int) faddr];
     }
 
     @Override

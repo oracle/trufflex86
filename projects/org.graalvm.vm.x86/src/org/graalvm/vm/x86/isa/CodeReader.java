@@ -40,8 +40,12 @@
  */
 package org.graalvm.vm.x86.isa;
 
+import org.graalvm.vm.util.HexFormatter;
+
 public abstract class CodeReader {
     public abstract byte read8();
+
+    public abstract byte peek8(int offset);
 
     public boolean isAvailable() {
         return false;
@@ -78,5 +82,14 @@ public abstract class CodeReader {
         byte h = read8();
         return Byte.toUnsignedLong(a) | (Byte.toUnsignedLong(b) << 8) | (Byte.toUnsignedLong(c) << 16) | (Byte.toUnsignedLong(d) << 24) | (Byte.toUnsignedLong(e) << 32) |
                         (Byte.toUnsignedLong(f) << 40) | (Byte.toUnsignedLong(g) << 48) | (Byte.toUnsignedLong(h) << 56);
+    }
+
+    public void check(byte[] ref) {
+        for (int i = 0; i < ref.length; i++) {
+            byte act = read8();
+            if (ref[i] != act) {
+                throw new AssertionError("data mismatch at 0x" + HexFormatter.tohex(getPC(), 16));
+            }
+        }
     }
 }

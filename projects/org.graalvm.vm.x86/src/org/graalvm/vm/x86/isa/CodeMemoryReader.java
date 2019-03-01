@@ -59,6 +59,15 @@ public class CodeMemoryReader extends CodeReader {
     }
 
     @Override
+    public byte peek8(int offset) {
+        long ptr = pc + offset;
+        if (!memory.isExecutable(ptr)) {
+            throw new SegmentationViolation(pc);
+        }
+        return memory.getI8(ptr);
+    }
+
+    @Override
     public byte read8() {
         check();
         return memory.getI8(pc++);

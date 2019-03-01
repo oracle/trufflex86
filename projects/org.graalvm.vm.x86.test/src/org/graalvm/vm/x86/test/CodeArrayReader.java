@@ -40,6 +40,7 @@
  */
 package org.graalvm.vm.x86.test;
 
+import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.x86.isa.CodeReader;
 
 public class CodeArrayReader extends CodeReader {
@@ -59,6 +60,15 @@ public class CodeArrayReader extends CodeReader {
     @Override
     public void setPC(long pc) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte peek8(int off) {
+        int ptr = offset + off;
+        if (ptr < 0 || ptr >= code.length) {
+            throw new SegmentationViolation(ptr);
+        }
+        return code[ptr];
     }
 
     @Override

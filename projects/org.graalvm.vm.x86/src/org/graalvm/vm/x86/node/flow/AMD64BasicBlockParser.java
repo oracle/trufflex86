@@ -48,17 +48,40 @@ import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.SegmentationViolationInstruction;
+import org.graalvm.vm.x86.substitution.Substitution;
+import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 public class AMD64BasicBlockParser {
     public static AMD64BasicBlock parse(CodeReader reader) {
         return parse(reader, true);
     }
 
+    public static AMD64BasicBlock parse(CodeReader reader, SubstitutionRegistry substitutions) {
+        return parse(reader, true, substitutions);
+    }
+
     public static AMD64BasicBlock parse(CodeReader reader, boolean createChildren) {
+        return parse(reader, createChildren, null);
+    }
+
+    public static AMD64BasicBlock parse(CodeReader reader, boolean createChildren, SubstitutionRegistry substitutions) {
         List<AMD64Instruction> instructions = new ArrayList<>();
         while (reader.isAvailable()) {
             try {
-                AMD64Instruction insn = AMD64InstructionDecoder.decode(reader.getPC(), reader);
+                AMD64Instruction insn = null;
+                if (substitutions != null) {
+                    try {
+                        Substitution substitution = substitutions.getSubstitution(reader);
+                        if (substitution != null) {
+                            insn = substitution.createNode(reader.getPC(), reader);
+                        }
+                    } catch (SegmentationViolation e) {
+                        // ignore
+                    }
+                }
+                if (insn == null) {
+                    insn = AMD64InstructionDecoder.decode(reader.getPC(), reader);
+                }
                 if (createChildren) {
                     insn.createChildren();
                 }

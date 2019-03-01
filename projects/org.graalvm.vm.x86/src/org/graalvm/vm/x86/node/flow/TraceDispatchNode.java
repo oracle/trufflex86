@@ -76,6 +76,7 @@ import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
+import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -84,6 +85,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.ExplodeLoop.LoopExplosionKind;
+import com.oracle.truffle.api.profiles.BranchProfile;
 
 public class TraceDispatchNode extends AMD64Node {
     private static final Logger log = Trace.create(TraceDispatchNode.class);
@@ -102,14 +104,20 @@ public class TraceDispatchNode extends AMD64Node {
     private final VirtualMemory memory;
     private final NavigableMap<Long, AMD64BasicBlock> blockLookup = new TreeMap<>();
     private final CodeReader reader;
+    private final SubstitutionRegistry substitutions;
 
     @Child private RegisterReadNode readPC;
     @Child private RegisterReadNode readRSP;
     @Child private RegisterWriteNode writePC;
 
+    private final BranchProfile exceptionProfile = BranchProfile.create();
+    private final BranchProfile exitProfile = BranchProfile.create();
+    private final BranchProfile returnProfile = BranchProfile.create();
+
     public TraceDispatchNode(ArchitecturalState state) {
         memory = state.getMemory();
         reader = new CodeMemoryReader(memory, 0);
+        substitutions = state.getSubstitutions();
         readPC = state.getRegisters().getPC().createRead();
         readRSP = state.getRegisters().getRegister(Register.RSP).createRead();
         writePC = state.getRegisters().getPC().createWrite();
@@ -183,7 +191,7 @@ public class TraceDispatchNode extends AMD64Node {
             if (DEBUG) {
                 printf("parsing block at 0x%016x\n", address);
             }
-            AMD64BasicBlock block = AMD64BasicBlockParser.parse(reader);
+            AMD64BasicBlock block = AMD64BasicBlockParser.parse(reader, substitutions);
             addBlock(block);
             newBlocks.add(block);
             long[] btas = block.getBTA();
@@ -306,15 +314,18 @@ public class TraceDispatchNode extends AMD64Node {
                 }
             }
         } catch (TraceTooLargeException e) {
+            exceptionProfile.enter();
             writePC.executeI64(frame, pc);
             return pc;
         } catch (ProcessExitException e) {
+            exitProfile.enter();
             if (DEBUG) {
                 printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
             writePC.executeI64(frame, pc);
             throw e;
         } catch (ReturnException | InteropException e) {
+            returnProfile.enter();
             writePC.executeI64(frame, pc);
             throw e;
         } catch (CpuRuntimeException e) {
