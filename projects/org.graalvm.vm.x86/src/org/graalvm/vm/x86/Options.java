@@ -86,6 +86,10 @@ public class Options {
     public static final StringOption CPUID_BRAND = new StringOption("vmx86.cpuid.brand", "VMX86 on Graal/Truffle");
     public static final StringOption VENDOR_ID = new StringOption("vmx86.cpuid.vendor", "VMX86onGraal");
 
+    // Substitutions
+    public static final BooleanOption ENABLE_SUBSTITUTIONS = new BooleanOption("vmx86.exec.subst", false);
+    public static final BooleanOption TRACE_SUBSTITUTIONS = new BooleanOption("vmx86.exec.subst.trace", false);
+
     private static class BooleanOption {
         public final String name;
         public final boolean value;

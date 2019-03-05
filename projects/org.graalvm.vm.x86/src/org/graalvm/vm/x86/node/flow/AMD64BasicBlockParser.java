@@ -42,8 +42,11 @@ package org.graalvm.vm.x86.node.flow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.util.log.Trace;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.AMD64InstructionDecoder;
 import org.graalvm.vm.x86.isa.CodeReader;
@@ -52,6 +55,11 @@ import org.graalvm.vm.x86.substitution.Substitution;
 import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 public class AMD64BasicBlockParser {
+    private static final Logger log = Trace.create(AMD64BasicBlockParser.class);
+
+    private static final boolean USE_SUBSTITUTIONS = Options.getBoolean(Options.ENABLE_SUBSTITUTIONS);
+    private static final boolean TRACE = Options.getBoolean(Options.TRACE_SUBSTITUTIONS);
+
     public static AMD64BasicBlock parse(CodeReader reader) {
         return parse(reader, true);
     }
@@ -69,11 +77,15 @@ public class AMD64BasicBlockParser {
         while (reader.isAvailable()) {
             try {
                 AMD64Instruction insn = null;
-                if (substitutions != null) {
+                if (USE_SUBSTITUTIONS && substitutions != null) {
                     try {
                         Substitution substitution = substitutions.getSubstitution(reader);
                         if (substitution != null) {
-                            insn = substitution.createNode(reader.getPC(), reader);
+                            long pc = reader.getPC();
+                            insn = substitution.createNode(pc, reader);
+                            if (TRACE) {
+                                log.info(String.format("Substitution at 0x%016x: %s", pc, insn.getDisassembly()));
+                            }
                         }
                     } catch (SegmentationViolation e) {
                         // ignore
