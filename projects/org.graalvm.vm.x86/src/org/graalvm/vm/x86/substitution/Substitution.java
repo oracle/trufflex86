@@ -10,6 +10,10 @@ public abstract class Substitution {
         this(new Signature(signature));
     }
 
+    protected Substitution(byte[] signature, boolean[] mask) {
+        this(new Signature(signature, mask));
+    }
+
     protected Substitution(Signature signature) {
         this.signature = signature;
     }

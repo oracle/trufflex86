@@ -5,12 +5,21 @@ import org.graalvm.vm.x86.isa.CodeReader;
 
 public class Signature {
     private final byte[] signature;
+    private final boolean[] mask;
 
     public Signature(byte[] signature) {
+        this(signature, null);
+    }
+
+    public Signature(byte[] signature, boolean[] mask) {
         if (signature.length < 1) {
             throw new IllegalArgumentException("need at least one byte");
         }
+        if (mask != null && mask.length != signature.length) {
+            throw new IllegalArgumentException("invalid mask length");
+        }
         this.signature = signature;
+        this.mask = mask;
     }
 
     public byte[] getSignature() {
@@ -26,7 +35,7 @@ public class Signature {
             return false;
         }
         for (int i = 0; i < signature.length; i++) {
-            if (code[i] != signature[i]) {
+            if (code[i] != signature[i] && (mask == null || !mask[i])) {
                 return false;
             }
         }
@@ -36,7 +45,7 @@ public class Signature {
     public boolean match(CodeReader reader) {
         try {
             for (int i = 0; i < signature.length; i++) {
-                if (reader.peek8(i) != signature[i]) {
+                if (reader.peek8(i) != signature[i] && (mask == null || !mask[i])) {
                     return false;
                 }
             }
