@@ -19,6 +19,8 @@ public class Strlen extends AMD64Instruction {
     @Child private RegisterWriteNode writeRAX;
     @Child private MemoryReadNode readMemory;
 
+    @Child private FastStrlen strlen;
+
     public Strlen(long pc, byte[] code) {
         super(pc, code);
         setGPRReadOperands(new RegisterOperand(Register.RSP), new RegisterOperand(Register.RDI));
@@ -37,6 +39,7 @@ public class Strlen extends AMD64Instruction {
         writeRSP = rsp.createWrite();
         writeRAX = rax.createWrite();
         readMemory = state.createMemoryRead();
+        strlen = new FastStrlen(readMemory);
     }
 
     @Override
@@ -44,12 +47,8 @@ public class Strlen extends AMD64Instruction {
         long rsp = readRSP.executeI64(frame);
         long npc = readMemory.executeI64(rsp);
         writeRSP.executeI64(frame, rsp + 8);
-        long start = readRDI.executeI64(frame);
-        long ptr = start;
-        while (readMemory.executeI8(ptr) != 0) {
-            ptr++;
-        }
-        writeRAX.executeI64(frame, ptr - start);
+        long str = readRDI.executeI64(frame);
+        writeRAX.executeI64(frame, strlen.execute(str));
         return npc;
     }
 
