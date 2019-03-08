@@ -102,8 +102,8 @@ public class CpuState {
     public long fs;
     public long gs;
 
-    public Vector128[] xmm = new Vector128[16];
-    public Vector512[] zmm = new Vector512[32];
+    public final Vector128[] xmm = new Vector128[16];
+    public final Vector512[] zmm = new Vector512[32];
 
     public long instructionCount;
 
