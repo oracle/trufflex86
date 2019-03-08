@@ -19,6 +19,7 @@ public class Strchrnul extends AMD64Instruction {
     @Child private RegisterWriteNode writeRSP;
     @Child private RegisterWriteNode writeRAX;
     @Child private MemoryReadNode readMemory;
+    @Child private FastStrchrnul strchrnul;
 
     public Strchrnul(long pc, byte[] code) {
         super(pc, code);
@@ -40,6 +41,7 @@ public class Strchrnul extends AMD64Instruction {
         writeRSP = rsp.createWrite();
         writeRAX = rax.createWrite();
         readMemory = state.createMemoryRead();
+        strchrnul = new FastStrchrnul(readMemory);
     }
 
     @Override
@@ -49,14 +51,8 @@ public class Strchrnul extends AMD64Instruction {
         writeRSP.executeI64(frame, rsp + 8);
         long ptr = readRDI.executeI64(frame);
         byte c = readRSI.executeI8(frame);
-        byte b;
-        while ((b = readMemory.executeI8(ptr)) != 0) {
-            if (b == c) {
-                break;
-            }
-            ptr++;
-        }
-        writeRAX.executeI64(frame, ptr);
+        long result = strchrnul.execute(ptr, c);
+        writeRAX.executeI64(frame, result);
         return npc;
     }
 
