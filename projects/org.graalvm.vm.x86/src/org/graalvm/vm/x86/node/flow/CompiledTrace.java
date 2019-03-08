@@ -48,7 +48,7 @@ public class CompiledTrace {
     public final TraceCallTarget trace;
 
     private int usedSuccessors;
-    private CompiledTrace[] successors;
+    private final CompiledTrace[] successors;
 
     public CompiledTrace(TraceCallTarget trace) {
         this.trace = trace;
