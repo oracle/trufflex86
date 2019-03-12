@@ -790,6 +790,7 @@ public class Vector128 implements Cloneable {
         short[] shorts = getShorts();
         short[] result = new short[shorts.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(shorts.length);
         for (int i = 0; i < shorts.length; i++) {
             result[i] = (short) (Short.toUnsignedInt(shorts[i]) >>> n);
         }
@@ -801,6 +802,7 @@ public class Vector128 implements Cloneable {
         int[] ints = getInts();
         int[] result = new int[ints.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(ints.length);
         for (int i = 0; i < ints.length; i++) {
             result[i] = ints[i] >>> n;
         }
@@ -822,6 +824,7 @@ public class Vector128 implements Cloneable {
         short[] shorts = getShorts();
         short[] result = new short[shorts.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(shorts.length);
         for (int i = 0; i < shorts.length; i++) {
             result[i] = (short) (shorts[i] >> n);
         }
@@ -833,6 +836,7 @@ public class Vector128 implements Cloneable {
         int[] ints = getInts();
         int[] result = new int[ints.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(ints.length);
         for (int i = 0; i < ints.length; i++) {
             result[i] = ints[i] >> n;
         }
@@ -854,6 +858,8 @@ public class Vector128 implements Cloneable {
         assert n > 0 && n < 16;
         byte[] bytes = getBytes();
         byte[] shifted = new byte[bytes.length];
+        CompilerAsserts.partialEvaluationConstant(bytes.length);
+        CompilerAsserts.partialEvaluationConstant(shifted.length);
         for (int i = 0; i < 16; i++) {
             int src = i + n;
             if (src >= bytes.length) {
@@ -870,6 +876,7 @@ public class Vector128 implements Cloneable {
         short[] shorts = getShorts();
         short[] result = new short[shorts.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(shorts.length);
         for (int i = 0; i < shorts.length; i++) {
             result[i] = (short) (shorts[i] << n);
         }
@@ -881,6 +888,7 @@ public class Vector128 implements Cloneable {
         int[] ints = getInts();
         int[] result = new int[ints.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(ints.length);
         for (int i = 0; i < ints.length; i++) {
             result[i] = ints[i] << n;
         }
@@ -903,6 +911,8 @@ public class Vector128 implements Cloneable {
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) (a[i] + b[i]);
         }
@@ -915,6 +925,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (a[i] + b[i]);
         }
@@ -927,6 +939,8 @@ public class Vector128 implements Cloneable {
         int[] b = vec.getInts();
         int[] result = new int[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = a[i] + b[i];
         }
@@ -944,6 +958,8 @@ public class Vector128 implements Cloneable {
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) (a[i] - b[i]);
         }
@@ -976,6 +992,8 @@ public class Vector128 implements Cloneable {
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = saturateU8(Byte.toUnsignedInt(a[i]) - Byte.toUnsignedInt(b[i]));
         }
@@ -988,6 +1006,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (a[i] - b[i]);
         }
@@ -1000,6 +1020,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = saturateU16(Short.toUnsignedInt(a[i]) - Short.toUnsignedInt(b[i]));
         }
@@ -1012,6 +1034,8 @@ public class Vector128 implements Cloneable {
         int[] b = vec.getInts();
         int[] result = new int[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = a[i] - b[i];
         }
@@ -1029,6 +1053,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (a[i] * b[i]);
         }
@@ -1041,6 +1067,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) ((a[i] * b[i]) >> 16);
         }
@@ -1053,6 +1081,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) (Short.toUnsignedInt(a[i]) * Short.toUnsignedInt(b[i]));
         }
@@ -1065,6 +1095,8 @@ public class Vector128 implements Cloneable {
         short[] b = vec.getShorts();
         short[] result = new short[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (short) ((Short.toUnsignedInt(a[i]) * Short.toUnsignedInt(b[i])) >> 16);
         }
@@ -1077,6 +1109,8 @@ public class Vector128 implements Cloneable {
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) Math.min(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
         }
@@ -1089,6 +1123,8 @@ public class Vector128 implements Cloneable {
         byte[] b = vec.getBytes();
         byte[] result = new byte[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = (byte) Math.max(Byte.toUnsignedInt(a[i]), Byte.toUnsignedInt(b[i]));
         }
@@ -1101,6 +1137,8 @@ public class Vector128 implements Cloneable {
         float[] b = vec.getFloats();
         float[] result = new float[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = Math.min(a[i], b[i]);
         }
@@ -1113,6 +1151,8 @@ public class Vector128 implements Cloneable {
         float[] b = vec.getFloats();
         float[] result = new float[a.length];
         CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
         for (int i = 0; i < a.length; i++) {
             result[i] = Math.max(a[i], b[i]);
         }
@@ -1129,6 +1169,7 @@ public class Vector128 implements Cloneable {
     }
 
     @Override
+    @ExplodeLoop
     public boolean equals(Object o) {
         if (o == null) {
             return false;
