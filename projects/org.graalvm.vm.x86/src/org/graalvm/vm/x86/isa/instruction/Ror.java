@@ -50,6 +50,7 @@ import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Ror extends AMD64Instruction {
     private final Operand operand1;
@@ -60,6 +61,9 @@ public abstract class Ror extends AMD64Instruction {
     @Child protected WriteNode writeDst;
     @Child protected WriteFlagNode writeCF;
     @Child protected WriteFlagNode writeOF;
+
+    protected final ConditionProfile profileGTZ = ConditionProfile.createCountingProfile();
+    protected final ConditionProfile profileEQO = ConditionProfile.createCountingProfile();
 
     protected Ror(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -95,11 +99,11 @@ public abstract class Ror extends AMD64Instruction {
             int shift = readShamt.executeI8(frame) & 0x7;
             byte result = (byte) ((src >>> shift) | (src << (8 - shift)));
             writeDst.executeI8(frame, result);
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 boolean cf = ((src >>> (shift - 1)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ ((result & 0x40) != 0);
                 writeOF.execute(frame, of);
             }
@@ -122,11 +126,11 @@ public abstract class Ror extends AMD64Instruction {
             int shift = readShamt.executeI8(frame) & 0xF;
             short result = (short) ((src >>> shift) | (src << (16 - shift)));
             writeDst.executeI16(frame, result);
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 boolean cf = ((src >>> (shift - 1)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ ((result & 0x4000) != 0);
                 writeOF.execute(frame, of);
             }
@@ -149,11 +153,11 @@ public abstract class Ror extends AMD64Instruction {
             int shift = readShamt.executeI8(frame) & 0x1F;
             int result = (src >>> shift) | (src << (32 - shift));
             writeDst.executeI32(frame, result);
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 boolean cf = ((src >>> (shift - 1)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ ((result & 0x40000000) != 0);
                 writeOF.execute(frame, of);
             }
@@ -176,11 +180,11 @@ public abstract class Ror extends AMD64Instruction {
             int shift = readShamt.executeI8(frame) & 0x3F;
             long result = (src >>> shift) | (src << (64 - shift));
             writeDst.executeI64(frame, result);
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 boolean cf = ((src >>> (shift - 1)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ ((result & 0x4000000000000000L) != 0);
                 writeOF.execute(frame, of);
             }

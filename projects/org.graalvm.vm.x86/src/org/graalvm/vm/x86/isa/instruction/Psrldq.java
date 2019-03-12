@@ -50,6 +50,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public class Psrldq extends AMD64Instruction {
     private final Operand operand1;
@@ -59,6 +60,8 @@ public class Psrldq extends AMD64Instruction {
     @Child private WriteNode writeDst;
 
     private final int shift;
+
+    private final ConditionProfile profile = ConditionProfile.createCountingProfile();
 
     protected Psrldq(long pc, byte[] instruction, Operand operand1, int shift) {
         super(pc, instruction);
@@ -85,7 +88,7 @@ public class Psrldq extends AMD64Instruction {
     public long executeInstruction(VirtualFrame frame) {
         Vector128 value = readSrc.executeI128(frame);
         Vector128 result;
-        if (shift > 15) {
+        if (profile.profile(shift > 15)) {
             result = Vector128.ZERO;
         } else {
             result = value.shrBytes(shift);

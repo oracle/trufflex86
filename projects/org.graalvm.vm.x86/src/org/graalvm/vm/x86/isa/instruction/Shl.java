@@ -51,6 +51,7 @@ import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Shl extends AMD64Instruction {
     protected final Operand operand1;
@@ -65,6 +66,8 @@ public abstract class Shl extends AMD64Instruction {
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writePF;
+
+    protected final ConditionProfile profile = ConditionProfile.createCountingProfile();
 
     protected Shl(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -104,7 +107,7 @@ public abstract class Shl extends AMD64Instruction {
             int result = src << shift;
             byte result8 = (byte) result;
             writeDst.executeI8(frame, result8);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 boolean cf = (result & 0x100) != 0;
                 boolean of = cf ^ (result8 < 0);
                 writeCF.execute(frame, cf);
@@ -133,7 +136,7 @@ public abstract class Shl extends AMD64Instruction {
             int result = src << shift;
             short result16 = (short) result;
             writeDst.executeI16(frame, result16);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 boolean cf = (result & 0x10000) != 0;
                 boolean of = cf ^ (result16 < 0);
                 writeCF.execute(frame, cf);
@@ -162,7 +165,7 @@ public abstract class Shl extends AMD64Instruction {
             long result = (long) src << shift;
             int result32 = (int) result;
             writeDst.executeI32(frame, result32);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 boolean cf = (result & 0x100000000L) != 0;
                 boolean of = cf ^ (result32 < 0);
                 writeCF.execute(frame, cf);
@@ -190,7 +193,7 @@ public abstract class Shl extends AMD64Instruction {
             long shift = readShift.executeI8(frame) & 0x3f;
             long result = src << shift;
             writeDst.executeI64(frame, result);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 long bit = 1L << (64 - shift);
                 boolean cf = (src & bit) != 0;
                 boolean of = cf ^ (result < 0);

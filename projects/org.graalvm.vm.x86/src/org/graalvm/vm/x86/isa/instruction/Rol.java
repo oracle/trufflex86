@@ -50,6 +50,7 @@ import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Rol extends AMD64Instruction {
     private final Operand operand1;
@@ -60,6 +61,9 @@ public abstract class Rol extends AMD64Instruction {
     @Child protected WriteNode writeDst;
     @Child protected WriteFlagNode writeCF;
     @Child protected WriteFlagNode writeOF;
+
+    protected final ConditionProfile profileGTZ = ConditionProfile.createCountingProfile();
+    protected final ConditionProfile profileEQO = ConditionProfile.createCountingProfile();
 
     protected Rol(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -96,11 +100,11 @@ public abstract class Rol extends AMD64Instruction {
             byte result = (byte) ((src << shift) | (src >>> (8 - shift)));
             writeDst.executeI8(frame, result);
             boolean cf = false;
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 cf = ((src >>> (8 - shift)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ cf;
                 writeOF.execute(frame, of);
             }
@@ -124,11 +128,11 @@ public abstract class Rol extends AMD64Instruction {
             short result = (short) ((src << shift) | (src >>> (16 - shift)));
             writeDst.executeI16(frame, result);
             boolean cf = false;
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 cf = ((src >>> (16 - shift)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ cf;
                 writeOF.execute(frame, of);
             }
@@ -152,11 +156,11 @@ public abstract class Rol extends AMD64Instruction {
             int result = (src << shift) | (src >>> (32 - shift));
             writeDst.executeI32(frame, result);
             boolean cf = false;
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 cf = ((src >>> (32 - shift)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ cf;
                 writeOF.execute(frame, of);
             }
@@ -180,11 +184,11 @@ public abstract class Rol extends AMD64Instruction {
             long result = (src << shift) | (src >>> (64 - shift));
             writeDst.executeI64(frame, result);
             boolean cf = false;
-            if (shift > 0) {
+            if (profileGTZ.profile(shift > 0)) {
                 cf = ((src >>> (64 - shift)) & 1) != 0;
                 writeCF.execute(frame, cf);
             }
-            if (shift == 1) {
+            if (profileEQO.profile(shift == 1)) {
                 boolean of = (result < 0) ^ cf;
                 writeOF.execute(frame, of);
             }

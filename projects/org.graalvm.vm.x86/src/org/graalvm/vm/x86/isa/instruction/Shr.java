@@ -51,6 +51,7 @@ import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Shr extends AMD64Instruction {
     protected final Operand operand1;
@@ -65,6 +66,8 @@ public abstract class Shr extends AMD64Instruction {
     @Child protected WriteFlagNode writeZF;
     @Child protected WriteFlagNode writeSF;
     @Child protected WriteFlagNode writePF;
+
+    protected final ConditionProfile profile = ConditionProfile.createCountingProfile();
 
     protected Shr(long pc, byte[] instruction, Operand operand1, Operand operand2) {
         super(pc, instruction);
@@ -103,7 +106,7 @@ public abstract class Shr extends AMD64Instruction {
             byte shift = (byte) (readShift.executeI8(frame) & 0x1f);
             byte result = (byte) (Byte.toUnsignedInt(src) >>> shift);
             writeDst.executeI8(frame, result);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
                 boolean of = src < 0;
@@ -132,7 +135,7 @@ public abstract class Shr extends AMD64Instruction {
             short shift = (short) (readShift.executeI8(frame) & 0x1f);
             short result = (short) (Short.toUnsignedInt(src) >>> shift);
             writeDst.executeI16(frame, result);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
                 boolean of = src < 0;
@@ -161,7 +164,7 @@ public abstract class Shr extends AMD64Instruction {
             int shift = readShift.executeI8(frame) & 0x1f;
             int result = src >>> shift;
             writeDst.executeI32(frame, result);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 int bit = 1 << (shift - 1);
                 boolean cf = (src & bit) != 0;
                 boolean of = src < 0;
@@ -190,7 +193,7 @@ public abstract class Shr extends AMD64Instruction {
             long shift = readShift.executeI8(frame) & 0x3f;
             long result = src >>> shift;
             writeDst.executeI64(frame, result);
-            if (shift > 0) {
+            if (profile.profile(shift > 0)) {
                 long bit = 1L << (shift - 1);
                 boolean cf = (src & bit) != 0;
                 boolean of = src < 0;

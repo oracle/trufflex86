@@ -51,6 +51,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Stos extends AMD64Instruction {
     private final String name;
@@ -59,6 +60,8 @@ public abstract class Stos extends AMD64Instruction {
     @Child protected ReadNode readDst;
     @Child protected WriteNode writeDst;
     @Child protected MemoryWriteNode writeMemory;
+
+    protected final ConditionProfile profile = ConditionProfile.createBinaryProfile();
 
     protected Stos(long pc, byte[] instruction, String name) {
         super(pc, instruction);
@@ -94,7 +97,7 @@ public abstract class Stos extends AMD64Instruction {
             byte al = readSrc.executeI8(frame);
             long rdi = readDst.executeI64(frame);
             writeMemory.executeI8(rdi, al);
-            if (df) {
+            if (profile.profile(df)) {
                 rdi--;
             } else {
                 rdi++;
@@ -120,7 +123,7 @@ public abstract class Stos extends AMD64Instruction {
             short ax = readSrc.executeI16(frame);
             long rdi = readDst.executeI64(frame);
             writeMemory.executeI16(rdi, ax);
-            if (df) {
+            if (profile.profile(df)) {
                 rdi -= 2;
             } else {
                 rdi += 2;
@@ -146,7 +149,7 @@ public abstract class Stos extends AMD64Instruction {
             int eax = readSrc.executeI32(frame);
             long rdi = readDst.executeI64(frame);
             writeMemory.executeI32(rdi, eax);
-            if (df) {
+            if (profile.profile(df)) {
                 rdi -= 4;
             } else {
                 rdi += 4;
@@ -172,7 +175,7 @@ public abstract class Stos extends AMD64Instruction {
             long rax = readSrc.executeI64(frame);
             long rdi = readDst.executeI64(frame);
             writeMemory.executeI64(rdi, rax);
-            if (df) {
+            if (profile.profile(df)) {
                 rdi -= 8;
             } else {
                 rdi += 8;

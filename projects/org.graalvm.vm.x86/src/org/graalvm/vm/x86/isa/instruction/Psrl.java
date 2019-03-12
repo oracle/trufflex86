@@ -50,6 +50,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public abstract class Psrl extends AMD64Instruction {
     private final Operand operand1;
@@ -59,6 +60,8 @@ public abstract class Psrl extends AMD64Instruction {
     @Child protected ReadNode readSrc;
     @Child protected ReadNode readShamt;
     @Child protected WriteNode writeDst;
+
+    protected final ConditionProfile profile = ConditionProfile.createCountingProfile();
 
     protected Psrl(long pc, byte[] instruction, Operand operand1, Operand operand2, String name) {
         super(pc, instruction);
@@ -92,7 +95,7 @@ public abstract class Psrl extends AMD64Instruction {
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;
-            if (shamt > 15) {
+            if (profile.profile(shamt > 15)) {
                 result = Vector128.ZERO;
             } else {
                 result = vec.shrPackedI16((int) shamt);
@@ -116,7 +119,7 @@ public abstract class Psrl extends AMD64Instruction {
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;
-            if (shamt > 31) {
+            if (profile.profile(shamt > 31)) {
                 result = Vector128.ZERO;
             } else {
                 result = vec.shrPackedI32((int) shamt);
@@ -140,7 +143,7 @@ public abstract class Psrl extends AMD64Instruction {
             Vector128 vec = readSrc.executeI128(frame);
             long shamt = readShamt.executeI64(frame);
             Vector128 result;
-            if (shamt > 63) {
+            if (profile.profile(shamt > 63)) {
                 result = Vector128.ZERO;
             } else {
                 result = vec.shrPackedI64((int) shamt);

@@ -58,10 +58,12 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallWrapper;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 public class Int1 extends AMD64Instruction {
     @Child private SyscallWrapper syscall = null;
@@ -79,6 +81,8 @@ public class Int1 extends AMD64Instruction {
     @Child private AVXRegisterWriteNode writeXMM0;
 
     @CompilationFinal private ContextReference<AMD64Context> ctxRef;
+
+    private final ConditionProfile profile = ConditionProfile.createBinaryProfile();
 
     public Int1(long pc, byte[] instruction) {
         super(pc, instruction);
@@ -142,11 +146,12 @@ public class Int1 extends AMD64Instruction {
         } catch (SyscallException ex) {
             result = -ex.getValue();
             if (ex.getValue() == Errno.ENOSYS) {
+                CompilerDirectives.transferToInterpreter();
                 throw new RuntimeException("Unknown interop function " + id);
             }
         }
 
-        if (cf) {
+        if (profile.profile(cf)) {
             writeXMM0.executeI64(frame, result);
         } else {
             writeRAX.executeI64(frame, result);
