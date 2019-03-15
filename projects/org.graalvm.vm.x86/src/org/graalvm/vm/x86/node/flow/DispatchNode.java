@@ -56,6 +56,7 @@ import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.CpuRuntimeException;
+import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CodeMemoryReader;
@@ -63,6 +64,7 @@ import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
+import org.graalvm.vm.x86.util.Debug;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -72,7 +74,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 public class DispatchNode extends AbstractDispatchNode {
     private static final Logger log = Trace.create(DispatchNode.class);
 
-    @CompilationFinal private static boolean DEBUG = false;
+    @CompilationFinal private static final boolean DEBUG = Options.getBoolean(Options.DEBUG_DISPATCH);
 
     @Children private AMD64BasicBlock[] blocks;
     @CompilationFinal private int usedBlocks;
@@ -96,7 +98,7 @@ public class DispatchNode extends AbstractDispatchNode {
     public AMD64BasicBlock get(long address) {
         CompilerDirectives.transferToInterpreter();
         if (DEBUG) {
-            System.out.printf("resolving block at 0x%016x\n", address);
+            Debug.printf("resolving block at 0x%016x\n", address);
         }
         AMD64BasicBlock block = blockLookup.get(address);
         if (block == null) {
@@ -111,7 +113,7 @@ public class DispatchNode extends AbstractDispatchNode {
     private void parse(long start) {
         CompilerDirectives.transferToInterpreter();
         if (DEBUG) {
-            System.out.printf("starting parsing process at 0x%016x\n", start);
+            Debug.printf("starting parsing process at 0x%016x\n", start);
         }
         Deque<Long> parseQueue = new LinkedList<>();
         Deque<AMD64BasicBlock> newBlocks = new LinkedList<>();
@@ -125,7 +127,7 @@ public class DispatchNode extends AbstractDispatchNode {
                 if (block.getAddress() != address) {
                     // split
                     if (DEBUG) {
-                        System.out.printf("splitting block at 0x%016x\n", address);
+                        Debug.printf("splitting block at 0x%016x\n", address);
                     }
                     AMD64BasicBlock split = block.split(address);
                     addBlock(split);
@@ -134,7 +136,7 @@ public class DispatchNode extends AbstractDispatchNode {
                 continue;
             }
             if (DEBUG) {
-                System.out.printf("parsing block at 0x%016x\n", address);
+                Debug.printf("parsing block at 0x%016x\n", address);
             }
             AMD64BasicBlock block = AMD64BasicBlockParser.parse(reader);
             addBlock(block);
@@ -149,7 +151,7 @@ public class DispatchNode extends AbstractDispatchNode {
         while (!newBlocks.isEmpty()) {
             AMD64BasicBlock block = newBlocks.removeLast();
             if (DEBUG) {
-                System.out.printf("computing successors of 0x%016x\n", block.getAddress());
+                Debug.printf("computing successors of 0x%016x\n", block.getAddress());
             }
             computeSuccessors(block);
         }
@@ -161,21 +163,21 @@ public class DispatchNode extends AbstractDispatchNode {
             AMD64BasicBlock[] next = new AMD64BasicBlock[bta.length];
             for (int i = 0; i < bta.length; i++) {
                 if (DEBUG) {
-                    System.out.printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), bta[i]);
+                    Debug.printf("block at 0x%016x: following successor 0x%016x\n", block.getAddress(), bta[i]);
                 }
                 next[i] = get(bta[i]);
             }
             block.setSuccessors(next);
         }
         if (DEBUG) {
-            System.out.printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
+            Debug.printf("block at 0x%016x has %d successor(s)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
         }
     }
 
     private void addBlock(AMD64BasicBlock block) {
         if (DEBUG) {
-            System.out.printf("registering block at 0x%016x (%d successors)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
-            System.out.printf("Block content:\n%s\n", block.toString());
+            Debug.printf("registering block at 0x%016x (%d successors)\n", block.getAddress(), block.getSuccessors() == null ? 0 : block.getSuccessors().length);
+            Debug.printf("Block content:\n%s\n", block.toString());
         }
         blockLookup.put(block.getAddress(), block);
         if (usedBlocks == blocks.length) {
@@ -200,11 +202,11 @@ public class DispatchNode extends AbstractDispatchNode {
             Symbol sym = resolver.getSymbolExact(pc);
             if (sym != null) {
                 if (!first) {
-                    System.out.println();
+                    Debug.println();
                 }
-                System.out.printf("%s:\n", sym.getName());
+                Debug.printf("%s:\n", sym.getName());
             }
-            System.out.print(entry.getValue());
+            Debug.print(entry.getValue());
             if (first) {
                 first = false;
             }
@@ -225,36 +227,36 @@ public class DispatchNode extends AbstractDispatchNode {
             }
             while (true) {
                 if (DEBUG && (cnt != -1) && (cnt-- == 0)) {
-                    System.out.printf("Terminating interpreter loop at pc=0x%016x\n", pc);
+                    Debug.printf("Terminating interpreter loop at pc=0x%016x\n", pc);
                     break;
                 }
                 if (DEBUG) {
-                    System.out.printf("==> EXECUTING pc=0x%016x\n", pc);
+                    Debug.printf("==> EXECUTING pc=0x%016x\n", pc);
                 }
                 pc = block.execute(frame);
                 AMD64BasicBlock successor = block.getSuccessor(pc);
                 if (successor == null) {
                     // indirect branch?
                     if (DEBUG) {
-                        System.out.printf("indirect branch?\n");
+                        Debug.printf("indirect branch?\n");
                     }
                     block = get(pc);
                     assert block.getAddress() == pc : String.format("block.address=0x%x, pc=0x%x", block.getAddress(), pc);
                     if (DEBUG) {
-                        System.out.printf("resolved successor (pc=0x%016x)\n", block.getAddress());
+                        Debug.printf("resolved successor (pc=0x%016x)\n", block.getAddress());
                     }
                 } else {
                     if (DEBUG) {
-                        System.out.printf("successor: pc=0x%016x\n", successor.getAddress());
+                        Debug.printf("successor: pc=0x%016x\n", successor.getAddress());
                     }
                     block = successor;
                 }
             }
             CompilerDirectives.transferToInterpreter();
-            System.err.printf("Execution aborted at 0x%016x: limit reached\n", pc);
+            Debug.printf("Execution aborted at 0x%016x: limit reached\n", pc);
         } catch (ProcessExitException e) {
             if (DEBUG) {
-                System.out.printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
+                Debug.printf("Terminating execution at 0x%016x with exit code %d\n", pc, e.getCode());
             }
             writePC.executeI64(frame, pc);
             throw e;

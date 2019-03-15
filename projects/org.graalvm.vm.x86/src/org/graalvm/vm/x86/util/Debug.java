@@ -44,6 +44,21 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class Debug {
     @TruffleBoundary
+    public static void print(Object line) {
+        System.out.println(line);
+    }
+
+    @TruffleBoundary
+    public static void println() {
+        System.out.println();
+    }
+
+    @TruffleBoundary
+    public static void println(Object line) {
+        System.out.println(line);
+    }
+
+    @TruffleBoundary
     public static void printf(String format, Object... args) {
         System.out.printf(format, args);
     }

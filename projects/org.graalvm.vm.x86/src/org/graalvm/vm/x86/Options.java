@@ -62,6 +62,7 @@ public class Options {
     public static final BooleanOption DEBUG_STATIC_ENV = new BooleanOption("vmx86.debug.staticenv", false);
 
     // Dispatch logic
+    public static final BooleanOption DEBUG_DISPATCH = new BooleanOption("vmx86.debug.dispatch", false);
     public static final BooleanOption SIMPLE_DISPATCH = new BooleanOption("vmx86.debug.simpleDispatch", false);
     public static final BooleanOption PRINT_DISPATCH_STATS = new BooleanOption("vmx86.dispatch.stats", false);
     public static final BooleanOption USE_LOOP_NODE = new BooleanOption("vmx86.dispatch.loop", true);
