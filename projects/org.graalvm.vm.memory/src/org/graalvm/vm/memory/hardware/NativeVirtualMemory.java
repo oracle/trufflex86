@@ -66,6 +66,7 @@ import org.graalvm.vm.util.log.Trace;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 public class NativeVirtualMemory extends VirtualMemory {
     private static final Logger log = Trace.create(NativeVirtualMemory.class);
@@ -106,6 +107,7 @@ public class NativeVirtualMemory extends VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     private static boolean checkMemoryMap() {
         try {
             MemoryMap map = new MemoryMap();
@@ -160,6 +162,7 @@ public class NativeVirtualMemory extends VirtualMemory {
         updateMemoryMap();
     }
 
+    @TruffleBoundary
     private List<MemorySegment> getMemoryMap() throws IOException {
         List<MemorySegment> segments = new ArrayList<>();
         MemoryMap memoryMap = new MemoryMap();
