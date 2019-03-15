@@ -40,6 +40,8 @@
  */
 package org.graalvm.vm.memory;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class MemoryAllocator {
     private static final boolean debug = true;
 
@@ -684,6 +686,7 @@ public class MemoryAllocator {
         return usedMemory;
     }
 
+    @TruffleBoundary
     public String dump() {
         StringBuilder buf = new StringBuilder();
         for (Block b = memory; b != null; b = b.nextBlock) {
@@ -692,6 +695,7 @@ public class MemoryAllocator {
         return buf.toString().trim();
     }
 
+    @TruffleBoundary
     private static void check(Block b) {
         if (b == null) {
             return;
@@ -719,6 +723,7 @@ public class MemoryAllocator {
     }
 
     // consistency checks which *don't* rely on -ea
+    @TruffleBoundary
     public void check() {
         long usedmem = 0;
         long freemem = 0;
