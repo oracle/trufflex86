@@ -133,6 +133,8 @@ import java.util.logging.Logger;
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.util.log.Trace;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class ErrnoTranslator {
     private static final Logger log = Trace.create(ErrnoTranslator.class);
 
@@ -227,6 +229,7 @@ public class ErrnoTranslator {
         ERRORS.put(ENOTRECOVERABLE(), Errno.ENOTRECOVERABLE);
     }
 
+    @TruffleBoundary
     public static int translate(int errno) {
         if (!initialized) {
             init();
