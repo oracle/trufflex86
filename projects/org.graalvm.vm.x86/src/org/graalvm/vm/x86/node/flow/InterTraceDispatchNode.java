@@ -143,6 +143,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
             writeState.execute(frame, state);
             throw e;
         }
+        CompilerDirectives.transferToInterpreter();
         throw new AssertionError("loop node must not return");
     }
 

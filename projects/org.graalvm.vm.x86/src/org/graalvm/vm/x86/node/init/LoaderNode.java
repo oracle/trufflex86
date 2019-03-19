@@ -121,6 +121,11 @@ public class LoaderNode extends AMD64Node {
         posix.getPosix().chdir(posixPath.toString());
     }
 
+    @TruffleBoundary
+    private static String getPath(VFS vfs, String execfn) {
+        return vfs.resolve(execfn);
+    }
+
     public Object execute(VirtualFrame frame, String execfn, String[] args) {
         AMD64Context ctx = getContextReference().get();
         ElfLoader loader = new ElfLoader(ctx.getTraceWriter());
@@ -136,7 +141,7 @@ public class LoaderNode extends AMD64Node {
         try {
             setup(execfn, posix);
             VFS vfs = posix.getVFS();
-            String path = vfs.resolve(execfn);
+            String path = getPath(vfs, execfn);
             loader.load(path);
         } catch (Throwable t) {
             CompilerDirectives.transferToInterpreter();

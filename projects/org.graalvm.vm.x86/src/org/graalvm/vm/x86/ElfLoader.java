@@ -747,6 +747,7 @@ public class ElfLoader {
         this.args = args;
     }
 
+    @TruffleBoundary
     public void setEnvironment(Map<String, String> environ) {
         env = environ.entrySet().stream().map((e) -> e.getKey() + "=" + e.getValue()).toArray(String[]::new);
     }

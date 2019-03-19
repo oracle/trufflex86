@@ -59,6 +59,7 @@ import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializerNode;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterRootNode extends AMD64Node {
@@ -102,6 +103,7 @@ public class InterpreterRootNode extends AMD64Node {
                 return 127;
             }
         } catch (Throwable t) {
+            CompilerDirectives.transferToInterpreter();
             t.printStackTrace(Trace.log);
             return 127;
         }
