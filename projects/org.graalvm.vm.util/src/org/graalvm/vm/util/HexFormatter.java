@@ -40,7 +40,10 @@
  */
 package org.graalvm.vm.util;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class HexFormatter {
+    @TruffleBoundary
     public static String tohex(long val, int len) {
         String hex = Long.toHexString(val);
         if (hex.length() >= len) {

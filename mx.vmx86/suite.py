@@ -355,6 +355,9 @@ suite = {
     "org.graalvm.vm.util" : {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
+      "dependencies" : [
+        "truffle:TRUFFLE_API",
+      ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
     },
@@ -373,7 +376,8 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "org.graalvm.vm.util"
+        "org.graalvm.vm.util",
+        "truffle:TRUFFLE_API",
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
@@ -595,7 +599,8 @@ suite = {
         "org.graalvm.vm.posix",
       ],
       "distDependencies" : [
-        "CORE"
+        "CORE",
+        "truffle:TRUFFLE_API"
       ]
     },
 

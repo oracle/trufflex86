@@ -58,6 +58,11 @@ public class NativeTypeConversionNode extends Node {
         return objects.get(id);
     }
 
+    @TruffleBoundary
+    private static String getSubName(long addr) {
+        return "sub_" + HexFormatter.tohex(addr, 1);
+    }
+
     public Object execute(NativeTypeMirror type, long value, List<Object> objects) {
         switch (type.getKind()) {
             case SIMPLE: {
@@ -104,7 +109,7 @@ public class NativeTypeConversionNode extends Node {
             case FUNCTION: {
                 NativeFunctionTypeMirror func = (NativeFunctionTypeMirror) type;
                 NativeSignature signature = func.getSignature();
-                return new AMD64Function("sub_" + HexFormatter.tohex(value, 1), value, signature);
+                return new AMD64Function(getSubName(value), value, signature);
             }
             default:
                 CompilerDirectives.transferToInterpreter();

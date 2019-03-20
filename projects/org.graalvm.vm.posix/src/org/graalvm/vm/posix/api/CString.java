@@ -40,7 +40,10 @@
  */
 package org.graalvm.vm.posix.api;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class CString {
+    @TruffleBoundary
     public static String cstr(PosixPointer s) {
         StringBuilder str = new StringBuilder();
         PosixPointer ptr = s;

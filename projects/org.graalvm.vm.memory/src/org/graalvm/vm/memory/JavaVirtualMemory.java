@@ -261,6 +261,7 @@ public class JavaVirtualMemory extends VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     @Override
     public void free(long address) {
         MemoryPage page = pages.remove(address);
@@ -286,6 +287,7 @@ public class JavaVirtualMemory extends VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     @Override
     public MemoryPage get(long address) {
         long addr = addr(address);
@@ -633,6 +635,7 @@ public class JavaVirtualMemory extends VirtualMemory {
         }
     }
 
+    @TruffleBoundary
     @Override
     public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
         long remaining = len;

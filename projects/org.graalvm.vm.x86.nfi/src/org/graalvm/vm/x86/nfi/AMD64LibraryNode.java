@@ -51,6 +51,7 @@ import org.graalvm.vm.x86.node.AMD64RootNode;
 import org.graalvm.vm.x86.posix.InteropErrorException;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -102,6 +103,7 @@ public class AMD64LibraryNode extends AMD64RootNode {
         try {
             handle = root.executeInterop(frame, ctx.getSigaltstack(), ctx.getReturnAddress(), ptrs.loadLibrary, interoplibname, 0, 0, 0, 0, 0);
         } catch (InteropErrorException e) {
+            CompilerDirectives.transferToInterpreter();
             throw new UnsatisfiedLinkError(e.getMessage());
         }
 

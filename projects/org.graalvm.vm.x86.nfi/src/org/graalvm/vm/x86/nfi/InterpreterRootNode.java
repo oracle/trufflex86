@@ -71,6 +71,7 @@ import org.graalvm.vm.x86.posix.InteropReturnException;
 import org.graalvm.vm.x86.posix.InteropReturnResult;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -163,6 +164,7 @@ public class InterpreterRootNode extends AMD64Node {
             while (true) {
                 try {
                     interpreter.execute(frame);
+                    CompilerDirectives.transferToInterpreter();
                     throw new IllegalStateException("interpreter must not return");
                 } catch (RetException e) {
                     writeState.execute(frame, e.getState());
@@ -179,6 +181,7 @@ public class InterpreterRootNode extends AMD64Node {
                 return state.rdi;
             }
         } catch (ProcessExitException e) {
+            CompilerDirectives.transferToInterpreter();
             throw new UnsatisfiedLinkError();
         }
     }
@@ -207,6 +210,7 @@ public class InterpreterRootNode extends AMD64Node {
                 return 127;
             }
         } catch (Throwable t) {
+            CompilerDirectives.transferToInterpreter();
             t.printStackTrace(Trace.log);
             return 127;
         }
