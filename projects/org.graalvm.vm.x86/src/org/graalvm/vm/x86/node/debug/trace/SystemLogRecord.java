@@ -87,7 +87,9 @@ public class SystemLogRecord extends Record {
         };
         LogRecord r = new LogRecord(lvl, clazz);
         r.setSequenceNumber(seq);
-        r.setInstant(Instant.ofEpochMilli(time));
+        // TODO: fix once >Java 1.8
+        // r.setInstant(Instant.ofEpochMilli(time));
+        r.setMillis(time);
         r.setThreadID(threadID);
         r.setLoggerName(logger);
         r.setSourceClassName(clazz);
