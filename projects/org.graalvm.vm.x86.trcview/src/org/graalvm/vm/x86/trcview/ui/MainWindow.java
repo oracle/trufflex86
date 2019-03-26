@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -145,7 +146,7 @@ public class MainWindow extends JFrame {
             setStatus("Trace loaded");
             EventQueue.invokeLater(() -> view.setRoot(root));
         } catch (Throwable t) {
-            log.info("Loading failed: " + t);
+            log.log(Level.INFO, "Loading failed: " + t, t);
             setStatus("Loading failed: " + t);
             throw t;
         } finally {
