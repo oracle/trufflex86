@@ -59,7 +59,11 @@ import org.graalvm.vm.x86.isa.CpuState;
 public class ExecutionTraceWriter implements Closeable {
     private static final Logger log = Trace.create(ExecutionTraceWriter.class);
 
+    private static final long STEP_THRESHOLD = 1000;
+
     private WordOutputStream out;
+    private CpuState lastState;
+    private long steps;
 
     public ExecutionTraceWriter(File out) throws IOException {
         this(new BufferedOutputStream(new FileOutputStream(out)));
@@ -67,6 +71,7 @@ public class ExecutionTraceWriter implements Closeable {
 
     public ExecutionTraceWriter(OutputStream out) {
         this.out = new BEOutputStream(out);
+        steps = 0;
     }
 
     @Override
@@ -75,7 +80,15 @@ public class ExecutionTraceWriter implements Closeable {
     }
 
     public synchronized void step(CpuState state, String filename, String symbol, long offset, AMD64Instruction insn) {
-        CpuStateRecord stateRecord = new CpuStateRecord(state);
+        CpuStateRecord stateRecord;
+        if (steps > STEP_THRESHOLD || lastState == null) {
+            stateRecord = new FullCpuStateRecord(state);
+            steps = 0;
+        } else {
+            stateRecord = new DeltaCpuStateRecord(lastState, state);
+            steps++;
+        }
+        lastState = state;
         LocationRecord locationRecord = new LocationRecord(filename, symbol, offset, state.rip, insn.getBytes(), insn.getDisassemblyComponents());
         StepRecord record = new StepRecord(locationRecord, stateRecord);
         try {

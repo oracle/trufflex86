@@ -42,24 +42,43 @@ package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.io.WordInputStream;
 import org.graalvm.vm.util.io.WordOutputStream;
 import org.graalvm.vm.util.log.Trace;
+import org.graalvm.vm.x86.isa.CpuState;
 
 public abstract class Record {
     private static final Logger log = Trace.create(Record.class);
 
     private final int magic;
+    private Supplier<CpuState> lastState;
 
     protected Record(int magic) {
         this.magic = magic;
     }
 
+    protected CpuState getLastState() {
+        return lastState.get();
+    }
+
+    protected Supplier<CpuState> getLastStateSupplier() {
+        return lastState;
+    }
+
+    protected void setLastState(CpuState state) {
+        lastState = () -> state;
+    }
+
+    protected void setLastState(Supplier<CpuState> state) {
+        lastState = state;
+    }
+
     @SuppressWarnings("unchecked")
-    public static final <T extends Record> T read(WordInputStream in) throws IOException {
+    public static final <T extends Record> T read(WordInputStream in, Supplier<CpuState> lastState) throws IOException {
         int type;
         try {
             type = in.read32bit();
@@ -71,8 +90,11 @@ public abstract class Record {
 
         Record record = null;
         switch (type) {
-            case CpuStateRecord.MAGIC:
-                record = new CpuStateRecord();
+            case FullCpuStateRecord.MAGIC:
+                record = new FullCpuStateRecord();
+                break;
+            case DeltaCpuStateRecord.MAGIC:
+                record = new DeltaCpuStateRecord();
                 break;
             case LocationRecord.MAGIC:
                 record = new LocationRecord();
@@ -106,6 +128,7 @@ public abstract class Record {
                 break;
         }
         if (record != null) {
+            record.lastState = lastState;
             record.readRecord(in);
         } else {
             log.warning("Unknown record: 0x" + HexFormatter.tohex(type, 8));

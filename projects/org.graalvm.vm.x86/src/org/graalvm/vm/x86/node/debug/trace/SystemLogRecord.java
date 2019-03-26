@@ -41,6 +41,7 @@
 package org.graalvm.vm.x86.node.debug.trace;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -86,7 +87,7 @@ public class SystemLogRecord extends Record {
         };
         LogRecord r = new LogRecord(lvl, clazz);
         r.setSequenceNumber(seq);
-        r.setMillis(time);
+        r.setInstant(Instant.ofEpochMilli(time));
         r.setThreadID(threadID);
         r.setLoggerName(logger);
         r.setSourceClassName(clazz);

@@ -210,4 +210,47 @@ public class CpuState {
         }
         return buf.toString();
     }
+
+    @Override
+    public CpuState clone() {
+        CpuState state = new CpuState();
+        state.rax = rax;
+        state.rcx = rcx;
+        state.rdx = rdx;
+        state.rbx = rbx;
+        state.rsp = rsp;
+        state.rbp = rbp;
+        state.rsi = rsi;
+        state.rdi = rdi;
+        state.r8 = r8;
+        state.r9 = r9;
+        state.r10 = r10;
+        state.r11 = r11;
+        state.r12 = r12;
+        state.r13 = r13;
+        state.r14 = r14;
+        state.r15 = r15;
+        state.rip = rip;
+        state.fs = fs;
+        state.gs = gs;
+        state.cf = cf;
+        state.pf = pf;
+        state.af = af;
+        state.zf = zf;
+        state.sf = sf;
+        state.df = df;
+        state.of = of;
+        state.ac = ac;
+        state.id = id;
+        state.instructionCount = instructionCount;
+        for (int i = 0; i < 16; i++) {
+            if (xmm[i] != null) {
+                state.xmm[i] = xmm[i].clone();
+            }
+            if (zmm[i] != null) {
+                state.zmm[i] = zmm[i].clone();
+            }
+        }
+        return state;
+    }
 }

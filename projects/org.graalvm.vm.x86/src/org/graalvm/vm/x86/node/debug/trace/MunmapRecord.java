@@ -46,7 +46,7 @@ import org.graalvm.vm.util.io.WordInputStream;
 import org.graalvm.vm.util.io.WordOutputStream;
 
 public class MunmapRecord extends Record {
-    public static final int MAGIC = 0x554d4150;
+    public static final int MAGIC = 0x554d4150; // UMAP
 
     private long addr;
     private long len;

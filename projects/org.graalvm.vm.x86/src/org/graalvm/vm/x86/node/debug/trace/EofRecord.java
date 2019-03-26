@@ -46,7 +46,7 @@ import org.graalvm.vm.util.io.WordInputStream;
 import org.graalvm.vm.util.io.WordOutputStream;
 
 public class EofRecord extends Record {
-    public static final int MAGIC = 0x454f4630;
+    public static final int MAGIC = 0x454f4630; // EOF0
 
     public EofRecord() {
         super(MAGIC);

@@ -47,7 +47,7 @@ import org.graalvm.vm.util.io.WordInputStream;
 import org.graalvm.vm.util.io.WordOutputStream;
 
 public class BrkRecord extends Record {
-    public static final int MAGIC = 0x42524b30;
+    public static final int MAGIC = 0x42524b30; // BRK0
 
     private long brk;
     private long result;
