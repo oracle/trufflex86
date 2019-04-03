@@ -114,6 +114,8 @@ public class TraceDispatchNode extends AMD64Node {
     private final BranchProfile exitProfile = BranchProfile.create();
     private final BranchProfile returnProfile = BranchProfile.create();
 
+    private final Object lock = new Object();
+
     public TraceDispatchNode(ArchitecturalState state) {
         memory = state.getMemory();
         reader = new CodeMemoryReader(memory, 0);
@@ -134,14 +136,16 @@ public class TraceDispatchNode extends AMD64Node {
         if (DEBUG) {
             printf("resolving block at 0x%016x\n", address);
         }
-        AMD64BasicBlock block = blockLookup.get(address);
-        if (block == null) {
-            parse(address);
-            block = blockLookup.get(address);
+        synchronized (lock) {
+            AMD64BasicBlock block = blockLookup.get(address);
+            if (block == null) {
+                parse(address);
+                block = blockLookup.get(address);
+            }
+            assert block != null;
+            assert block.getAddress() == address;
+            return block;
         }
-        assert block != null;
-        assert block.getAddress() == address;
-        return block;
     }
 
     protected AMD64BasicBlock find(long address) {
@@ -164,7 +168,7 @@ public class TraceDispatchNode extends AMD64Node {
     }
 
     private void parse(long start) {
-        CompilerDirectives.transferToInterpreter();
+        CompilerDirectives.transferToInterpreterAndInvalidate();
         if (DEBUG) {
             printf("starting parsing process at 0x%016x\n", start);
         }

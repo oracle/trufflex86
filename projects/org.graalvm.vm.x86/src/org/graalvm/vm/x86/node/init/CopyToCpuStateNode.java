@@ -49,6 +49,7 @@ import org.graalvm.vm.x86.node.ReadFlagNode;
 import org.graalvm.vm.x86.node.ReadNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameUtil;
@@ -87,42 +88,54 @@ public class CopyToCpuStateNode extends AMD64Node {
 
     @CompilationFinal private FrameSlot instructionCount;
 
+    @CompilationFinal private boolean initialized = false;
+    private final Object lock = new Object();
+
     private void createChildrenIfNecessary() {
-        if (readRAX == null) {
+        if (!initialized) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
             ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            this.readRAX = regs.getRegister(Register.RAX).createRead();
-            this.readRBX = regs.getRegister(Register.RBX).createRead();
-            this.readRCX = regs.getRegister(Register.RCX).createRead();
-            this.readRDX = regs.getRegister(Register.RDX).createRead();
-            this.readRSI = regs.getRegister(Register.RSI).createRead();
-            this.readRDI = regs.getRegister(Register.RDI).createRead();
-            this.readRBP = regs.getRegister(Register.RBP).createRead();
-            this.readRSP = regs.getRegister(Register.RSP).createRead();
-            this.readR8 = regs.getRegister(Register.R8).createRead();
-            this.readR9 = regs.getRegister(Register.R9).createRead();
-            this.readR10 = regs.getRegister(Register.R10).createRead();
-            this.readR11 = regs.getRegister(Register.R11).createRead();
-            this.readR12 = regs.getRegister(Register.R12).createRead();
-            this.readR13 = regs.getRegister(Register.R13).createRead();
-            this.readR14 = regs.getRegister(Register.R14).createRead();
-            this.readR15 = regs.getRegister(Register.R15).createRead();
-            this.readFS = regs.getFS().createRead();
-            this.readGS = regs.getGS().createRead();
-            this.readCF = regs.getCF().createRead();
-            this.readPF = regs.getPF().createRead();
-            this.readAF = regs.getAF().createRead();
-            this.readZF = regs.getZF().createRead();
-            this.readSF = regs.getSF().createRead();
-            this.readDF = regs.getDF().createRead();
-            this.readOF = regs.getOF().createRead();
-            this.readAC = regs.getAC().createRead();
-            this.readID = regs.getID().createRead();
-            this.readZMM = new ReadNode[32];
-            for (int i = 0; i < readZMM.length; i++) {
-                readZMM[i] = regs.getAVXRegister(i).createRead();
+            synchronized (lock) {
+                // check again to avoid initializing multiple times
+                if (initialized) {
+                    return;
+                }
+
+                RegisterAccessFactory regs = state.getRegisters();
+                this.readRAX = regs.getRegister(Register.RAX).createRead();
+                this.readRBX = regs.getRegister(Register.RBX).createRead();
+                this.readRCX = regs.getRegister(Register.RCX).createRead();
+                this.readRDX = regs.getRegister(Register.RDX).createRead();
+                this.readRSI = regs.getRegister(Register.RSI).createRead();
+                this.readRDI = regs.getRegister(Register.RDI).createRead();
+                this.readRBP = regs.getRegister(Register.RBP).createRead();
+                this.readRSP = regs.getRegister(Register.RSP).createRead();
+                this.readR8 = regs.getRegister(Register.R8).createRead();
+                this.readR9 = regs.getRegister(Register.R9).createRead();
+                this.readR10 = regs.getRegister(Register.R10).createRead();
+                this.readR11 = regs.getRegister(Register.R11).createRead();
+                this.readR12 = regs.getRegister(Register.R12).createRead();
+                this.readR13 = regs.getRegister(Register.R13).createRead();
+                this.readR14 = regs.getRegister(Register.R14).createRead();
+                this.readR15 = regs.getRegister(Register.R15).createRead();
+                this.readFS = regs.getFS().createRead();
+                this.readGS = regs.getGS().createRead();
+                this.readCF = regs.getCF().createRead();
+                this.readPF = regs.getPF().createRead();
+                this.readAF = regs.getAF().createRead();
+                this.readZF = regs.getZF().createRead();
+                this.readSF = regs.getSF().createRead();
+                this.readDF = regs.getDF().createRead();
+                this.readOF = regs.getOF().createRead();
+                this.readAC = regs.getAC().createRead();
+                this.readID = regs.getID().createRead();
+                this.readZMM = new ReadNode[32];
+                for (int i = 0; i < readZMM.length; i++) {
+                    readZMM[i] = regs.getAVXRegister(i).createRead();
+                }
+                instructionCount = state.getInstructionCount();
+                initialized = true;
             }
-            instructionCount = state.getInstructionCount();
         }
     }
 
@@ -168,6 +181,10 @@ public class CopyToCpuStateNode extends AMD64Node {
     @ExplodeLoop
     public CpuState execute(VirtualFrame frame, long pc, CpuState state, boolean[] gprMask, boolean[] avxMask) {
         createChildrenIfNecessary();
+        if (gprMask == null || avxMask == null) {
+            CompilerDirectives.transferToInterpreter();
+            throw new NullPointerException("gprMask=" + gprMask + "; avxMask=" + avxMask);
+        }
         CompilerAsserts.partialEvaluationConstant(gprMask);
         CompilerAsserts.partialEvaluationConstant(gprMask[Register.RAX.getID()]);
         if (gprMask[Register.RAX.getID()]) {

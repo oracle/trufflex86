@@ -40,8 +40,12 @@
  */
 package org.graalvm.vm.x86.node.flow;
 
+import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.nodes.InvalidAssumptionException;
 
 public class CompiledTrace {
     public final RootCallTarget callTarget;
@@ -50,8 +54,15 @@ public class CompiledTrace {
     private int usedSuccessors;
     private final CompiledTrace[] successors;
 
-    public CompiledTrace(TraceCallTarget trace) {
+    private final Object lock = new Object();
+
+    private final Assumption singleThreaded;
+    @CompilationFinal private boolean isSingleThreaded;
+
+    public CompiledTrace(TraceCallTarget trace, Assumption singleThreaded) {
         this.trace = trace;
+        this.singleThreaded = singleThreaded;
+        isSingleThreaded = singleThreaded.isValid();
         callTarget = Truffle.getRuntime().createCallTarget(trace);
         usedSuccessors = 0;
         successors = new CompiledTrace[8];
@@ -67,16 +78,34 @@ public class CompiledTrace {
         return null;
     }
 
-    public void setNext(CompiledTrace trace) {
+    private void doSetNext(CompiledTrace trc) {
         // trace already registered?
         for (int i = 0; i < usedSuccessors; i++) {
-            if (successors[i] == trace) {
+            if (successors[i] == trc) {
                 return;
             }
         }
 
         if (usedSuccessors < successors.length) {
-            successors[usedSuccessors++] = trace;
+            successors[usedSuccessors] = trc;
+        }
+    }
+
+    public void setNext(CompiledTrace trace) {
+        if (isSingleThreaded) {
+            try {
+                singleThreaded.check();
+                doSetNext(trace);
+                return;
+            } catch (InvalidAssumptionException e) {
+                CompilerDirectives.transferToInterpreterAndInvalidate();
+                isSingleThreaded = false;
+            }
+        }
+
+        // multithreaded cases
+        synchronized (lock) {
+            doSetNext(trace);
         }
     }
 }

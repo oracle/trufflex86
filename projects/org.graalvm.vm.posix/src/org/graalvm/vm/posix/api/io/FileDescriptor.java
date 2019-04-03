@@ -82,6 +82,7 @@ public class FileDescriptor {
         return 0;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void finalize() {
         if (CLOSE_ON_EXIT && !closed) {

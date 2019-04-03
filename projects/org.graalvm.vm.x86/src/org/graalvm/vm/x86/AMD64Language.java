@@ -48,9 +48,11 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.hardware.MMU;
 import org.graalvm.vm.util.log.Trace;
+import org.graalvm.vm.x86.node.InterpreterThreadRootNode;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.node.debug.trace.LogStreamHandler;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
@@ -90,6 +92,23 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
     }
 
     @Override
+    protected void initializeContext(AMD64Context ctx) {
+        InterpreterThreadRootNode interpreter = new InterpreterThreadRootNode(this, fd);
+        ctx.setInterpreter(Truffle.getRuntime().createCallTarget(interpreter));
+    }
+
+    @Override
+    protected void initializeMultiThreading(AMD64Context context) {
+        context.getSingleThreadedAssumption().invalidate();
+    }
+
+    @Override
+    protected boolean patchContext(AMD64Context ctx, Env env) {
+        ctx.patch(env);
+        return true;
+    }
+
+    @Override
     protected boolean isObjectOfLanguage(Object object) {
         return false;
     }
@@ -117,5 +136,10 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
 
     public static String getHome() {
         return getCurrentLanguage(AMD64Language.class).getLanguageHome();
+    }
+
+    @Override
+    protected boolean isThreadAccessAllowed(Thread thread, boolean singleThreaded) {
+        return true;
     }
 }

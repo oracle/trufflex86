@@ -1295,11 +1295,11 @@ public class PosixEnvironment {
     }
 
     // DEBUGGING FEATURES (NONSTANDARD!)
-    public void printk(long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
+    public void printk(long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
         String fmt = cstr(a1);
         StringBuilder buf = new StringBuilder(fmt.length());
         int state = 0;
-        long[] args = {a2, a3, a4, a5, a6, a7};
+        long[] args = {a2, a3, a4, a5, a6};
         int argidx = 0;
         for (char c : fmt.toCharArray()) {
             switch (state) {

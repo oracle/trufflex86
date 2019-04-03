@@ -47,6 +47,7 @@ import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.posix.api.CString;
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.linux.Sched;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.AMD64Node;
@@ -92,6 +93,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_getsockname = 51;
     public static final int SYS_getpeername = 52;
     public static final int SYS_setsockopt = 54;
+    public static final int SYS_clone = 56;
     public static final int SYS_exit = 60;
     public static final int SYS_uname = 63;
     public static final int SYS_fcntl = 72;
@@ -135,6 +137,7 @@ public class SyscallWrapper extends AMD64Node {
     private final VirtualMemory memory;
 
     @Child private ArchPrctl prctl;
+    @Child private Clone clone;
 
     public SyscallWrapper(PosixEnvironment posix, VirtualMemory memory) {
         this.posix = posix;
@@ -201,7 +204,22 @@ public class SyscallWrapper extends AMD64Node {
         log.log(Level.INFO, () -> String.format("arch_prctl(%s, 0x%x)", name, addr));
     }
 
-    public long executeI64(VirtualFrame frame, int nr, long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
+    @TruffleBoundary
+    private static void tracePrctlFail(int errno) {
+        log.log(Level.INFO, "arch_prctl failed: " + Errno.toString(errno));
+    }
+
+    @TruffleBoundary
+    private static void traceClone(long flags, long child_stack, long ptid, long ctid, long newtls) {
+        log.log(Level.INFO, () -> String.format("clone(%s, 0x%x, 0x%x, 0x%x, 0x%x)", Sched.clone((int) flags), child_stack, ptid, newtls, ctid));
+    }
+
+    @TruffleBoundary
+    private static void traceCloneFail(int errno) {
+        log.log(Level.INFO, "clone failed: " + Errno.toString(errno));
+    }
+
+    public long executeI64(VirtualFrame frame, int nr, long a1, long a2, long a3, long a4, long a5, long a6, long pc) throws SyscallException {
         switch (nr) {
             case SYS_arch_prctl:
                 if (prctl == null) {
@@ -211,14 +229,37 @@ public class SyscallWrapper extends AMD64Node {
                 if (posix.isStrace()) {
                     tracePrctl((int) a1, a2);
                 }
-                return prctl.execute(frame, (int) a1, a2);
+                try {
+                    return prctl.execute(frame, (int) a1, a2);
+                } catch (SyscallException e) {
+                    if (posix.isStrace()) {
+                        tracePrctlFail((int) e.getValue());
+                    }
+                    throw e;
+                }
+            case SYS_clone:
+                if (clone == null) {
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
+                    clone = insert(new Clone());
+                }
+                if (posix.isStrace()) {
+                    traceClone(a1, a2, a3, a4, a5);
+                }
+                try {
+                    return clone.execute(frame, a1, a2, a3, a4, a5, pc);
+                } catch (SyscallException e) {
+                    if (posix.isStrace()) {
+                        traceCloneFail((int) e.getValue());
+                    }
+                    throw e;
+                }
         }
-        return executeWrapper(nr, a1, a2, a3, a4, a5, a6, a7);
+        return executeWrapper(nr, a1, a2, a3, a4, a5, a6);
     }
 
     @TruffleBoundary
-    private long executeWrapper(int nr, long a1, long a2, long a3, long a4, long a5, long a6, long a7) throws SyscallException {
-        log.log(Levels.DEBUG, () -> String.format("syscall %d: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", nr, a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
+    private long executeWrapper(int nr, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
+        log.log(Levels.DEBUG, () -> String.format("syscall %d: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", nr, a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6));
         switch (nr) {
             case SYS_read:
                 return posix.read((int) a1, a2, a3);
@@ -354,13 +395,13 @@ public class SyscallWrapper extends AMD64Node {
             case SYS_prlimit64:
                 return posix.prlimit64((int) a1, (int) a2, a3, a4);
             case SYS_DEBUG:
-                log.log(Levels.INFO, String.format("DEBUG: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6, a7, a7));
+                log.log(Levels.INFO, String.format("DEBUG: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6));
                 return 0;
             case SYS_PRINTK:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, "printk(...)");
                 }
-                posix.printk(a1, a2, a3, a4, a5, a6, a7);
+                posix.printk(a1, a2, a3, a4, a5, a6);
                 return 0;
             case SYS_interop_init:
                 throw new InteropInitException(a1, a2, a3, a4);

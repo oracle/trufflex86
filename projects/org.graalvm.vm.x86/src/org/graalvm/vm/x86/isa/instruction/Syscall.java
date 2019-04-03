@@ -125,7 +125,7 @@ public class Syscall extends AMD64Instruction {
         long r9 = readR9.executeI64(frame);
         long result;
         try {
-            result = syscall.executeI64(frame, (int) rax, rdi, rsi, rdx, r10, r8, r9, 0);
+            result = syscall.executeI64(frame, (int) rax, rdi, rsi, rdx, r10, r8, r9, pc);
         } catch (SyscallException e) {
             result = -e.getValue();
             if (e.getValue() == Errno.ENOSYS) {

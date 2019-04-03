@@ -48,6 +48,7 @@ import org.graalvm.vm.x86.AMD64Context;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node.Child;
@@ -58,12 +59,14 @@ public class TraceRegistry {
 
     @Child private IndirectCallNode node = Truffle.getRuntime().createIndirectCallNode();
 
-    private Map<Long, CompiledTrace> traces;
+    private final Map<Long, CompiledTrace> traces;
+    private final ContextReference<AMD64Context> ctxref;
 
     public TraceRegistry(TruffleLanguage<AMD64Context> language, FrameDescriptor frameDescriptor) {
         this.language = language;
         this.frameDescriptor = frameDescriptor;
         traces = new HashMap<>();
+        ctxref = language.getContextReference();
     }
 
     @TruffleBoundary
@@ -71,7 +74,7 @@ public class TraceRegistry {
         CompiledTrace trace = traces.get(pc);
         if (trace == null) {
             TraceCallTarget target = new TraceCallTarget(language, frameDescriptor);
-            trace = new CompiledTrace(target);
+            trace = new CompiledTrace(target, ctxref.get().getSingleThreadedAssumption());
             traces.put(pc, trace);
         }
         return trace;

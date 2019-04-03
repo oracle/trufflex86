@@ -82,5 +82,4 @@ public class Vmx86 extends AMD64Language {
             throw new IllegalArgumentException("Source type is not supported");
         }
     }
-
 }

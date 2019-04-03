@@ -56,6 +56,10 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
+import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -66,9 +70,11 @@ public class AMD64Context {
     private static final String ARCH_NAME = "x86_64";
     private static final String[] REGISTER_NAMES = {"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"};
 
+    private Env env;
+
     private final VirtualMemory memory;
     private final PosixEnvironment posix;
-    private final String[] args;
+    private String[] args;
 
     private final TruffleLanguage<AMD64Context> language;
     private final FrameDescriptor frameDescriptor;
@@ -93,39 +99,50 @@ public class AMD64Context {
 
     private final FrameSlot instructionCount;
 
+    private final FrameSlot cpuState;
+    private final FrameSlot gprMask;
+    private final FrameSlot avxMask;
+
     private final ArchitecturalState state;
 
     private NavigableMap<Long, Symbol> symbols;
     private SymbolResolver symbolResolver;
 
-    private TraceRegistry traces;
-    private SubstitutionRegistry substitutions;
+    private final TraceRegistry traces;
+    private final SubstitutionRegistry substitutions;
 
     private CpuState snapshot;
     private long returnAddress;
     private long scratchMemory;
     private long callbacks;
 
-    private ExecutionTraceWriter traceWriter;
-    private LogStreamHandler logHandler;
+    private final ExecutionTraceWriter traceWriter;
+    private final LogStreamHandler logHandler;
 
     private InteropCallback interopCallback;
     private InteropFunctionPointers interopPointers;
+
+    private CallTarget interpreterMain;
+
+    private final Assumption singleThreadedAssumption;
 
     public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd) {
         this(language, env, fd, null, null);
     }
 
     public AMD64Context(TruffleLanguage<AMD64Context> language, Env env, FrameDescriptor fd, ExecutionTraceWriter traceWriter, LogStreamHandler logHandler) {
+        this.env = env;
         this.language = language;
         this.traceWriter = traceWriter;
         this.logHandler = logHandler;
         frameDescriptor = fd;
         memory = VirtualMemory.create();
+
         if (traceWriter != null) {
             MemoryAccessTracer memoryTracer = new MemoryAccessTracer(traceWriter);
             memory.setAccessLogger(memoryTracer);
         }
+
         posix = new PosixEnvironment(memory, ARCH_NAME, traceWriter);
         posix.setStandardIO(env.in(), env.out(), env.err());
         args = env.getApplicationArguments();
@@ -134,6 +151,7 @@ public class AMD64Context {
         for (int i = 0; i < REGISTER_NAMES.length; i++) {
             gpr[i] = frameDescriptor.addFrameSlot(REGISTER_NAMES[i], FrameSlotKind.Long);
         }
+
         zmm = new FrameSlot[32];
         xmm = new FrameSlot[32];
         xmmF32 = new FrameSlot[32];
@@ -146,6 +164,7 @@ public class AMD64Context {
             xmmF64[i] = frameDescriptor.addFrameSlot("xmm" + i + "F64", FrameSlotKind.Double);
             xmmType[i] = frameDescriptor.addFrameSlot("xmm" + i + "Type", FrameSlotKind.Int);
         }
+
         fs = frameDescriptor.addFrameSlot("fs", FrameSlotKind.Long);
         gs = frameDescriptor.addFrameSlot("gs", FrameSlotKind.Long);
         pc = frameDescriptor.addFrameSlot("rip", FrameSlotKind.Long);
@@ -159,12 +178,24 @@ public class AMD64Context {
         ac = frameDescriptor.addFrameSlot("ac", FrameSlotKind.Boolean);
         id = frameDescriptor.addFrameSlot("id", FrameSlotKind.Boolean);
         instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
+
+        cpuState = frameDescriptor.addFrameSlot("cpustate", FrameSlotKind.Object);
+        gprMask = frameDescriptor.addFrameSlot("gprmask", FrameSlotKind.Object);
+        avxMask = frameDescriptor.addFrameSlot("avxmask", FrameSlotKind.Object);
+
+        singleThreadedAssumption = Truffle.getRuntime().createAssumption("single threaded");
         traces = new TraceRegistry(language, frameDescriptor);
         substitutions = new SubstitutionRegistry();
         state = new ArchitecturalState(this);
         symbols = Collections.emptyNavigableMap();
         symbolResolver = new SymbolResolver(symbols);
         scratchMemory = 0;
+    }
+
+    public void patch(Env newEnv) {
+        this.env = newEnv;
+        posix.setStandardIO(newEnv.in(), newEnv.out(), newEnv.err());
+        args = newEnv.getApplicationArguments();
     }
 
     public TruffleLanguage<AMD64Context> getLanguage() {
@@ -183,6 +214,7 @@ public class AMD64Context {
         return posix;
     }
 
+    @TruffleBoundary
     public void setSymbols(NavigableMap<Long, Symbol> symbols) {
         this.symbols = symbols;
         this.symbolResolver = new SymbolResolver(symbols);
@@ -280,6 +312,18 @@ public class AMD64Context {
         return instructionCount;
     }
 
+    public FrameSlot getCpuState() {
+        return cpuState;
+    }
+
+    public FrameSlot getGPRMask() {
+        return gprMask;
+    }
+
+    public FrameSlot getAVXMask() {
+        return avxMask;
+    }
+
     public ArchitecturalState getState() {
         return state;
     }
@@ -375,5 +419,21 @@ public class AMD64Context {
 
     public InteropFunctionPointers getInteropFunctionPointers() {
         return interopPointers;
+    }
+
+    public Thread createThread(Runnable runnable) {
+        return env.createThread(runnable);
+    }
+
+    public void setInterpreter(CallTarget interpreter) {
+        this.interpreterMain = interpreter;
+    }
+
+    public CallTarget getInterpreter() {
+        return interpreterMain;
+    }
+
+    public Assumption getSingleThreadedAssumption() {
+        return singleThreadedAssumption;
     }
 }

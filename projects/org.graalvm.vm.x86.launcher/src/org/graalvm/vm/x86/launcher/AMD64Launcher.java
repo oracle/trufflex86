@@ -173,6 +173,7 @@ public class AMD64Launcher extends AbstractLanguageLauncher {
 
     protected int execute(Context.Builder contextBuilder) {
         contextBuilder.arguments(getLanguageId(), programArgs);
+        contextBuilder.allowCreateThread(true);
         try (Context context = contextBuilder.build()) {
             runVersionAction(versionAction, context.getEngine());
             Value result = context.eval(Source.newBuilder(getLanguageId(), file).build());

@@ -61,12 +61,14 @@ import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.posix.InteropReturnException;
 import org.graalvm.vm.x86.posix.InteropReturnResult;
 
+import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class TraceCallTarget extends AMD64RootNode {
@@ -78,10 +80,19 @@ public class TraceCallTarget extends AMD64RootNode {
     @Child private CopyToCpuStateNode read = new CopyToCpuStateNode();
     @Child private TraceDispatchNode dispatch;
 
+    private final FrameSlot cpuStateSlot;
+    private final FrameSlot gprMaskSlot;
+    private final FrameSlot avxMaskSlot;
+
     private static final boolean CHECK = getBoolean(Options.TRACE_STATE_CHECK);
 
     protected TraceCallTarget(TruffleLanguage<AMD64Context> language, FrameDescriptor fd) {
         super(language, fd);
+        AMD64Context ctx = language.getContextReference().get();
+        cpuStateSlot = ctx.getCpuState();
+        gprMaskSlot = ctx.getGPRMask();
+        avxMaskSlot = ctx.getAVXMask();
+        singleThreaded = ctx.getSingleThreadedAssumption();
     }
 
     @CompilationFinal private Symbol sym = null;
@@ -90,6 +101,11 @@ public class TraceCallTarget extends AMD64RootNode {
     @CompilationFinal(dimensions = 1) private boolean[] gprWriteMask = null;
     @CompilationFinal(dimensions = 1) private boolean[] avxReadMask = null;
     @CompilationFinal(dimensions = 1) private boolean[] avxWriteMask = null;
+
+    @CompilationFinal private boolean initialized = false;
+    private final Object lock = new Object();
+
+    private final Assumption singleThreaded;
 
     @CompilationFinal(dimensions = 1) private static final boolean[] allTrue = new boolean[16];
     static {
@@ -164,39 +180,19 @@ public class TraceCallTarget extends AMD64RootNode {
         assertEq("r15", ok.r15, reduced.r15);
     }
 
-    @Override
-    public CpuState execute(VirtualFrame frame) {
-        CpuState initialState = (CpuState) frame.getArguments()[0];
-        if (dispatch == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            AMD64Context ctx = getContextReference().get();
-            ArchitecturalState state = ctx.getState();
-            dispatch = insert(new TraceDispatchNode(state));
-            try {
-                sym = ctx.getSymbolResolver().getSymbol(initialState.rip);
-            } catch (Throwable t) {
-                log.log(Level.WARNING, "Cannot resolve symbol: " + t, t);
+    private void initialize() {
+        if (singleThreaded.isValid()) {
+            doInitialize();
+        } else {
+            synchronized (lock) {
+                doInitialize();
             }
         }
-        if (gprReadMask != null && !TRUFFLE_CALLS) {
-            write.execute(frame, initialState, gprReadMask, avxReadMask);
-        } else {
-            write.execute(frame, initialState);
-        }
-        long pc;
-        boolean ret = false;
-        boolean interopRet = false;
-        try {
-            pc = dispatch.execute(frame);
-        } catch (ReturnException e) {
-            pc = e.getBTA();
-            ret = true;
-        } catch (InteropReturnException e) {
-            pc = 0; // dummy value, never used
-            interopRet = true;
-        }
-        if (gprReadMask == null && !TRUFFLE_CALLS) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
+    }
+
+    private void doInitialize() {
+        // check again: don't initialize twice
+        if (!initialized) {
             gprReadMask = new boolean[16];
             gprWriteMask = new boolean[16];
             Register[] reads = dispatch.getGPRReads();
@@ -224,6 +220,50 @@ public class TraceCallTarget extends AMD64RootNode {
                 avxReadMask[r] = true; // initialize frames
                 avxWriteMask[r] = true;
             }
+            initialized = true;
+        }
+    }
+
+    @Override
+    public CpuState execute(VirtualFrame frame) {
+        CpuState initialState = (CpuState) frame.getArguments()[0];
+        frame.setObject(cpuStateSlot, initialState);
+
+        if (dispatch == null) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            AMD64Context ctx = getContextReference().get();
+            ArchitecturalState state = ctx.getState();
+            dispatch = insert(new TraceDispatchNode(state));
+            try {
+                sym = ctx.getSymbolResolver().getSymbol(initialState.rip);
+            } catch (Throwable t) {
+                log.log(Level.WARNING, "Cannot resolve symbol: " + t, t);
+            }
+        }
+        if (initialized && !TRUFFLE_CALLS) {
+            write.execute(frame, initialState, gprReadMask, avxReadMask);
+        } else {
+            write.execute(frame, initialState);
+        }
+
+        frame.setObject(gprMaskSlot, gprWriteMask);
+        frame.setObject(avxMaskSlot, avxWriteMask);
+
+        long pc;
+        boolean ret = false;
+        boolean interopRet = false;
+        try {
+            pc = dispatch.execute(frame);
+        } catch (ReturnException e) {
+            pc = e.getBTA();
+            ret = true;
+        } catch (InteropReturnException e) {
+            pc = 0; // dummy value, never used
+            interopRet = true;
+        }
+        if (!initialized && !TRUFFLE_CALLS) {
+            CompilerDirectives.transferToInterpreterAndInvalidate();
+            initialize();
         }
         CpuState result;
         if (TRUFFLE_CALLS) {

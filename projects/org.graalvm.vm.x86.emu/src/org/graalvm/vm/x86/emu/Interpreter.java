@@ -323,7 +323,7 @@ public class Interpreter {
                 if (posix.isStrace()) {
                     log.log(Level.INFO, "printk(...)");
                 }
-                posix.printk(a1, a2, a3, a4, a5, a6, 0);
+                posix.printk(a1, a2, a3, a4, a5, a6);
                 return 0;
             default:
                 logENOSYS(nr);
