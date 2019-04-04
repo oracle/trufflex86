@@ -251,7 +251,7 @@ public class InstructionView extends JPanel {
                 instructions.add(n);
             }
         }
-        model.removeAllElements();
+        model = new DefaultListModel<>();
         for (Node n : instructions) {
             if (n instanceof RecordNode) {
                 StepRecord step = (StepRecord) ((RecordNode) n).getRecord();
@@ -279,6 +279,7 @@ public class InstructionView extends JPanel {
                 model.addElement(buf.toString());
             }
         }
+        insns.setModel(model);
         insns.setSelectedIndex(0);
         insns.repaint();
     }
