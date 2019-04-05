@@ -58,6 +58,7 @@ import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.posix.api.MemoryFaultException;
 import org.graalvm.vm.posix.elf.Symbol;
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
@@ -286,7 +287,7 @@ public class TraceDispatchNode extends AMD64Node {
         }
         if (pc != startPC) { // check cached entry point
             CompilerDirectives.transferToInterpreter();
-            throw new RuntimeException("non-constant entry point");
+            throw new RuntimeException("non-constant entry point: " + HexFormatter.tohex(pc, 16) + " vs " + HexFormatter.tohex(startPC, 16));
         } else {
             pc = startPC;
         }

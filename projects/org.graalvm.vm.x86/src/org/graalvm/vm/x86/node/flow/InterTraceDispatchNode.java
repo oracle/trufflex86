@@ -52,6 +52,7 @@ import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.posix.InteropInitException;
+import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -73,8 +74,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     public static final boolean PRINT_STATS = getBoolean(Options.PRINT_DISPATCH_STATS);
     public static final boolean USE_LOOP_NODE = getBoolean(Options.USE_LOOP_NODE);
 
-    private int noSuccessor = 0;
-    private int hasSuccessor = 0;
+    private long noSuccessor = 0;
+    private long hasSuccessor = 0;
 
     private long insncnt = 0;
 
@@ -94,8 +95,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     @TruffleBoundary
     private void printStats() {
         Trace.log.printf("Traces: %d\n", traces.size());
-        Trace.log.printf("Successor chain used: %d\n", hasSuccessor);
-        Trace.log.printf("No successor chain used: %d\n", noSuccessor);
+        Trace.log.printf("Successor chain used: %d (%s%%)\n", hasSuccessor, (double) hasSuccessor / (hasSuccessor + noSuccessor) * 100);
+        Trace.log.printf("No successor chain used: %d (%s%%)\n", noSuccessor, (double) noSuccessor / (hasSuccessor + noSuccessor) * 100);
         Trace.log.printf("Executed instructions: %d\n", insncnt);
     }
 
@@ -181,6 +182,12 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
             }
         } catch (InteropInitException e) {
             writeState.execute(frame, state);
+            throw e;
+        } catch (ProcessExitException e) {
+            CompilerDirectives.transferToInterpreter();
+            if (PRINT_STATS) {
+                printStats();
+            }
             throw e;
         }
     }

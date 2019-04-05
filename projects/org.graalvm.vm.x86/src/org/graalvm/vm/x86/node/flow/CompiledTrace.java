@@ -87,7 +87,7 @@ public class CompiledTrace {
         }
 
         if (usedSuccessors < successors.length) {
-            successors[usedSuccessors] = trc;
+            successors[usedSuccessors++] = trc;
         }
     }
 
