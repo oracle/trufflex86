@@ -57,7 +57,7 @@ public abstract class Record {
 
     private final int magic;
     private Supplier<CpuState> lastState;
-    private long tid;
+    private int tid;
 
     protected Record(int magic) {
         this.magic = magic;
@@ -94,7 +94,7 @@ public abstract class Record {
         }
         int size = in.read32bit();
         long start = in.tell();
-        long tid = in.read64bit();
+        int tid = in.read32bit();
 
         Record record = null;
         switch (type) {
@@ -158,7 +158,7 @@ public abstract class Record {
         out.write32bit(magic);
         out.write32bit(size);
         long start = out.tell();
-        out.write64bit(tid);
+        out.write32bit(tid);
         writeRecord(out);
         long end = out.tell();
         long sz = end - start;
@@ -168,7 +168,7 @@ public abstract class Record {
     }
 
     protected final int size() {
-        return getDataSize() + 8;
+        return getDataSize() + 4;
     }
 
     protected abstract int getDataSize();

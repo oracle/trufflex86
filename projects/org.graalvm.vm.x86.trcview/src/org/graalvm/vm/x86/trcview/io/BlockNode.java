@@ -96,16 +96,34 @@ public class BlockNode extends Node {
     public static BlockNode read(ExecutionTraceReader in, ProgressListener progress) throws IOException {
         List<Node> nodes = new ArrayList<>();
         Node node;
-        while ((node = parseRecord(in, progress)) != null) {
+        long tid = 0;
+        while ((node = parseRecord(in, progress, tid)) != null) {
             nodes.add(node);
+            if (tid == 0) {
+                if (node instanceof RecordNode) {
+                    tid = ((RecordNode) node).getRecord().getTid();
+                } else if (node instanceof BlockNode) {
+                    tid = ((BlockNode) node).getFirstStep().getTid();
+                }
+            }
         }
         return new BlockNode(null, nodes);
     }
 
-    private static Node parseRecord(ExecutionTraceReader in, ProgressListener progress) throws IOException {
+    private static Node parseRecord(ExecutionTraceReader in, ProgressListener progress, long thread) throws IOException {
+        long tid = thread;
         Record record = in.read();
         if (record == null) {
             return null;
+        }
+        while (tid != 0 && record.getTid() != tid) {
+            record = in.read();
+            if (record == null) {
+                return null;
+            }
+        }
+        if (tid == 0) {
+            tid = record.getTid();
         }
         if (record instanceof StepRecord) {
             StepRecord step = (StepRecord) record;
@@ -116,7 +134,7 @@ public class BlockNode extends Node {
                 List<Node> result = new ArrayList<>();
                 CallArgsRecord args = null;
                 while (true) {
-                    Node child = parseRecord(in, progress);
+                    Node child = parseRecord(in, progress, tid);
                     if (child == null) {
                         break;
                     }

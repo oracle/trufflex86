@@ -156,7 +156,7 @@ public class PosixEnvironment {
         return traceWriter;
     }
 
-    public static long getTid() {
+    public static int getTid() {
         return tid.get();
     }
 

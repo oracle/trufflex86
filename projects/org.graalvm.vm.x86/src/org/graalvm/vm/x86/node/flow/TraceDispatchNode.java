@@ -363,7 +363,7 @@ public class TraceDispatchNode extends AMD64Node {
                 filename = posix.getFilename(e.getPC());
             }
 
-            long tid = PosixEnvironment.getTid();
+            int tid = PosixEnvironment.getTid();
             if (sym == null) {
                 Trace.log.printf("[tid=%s] Exception at address 0x%016x!\n", tid, e.getPC());
             } else {
