@@ -90,46 +90,58 @@ public class InitializeFromCpuStateNode extends AMD64Node {
 
     @CompilationFinal private FrameSlot instructionCount;
 
+    @CompilationFinal private boolean initialized = false;
+    private final Object lock = new Object();
+
     private void createChildrenIfNecessary() {
-        if (pc == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            rax = regs.getRegister(Register.RAX).createWrite();
-            rbx = regs.getRegister(Register.RBX).createWrite();
-            rcx = regs.getRegister(Register.RCX).createWrite();
-            rdx = regs.getRegister(Register.RDX).createWrite();
-            rsi = regs.getRegister(Register.RSI).createWrite();
-            rdi = regs.getRegister(Register.RDI).createWrite();
-            rbp = regs.getRegister(Register.RBP).createWrite();
-            rsp = regs.getRegister(Register.RSP).createWrite();
-            r8 = regs.getRegister(Register.R8).createWrite();
-            r9 = regs.getRegister(Register.R9).createWrite();
-            r10 = regs.getRegister(Register.R10).createWrite();
-            r11 = regs.getRegister(Register.R11).createWrite();
-            r12 = regs.getRegister(Register.R12).createWrite();
-            r13 = regs.getRegister(Register.R13).createWrite();
-            r14 = regs.getRegister(Register.R14).createWrite();
-            r15 = regs.getRegister(Register.R15).createWrite();
-            fs = regs.getFS().createWrite();
-            gs = regs.getGS().createWrite();
-            cf = regs.getCF().createWrite();
-            pf = regs.getPF().createWrite();
-            af = regs.getAF().createWrite();
-            zf = regs.getZF().createWrite();
-            sf = regs.getSF().createWrite();
-            df = regs.getDF().createWrite();
-            of = regs.getOF().createWrite();
-            ac = regs.getAC().createWrite();
-            id = regs.getID().createWrite();
-            zmm = new AVXRegisterWriteNode[32];
-            for (int i = 0; i < zmm.length; i++) {
-                AVXRegister reg = regs.getAVXRegister(i);
-                zmm[i] = reg.createWrite();
+        if (!initialized) {
+            synchronized (lock) {
+                if (!initialized) {
+                    createChildren();
+                    initialized = true;
+                }
             }
-            pc = regs.getPC().createWrite();
-            instructionCount = state.getInstructionCount();
         }
+    }
+
+    private void createChildren() {
+        CompilerDirectives.transferToInterpreterAndInvalidate();
+        ArchitecturalState state = getContextReference().get().getState();
+        RegisterAccessFactory regs = state.getRegisters();
+        rax = regs.getRegister(Register.RAX).createWrite();
+        rbx = regs.getRegister(Register.RBX).createWrite();
+        rcx = regs.getRegister(Register.RCX).createWrite();
+        rdx = regs.getRegister(Register.RDX).createWrite();
+        rsi = regs.getRegister(Register.RSI).createWrite();
+        rdi = regs.getRegister(Register.RDI).createWrite();
+        rbp = regs.getRegister(Register.RBP).createWrite();
+        rsp = regs.getRegister(Register.RSP).createWrite();
+        r8 = regs.getRegister(Register.R8).createWrite();
+        r9 = regs.getRegister(Register.R9).createWrite();
+        r10 = regs.getRegister(Register.R10).createWrite();
+        r11 = regs.getRegister(Register.R11).createWrite();
+        r12 = regs.getRegister(Register.R12).createWrite();
+        r13 = regs.getRegister(Register.R13).createWrite();
+        r14 = regs.getRegister(Register.R14).createWrite();
+        r15 = regs.getRegister(Register.R15).createWrite();
+        fs = regs.getFS().createWrite();
+        gs = regs.getGS().createWrite();
+        cf = regs.getCF().createWrite();
+        pf = regs.getPF().createWrite();
+        af = regs.getAF().createWrite();
+        zf = regs.getZF().createWrite();
+        sf = regs.getSF().createWrite();
+        df = regs.getDF().createWrite();
+        of = regs.getOF().createWrite();
+        ac = regs.getAC().createWrite();
+        id = regs.getID().createWrite();
+        zmm = new AVXRegisterWriteNode[32];
+        for (int i = 0; i < zmm.length; i++) {
+            AVXRegister reg = regs.getAVXRegister(i);
+            zmm[i] = reg.createWrite();
+        }
+        pc = regs.getPC().createWrite();
+        instructionCount = state.getInstructionCount();
     }
 
     @ExplodeLoop

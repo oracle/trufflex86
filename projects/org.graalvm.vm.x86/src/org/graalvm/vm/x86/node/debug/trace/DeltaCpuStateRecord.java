@@ -349,7 +349,7 @@ public class DeltaCpuStateRecord extends CpuStateRecord {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 1 + deltaId.length + 8 * deltaId.length;
     }
 

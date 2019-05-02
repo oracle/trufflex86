@@ -100,7 +100,7 @@ public class TraceDispatchNode extends AMD64Node {
     @Children private AMD64BasicBlock[] blocks;
     @CompilationFinal private int usedBlocks;
 
-    @CompilationFinal private long startPC = -1;
+    private final long startPC;
 
     private final VirtualMemory memory;
     private final NavigableMap<Long, AMD64BasicBlock> blockLookup = new TreeMap<>();
@@ -117,7 +117,7 @@ public class TraceDispatchNode extends AMD64Node {
 
     private final Object lock = new Object();
 
-    public TraceDispatchNode(ArchitecturalState state) {
+    public TraceDispatchNode(ArchitecturalState state, long pc) {
         memory = state.getMemory();
         reader = new CodeMemoryReader(memory, 0);
         substitutions = state.getSubstitutions();
@@ -126,6 +126,8 @@ public class TraceDispatchNode extends AMD64Node {
         writePC = state.getRegisters().getPC().createWrite();
         blocks = new AMD64BasicBlock[maxBlockCount + 1];
         usedBlocks = 0;
+        startPC = pc;
+        get(pc);
     }
 
     public long getStartAddress() {
@@ -281,10 +283,6 @@ public class TraceDispatchNode extends AMD64Node {
     @ExplodeLoop(kind = LoopExplosionKind.MERGE_EXPLODE)
     public long execute(VirtualFrame frame) {
         long pc = readPC.executeI64(frame);
-        if (startPC == -1) { // cache entry point
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            startPC = pc;
-        }
         if (pc != startPC) { // check cached entry point
             CompilerDirectives.transferToInterpreter();
             throw new RuntimeException("non-constant entry point: " + HexFormatter.tohex(pc, 16) + " vs " + HexFormatter.tohex(startPC, 16));
@@ -365,10 +363,11 @@ public class TraceDispatchNode extends AMD64Node {
                 filename = posix.getFilename(e.getPC());
             }
 
+            long tid = PosixEnvironment.getTid();
             if (sym == null) {
-                Trace.log.printf("Exception at address 0x%016x!\n", e.getPC());
+                Trace.log.printf("[tid=%s] Exception at address 0x%016x!\n", tid, e.getPC());
             } else {
-                Trace.log.printf("Exception at address 0x%016x <%s>!\n", e.getPC(), sym.getName());
+                Trace.log.printf("[tid=%s] Exception at address 0x%016x <%s>!\n", tid, e.getPC(), sym.getName());
             }
             if (filename != null) {
                 if (offset != 0) {

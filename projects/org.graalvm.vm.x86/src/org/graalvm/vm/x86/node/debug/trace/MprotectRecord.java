@@ -83,7 +83,7 @@ public class MprotectRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 2 * 8 + 2 * 4;
     }
 

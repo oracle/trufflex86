@@ -167,8 +167,12 @@ public class TextDump {
                     StepRecord step = (StepRecord) record;
                     if (dumpState) {
                         out.println("----------------");
+                        out.println("[tid=" + step.getTid() + "]");
                     }
                     if (dumpPC) {
+                        if (!dumpState) {
+                            out.print("[tid=" + step.getTid() + "] ");
+                        }
                         out.println(step.getLocation());
                     }
                     if (dumpState) {

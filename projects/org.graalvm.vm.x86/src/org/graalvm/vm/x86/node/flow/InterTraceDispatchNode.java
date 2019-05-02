@@ -58,6 +58,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -81,8 +83,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
 
     @Child private LoopNode loop = Truffle.getRuntime().createLoopNode(new LoopBody());
 
-    private CpuState state;
-    private CompiledTrace currentTrace;
+    private final FrameSlot stateSlot;
+    private final FrameSlot traceSlot;
 
     @CompilationFinal private CompiledTrace startTrace;
 
@@ -90,6 +92,8 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
         readPC = state.getRegisters().getPC().createRead();
         writePC = state.getRegisters().getPC().createWrite();
         traces = state.getTraceRegistry();
+        stateSlot = state.getDispatchCpuState();
+        traceSlot = state.getDispatchTrace();
     }
 
     @TruffleBoundary
@@ -107,10 +111,15 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     private class LoopBody extends AMD64Node implements RepeatingNode {
         @Override
         public boolean executeRepeating(VirtualFrame frame) {
+            CpuState state = (CpuState) FrameUtil.getObjectSafe(frame, stateSlot);
+            CompiledTrace currentTrace = (CompiledTrace) FrameUtil.getObjectSafe(frame, traceSlot);
+            // assert currentTrace.trace.getStartAddress() == state.rip;
             try {
                 state = (CpuState) currentTrace.callTarget.call(state);
+                frame.setObject(stateSlot, state);
             } catch (RetException e) {
                 state = e.getState();
+                frame.setObject(stateSlot, state);
                 throw e;
             }
             CompiledTrace next = currentTrace.getNext(state.rip);
@@ -118,23 +127,27 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                 noSuccessor++;
                 next = traces.get(state.rip);
                 currentTrace.setNext(next);
+                // assert next.trace.getStartAddress() == state.rip;
             } else {
                 hasSuccessor++;
+                // assert next.trace.getStartAddress() == state.rip;
             }
             currentTrace = next;
+            frame.setObject(traceSlot, currentTrace);
             insncnt = state.instructionCount;
             return true;
         }
     }
 
-    public CpuState execute(VirtualFrame frame, CpuState cpuState) {
-        this.state = cpuState;
-        currentTrace = startTrace;
+    public CpuState execute(VirtualFrame frame, CpuState state) {
+        frame.setObject(stateSlot, state);
+        CompiledTrace currentTrace = startTrace;
         if (currentTrace == null || currentTrace.trace.getStartAddress() != state.rip) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             currentTrace = traces.get(state.rip);
             startTrace = currentTrace;
         }
+        frame.setObject(traceSlot, currentTrace);
 
         try {
             loop.executeLoop(frame);
@@ -151,13 +164,15 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
     @Override
     public long execute(VirtualFrame frame) {
         long pc = readPC.executeI64(frame);
-        state = readState.execute(frame, pc);
-        currentTrace = startTrace;
+        CpuState state = readState.execute(frame, pc);
+        frame.setObject(stateSlot, state);
+        CompiledTrace currentTrace = startTrace;
         if (currentTrace == null || currentTrace.trace.getStartAddress() != state.rip) {
             CompilerDirectives.transferToInterpreterAndInvalidate();
             currentTrace = traces.get(state.rip);
             startTrace = currentTrace;
         }
+        frame.setObject(traceSlot, currentTrace);
 
         try {
             if (USE_LOOP_NODE) {
@@ -168,6 +183,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                 while (true) {
                     pc = state.rip;
                     state = (CpuState) currentTrace.callTarget.call(state);
+                    frame.setObject(stateSlot, state);
                     CompiledTrace next = currentTrace.getNext(state.rip);
                     if (next == null) {
                         noSuccessor++;
@@ -177,6 +193,7 @@ public class InterTraceDispatchNode extends AbstractDispatchNode {
                         hasSuccessor++;
                     }
                     currentTrace = next;
+                    frame.setObject(traceSlot, currentTrace);
                     insncnt = state.instructionCount;
                 }
             }

@@ -67,7 +67,7 @@ public class FullCpuStateRecord extends CpuStateRecord {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 21 * 8 + 16 * 16;
     }
 

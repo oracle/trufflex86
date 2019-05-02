@@ -58,6 +58,7 @@ import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -100,6 +101,8 @@ public class AMD64Context {
     private final FrameSlot instructionCount;
 
     private final FrameSlot cpuState;
+    private final FrameSlot dispatchCpuState;
+    private final FrameSlot dispatchTrace;
     private final FrameSlot gprMask;
     private final FrameSlot avxMask;
 
@@ -122,7 +125,7 @@ public class AMD64Context {
     private InteropCallback interopCallback;
     private InteropFunctionPointers interopPointers;
 
-    private CallTarget interpreterMain;
+    @CompilationFinal private CallTarget interpreterMain;
 
     private final Assumption singleThreadedAssumption;
 
@@ -180,6 +183,9 @@ public class AMD64Context {
         instructionCount = frameDescriptor.addFrameSlot("instructionCount", FrameSlotKind.Long);
 
         cpuState = frameDescriptor.addFrameSlot("cpustate", FrameSlotKind.Object);
+        dispatchCpuState = frameDescriptor.addFrameSlot("dispatchCpuState", FrameSlotKind.Object);
+        dispatchTrace = frameDescriptor.addFrameSlot("dispatchTrace", FrameSlotKind.Object);
+
         gprMask = frameDescriptor.addFrameSlot("gprmask", FrameSlotKind.Object);
         avxMask = frameDescriptor.addFrameSlot("avxmask", FrameSlotKind.Object);
 
@@ -190,6 +196,10 @@ public class AMD64Context {
         symbols = Collections.emptyNavigableMap();
         symbolResolver = new SymbolResolver(symbols);
         scratchMemory = 0;
+    }
+
+    public void initialize() {
+        traces.initialize();
     }
 
     public void patch(Env newEnv) {
@@ -314,6 +324,14 @@ public class AMD64Context {
 
     public FrameSlot getCpuState() {
         return cpuState;
+    }
+
+    public FrameSlot getDispatchCpuState() {
+        return dispatchCpuState;
+    }
+
+    public FrameSlot getDispatchTrace() {
+        return dispatchTrace;
     }
 
     public FrameSlot getGPRMask() {

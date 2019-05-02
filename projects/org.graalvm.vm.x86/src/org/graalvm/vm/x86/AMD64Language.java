@@ -95,6 +95,7 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
     protected void initializeContext(AMD64Context ctx) {
         InterpreterThreadRootNode interpreter = new InterpreterThreadRootNode(this, fd);
         ctx.setInterpreter(Truffle.getRuntime().createCallTarget(interpreter));
+        ctx.initialize();
     }
 
     @Override

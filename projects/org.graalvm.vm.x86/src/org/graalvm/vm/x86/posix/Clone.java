@@ -92,21 +92,27 @@ public class Clone extends AMD64Node {
             state.fs = newtls;
         }
 
+        AMD64Context ctx = ctxref.get();
+        CallTarget threadMain = ctx.getInterpreter();
+        int tid = PosixEnvironment.allocateTid();
+
         if (BitTest.test(flags, Sched.CLONE_PARENT_SETTID)) {
-            memory.executeI32(ptid, 0);
+            memory.executeI32(ptid, tid);
         }
 
         if (BitTest.test(flags, Sched.CLONE_CHILD_SETTID)) {
-            memory.executeI32(ctid, 0);
+            memory.executeI32(ctid, tid);
         }
 
-        AMD64Context ctx = ctxref.get();
-        CallTarget threadMain = ctx.getInterpreter();
-        Thread t = ctx.createThread(() -> threadMain.call(state));
+        Thread t = ctx.createThread(() -> {
+            PosixEnvironment.setTid(tid);
+            state.rax = 0;
+            threadMain.call(state);
+        });
         t.setDaemon(true);
         t.setName("clone@0x" + HexFormatter.tohex(pc, 16));
         t.start();
 
-        return 0;
+        return tid;
     }
 }

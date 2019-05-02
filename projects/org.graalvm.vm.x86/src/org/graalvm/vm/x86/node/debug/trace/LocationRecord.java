@@ -133,7 +133,7 @@ public class LocationRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         int size = 2 * 8;
         filenameCache = filename != null ? filename.getBytes() : null;
         symbolCache = symbol != null ? symbol.getBytes() : null;

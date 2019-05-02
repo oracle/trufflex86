@@ -53,7 +53,7 @@ public class EofRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 0;
     }
 

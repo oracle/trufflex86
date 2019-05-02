@@ -118,6 +118,14 @@ public class PosixEnvironment {
 
     private final ExecutionTraceWriter traceWriter;
 
+    private static int tidctr = 1;
+    private static final Object tidlock = new Object();
+    private static final ThreadLocal<Integer> tid = new ThreadLocal<>();
+
+    static {
+        createTid();
+    }
+
     public PosixEnvironment(VirtualMemory mem, String arch, ExecutionTraceWriter traceWriter) {
         this.mem = mem;
         this.arch = arch;
@@ -146,6 +154,28 @@ public class PosixEnvironment {
 
     public ExecutionTraceWriter getTraceWriter() {
         return traceWriter;
+    }
+
+    public static long getTid() {
+        return tid.get();
+    }
+
+    public static int allocateTid() {
+        int newtid;
+        synchronized (tidlock) {
+            newtid = tidctr++;
+        }
+        return newtid;
+    }
+
+    public static int createTid() {
+        int newtid = allocateTid();
+        setTid(newtid);
+        return newtid;
+    }
+
+    public static void setTid(int newtid) {
+        tid.set(newtid);
     }
 
     public Symbol getSymbol(long pc) {
@@ -753,7 +783,10 @@ public class PosixEnvironment {
     }
 
     public long gettid() {
-        return posix.getpid(); // TODO: implement tid
+        if (strace) {
+            log.log(Level.INFO, "gettid()");
+        }
+        return getTid();
     }
 
     private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result) {

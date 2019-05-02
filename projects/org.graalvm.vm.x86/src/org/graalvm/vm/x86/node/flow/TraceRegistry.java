@@ -43,24 +43,25 @@ package org.graalvm.vm.x86.node.flow;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.x86.AMD64Context;
 
+import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.nodes.IndirectCallNode;
-import com.oracle.truffle.api.nodes.Node.Child;
 
 public class TraceRegistry {
     private final TruffleLanguage<AMD64Context> language;
     private final FrameDescriptor frameDescriptor;
 
-    @Child private IndirectCallNode node = Truffle.getRuntime().createIndirectCallNode();
-
     private final Map<Long, CompiledTrace> traces;
     private final ContextReference<AMD64Context> ctxref;
+    private final Object lock = new Object();
+    @CompilationFinal private Assumption singleThreaded;
 
     public TraceRegistry(TruffleLanguage<AMD64Context> language, FrameDescriptor frameDescriptor) {
         this.language = language;
@@ -69,15 +70,33 @@ public class TraceRegistry {
         ctxref = language.getContextReference();
     }
 
+    public void initialize() {
+        singleThreaded = ctxref.get().getSingleThreadedAssumption();
+    }
+
     @TruffleBoundary
-    public CompiledTrace get(long pc) {
+    private CompiledTrace doGet(long pc) {
         CompiledTrace trace = traces.get(pc);
         if (trace == null) {
-            TraceCallTarget target = new TraceCallTarget(language, frameDescriptor);
+            TraceCallTarget target = new TraceCallTarget(language, frameDescriptor, pc);
             trace = new CompiledTrace(target, ctxref.get().getSingleThreadedAssumption());
             traces.put(pc, trace);
         }
+        if (trace.trace.getStartAddress() != pc) {
+            CompilerDirectives.transferToInterpreter();
+            throw new RuntimeException("error: " + HexFormatter.tohex(trace.trace.getStartAddress(), 16) + " vs " + HexFormatter.tohex(pc, 16));
+        }
         return trace;
+    }
+
+    public CompiledTrace get(long pc) {
+        if (singleThreaded.isValid()) {
+            return doGet(pc);
+        } else {
+            synchronized (lock) {
+                return doGet(pc);
+            }
+        }
     }
 
     public int size() {

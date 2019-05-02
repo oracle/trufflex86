@@ -50,15 +50,18 @@ import org.graalvm.vm.util.io.WordInputStream;
 import org.graalvm.vm.util.io.WordOutputStream;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.isa.CpuState;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 public abstract class Record {
     private static final Logger log = Trace.create(Record.class);
 
     private final int magic;
     private Supplier<CpuState> lastState;
+    private long tid;
 
     protected Record(int magic) {
         this.magic = magic;
+        this.tid = PosixEnvironment.getTid();
     }
 
     protected CpuState getLastState() {
@@ -77,6 +80,10 @@ public abstract class Record {
         lastState = state;
     }
 
+    public long getTid() {
+        return tid;
+    }
+
     @SuppressWarnings("unchecked")
     public static final <T extends Record> T read(WordInputStream in, Supplier<CpuState> lastState) throws IOException {
         int type;
@@ -87,6 +94,7 @@ public abstract class Record {
         }
         int size = in.read32bit();
         long start = in.tell();
+        long tid = in.read64bit();
 
         Record record = null;
         switch (type) {
@@ -134,6 +142,7 @@ public abstract class Record {
             log.warning("Unknown record: 0x" + HexFormatter.tohex(type, 8));
             in.skip(size);
         }
+        record.tid = tid;
 
         long end = in.tell();
         long sz = end - start;
@@ -149,6 +158,7 @@ public abstract class Record {
         out.write32bit(magic);
         out.write32bit(size);
         long start = out.tell();
+        out.write64bit(tid);
         writeRecord(out);
         long end = out.tell();
         long sz = end - start;
@@ -157,7 +167,11 @@ public abstract class Record {
         }
     }
 
-    protected abstract int size();
+    protected final int size() {
+        return getDataSize() + 8;
+    }
+
+    protected abstract int getDataSize();
 
     protected abstract void readRecord(WordInputStream in) throws IOException;
 

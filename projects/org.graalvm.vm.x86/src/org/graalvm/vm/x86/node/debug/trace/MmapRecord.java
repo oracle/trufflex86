@@ -111,7 +111,7 @@ public class MmapRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 4 * 8 + 3 * 4 + sizeArray(data);
     }
 

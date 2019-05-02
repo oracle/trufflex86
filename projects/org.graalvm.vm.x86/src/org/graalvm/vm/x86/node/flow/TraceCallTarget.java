@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.graalvm.vm.posix.elf.Symbol;
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
-import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.isa.CpuState;
 import org.graalvm.vm.x86.isa.Register;
@@ -86,13 +86,22 @@ public class TraceCallTarget extends AMD64RootNode {
 
     private static final boolean CHECK = getBoolean(Options.TRACE_STATE_CHECK);
 
-    protected TraceCallTarget(TruffleLanguage<AMD64Context> language, FrameDescriptor fd) {
+    private final long startPC;
+
+    protected TraceCallTarget(TruffleLanguage<AMD64Context> language, FrameDescriptor fd, long pc) {
         super(language, fd);
+        startPC = pc;
         AMD64Context ctx = language.getContextReference().get();
         cpuStateSlot = ctx.getCpuState();
         gprMaskSlot = ctx.getGPRMask();
         avxMaskSlot = ctx.getAVXMask();
         singleThreaded = ctx.getSingleThreadedAssumption();
+        dispatch = new TraceDispatchNode(ctx.getState(), startPC);
+        try {
+            sym = ctx.getSymbolResolver().getSymbol(pc);
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Cannot resolve symbol: " + t, t);
+        }
     }
 
     @CompilationFinal private Symbol sym = null;
@@ -229,17 +238,11 @@ public class TraceCallTarget extends AMD64RootNode {
         CpuState initialState = (CpuState) frame.getArguments()[0];
         frame.setObject(cpuStateSlot, initialState);
 
-        if (dispatch == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            AMD64Context ctx = getContextReference().get();
-            ArchitecturalState state = ctx.getState();
-            dispatch = insert(new TraceDispatchNode(state));
-            try {
-                sym = ctx.getSymbolResolver().getSymbol(initialState.rip);
-            } catch (Throwable t) {
-                log.log(Level.WARNING, "Cannot resolve symbol: " + t, t);
-            }
+        if (initialState.rip != startPC) {
+            CompilerDirectives.transferToInterpreter();
+            throw new AssertionError("invalid start pc: " + HexFormatter.tohex(initialState.rip, 16) + " vs " + HexFormatter.tohex(startPC, 16));
         }
+
         if (initialized && !TRUFFLE_CALLS) {
             write.execute(frame, initialState, gprReadMask, avxReadMask);
         } else {

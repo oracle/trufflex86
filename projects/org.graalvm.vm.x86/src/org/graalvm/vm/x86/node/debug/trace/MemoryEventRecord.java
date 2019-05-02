@@ -149,7 +149,7 @@ public class MemoryEventRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return 8 + 2 + (data ? size : 0);
     }
 

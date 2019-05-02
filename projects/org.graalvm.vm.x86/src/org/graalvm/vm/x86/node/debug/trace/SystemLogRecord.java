@@ -103,7 +103,7 @@ public class SystemLogRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         int size = 2 * 8 + 2 * 4 + 5 * 2;
         if (logger != null) {
             size += logger.getBytes().length;

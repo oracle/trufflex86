@@ -98,7 +98,7 @@ public class CallArgsRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         int size = 8 + 1;
         size += sizeString(symbol);
         for (int i = 0; i < args.length; i++) {

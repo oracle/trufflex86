@@ -70,7 +70,7 @@ public class StepRecord extends Record {
     }
 
     @Override
-    protected int size() {
+    protected int getDataSize() {
         return state.size() + location.size() + 4 * 4;
     }
 
