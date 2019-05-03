@@ -157,6 +157,7 @@ import org.graalvm.vm.x86.isa.instruction.Cqo;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtdq2ps;
 import org.graalvm.vm.x86.isa.instruction.Cvtpd2ps;
+import org.graalvm.vm.x86.isa.instruction.Cvtpi2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2dq;
 import org.graalvm.vm.x86.isa.instruction.Cvtps2pd;
 import org.graalvm.vm.x86.isa.instruction.Cvtsd2si.Cvtsd2sil;
@@ -533,6 +534,9 @@ public class AMD64InstructionDecoder {
                     instruction[instructionLength++] = op;
                     break;
                 case AMD64InstructionPrefix.LOCK:
+                    // LOCK is only valid for these instructions: ADC, ADD, AND, BTC, BTR, BTS,
+                    // CMPXCHG, CMPXCH8B, CMPXCHG16B, DEC, INC, NEG, NOT, OR, SBB, SUB, XOR, XADD,
+                    // XCHG
                     // lock = true;
                     op = code.read8();
                     instruction[instructionLength++] = op;
@@ -2508,7 +2512,9 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.CVTSI2SD: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (isREPNZ) {
+                        if (sizeOverride) {
+                            return new Cvtpi2pd(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else if (isREPNZ) {
                             if (rex != null && rex.w) {
                                 return new Cvtsi2sdq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                             } else {
