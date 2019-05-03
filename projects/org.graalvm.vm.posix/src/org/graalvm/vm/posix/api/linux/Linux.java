@@ -49,11 +49,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.PosixPointer;
 
 public class Linux {
-    private Futex futex = new Futex();
+    private final Futex futex = new Futex();
+    private static final ThreadLocal<PosixPointer> clear_child_tid = new ThreadLocal<>();
 
     static class Line {
         public final String name;
@@ -136,5 +138,14 @@ public class Linux {
 
     public int futex(PosixPointer uaddr, int futex_op, int val, PosixPointer timeout, PosixPointer uaddr2, int val3) throws PosixException {
         return futex.futex(uaddr, futex_op, val, timeout, uaddr2, val3);
+    }
+
+    public PosixPointer getClearChildTid() {
+        return clear_child_tid.get();
+    }
+
+    public long set_tid_address(PosixPointer tidptr) {
+        clear_child_tid.set(tidptr);
+        return Posix.getTid();
     }
 }

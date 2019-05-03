@@ -1251,6 +1251,35 @@ public class Posix {
         return linux.futex(uaddr, futex_op, val, timeout, uaddr2, val3);
     }
 
+    // for internal purposes: like set_tid_address, but without strace
+    public void setTidAddress(PosixPointer tidptr) {
+        linux.set_tid_address(tidptr);
+    }
+
+    public long set_tid_address(PosixPointer tidptr) {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("set_tid_address(%s)", tidptr));
+        }
+        return linux.set_tid_address(tidptr);
+    }
+
+    public void exit(int code) {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("exit(%s)", code));
+        }
+        PosixPointer clearChildTid = linux.getClearChildTid();
+        if (clearChildTid != null) {
+            try {
+                clearChildTid.setI32(0);
+                linux.futex(clearChildTid, Futex.FUTEX_WAKE, 1, null, null, 0);
+            } catch (PosixException e) {
+                if (strace) {
+                    log.log(Levels.INFO, () -> String.format("exit(%s): futex operation failed: %s", code, Errno.toString(e.errno)));
+                }
+            }
+        }
+    }
+
     // these functions are not part of the POSIX interface
     public Stack getSigaltstack() {
         return sigaltstack;

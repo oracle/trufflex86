@@ -40,6 +40,9 @@
  */
 package org.graalvm.vm.posix.api.linux;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.PosixPointer;
@@ -135,12 +138,50 @@ public class Futex {
     }
     // @formatter:on
 
+    private final Map<Long, Object> futexes = new ConcurrentHashMap<>();
+
     @SuppressWarnings("unused")
     public int futex(PosixPointer uaddr, int futex_op, int val, PosixPointer timeout, PosixPointer uaddr2, int val3) throws PosixException {
         switch (futex_op) {
             case FUTEX_WAKE:
-            case FUTEX_WAKE_PRIVATE:
+            case FUTEX_WAKE_PRIVATE: {
+                Object o = futexes.remove(uaddr.getAddress());
+                if (o != null) {
+                    synchronized (o) {
+                        if (val == 1) {
+                            o.notify();
+                        } else {
+                            o.notifyAll();
+                        }
+                    }
+                    return val;
+                } else {
+                    return 0;
+                }
+            }
+            case FUTEX_WAIT:
+            case FUTEX_WAIT_PRIVATE: {
+                // is this racy?
+                Object newo = new Object();
+                Object o = futexes.putIfAbsent(uaddr.getAddress(), newo);
+                if (o == null) {
+                    o = newo;
+                }
+                synchronized (o) {
+                    if (uaddr.getI32() != val) {
+                        if (o == newo) {
+                            futexes.remove(uaddr.getAddress());
+                        }
+                        throw new PosixException(Errno.EAGAIN);
+                    }
+                    try {
+                        o.wait();
+                    } catch (InterruptedException e) {
+                        // nothing
+                    }
+                }
                 return 0;
+            }
             default:
                 throw new PosixException(Errno.ENOSYS);
         }

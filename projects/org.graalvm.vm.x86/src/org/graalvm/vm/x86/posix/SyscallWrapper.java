@@ -118,6 +118,7 @@ public class SyscallWrapper extends AMD64Node {
     public static final int SYS_time = 201;
     public static final int SYS_futex = 202;
     public static final int SYS_getdents64 = 217;
+    public static final int SYS_set_tid_address = 218;
     public static final int SYS_clock_gettime = 228;
     public static final int SYS_clock_getres = 229;
     public static final int SYS_exit_group = 231;
@@ -331,9 +332,7 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.setsockopt((int) a1, (int) a2, (int) a3, a4, (int) a5);
             case SYS_exit:
             case SYS_exit_group: // TODO: implement difference
-                if (posix.isStrace()) {
-                    log.log(Level.INFO, () -> String.format("exit(%d)", (int) a1));
-                }
+                posix.exit((int) a1);
                 throw new ProcessExitException((int) a1);
             case SYS_uname:
                 return posix.uname(a1);
@@ -379,6 +378,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.futex(a1, (int) a2, (int) a3, a4, a5, (int) a6);
             case SYS_getdents64:
                 return posix.getdents64((int) a1, a2, (int) a3);
+            case SYS_set_tid_address:
+                return posix.set_tid_address(a1);
             case SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
             case SYS_clock_getres:

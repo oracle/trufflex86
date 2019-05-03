@@ -94,6 +94,7 @@ public class Clone extends AMD64Node {
 
         AMD64Context ctx = ctxref.get();
         CallTarget threadMain = ctx.getInterpreter();
+        PosixEnvironment posix = ctx.getPosixEnvironment();
         int tid = PosixEnvironment.allocateTid();
 
         if (BitTest.test(flags, Sched.CLONE_PARENT_SETTID)) {
@@ -106,6 +107,10 @@ public class Clone extends AMD64Node {
 
         Thread t = ctx.createThread(() -> {
             PosixEnvironment.setTid(tid);
+            if (BitTest.test(flags, Sched.CLONE_CHILD_CLEARTID)) {
+                posix.setTidAddress(ctid);
+            }
+
             state.rax = 0;
             threadMain.call(state);
         });

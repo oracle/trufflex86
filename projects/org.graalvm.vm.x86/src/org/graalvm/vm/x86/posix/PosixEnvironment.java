@@ -656,6 +656,14 @@ public class PosixEnvironment {
         }
     }
 
+    public void setTidAddress(long ptr) {
+        posix.setTidAddress(posixPointer(ptr));
+    }
+
+    public long set_tid_address(long tidptr) {
+        return posix.set_tid_address(posixPointer(tidptr));
+    }
+
     public long getcwd(long buf, long size) throws SyscallException {
         try {
             posix.getcwd(posixPointer(buf), size);
@@ -766,6 +774,10 @@ public class PosixEnvironment {
 
     public long gettid() {
         return posix.gettid();
+    }
+
+    public void exit(int code) {
+        posix.exit(code);
     }
 
     private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result) {
