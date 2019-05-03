@@ -98,7 +98,15 @@ public class Posix {
 
     private final Sigset sigmask;
 
+    private static int tidctr = 1;
+    private static final Object tidlock = new Object();
+    private static final ThreadLocal<Integer> tid = new ThreadLocal<>();
+
     public static final boolean WARN_ON_FILE_DELETE = System.getProperty("posix.warn.delete") != null;
+
+    static {
+        createTid();
+    }
 
     public Posix() {
         fds = new FileDescriptorManager();
@@ -743,8 +751,41 @@ public class Posix {
         throw new PosixException(Errno.EPERM);
     }
 
+    // used for internal purposes; does not create a log message
+    public static int getTid() {
+        return tid.get();
+    }
+
+    public static int allocateTid() {
+        int newtid;
+        synchronized (tidlock) {
+            newtid = tidctr++;
+        }
+        return newtid;
+    }
+
+    private static int createTid() {
+        int newtid = allocateTid();
+        setTid(newtid);
+        return newtid;
+    }
+
+    public static void setTid(int newtid) {
+        tid.set(newtid);
+    }
+
     public long getpid() {
+        if (strace) {
+            log.log(Level.INFO, "getpid()");
+        }
         return 1; // TODO
+    }
+
+    public long gettid() {
+        if (strace) {
+            log.log(Level.INFO, "gettid()");
+        }
+        return getTid();
     }
 
     public int getrlimit(int resource, Rlimit rlp) throws PosixException {
