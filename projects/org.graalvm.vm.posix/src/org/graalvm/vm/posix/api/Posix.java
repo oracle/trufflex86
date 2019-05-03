@@ -1271,6 +1271,10 @@ public class Posix {
         if (clearChildTid != null) {
             try {
                 clearChildTid.setI32(0);
+            } catch (Exception e) {
+                return; // ignore; futex points to invalid memory
+            }
+            try {
                 linux.futex(clearChildTid, Futex.FUTEX_WAKE, 1, null, null, 0);
             } catch (PosixException e) {
                 if (strace) {
