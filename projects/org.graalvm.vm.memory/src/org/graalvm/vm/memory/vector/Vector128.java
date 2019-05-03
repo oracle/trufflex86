@@ -1062,6 +1062,20 @@ public class Vector128 implements Cloneable {
     }
 
     @ExplodeLoop
+    public Vector128 mulPackedI32(Vector128 vec) {
+        int[] a = getInts();
+        int[] b = vec.getInts();
+        int[] result = new int[a.length];
+        CompilerAsserts.partialEvaluationConstant(result.length);
+        CompilerAsserts.partialEvaluationConstant(a.length);
+        CompilerAsserts.partialEvaluationConstant(b.length);
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] * b[i];
+        }
+        return new Vector128(result);
+    }
+
+    @ExplodeLoop
     public Vector128 mulHighPackedI16(Vector128 vec) {
         short[] a = getShorts();
         short[] b = vec.getShorts();
