@@ -336,6 +336,7 @@ import org.graalvm.vm.x86.isa.instruction.Pmaddwd;
 import org.graalvm.vm.x86.isa.instruction.Pmaxub;
 import org.graalvm.vm.x86.isa.instruction.Pminub;
 import org.graalvm.vm.x86.isa.instruction.Pmovmskb;
+import org.graalvm.vm.x86.isa.instruction.Pmuldq;
 import org.graalvm.vm.x86.isa.instruction.Pmulhuw;
 import org.graalvm.vm.x86.isa.instruction.Pmulhw;
 import org.graalvm.vm.x86.isa.instruction.Pmulld;
@@ -3186,6 +3187,12 @@ public class AMD64InstructionDecoder {
                         byte subOp = code.read8();
                         Args args = new Args(code, rex, segment, addressOverride);
                         switch (subOp) {
+                            case AMD64Opcode.PMULDQ_OP:
+                                if (sizeOverride) {
+                                    return new Pmuldq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                                } else {
+                                    return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                                }
                             case AMD64Opcode.PMULLD_OP:
                                 if (sizeOverride) {
                                     return new Pmulld(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());

@@ -321,6 +321,7 @@ public class AMD64Opcode {
 
     public static final byte PMULLD_X_XM = (byte) 0x38;
     public static final byte PMULLD_OP = (byte) 0x40;
+    public static final byte PMULDQ_OP = (byte) 0x28;
 
     public static final byte PMULLW_X_XM = (byte) 0xD5;
 
