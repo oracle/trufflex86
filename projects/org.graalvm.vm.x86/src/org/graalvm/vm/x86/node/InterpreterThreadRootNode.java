@@ -63,6 +63,7 @@ public class InterpreterThreadRootNode extends AMD64RootNode {
         } catch (ProcessExitException e) {
             return e.getCode();
         } catch (CpuRuntimeException e) {
+            CompilerDirectives.transferToInterpreter();
             if (e.getCause() instanceof IllegalInstructionException) {
                 return 128 + Signal.SIGILL;
             } else if (e.getCause() instanceof SegmentationViolation) {
