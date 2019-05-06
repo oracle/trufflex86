@@ -15,7 +15,7 @@
 
 #include "libmemory.h"
 
-static const char* posix_exception_name = "com/everyware/posix/api/PosixException";
+static const char* posix_exception_name = "org/graalvm/vm/posix/api/PosixException";
 
 #if defined(__x86_64__) || defined(__aarch64__)
 jint JNI_OnLoad(JavaVM* vm, void* reserved)

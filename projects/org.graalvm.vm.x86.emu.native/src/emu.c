@@ -42,7 +42,7 @@
 
 static void throw_posix_exception(JNIEnv* env, int err)
 {
-	jclass cls = (*env)->FindClass(env, "com/everyware/posix/api/PosixException");
+	jclass cls = (*env)->FindClass(env, "org/graalvm/vm/posix/api/PosixException");
 	jmethodID ctor = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
 	jobject exc = (*env)->NewObject(env, cls, ctor, err);
 	(*env)->Throw(env, exc);
