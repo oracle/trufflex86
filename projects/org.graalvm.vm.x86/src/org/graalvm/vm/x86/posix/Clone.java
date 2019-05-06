@@ -11,6 +11,7 @@ import org.graalvm.vm.x86.node.MemoryWriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
@@ -75,6 +76,9 @@ public class Clone extends AMD64Node {
         if (gprMaskSlot != null) {
             boolean[] gprMask = (boolean[]) FrameUtil.getObjectSafe(frame, gprMaskSlot);
             boolean[] avxMask = (boolean[]) FrameUtil.getObjectSafe(frame, avxMaskSlot);
+            CompilerAsserts.partialEvaluationConstant(gprMask);
+            CompilerAsserts.partialEvaluationConstant(avxMask);
+
             CpuState initialState = (CpuState) FrameUtil.getObjectSafe(frame, cpuStateSlot);
             if (gprMask != null) {
                 state = read.execute(frame, pc, initialState.clone(), gprMask, avxMask);
