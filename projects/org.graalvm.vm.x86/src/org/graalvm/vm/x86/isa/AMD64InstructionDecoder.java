@@ -3289,6 +3289,14 @@ public class AMD64InstructionDecoder {
                                 return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
                     }
+                    case AMD64Opcode.PSLLW_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (sizeOverride) {
+                            return new Psllw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
                     case AMD64Opcode.PSLLD_XM_I: {
                         Args args = new Args(code, rex, segment, addressOverride);
                         switch (args.modrm.getReg()) {

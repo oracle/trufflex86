@@ -340,6 +340,7 @@ public class AMD64Opcode {
     public static final byte PSHUFD = 0x70;
 
     public static final byte PSLLW_XM_I = 0x71;
+    public static final byte PSLLW_X_XM = (byte) 0xF1;
 
     public static final byte PSLLD_XM_I = 0x72;
 
