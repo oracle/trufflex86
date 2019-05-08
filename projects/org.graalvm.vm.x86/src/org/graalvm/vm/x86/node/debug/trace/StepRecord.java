@@ -78,6 +78,7 @@ public class StepRecord extends Record {
     protected void readRecord(WordInputStream in) throws IOException {
         Record r1 = Record.read(in, getLastStateSupplier());
         Record r2 = Record.read(in, getLastStateSupplier());
+        clearLastState();
 
         if (r1 instanceof LocationRecord) {
             location = (LocationRecord) r1;

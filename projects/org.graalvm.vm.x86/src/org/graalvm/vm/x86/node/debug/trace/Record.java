@@ -56,7 +56,8 @@ public abstract class Record {
     private static final Logger log = Trace.create(Record.class);
 
     private final int magic;
-    private Supplier<CpuState> lastState;
+    private CpuState lastState;
+    private Supplier<CpuState> lastStateSupplier;
     private int tid;
 
     protected Record(int magic) {
@@ -65,19 +66,33 @@ public abstract class Record {
     }
 
     protected CpuState getLastState() {
-        return lastState.get();
-    }
-
-    protected Supplier<CpuState> getLastStateSupplier() {
+        if (lastState == null) {
+            lastState = lastStateSupplier.get();
+            lastStateSupplier = null;
+        }
         return lastState;
     }
 
+    protected Supplier<CpuState> getLastStateSupplier() {
+        if (lastState != null) {
+            lastStateSupplier = () -> lastState;
+        }
+        return lastStateSupplier;
+    }
+
     protected void setLastState(CpuState state) {
-        lastState = () -> state;
+        lastState = state;
+        lastStateSupplier = null;
     }
 
     protected void setLastState(Supplier<CpuState> state) {
-        lastState = state;
+        lastState = null;
+        lastStateSupplier = state;
+    }
+
+    protected void clearLastState() {
+        lastState = null;
+        lastStateSupplier = null;
     }
 
     public long getTid() {
@@ -103,6 +118,7 @@ public abstract class Record {
                 break;
             case DeltaCpuStateRecord.MAGIC:
                 record = new DeltaCpuStateRecord();
+                record.lastStateSupplier = lastState;
                 break;
             case LocationRecord.MAGIC:
                 record = new LocationRecord();
@@ -112,6 +128,7 @@ public abstract class Record {
                 break;
             case StepRecord.MAGIC:
                 record = new StepRecord();
+                record.lastStateSupplier = lastState;
                 break;
             case CallArgsRecord.MAGIC:
                 record = new CallArgsRecord();
@@ -136,7 +153,6 @@ public abstract class Record {
                 break;
         }
         if (record != null) {
-            record.lastState = lastState;
             record.readRecord(in);
         } else {
             log.warning("Unknown record: 0x" + HexFormatter.tohex(type, 8));

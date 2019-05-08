@@ -68,6 +68,7 @@ public class DeltaCpuStateRecord extends CpuStateRecord {
     private void computeDelta(CpuState state) {
         // compute number of differences
         CpuState lastState = getLastState();
+        clearLastState();
         int cnt = 0;
         if (lastState.rax != state.rax) {
             cnt++;
@@ -267,6 +268,7 @@ public class DeltaCpuStateRecord extends CpuStateRecord {
         } else {
             // compute state
             CpuState state = getLastState().clone();
+            clearLastState();
             for (int i = 0; i < deltaId.length; i++) {
                 long val = deltaValue[i];
                 switch (deltaId[i]) {
