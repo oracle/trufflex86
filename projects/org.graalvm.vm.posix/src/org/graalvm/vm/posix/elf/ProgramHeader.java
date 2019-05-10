@@ -323,6 +323,8 @@ public class ProgramHeader {
         if (target.length < p_memsz) {
             throw new IllegalArgumentException();
         }
-        System.arraycopy(elf.getData(), (int) p_offset, target, 0, (int) p_filesz);
+        if (p_filesz > 0) {
+            System.arraycopy(elf.getData(), (int) p_offset, target, 0, (int) p_filesz);
+        }
     }
 }
