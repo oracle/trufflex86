@@ -56,6 +56,8 @@ import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
 import org.graalvm.vm.x86.isa.CpuState;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public class ExecutionTraceWriter implements Closeable {
     private static final Logger log = Trace.create(ExecutionTraceWriter.class);
 
@@ -79,6 +81,7 @@ public class ExecutionTraceWriter implements Closeable {
         out.close();
     }
 
+    @TruffleBoundary
     public synchronized void step(CpuState state, String filename, String symbol, long offset, AMD64Instruction insn) {
         CpuStateRecord stateRecord;
         if (steps > STEP_THRESHOLD || lastState == null) {
@@ -98,6 +101,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void callArgs(long pc, String name, long[] args, byte[][] memory) {
         CallArgsRecord record = new CallArgsRecord(pc, name, args, memory);
         try {
@@ -107,6 +111,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void log(long seq, long time, int level, int threadID, String logger, String clazz, String method, String msg, Throwable throwable) {
         SystemLogRecord record = new SystemLogRecord(seq, time, level, threadID, logger, clazz, method, msg, throwable);
         try {
@@ -116,6 +121,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void memoryAccess(long address, boolean write, int size) {
         MemoryEventRecord record = new MemoryEventRecord(address, write, size);
         try {
@@ -125,6 +131,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void memoryAccess(long address, boolean write, int size, long value) {
         MemoryEventRecord record = new MemoryEventRecord(address, write, size, value);
         try {
@@ -134,6 +141,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void memoryAccess(long address, boolean write, int size, Vector128 value) {
         MemoryEventRecord record = new MemoryEventRecord(address, write, size, value);
         try {
@@ -143,6 +151,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void mmap(long addr, long len, int prot, int flags, int fildes, long off, long result, byte[] data) {
         MmapRecord record = new MmapRecord(addr, len, prot, flags, fildes, off, result);
         record.setData(data);
@@ -153,6 +162,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void munmap(long addr, long len, int result) {
         MunmapRecord record = new MunmapRecord(addr, len, result);
         try {
@@ -162,6 +172,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void mprotect(long addr, long len, int prot, int result) {
         MprotectRecord record = new MprotectRecord(addr, len, prot, result);
         try {
@@ -171,6 +182,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void brk(long addr, long result) {
         BrkRecord record = new BrkRecord(addr, result);
         try {
@@ -180,6 +192,7 @@ public class ExecutionTraceWriter implements Closeable {
         }
     }
 
+    @TruffleBoundary
     public synchronized void flush() {
         try {
             out.flush();
