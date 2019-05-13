@@ -9,6 +9,7 @@ VMX86=$ROOT/vmx86
 (cd $SVM && mx native-image \
 		--tool:truffle \
 		-da \
+		--rerun-class-initialization-at-runtime=org.graalvm.vm.posix.api.Posix \
 		-H:MaxRuntimeCompileMethods=10000 \
 		-H:Name=$VMX86/vmx86-svm \
 		-H:CLibraryPath=$VMX86/mxbuild/linux-amd64/VMX86_GRAALVM_SUPPORT/clibraries/linux-amd64 \
