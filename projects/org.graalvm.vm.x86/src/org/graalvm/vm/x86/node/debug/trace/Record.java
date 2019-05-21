@@ -157,7 +157,7 @@ public abstract class Record {
             record.tid = tid;
         } else {
             log.warning("Unknown record: 0x" + HexFormatter.tohex(type, 8));
-            in.skip(size);
+            in.skip(size - 4);
         }
 
         long end = in.tell();
