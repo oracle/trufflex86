@@ -154,11 +154,11 @@ public abstract class Record {
         }
         if (record != null) {
             record.readRecord(in);
+            record.tid = tid;
         } else {
             log.warning("Unknown record: 0x" + HexFormatter.tohex(type, 8));
             in.skip(size);
         }
-        record.tid = tid;
 
         long end = in.tell();
         long sz = end - start;
