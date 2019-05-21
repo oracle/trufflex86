@@ -99,7 +99,6 @@ public class NullNFITest extends NFITest {
         Assert.assertThat("return value", ret, is(instanceOf(TruffleObject.class)));
 
         TruffleObject obj = (TruffleObject) ret;
-        System.out.println("obj: " + ret + "; type: " + type);
         Assert.assertTrue("isNull", UNCACHED_INTEROP.isNull(obj));
     }
 
