@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,13 +40,12 @@
  */
 package org.graalvm.vm.x86.nfi.test;
 
-import org.graalvm.polyglot.Context;
-import org.junit.Rule;
-import org.junit.Test;
-
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tck.TruffleRunner;
+import org.graalvm.polyglot.Context;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class ForbiddenNFITest {
     private final String nativeTestLib = NFITest.TEST_LIBRARY;
@@ -54,18 +53,18 @@ public class ForbiddenNFITest {
     @Rule public TruffleRunner.RunWithPolyglotRule runWithPolyglot = new TruffleRunner.RunWithPolyglotRule(Context.newBuilder().allowNativeAccess(false));
 
     private TruffleObject eval(String format, Object... args) {
-        Source source = Source.newBuilder("amd64nfi", String.format(format, args), "ForbiddenNFITest").build();
+        Source source = Source.newBuilder("nfi", String.format(format, args), "ForbiddenNFITest").build();
         return (TruffleObject) runWithPolyglot.getTruffleTestEnv().parse(source).call();
     }
 
     // NOTE: unlike the default Truffle NFI, this interpreter does not need nativeAccess
     @Test
     public void loadDefault() {
-        eval("default");
+        eval("with vmx86 default");
     }
 
     @Test
     public void loadTestLib() {
-        eval("load '%s'", nativeTestLib);
+        eval("with vmx86 load '%s'", nativeTestLib);
     }
 }

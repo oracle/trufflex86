@@ -40,18 +40,47 @@
  */
 package org.graalvm.vm.x86.nfi;
 
-import com.oracle.truffle.api.interop.ForeignAccess;
-import com.oracle.truffle.api.interop.TruffleObject;
+import org.graalvm.vm.memory.MemoryOptions;
+import org.graalvm.vm.memory.VirtualMemory;
+import org.graalvm.vm.x86.AMD64Context;
 
+import com.oracle.truffle.api.dsl.CachedContext;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+
+@ExportLibrary(InteropLibrary.class)
 public class NativePointer implements TruffleObject {
+    protected static final boolean MEM_MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
+
     public final long value;
 
     public NativePointer(long value) {
         this.value = value;
     }
 
-    public ForeignAccess getForeignAccess() {
-        return NativePointerMessageResolutionForeign.ACCESS;
+    @ExportMessage
+    boolean isPointer() {
+        return true;
+    }
+
+    @ExportMessage
+    long asPointer(@CachedContext(AMD64NFILanguage.class) AMD64Context ctx) {
+        if (MEM_MAP_NATIVE) {
+            if (value < 0) {
+                return VirtualMemory.fromMappedNative(value);
+            } else {
+                VirtualMemory mem = ctx.getMemory();
+                return mem.getNativeAddress(value);
+            }
+        }
+        return value;
+    }
+
+    @ExportMessage
+    boolean isNull() {
+        return value == 0;
     }
 
     @Override

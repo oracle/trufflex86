@@ -57,12 +57,12 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleType;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
+import com.oracle.truffle.nfi.spi.types.NativeFunctionTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleType;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror.Kind;
 
 public class AMD64ArgumentConversionNode extends Node {
     @Child private AsPointerNode asPointer = AsPointerNodeGen.create();

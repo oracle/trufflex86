@@ -45,10 +45,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeFunctionTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
 
 public class NativeSignatureEncoder {
     @TruffleBoundary

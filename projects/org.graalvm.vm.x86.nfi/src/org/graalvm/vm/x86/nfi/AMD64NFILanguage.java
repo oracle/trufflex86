@@ -40,22 +40,74 @@
  */
 package org.graalvm.vm.x86.nfi;
 
+import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.AMD64Language;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.nfi.types.NativeLibraryDescriptor;
-import com.oracle.truffle.nfi.types.Parser;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.nfi.spi.NFIBackend;
+import com.oracle.truffle.nfi.spi.NFIBackendFactory;
+import com.oracle.truffle.nfi.spi.NFIBackendTools;
+import com.oracle.truffle.nfi.spi.types.NativeLibraryDescriptor;
 
-@TruffleLanguage.Registration(id = "amd64nfi", name = "nfi-amd64", version = "0.1", mimeType = AMD64NFILanguage.MIME_TYPE, internal = true)
+@TruffleLanguage.Registration(id = "amd64nfi", name = "nfi-amd64", version = "0.1", characterMimeTypes = AMD64NFILanguage.MIME_TYPE, internal = true, services = NFIBackendFactory.class)
 public class AMD64NFILanguage extends AMD64Language {
     public static final String MIME_TYPE = "trufflenfi/amd64nfi";
 
+    @CompilationFinal private NFIBackendImpl backend;
+
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        CharSequence library = request.getSource().getCharacters();
-        NativeLibraryDescriptor descriptor = Parser.parseLibraryDescriptor(library);
-        return Truffle.getRuntime().createCallTarget(new AMD64LibraryNode(this, fd, descriptor));
+        return Truffle.getRuntime().createCallTarget(new RootNode(this) {
+            @Override
+            public Object execute(VirtualFrame frame) {
+                throw new UnsupportedOperationException("illegal access to internal language");
+            }
+        });
+    }
+
+    NFIBackendTools getTools() {
+        return backend.tools;
+    }
+
+    @Override
+    protected AMD64Context createContext(Env env) {
+        env.registerService(new NFIBackendFactory() {
+            @Override
+            public String getBackendId() {
+                return "vmx86";
+            }
+
+            @Override
+            public NFIBackend createBackend(NFIBackendTools tools) {
+                if (backend == null) {
+                    backend = new NFIBackendImpl(tools);
+                }
+                return backend;
+            }
+        });
+        return super.createContext(env);
+    }
+
+    private final class NFIBackendImpl implements NFIBackend {
+        final NFIBackendTools tools;
+
+        protected NFIBackendImpl(NFIBackendTools tools) {
+            this.tools = tools;
+        }
+
+        @Override
+        public CallTarget parse(NativeLibraryDescriptor descriptor) {
+            return Truffle.getRuntime().createCallTarget(new AMD64LibraryNode(AMD64NFILanguage.this, fd, descriptor));
+        }
+    }
+
+    @Override
+    protected boolean isObjectOfLanguage(Object object) {
+        return object instanceof AMD64Library || object instanceof AMD64Symbol || object instanceof AMD64String || object instanceof NativePointer;
     }
 }

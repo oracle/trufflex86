@@ -41,12 +41,30 @@
 package org.graalvm.vm.x86.nfi;
 
 import org.graalvm.vm.x86.AMD64Context;
+import org.graalvm.vm.x86.nfi.TypeConversion.AsStringNode;
+import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsStringNodeGen;
+import org.graalvm.vm.x86.posix.InteropErrorException;
 
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
-import com.oracle.truffle.api.interop.ForeignAccess;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.CachedContext;
+import com.oracle.truffle.api.dsl.CachedLanguage;
+import com.oracle.truffle.api.dsl.ImportStatic;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node.Child;
 
+@ExportLibrary(InteropLibrary.class)
 public class AMD64Library implements TruffleObject {
+    private static final EmptyKeysArray KEYS = new EmptyKeysArray();
+
     private final long loadLibrary;
     private final long releaseLibrary;
     private final long getSymbol;
@@ -90,12 +108,92 @@ public class AMD64Library implements TruffleObject {
         return name;
     }
 
-    public ForeignAccess getForeignAccess() {
-        return AMD64LibraryMessageResolutionForeign.ACCESS;
-    }
-
     @Override
     public String toString() {
         return "AMD64Library[" + name + "]";
+    }
+
+    @ExportMessage
+    boolean hasMembers() {
+        return true;
+    }
+
+    @ExportMessage
+    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+        return KEYS;
+    }
+
+    @ExportMessage
+    @ImportStatic(AMD64NFILanguage.class)
+    abstract static class IsMemberReadable {
+        @Child protected static AsStringNode asString = AsStringNodeGen.create(true);
+
+        protected static RootCallTarget createSymbolLookupNode(AMD64Context ctx) {
+            AMD64SymbolLookupCallTarget root = new AMD64SymbolLookupCallTarget(ctx.getLanguage(), ctx.getFrameDescriptor());
+            return Truffle.getRuntime().createCallTarget(root);
+        }
+
+        @Specialization
+        static boolean doGeneric(AMD64Library receiver, String symbol,
+                        @SuppressWarnings("unused") @CachedContext(AMD64NFILanguage.class) AMD64Context ctx,
+                        @Cached(value = "createSymbolLookupNode(ctx)", allowUncached = true) RootCallTarget lookup) {
+            String symname = asString.execute(symbol);
+            try {
+                lookup.call(new Object[]{receiver, symname});
+                return true;
+            } catch (InteropErrorException e) {
+                return false;
+            }
+        }
+    }
+
+    @ExportMessage
+    @ImportStatic(AMD64NFILanguage.class)
+    abstract static class ReadMember {
+        @Child protected static AsStringNode asString = AsStringNodeGen.create(true);
+
+        protected static RootCallTarget createSymbolLookupNode(AMD64Context ctx) {
+            AMD64SymbolLookupCallTarget root = new AMD64SymbolLookupCallTarget(ctx.getLanguage(), ctx.getFrameDescriptor());
+            return Truffle.getRuntime().createCallTarget(root);
+        }
+
+        @Specialization
+        static Object doGeneric(AMD64Library receiver, String symbol,
+                        @CachedLanguage AMD64NFILanguage language,
+                        @SuppressWarnings("unused") @CachedContext(AMD64NFILanguage.class) AMD64Context ctx,
+                        @Cached(value = "createSymbolLookupNode(ctx)", allowUncached = true) RootCallTarget lookup) throws UnknownIdentifierException {
+            String symname = asString.execute(symbol);
+            try {
+                long ptr = (long) lookup.call(new Object[]{receiver, symname});
+                return AMD64Symbol.create(language, symname, ptr);
+            } catch (InteropErrorException e) {
+                throw UnknownIdentifierException.create(symname);
+            }
+        }
+    }
+
+    @SuppressWarnings("static-method")
+    @ExportLibrary(InteropLibrary.class)
+    static final class EmptyKeysArray implements TruffleObject {
+
+        @ExportMessage
+        boolean hasArrayElements() {
+            return true;
+        }
+
+        @ExportMessage
+        long getArraySize() {
+            return 0;
+        }
+
+        @ExportMessage
+        boolean isArrayElementReadable(@SuppressWarnings("unused") long index) {
+            return false;
+        }
+
+        @ExportMessage
+        Object readArrayElement(long index) throws InvalidArrayIndexException {
+            throw InvalidArrayIndexException.create(index);
+        }
     }
 }

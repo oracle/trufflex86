@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,43 +40,62 @@
  */
 package org.graalvm.vm.x86.nfi.test;
 
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ForeignAccess;
-import com.oracle.truffle.api.interop.InteropException;
-import com.oracle.truffle.api.interop.Message;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.tck.TruffleRunner;
-import com.oracle.truffle.tck.TruffleRunner.Inject;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 
+import org.graalvm.vm.x86.nfi.test.LateBindNFITestFactory.DoBindAndExecuteNodeGen;
 import org.graalvm.vm.x86.nfi.test.interop.BoxedPrimitive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.InteropException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.tck.TruffleRunner;
+import com.oracle.truffle.tck.TruffleRunner.Inject;
+import com.oracle.truffle.tck.TruffleRunner.Warmup;
+
 @RunWith(TruffleRunner.class)
 public class LateBindNFITest extends NFITest {
-    public static class BindAndExecuteNode extends NFITestRootNode {
 
-        @Child Node bind = Message.INVOKE.createNode();
-        @Child Node execute = Message.EXECUTE.createNode();
+    abstract static class DoBindAndExecute extends Node {
 
-        @Override
-        public Object executeTest(VirtualFrame frame) throws InteropException {
-            TruffleObject symbol = (TruffleObject) frame.getArguments()[0];
-            Object signature = frame.getArguments()[1];
-            TruffleObject bound = (TruffleObject) ForeignAccess.sendInvoke(bind, symbol, "bind", signature);
-            return ForeignAccess.sendExecute(execute, bound, frame.getArguments()[2]);
+        abstract Object execute(Object symbol, Object signature, Object arg);
+
+        @Specialization(limit = "3")
+        Object doBindAndExecute(Object symbol, Object signature, Object arg,
+                        @CachedLibrary("symbol") InteropLibrary symbolInterop,
+                        @CachedLibrary(limit = "1") InteropLibrary boundInterop) {
+            try {
+                Object bound = symbolInterop.invokeMember(symbol, "bind", signature);
+                return boundInterop.execute(bound, arg);
+            } catch (InteropException ex) {
+                CompilerDirectives.transferToInterpreter();
+                throw new AssertionError(ex);
+            }
         }
     }
 
-    private static void testLateBind(CallTarget callTarget, Object symbol, Object signature) {
-        TruffleObject increment;
+    public static class BindAndExecuteNode extends NFITestRootNode {
+
+        @Child DoBindAndExecute bindAndExecute = DoBindAndExecuteNodeGen.create();
+
+        @Override
+        public final Object executeTest(VirtualFrame frame) throws InteropException {
+            return bindAndExecute.execute(frame.getArguments()[0], frame.getArguments()[1], frame.getArguments()[2]);
+        }
+    }
+
+    private static void testLateBind(CallTarget callTarget, String symbol, Object signature) {
+        Object increment;
         try {
-            increment = (TruffleObject) ForeignAccess.sendRead(Message.READ.createNode(), testLibrary, symbol);
+            increment = UNCACHED_INTEROP.readMember(testLibrary, symbol);
         } catch (InteropException e) {
             throw new AssertionError(e);
         }
@@ -92,8 +111,17 @@ public class LateBindNFITest extends NFITest {
         testLateBind(callTarget, "increment_SINT32", "(sint32):sint32");
     }
 
+    // make sure the signature can be cached
+    private static final BoxedPrimitive BOXED_SIGNATURE = new BoxedPrimitive("(sint32):sint32");
+
     @Test
     public void testLateBindBoxed(@Inject(BindAndExecuteNode.class) CallTarget callTarget) {
-        testLateBind(callTarget, new BoxedPrimitive("increment_SINT32"), new BoxedPrimitive("(sint32):sint32"));
+        testLateBind(callTarget, "increment_SINT32", BOXED_SIGNATURE);
+    }
+
+    @Test
+    @Warmup(15) // to make sure the cache overflows before compiling, avoiding a deopt
+    public void testLateBindUncached(@Inject(BindAndExecuteNode.class) CallTarget callTarget) {
+        testLateBind(callTarget, "increment_SINT32", new BoxedPrimitive("(sint32):sint32"));
     }
 }

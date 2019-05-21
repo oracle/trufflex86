@@ -56,7 +56,7 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.nfi.types.NativeLibraryDescriptor;
+import com.oracle.truffle.nfi.spi.types.NativeLibraryDescriptor;
 
 public class AMD64LibraryNode extends AMD64RootNode {
     @Child private AMD64ContextInitializerNode initializer = new AMD64ContextInitializerNode();

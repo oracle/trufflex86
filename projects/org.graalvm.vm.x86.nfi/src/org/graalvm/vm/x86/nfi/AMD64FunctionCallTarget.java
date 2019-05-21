@@ -48,6 +48,7 @@ import org.graalvm.vm.x86.node.AMD64RootNode;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
 
 public class AMD64FunctionCallTarget extends AMD64RootNode {
     @Child private AMD64FunctionCallNode target;
@@ -59,10 +60,11 @@ public class AMD64FunctionCallTarget extends AMD64RootNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        AMD64Function func = (AMD64Function) frame.getArguments()[0];
-        Object[] args = (Object[]) frame.getArguments()[1];
+        AMD64Symbol func = (AMD64Symbol) frame.getArguments()[0];
+        NativeSignature signature = (NativeSignature) frame.getArguments()[1];
+        Object[] args = (Object[]) frame.getArguments()[2];
         @SuppressWarnings("unchecked")
-        List<Object> objects = (List<Object>) frame.getArguments()[2];
-        return target.execute(frame, func, args, objects);
+        List<Object> objects = (List<Object>) frame.getArguments()[3];
+        return target.execute(frame, func, signature, args, objects);
     }
 }

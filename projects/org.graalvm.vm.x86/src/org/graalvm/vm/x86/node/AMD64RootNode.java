@@ -54,10 +54,10 @@ public abstract class AMD64RootNode extends RootNode {
     }
 
     protected ContextReference<AMD64Context> getContextReference() {
-        return getLanguage(AMD64Language.class).getContextReference();
+        return AMD64Language.getCurrentContextReference();
     }
 
     public TruffleLanguage<AMD64Context> getAMD64Language() {
-        return getLanguage(AMD64Language.class);
+        return AMD64Language.getCurrentLanguage();
     }
 }

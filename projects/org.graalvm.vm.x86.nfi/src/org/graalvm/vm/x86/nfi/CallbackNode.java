@@ -46,7 +46,6 @@ import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.x86.AMD64Context;
-import org.graalvm.vm.x86.AMD64Language;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF32Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsF64Node;
 import org.graalvm.vm.x86.nfi.TypeConversion.AsI64Node;
@@ -59,6 +58,8 @@ import org.graalvm.vm.x86.nfi.TypeConversionFactory.AsPointerNodeGen;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.CachedContext;
+import com.oracle.truffle.api.dsl.CachedLanguage;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.ForeignAccess;
@@ -67,12 +68,12 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleType;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
+import com.oracle.truffle.nfi.spi.types.NativeFunctionTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleType;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror.Kind;
 
 public abstract class CallbackNode extends Node {
     public abstract long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5,
@@ -98,8 +99,7 @@ public abstract class CallbackNode extends Node {
 
     @Specialization
     protected long execute(NativeSignature signature, List<Object> objects, TruffleObject obj, long a1, long a2, long a3, long a4, long a5, long a6, long f1, long f2, long f3, long f4, long f5,
-                    long f6, long f7, long f8, @Cached("createExecute()") Node execute) {
-        AMD64Context ctx = AMD64Language.getCurrentContextReference().get();
+                    long f6, long f7, long f8, @Cached("createExecute()") Node execute, @CachedLanguage AMD64NFILanguage language, @CachedContext(AMD64NFILanguage.class) AMD64Context ctx) {
         VirtualMemory mem = ctx.getMemory();
         long callbacks = ctx.getCallbackMemory();
         PosixVirtualMemoryPointer callbacksptr = new PosixVirtualMemoryPointer(mem, callbacks);
@@ -128,7 +128,7 @@ public abstract class CallbackNode extends Node {
             } else {
                 raw = iargs[iidx++];
             }
-            args[idx++] = argConverter.execute(type, raw, objects);
+            args[idx++] = argConverter.execute(type, raw, objects, language);
         }
 
         try {

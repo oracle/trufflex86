@@ -46,11 +46,11 @@ import org.graalvm.vm.posix.api.CString;
 import org.graalvm.vm.posix.api.PosixPointer;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleType;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleType;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror.Kind;
 
 public class Util {
     @TruffleBoundary

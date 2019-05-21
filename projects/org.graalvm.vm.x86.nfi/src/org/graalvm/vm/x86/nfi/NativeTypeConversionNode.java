@@ -46,11 +46,12 @@ import org.graalvm.vm.util.HexFormatter;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.CachedLanguage;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.nfi.types.NativeFunctionTypeMirror;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeFunctionTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
 
 public class NativeTypeConversionNode extends Node {
     @TruffleBoundary
@@ -63,20 +64,23 @@ public class NativeTypeConversionNode extends Node {
         return "sub_" + HexFormatter.tohex(addr, 1);
     }
 
-    public Object execute(NativeTypeMirror type, long value, List<Object> objects) {
+    public Object execute(NativeTypeMirror type, long value, List<Object> objects, @CachedLanguage AMD64NFILanguage language) {
         switch (type.getKind()) {
             case SIMPLE: {
                 NativeSimpleTypeMirror mirror = (NativeSimpleTypeMirror) type;
                 switch (mirror.getSimpleType()) {
                     case SINT8:
-                    case UINT8:
                         return (byte) value;
+                    case UINT8:
+                        return value & 0xFF;
                     case SINT16:
-                    case UINT16:
                         return (short) value;
+                    case UINT16:
+                        return value & 0xFFFF;
                     case SINT32:
-                    case UINT32:
                         return (int) value;
+                    case UINT32:
+                        return value & 0xFFFFFFFFL;
                     case SINT64:
                     case UINT64:
                         return value;
@@ -109,7 +113,7 @@ public class NativeTypeConversionNode extends Node {
             case FUNCTION: {
                 NativeFunctionTypeMirror func = (NativeFunctionTypeMirror) type;
                 NativeSignature signature = func.getSignature();
-                return new AMD64Function(getSubName(value), value, signature);
+                return AMD64Symbol.createBound(language, getSubName(value), value, signature);
             }
             default:
                 CompilerDirectives.transferToInterpreter();

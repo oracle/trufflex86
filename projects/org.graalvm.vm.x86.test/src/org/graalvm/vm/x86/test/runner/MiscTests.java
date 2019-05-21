@@ -52,13 +52,13 @@ public class MiscTests {
     public void dlIteratePhdr() throws Exception {
         String stdout = "Name: \"\" (8 segments)\n" +
                         "     0: [      0x400000; memsz:    470] flags: 0x4; PT_LOAD\n" +
-                        "     1: [      0x401000; memsz:  7984d] flags: 0x5; PT_LOAD\n" +
-                        "     2: [      0x47b000; memsz:  227ef] flags: 0x4; PT_LOAD\n" +
-                        "     3: [      0x49f300; memsz:   6530] flags: 0x6; PT_LOAD\n" +
+                        "     1: [      0x401000; memsz:  7a40d] flags: 0x5; PT_LOAD\n" +
+                        "     2: [      0x47c000; memsz:  22b2f] flags: 0x4; PT_LOAD\n" +
+                        "     3: [      0x4a02c0; memsz:   65e0] flags: 0x6; PT_LOAD\n" +
                         "     4: [      0x400200; memsz:     44] flags: 0x4; PT_NOTE\n" +
-                        "     5: [      0x49f300; memsz:     60] flags: 0x4; PT_TLS\n" +
+                        "     5: [      0x4a02c0; memsz:     60] flags: 0x4; PT_TLS\n" +
                         "     6: [         (nil); memsz:      0] flags: 0x6; PT_GNU_STACK\n" +
-                        "     7: [      0x49f300; memsz:   2d00] flags: 0x4; PT_GNU_RELRO\n";
+                        "     7: [      0x4a02c0; memsz:   2d40] flags: 0x4; PT_GNU_RELRO\n";
         TestRunner.run("dl_iterate_phdr.elf", new String[0], "", stdout, "", 0);
     }
 

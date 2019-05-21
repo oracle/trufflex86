@@ -1,26 +1,42 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
+ * The Universal Permissive License (UPL), Version 1.0
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
+ * Subject to the condition set forth below, permission is hereby granted to any
+ * person obtaining a copy of this software, associated documentation and/or
+ * data (collectively the "Software"), free of charge and under any and all
+ * copyright rights in the Software, and any and all patent rights owned or
+ * freely licensable by each licensor hereunder covering either (i) the
+ * unmodified Software as contributed to or provided by such licensor, or (ii)
+ * the Larger Works (as defined below), to deal in both
  *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (a) the Software, and
  *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
+ * (b) any piece of software and/or hardware listed in the lrgrwrks.txt file if
+ * one is included with the Software each a "Larger Work" to which the Software
+ * is contributed by such licensors),
+ *
+ * without restriction, including without limitation the rights to copy, create
+ * derivative works of, display, perform, and distribute the Software and make,
+ * use, sell, offer for sale, import, export, have made, and have sold the
+ * Software and the Larger Work(s), and to sublicense the foregoing rights on
+ * either these or other terms.
+ *
+ * This license is subject to the following condition:
+ *
+ * The above copyright notice and either this complete permission notice or at a
+ * minimum a reference to the UPL must be included in all copies or substantial
+ * portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package org.graalvm.vm.x86.nfi.test;
 
@@ -37,11 +53,10 @@ import org.junit.runner.RunWith;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ForeignAccess;
 import com.oracle.truffle.api.interop.InteropException;
-import com.oracle.truffle.api.interop.Message;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.tck.TruffleRunner;
 import com.oracle.truffle.tck.TruffleRunner.Inject;
 
@@ -72,18 +87,18 @@ public class StringNFITest extends NFITest {
     public static class NativeStringArgNode extends NFITestRootNode {
 
         final TruffleObject function = lookupAndBind("string_arg", "(string):sint32");
-        final TruffleObject strdup = lookupAndBind("strdup", "(string):string");
-        final TruffleObject free = lookupAndBind("free", "(pointer):void");
+        final TruffleObject strdup = lookupAndBindDefault("strdup", "(string):string");
+        final TruffleObject free = lookupAndBindDefault("free", "(pointer):void");
 
-        @Child Node executeFunction = Message.EXECUTE.createNode();
-        @Child Node executeStrdup = Message.EXECUTE.createNode();
-        @Child Node executeFree = Message.EXECUTE.createNode();
+        @Child InteropLibrary functionInterop = getInterop(function);
+        @Child InteropLibrary strdupInterop = getInterop(strdup);
+        @Child InteropLibrary freeInterop = getInterop(free);
 
         @Override
         public Object executeTest(VirtualFrame frame) throws InteropException {
-            Object nativeString = ForeignAccess.sendExecute(executeStrdup, strdup, frame.getArguments()[0]);
-            Object ret = ForeignAccess.sendExecute(executeFunction, function, nativeString);
-            ForeignAccess.sendExecute(executeFree, free, nativeString);
+            Object nativeString = strdupInterop.execute(strdup, frame.getArguments()[0]);
+            Object ret = functionInterop.execute(function, nativeString);
+            freeInterop.execute(free, nativeString);
             return ret;
         }
     }
@@ -103,14 +118,14 @@ public class StringNFITest extends NFITest {
     }
 
     @Test
-    public void testStringRetConst(@Inject(StringRetConstNode.class) CallTarget callTarget) {
+    public void testStringRetConst(@Inject(StringRetConstNode.class) CallTarget callTarget) throws UnsupportedMessageException {
         Object ret = callTarget.call();
 
         Assert.assertThat("return value", ret, is(instanceOf(TruffleObject.class)));
         TruffleObject obj = (TruffleObject) ret;
 
-        Assert.assertTrue("isBoxed", isBoxed(obj));
-        Assert.assertEquals("return value", "Hello, World!", unbox(obj));
+        Assert.assertTrue("isString", UNCACHED_INTEROP.isString(obj));
+        Assert.assertEquals("return value", "Hello, World!", UNCACHED_INTEROP.asString(obj));
     }
 
     public static class StringRetDynamicNode extends NFITestRootNode {
@@ -118,12 +133,12 @@ public class StringNFITest extends NFITest {
         final TruffleObject function = lookupAndBind("string_ret_dynamic", "(sint32):string");
         final TruffleObject free = lookupAndBind("free_dynamic_string", "(pointer):sint32");
 
-        @Child Node executeFunction = Message.EXECUTE.createNode();
-        @Child Node executeFree = Message.EXECUTE.createNode();
+        @Child InteropLibrary functionInterop = getInterop(function);
+        @Child InteropLibrary freeInterop = getInterop(free);
 
         @Override
         public Object executeTest(VirtualFrame frame) throws InteropException {
-            Object ret = ForeignAccess.sendExecute(executeFunction, function, frame.getArguments()[0]);
+            Object ret = functionInterop.execute(function, frame.getArguments()[0]);
 
             checkRet(ret);
 
@@ -131,19 +146,19 @@ public class StringNFITest extends NFITest {
              * Normally here we'd just call "free" from libc. We're using a wrapper to be able to
              * reliably test whether it was called with the correct argument.
              */
-            Object magic = ForeignAccess.sendExecute(executeFree, free, ret);
+            Object magic = freeInterop.execute(free, ret);
             assertEquals(42, magic);
 
             return null;
         }
 
         @TruffleBoundary
-        private static void checkRet(Object ret) {
+        private static void checkRet(Object ret) throws UnsupportedMessageException {
             Assert.assertThat("return value", ret, is(instanceOf(TruffleObject.class)));
             TruffleObject obj = (TruffleObject) ret;
 
-            Assert.assertTrue("isBoxed", isBoxed(obj));
-            Assert.assertEquals("return value", "42", unbox(obj));
+            Assert.assertTrue("isString", UNCACHED_INTEROP.isString(obj));
+            Assert.assertEquals("return value", "42", UNCACHED_INTEROP.asString(obj));
         }
 
     }
@@ -160,14 +175,21 @@ public class StringNFITest extends NFITest {
         }
     }
 
-    private static void testStringCallback(CallTarget target, Object callbackRet) {
-        TruffleObject strArgCallback = new TestCallback(1, (args) -> {
-            Assert.assertEquals("string argument", "Hello, Truffle!", args[0]);
-            return 42;
-        });
-        TruffleObject strRetCallback = new TestCallback(0, (args) -> {
-            return callbackRet;
-        });
+    private String expectedArg;
+    private Object callbackRet;
+
+    private final TruffleObject strArgCallback = new TestCallback(1, (args) -> {
+        Assert.assertEquals("string argument", expectedArg, args[0]);
+        return 42;
+    });
+
+    private final TruffleObject strRetCallback = new TestCallback(0, (args) -> {
+        return callbackRet;
+    });
+
+    private void testStringCallback(CallTarget target, Object cbRet, String expected) {
+        expectedArg = expected;
+        callbackRet = cbRet;
 
         Object ret = target.call(strArgCallback, strRetCallback);
 
@@ -178,47 +200,45 @@ public class StringNFITest extends NFITest {
     @Ignore
     @Test
     public void testStringCallback(@Inject(StringCallbackNode.class) CallTarget target) {
-        testStringCallback(target, "Hello, Native!");
+        testStringCallback(target, "Hello, Native!", "Hello, Truffle!");
+    }
+
+    @Ignore
+    @Test
+    public void testUTF8StringCallback(@Inject(StringCallbackNode.class) CallTarget target) {
+        testStringCallback(target, "Hello, UTF-8 \u00e4\u00e9\u00e7!", "UTF-8 seems to work \u20ac\u00a2");
     }
 
     @Ignore
     @Test
     public void testBoxedStringCallback(@Inject(StringCallbackNode.class) CallTarget target) {
-        testStringCallback(target, new BoxedPrimitive("Hello, Native!"));
+        testStringCallback(target, new BoxedPrimitive("Hello, Native!"), "Hello, Truffle!");
     }
 
-    public static class NativeStringCallbackNode extends NFITestRootNode {
+    public class NativeStringCallbackNode extends NFITestRootNode {
 
         final TruffleObject stringRetConst = lookupAndBind("string_ret_const", "():string");
         final TruffleObject nativeStringCallback = lookupAndBind("native_string_callback", "(():string) : string");
 
-        @Child Node executeStringRetConst = Message.EXECUTE.createNode();
-        @Child Node executeNativeStringCallback = Message.EXECUTE.createNode();
+        @Child InteropLibrary stringRetConstInterop = getInterop(stringRetConst);
+        @Child InteropLibrary nativeStringCallbackInterop = getInterop(nativeStringCallback);
 
         @Override
         public Object executeTest(VirtualFrame frame) throws InteropException {
-            Object string = ForeignAccess.sendExecute(executeStringRetConst, stringRetConst);
-            TruffleObject callback = createCallback(string);
-            return ForeignAccess.sendExecute(executeNativeStringCallback, nativeStringCallback, callback);
-        }
-
-        @TruffleBoundary
-        private static TruffleObject createCallback(Object obj) {
-            return new TestCallback(0, (args) -> {
-                return obj;
-            });
+            callbackRet = stringRetConstInterop.execute(stringRetConst);
+            return nativeStringCallbackInterop.execute(nativeStringCallback, strRetCallback);
         }
     }
 
     @Ignore
     @Test
-    public void testNativeStringCallback(@Inject(NativeStringCallbackNode.class) CallTarget target) {
+    public void testNativeStringCallback(@Inject(NativeStringCallbackNode.class) CallTarget target) throws UnsupportedMessageException {
         Object ret = target.call();
 
         Assert.assertThat("return value", ret, is(instanceOf(TruffleObject.class)));
         TruffleObject obj = (TruffleObject) ret;
 
-        Assert.assertTrue("isBoxed", isBoxed(obj));
-        Assert.assertEquals("return value", "same", unbox(obj));
+        Assert.assertTrue("isString", UNCACHED_INTEROP.isString(obj));
+        Assert.assertEquals("return value", "same", UNCACHED_INTEROP.asString(obj));
     }
 }

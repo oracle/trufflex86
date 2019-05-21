@@ -57,11 +57,11 @@ import org.graalvm.vm.x86.posix.SyscallException;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.nfi.types.NativeSignature;
-import com.oracle.truffle.nfi.types.NativeSimpleType;
-import com.oracle.truffle.nfi.types.NativeSimpleTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror;
-import com.oracle.truffle.nfi.types.NativeTypeMirror.Kind;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleType;
+import com.oracle.truffle.nfi.spi.types.NativeSimpleTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror;
+import com.oracle.truffle.nfi.spi.types.NativeTypeMirror.Kind;
 
 public class AMD64FunctionCallNode extends AMD64Node {
     private static final Logger log = Trace.create(AMD64FunctionCallNode.class);
@@ -80,9 +80,8 @@ public class AMD64FunctionCallNode extends AMD64Node {
         return signature.getArgTypes().get(i);
     }
 
-    public long execute(VirtualFrame frame, AMD64Function func, Object[] args, List<Object> objects) {
+    public long execute(VirtualFrame frame, AMD64Symbol func, NativeSignature signature, Object[] args, List<Object> objects) {
         AMD64Context ctx = getContextReference().get();
-        NativeSignature signature = func.getSignature();
 
         boolean returnFloat = false;
 
@@ -183,7 +182,7 @@ public class AMD64FunctionCallNode extends AMD64Node {
         ctx.setInteropCallback(cb);
 
         try {
-            return root.executeInterop(frame, sp, ret, func.getFunction(), a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8, returnFloat);
+            return root.executeInterop(frame, sp, ret, func.getAddress(), a1, a2, a3, a4, a5, a6, f1, f2, f3, f4, f5, f6, f7, f8, returnFloat);
         } finally {
             ctx.clearInteropCallback();
         }

@@ -40,15 +40,60 @@
  */
 package org.graalvm.vm.x86.nfi;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.graalvm.vm.memory.MemoryOptions;
+import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.x86.AMD64Context;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerAsserts;
-import com.oracle.truffle.api.interop.ForeignAccess;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.CachedContext;
+import com.oracle.truffle.api.dsl.CachedLanguage;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.nfi.spi.NativeSymbolLibrary;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
 
+@ExportLibrary(InteropLibrary.class)
+@ExportLibrary(NativeSymbolLibrary.class)
 public class AMD64Symbol implements TruffleObject {
+    protected static final boolean MEM_MAP_NATIVE = MemoryOptions.MEM_MAP_NATIVE.get();
+
     private final String name;
     private final long address;
+
+    protected static RootCallTarget createCallTarget(AMD64Context ctx) {
+        return Truffle.getRuntime().createCallTarget(new AMD64FunctionCallTarget(ctx.getLanguage(), ctx.getFrameDescriptor()));
+    }
+
+    protected static NativeTypeConversionNode createNativeTypeConversionNode() {
+        return new NativeTypeConversionNode();
+    }
+
+    static Object create(AMD64NFILanguage language, String name, long address) {
+        if (address == 0) { // NULL pointers can never be executed
+            return new AMD64Symbol(name, address);
+        }
+        return language.getTools().createBindableSymbol(new AMD64Symbol(name, address));
+    }
+
+    static Object createBound(AMD64NFILanguage language, String name, long address, NativeSignature signature) {
+        if (address == 0) { // NULL pointers can never be executed
+            return new AMD64Symbol(name, address);
+        }
+        return language.getTools().createBoundSymbol(new AMD64Symbol(name, address), signature);
+    }
 
     public AMD64Symbol(String name, long address) {
         this.name = name;
@@ -63,13 +108,60 @@ public class AMD64Symbol implements TruffleObject {
         return address;
     }
 
-    public ForeignAccess getForeignAccess() {
-        return AMD64SymbolMessageResolutionForeign.ACCESS;
-    }
-
     @Override
     public String toString() {
         CompilerAsserts.neverPartOfCompilation();
         return "AMD64Symbol[" + name + "=0x" + HexFormatter.tohex(address, 1) + "]";
+    }
+
+    @ExportMessage
+    boolean isPointer() {
+        return true;
+    }
+
+    @ExportMessage
+    long asPointer(@CachedContext(AMD64NFILanguage.class) AMD64Context ctx) {
+        if (MEM_MAP_NATIVE) {
+            if (address < 0) {
+                return VirtualMemory.fromMappedNative(address);
+            } else {
+                VirtualMemory mem = ctx.getMemory();
+                return mem.getNativeAddress(address);
+            }
+        } else {
+            return address;
+        }
+    }
+
+    @ExportMessage
+    boolean isNull() {
+        return address == 0;
+    }
+
+    @ExportMessage
+    boolean isBindable() {
+        return address != 0;
+    }
+
+    @ExportMessage
+    Object prepareSignature(NativeSignature signature) {
+        return signature;
+    }
+
+    @SuppressWarnings("unused")
+    @ExportMessage
+    Object call(Object signature, Object[] args,
+                    @CachedContext(AMD64NFILanguage.class) AMD64Context ctx,
+                    @Cached(value = "createCallTarget(ctx)", allowUncached = true) CallTarget execute,
+                    @Cached(value = "createNativeTypeConversionNode()", allowUncached = true) NativeTypeConversionNode converter,
+                    @CachedLanguage AMD64NFILanguage language) throws ArityException, UnsupportedTypeException {
+        if (!(signature instanceof NativeSignature)) {
+            CompilerDirectives.transferToInterpreter();
+            throw UnsupportedTypeException.create(new Object[]{signature});
+        }
+
+        List<Object> objects = new ArrayList<>();
+        long result = (long) execute.call(new Object[]{this, signature, args, objects});
+        return converter.execute(((NativeSignature) signature).getRetType(), result, objects, language);
     }
 }

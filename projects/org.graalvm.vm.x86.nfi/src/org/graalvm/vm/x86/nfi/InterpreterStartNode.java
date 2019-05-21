@@ -98,7 +98,7 @@ public class InterpreterStartNode extends AMD64Node {
 
     public InteropFunctionPointers execute(VirtualFrame frame) {
         CompilerDirectives.transferToInterpreterAndInvalidate();
-        TruffleLanguage<AMD64Context> language = getRootNode().getLanguage(AMD64NFILanguage.class);
+        TruffleLanguage<AMD64Context> language = AMD64NFILanguage.getCurrentLanguage();
         ArchitecturalState state = language.getContextReference().get().getState();
         interpreter = insert(new InterpreterRootNode(state, getLibnfiPath()));
         return interpreter.executeInit(frame);

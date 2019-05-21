@@ -41,7 +41,7 @@
 package org.graalvm.vm.x86.nfi;
 
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.nfi.types.NativeSignature;
+import com.oracle.truffle.nfi.spi.types.NativeSignature;
 
 public class Callback {
     public final NativeSignature signature;

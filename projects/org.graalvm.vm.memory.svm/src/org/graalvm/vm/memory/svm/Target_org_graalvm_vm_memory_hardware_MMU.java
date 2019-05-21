@@ -48,7 +48,7 @@ import org.graalvm.word.WordFactory;
 
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
-import com.oracle.svm.core.posix.headers.Errno;
+import com.oracle.svm.core.headers.Errno;
 import com.oracle.svm.core.posix.headers.Mman;
 
 @Platforms(Platform.LINUX.class)

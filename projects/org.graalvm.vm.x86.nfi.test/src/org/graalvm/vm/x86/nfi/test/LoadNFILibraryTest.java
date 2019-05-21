@@ -51,7 +51,7 @@ public class LoadNFILibraryTest extends NFITest {
     private final String nativeTestLib = NFITest.TEST_LIBRARY;
 
     private static TruffleObject eval(String format, Object... args) {
-        Source source = Source.newBuilder("amd64nfi", String.format(format, args), "LoadLibraryTest").build();
+        Source source = Source.newBuilder("nfi", "with vmx86 " + String.format(format, args), "LoadLibraryTest").build();
         CallTarget target = runWithPolyglot.getTruffleTestEnv().parse(source);
         return (TruffleObject) target.call();
     }

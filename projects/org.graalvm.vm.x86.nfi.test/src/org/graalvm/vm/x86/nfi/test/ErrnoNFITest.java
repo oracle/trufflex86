@@ -1,39 +1,45 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
+ * The Universal Permissive License (UPL), Version 1.0
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
+ * Subject to the condition set forth below, permission is hereby granted to any
+ * person obtaining a copy of this software, associated documentation and/or
+ * data (collectively the "Software"), free of charge and under any and all
+ * copyright rights in the Software, and any and all patent rights owned or
+ * freely licensable by each licensor hereunder covering either (i) the
+ * unmodified Software as contributed to or provided by such licensor, or (ii)
+ * the Larger Works (as defined below), to deal in both
  *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * (a) the Software, and
  *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
+ * (b) any piece of software and/or hardware listed in the lrgrwrks.txt file if
+ * one is included with the Software each a "Larger Work" to which the Software
+ * is contributed by such licensors),
+ *
+ * without restriction, including without limitation the rights to copy, create
+ * derivative works of, display, perform, and distribute the Software and make,
+ * use, sell, offer for sale, import, export, have made, and have sold the
+ * Software and the Larger Work(s), and to sublicense the foregoing rights on
+ * either these or other terms.
+ *
+ * This license is subject to the following condition:
+ *
+ * The above copyright notice and either this complete permission notice or at a
+ * minimum a reference to the UPL must be included in all copies or substantial
+ * portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package org.graalvm.vm.x86.nfi.test;
 
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ForeignAccess;
-import com.oracle.truffle.api.interop.InteropException;
-import com.oracle.truffle.api.interop.Message;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.tck.TruffleRunner;
-import com.oracle.truffle.tck.TruffleRunner.Inject;
 import java.io.File;
 import java.io.FileReader;
 
@@ -41,6 +47,15 @@ import org.graalvm.vm.x86.nfi.test.interop.TestCallback;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.InteropException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.tck.TruffleRunner;
+import com.oracle.truffle.tck.TruffleRunner.Inject;
 
 @RunWith(TruffleRunner.class)
 public class ErrnoNFITest extends NFITest {
@@ -56,16 +71,16 @@ public class ErrnoNFITest extends NFITest {
 
     public static class TestVirtualErrno extends NFITestRootNode {
         private final TruffleObject setErrno = lookupAndBind("setErrno", "(sint32):void");
-        @Child private Node executeSetErrno = Message.EXECUTE.createNode();
+        @Child InteropLibrary setErrnoInterop = getInterop(setErrno);
 
         private final TruffleObject getErrno = lookupAndBind("getErrno", "():sint32");
-        @Child private Node executeGetErrno = Message.EXECUTE.createNode();
+        @Child InteropLibrary getErrnoInterop = getInterop(getErrno);
 
         @Override
         public Object executeTest(VirtualFrame frame) throws InteropException {
-            ForeignAccess.sendExecute(executeSetErrno, setErrno, frame.getArguments()[0]);
+            setErrnoInterop.execute(setErrno, frame.getArguments()[0]);
             destroyErrno();
-            return ForeignAccess.sendExecute(executeGetErrno, getErrno);
+            return getErrnoInterop.execute(getErrno);
         }
     }
 
@@ -76,17 +91,19 @@ public class ErrnoNFITest extends NFITest {
     }
 
     public static class TestErrnoCallback extends SendExecuteNode {
+
         public TestErrnoCallback() {
             super("errnoCallback", "(sint32, ():void):sint32");
         }
     }
 
+    private static final TestCallback callback = new TestCallback(0, (args) -> {
+        destroyErrno();
+        return null;
+    });
+
     @Test
     public void testErrnoCallback(@Inject(TestErrnoCallback.class) CallTarget target) {
-        TestCallback callback = new TestCallback(0, (args) -> {
-            destroyErrno();
-            return null;
-        });
         Object ret = target.call(42, callback);
         Assert.assertEquals(42, ret);
     }
