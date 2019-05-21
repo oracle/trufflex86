@@ -69,6 +69,8 @@ import org.graalvm.vm.x86.trcview.io.BlockNode;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
+    private static final String WINDOW_TITLE = "TRCView";
+
     private static final Logger log = Trace.create(MainWindow.class);
 
     public static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
@@ -79,7 +81,7 @@ public class MainWindow extends JFrame {
     private JMenuItem open;
 
     public MainWindow() {
-        super("TRCView");
+        super(WINDOW_TITLE);
 
         FileDialog load = new FileDialog(this, "Open...", FileDialog.LOAD);
 
@@ -144,6 +146,7 @@ public class MainWindow extends JFrame {
                 return;
             }
             setStatus("Trace loaded");
+            setTitle(file + " - " + WINDOW_TITLE);
             EventQueue.invokeLater(() -> view.setRoot(root));
         } catch (Throwable t) {
             log.log(Level.INFO, "Loading failed: " + t, t);
