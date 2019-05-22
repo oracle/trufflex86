@@ -41,6 +41,8 @@
 package org.graalvm.vm.x86.trcview.ui;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,11 +59,12 @@ import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
+import org.graalvm.vm.x86.trcview.ui.event.LevelPeekListener;
 import org.graalvm.vm.x86.trcview.ui.event.LevelUpListener;
 
 @SuppressWarnings("serial")
-public class StackView extends JPanel {
-    private static final Logger log = Trace.create(StackView.class);
+public class CallStackView extends JPanel {
+    private static final Logger log = Trace.create(CallStackView.class);
 
     private BlockNode current;
     private List<String> callStack;
@@ -73,11 +76,13 @@ public class StackView extends JPanel {
     private JButton up;
 
     private List<LevelUpListener> listeners;
+    private List<LevelPeekListener> peekListeners;
 
-    public StackView() {
+    public CallStackView() {
         super(new BorderLayout());
 
         listeners = new ArrayList<>();
+        peekListeners = new ArrayList<>();
 
         up = new JButton("up");
         up.setEnabled(false);
@@ -94,6 +99,21 @@ public class StackView extends JPanel {
                 fireUpEvent();
             }
         });
+
+        entries.addListSelectionListener(e -> {
+            if (callStack.size() > 1) {
+                firePeekEvent();
+            }
+        });
+
+        entries.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    fireGotoEvent();
+                }
+            }
+        });
     }
 
     public void addLevelUpListener(LevelUpListener listener) {
@@ -104,6 +124,14 @@ public class StackView extends JPanel {
         listeners.remove(listener);
     }
 
+    public void addLevelPeekListener(LevelPeekListener listener) {
+        peekListeners.add(listener);
+    }
+
+    public void removeLevelPeekListener(LevelPeekListener listener) {
+        peekListeners.remove(listener);
+    }
+
     protected void fireUpEvent() {
         BlockNode block = callStackBlocks.get(callStackBlocks.size() - 1);
         for (LevelUpListener l : listeners) {
@@ -112,6 +140,39 @@ public class StackView extends JPanel {
             } catch (Throwable t) {
                 log.log(Level.WARNING, "Error while running listener: " + t, t);
             }
+        }
+    }
+
+    protected void firePeekEvent() {
+        int selection = entries.getSelectedIndex();
+        if (selection == -1) {
+            return;
+        }
+        BlockNode block = callStackBlocks.get(selection);
+        if (block == null) {
+            return;
+        }
+        BlockNode select = null;
+        if (selection + 1 < callStackBlocks.size()) {
+            select = callStackBlocks.get(selection + 1);
+        }
+        for (LevelPeekListener l : peekListeners) {
+            try {
+                l.levelPeek(block, select);
+            } catch (Throwable t) {
+                log.log(Level.WARNING, "Error while running listener: " + t, t);
+            }
+        }
+    }
+
+    protected void fireGotoEvent() {
+        int selection = entries.getSelectedIndex();
+        if (selection == -1) {
+            return;
+        }
+        int levels = callStackBlocks.size() - selection - 1;
+        for (int i = 0; i < levels; i++) {
+            fireUpEvent();
         }
     }
 
@@ -155,7 +216,7 @@ public class StackView extends JPanel {
         if (block != null && block.getHead() == null) {
             StepRecord first = block.getFirstStep();
             callStack.add("0x" + HexFormatter.tohex(first.getLocation().getPC(), 16) + " <_start>");
-            callStackBlocks.add(null);
+            callStackBlocks.add(block);
         }
         Collections.reverse(callStack);
         Collections.reverse(callStackBlocks);

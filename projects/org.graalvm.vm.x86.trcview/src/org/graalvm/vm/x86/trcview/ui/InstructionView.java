@@ -309,6 +309,26 @@ public class InstructionView extends JPanel {
         }
     }
 
+    public StepRecord getPreviousInstruction() {
+        int selected = insns.getSelectedIndex();
+        if (selected == -1) {
+            return null;
+        }
+
+        selected--;
+
+        if (selected < 0) {
+            return null;
+        }
+
+        Node node = instructions.get(selected);
+        if (node instanceof BlockNode) {
+            return ((BlockNode) node).getHead();
+        } else {
+            return (StepRecord) ((RecordNode) node).getRecord();
+        }
+    }
+
     public CallArgsRecord getSelectedInstructionCallArguments() {
         int selected = insns.getSelectedIndex();
         if (selected == -1) {

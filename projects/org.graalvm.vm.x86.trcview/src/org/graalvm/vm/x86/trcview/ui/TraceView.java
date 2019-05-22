@@ -59,7 +59,7 @@ import org.graalvm.vm.x86.trcview.ui.event.CallListener;
 
 @SuppressWarnings("serial")
 public class TraceView extends JPanel {
-    private StackView stack;
+    private CallStackView stack;
     private StateView state;
     private InstructionView insns;
 
@@ -69,15 +69,20 @@ public class TraceView extends JPanel {
         content.setLeftComponent(insns = new InstructionView(status));
         content.setRightComponent(state = new StateView());
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        split.setLeftComponent(stack = new StackView());
+        split.setLeftComponent(stack = new CallStackView());
         split.setRightComponent(content);
         add(BorderLayout.CENTER, split);
 
         insns.addChangeListener(() -> {
             StepRecord step = insns.getSelectedInstruction();
+            StepRecord previous = insns.getPreviousInstruction();
             CallArgsRecord args = insns.getSelectedInstructionCallArguments();
             if (step != null) {
-                state.setState(step);
+                if (previous != null) {
+                    state.setState(previous, step);
+                } else {
+                    state.setState(step);
+                }
                 state.setCallArguments(args);
             }
         });
@@ -99,6 +104,7 @@ public class TraceView extends JPanel {
         });
 
         stack.addLevelUpListener(this::up);
+        stack.addLevelPeekListener(this::peek);
 
         KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(esc, esc);
@@ -118,6 +124,13 @@ public class TraceView extends JPanel {
             stack.set(parent);
             insns.set(parent);
             insns.select(block);
+        }
+    }
+
+    private void peek(BlockNode block, BlockNode select) {
+        insns.set(block);
+        if (select != null) {
+            insns.select(select);
         }
     }
 

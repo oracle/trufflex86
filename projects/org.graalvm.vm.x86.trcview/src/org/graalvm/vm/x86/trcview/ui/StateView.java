@@ -41,32 +41,69 @@
 package org.graalvm.vm.x86.trcview.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 
 @SuppressWarnings("serial")
 public class StateView extends JPanel {
-    private JTextArea text;
+    private static final String STYLE = "<style>\n" +
+                    "html, body, pre {\n" +
+                    "    padding: 0;\n" +
+                    "    margin: 0;\n" +
+                    "}\n" +
+                    "pre {\n" +
+                    "    font-family: " + Font.MONOSPACED + ";\n" +
+                    "    font-size: 11pt;\n" +
+                    "}\n" +
+                    ".change {\n" +
+                    "    color: red;\n" +
+                    "}\n" +
+                    ".comment {\n" +
+                    "    color: " + color(Color.LIGHT_GRAY) + ";\n" +
+                    "}\n" +
+                    ".symbol {\n" +
+                    "    color: " + color(Color.BLUE) + ";\n" +
+                    "}\n" +
+                    ".mnemonic {\n" +
+                    "    color: " + color(Color.BLUE) + ";\n" +
+                    "}\n" +
+                    "</style>";
+    private JTextPane text;
 
     private StepRecord step;
+    private StepRecord previous;
     private CallArgsRecord args;
 
     public StateView() {
         super(new BorderLayout());
-        text = new JTextArea();
+        text = new JTextPane();
         text.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
         text.setEditable(false);
+        text.setContentType("text/html");
         add(BorderLayout.CENTER, new JScrollPane(text));
     }
 
+    private static String color(Color color) {
+        return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
+    }
+
     public void setState(StepRecord step) {
+        this.previous = null;
         this.step = step;
+        this.args = null;
+        update();
+    }
+
+    public void setState(StepRecord previous, StepRecord current) {
+        this.previous = previous;
+        this.step = current;
         this.args = null;
         update();
     }
@@ -76,16 +113,31 @@ public class StateView extends JPanel {
         update();
     }
 
+    private static String encodeHTML(String text) {
+        return text.replace("&", "&amp;").replace("<", "&lt;");
+    }
+
+    private String get() {
+        if (previous != null) {
+            return StateEncoder.encode(previous, step);
+        } else {
+            return StateEncoder.encode(step);
+        }
+    }
+
     private void update() {
+        String content;
         if (step != null) {
             if (args != null) {
-                text.setText(step.toString() + "\n\n" + args);
+                content = get() + "\n\n" + encodeHTML(args.toString());
             } else {
-                text.setText(step.toString());
+                content = get();
             }
         } else {
-            text.setText("");
+            content = "";
         }
+        String html = "<html><head>" + STYLE + "</head><body><pre>" + content + "</pre></body></html>";
+        text.setText(html);
         text.setCaretPosition(0);
     }
 }
