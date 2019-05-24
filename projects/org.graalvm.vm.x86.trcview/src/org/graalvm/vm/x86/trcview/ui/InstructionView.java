@@ -301,6 +301,15 @@ public class InstructionView extends JPanel {
         }
     }
 
+    public Node getSelectedNode() {
+        int selected = insns.getSelectedIndex();
+        if (selected == -1) {
+            return null;
+        }
+
+        return instructions.get(selected);
+    }
+
     public StepRecord getSelectedInstruction() {
         int selected = insns.getSelectedIndex();
         if (selected == -1) {

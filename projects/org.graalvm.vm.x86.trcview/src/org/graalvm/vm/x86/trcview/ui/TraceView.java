@@ -55,6 +55,7 @@ import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.analysis.SymbolTable;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
+import org.graalvm.vm.x86.trcview.io.Node;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
 import org.graalvm.vm.x86.trcview.ui.event.CallListener;
 
@@ -80,19 +81,7 @@ public class TraceView extends JPanel {
         split.setRightComponent(content);
         add(BorderLayout.CENTER, split);
 
-        symbols.addJumpListener(node -> {
-            if (node instanceof BlockNode) {
-                BlockNode block = (BlockNode) node;
-                stack.set(block);
-                insns.set(block);
-                insns.select(block.getNodes().get(0));
-            } else {
-                BlockNode block = node.getParent();
-                stack.set(block);
-                insns.set(block);
-                insns.select(node);
-            }
-        });
+        symbols.addJumpListener(this::jump);
 
         insns.addChangeListener(() -> {
             StepRecord step = insns.getSelectedInstruction();
@@ -140,6 +129,13 @@ public class TraceView extends JPanel {
         });
     }
 
+    public void jump(Node node) {
+        BlockNode block = node.getParent();
+        stack.set(block);
+        insns.set(block);
+        insns.select(node);
+    }
+
     private void up(BlockNode block) {
         BlockNode parent = block.getParent();
         if (parent != null) {
@@ -167,5 +163,13 @@ public class TraceView extends JPanel {
 
     public void setSymbols(SymbolTable symbols) {
         this.symbols.setSymbols(symbols);
+    }
+
+    public Node getSelectedNode() {
+        return insns.getSelectedNode();
+    }
+
+    public StepRecord getSelectedInstruction() {
+        return insns.getSelectedInstruction();
     }
 }

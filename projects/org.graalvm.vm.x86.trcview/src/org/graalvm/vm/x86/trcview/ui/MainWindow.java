@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,14 +60,21 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
+import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.util.ui.MessageBox;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
+import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.analysis.Analysis;
+import org.graalvm.vm.x86.trcview.analysis.Search;
+import org.graalvm.vm.x86.trcview.analysis.Symbol;
+import org.graalvm.vm.x86.trcview.analysis.SymbolTable;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
+import org.graalvm.vm.x86.trcview.io.Node;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -80,6 +88,10 @@ public class MainWindow extends JFrame {
     private TraceView view;
 
     private JMenuItem open;
+    private JMenuItem gotoPC;
+
+    private SymbolTable symbols;
+    private BlockNode trace;
 
     public MainWindow() {
         super(WINDOW_TITLE);
@@ -123,6 +135,58 @@ public class MainWindow extends JFrame {
         fileMenu.add(exit);
         fileMenu.setMnemonic('F');
         menu.add(fileMenu);
+
+        JMenu viewMenu = new JMenu("View");
+        gotoPC = new JMenuItem("Goto PC...");
+        gotoPC.setMnemonic('g');
+        gotoPC.setAccelerator(KeyStroke.getKeyStroke('g'));
+        gotoPC.addActionListener(e -> {
+            StepRecord step = view.getSelectedInstruction();
+            String input;
+            if (step != null) {
+                long loc = step.getLocation().getPC();
+                input = JOptionPane.showInputDialog("Enter address:", HexFormatter.tohex(loc));
+                if (input != null && input.trim().length() > 0) {
+                    try {
+                        long pc = Long.parseLong(input.trim(), 16);
+                        Node n = Search.nextPC(view.getSelectedNode(), pc);
+                        if (n != null) {
+                            log.info("Jumping to next occurence of PC=0x" + HexFormatter.tohex(pc));
+                            view.jump(n);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Error: cannot find a next instruction at 0x" + HexFormatter.tohex(pc), "Goto...", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Error: invalid number", "Goto PC...", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                Optional<Symbol> first = symbols.getSymbols().stream().sorted((a, b) -> Long.compareUnsigned(a.address, b.address)).findFirst();
+                if (first.isPresent()) {
+                    input = JOptionPane.showInputDialog("Enter address:", HexFormatter.tohex(first.get().address));
+                } else {
+                    input = JOptionPane.showInputDialog("Enter address:", "0");
+                }
+                if (input != null && input.trim().length() > 0) {
+                    try {
+                        long pc = Long.parseLong(input.trim(), 16);
+                        Node n = Search.nextPC(trace, pc);
+                        if (n != null) {
+                            log.info("Jumping to next occurence of PC=0x" + HexFormatter.tohex(pc));
+                            view.jump(n);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Error: cannot find a next instruction at 0x" + HexFormatter.tohex(pc), "Goto...", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Error: invalid number", "Goto PC...", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+        gotoPC.setEnabled(false);
+        viewMenu.add(gotoPC);
+        menu.add(viewMenu);
+
         setJMenuBar(menu);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,6 +218,9 @@ public class MainWindow extends JFrame {
             EventQueue.invokeLater(() -> {
                 view.setRoot(root);
                 view.setSymbols(analysis.getSymbolTable());
+                symbols = analysis.getSymbolTable();
+                trace = root;
+                gotoPC.setEnabled(true);
             });
         } catch (Throwable t) {
             log.log(Level.INFO, "Loading failed: " + t, t);
