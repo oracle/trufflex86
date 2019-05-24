@@ -89,6 +89,7 @@ public class MainWindow extends JFrame {
 
     private JMenuItem open;
     private JMenuItem gotoPC;
+    private JMenuItem gotoNext;
 
     private SymbolTable symbols;
     private BlockNode trace;
@@ -185,6 +186,24 @@ public class MainWindow extends JFrame {
         });
         gotoPC.setEnabled(false);
         viewMenu.add(gotoPC);
+        gotoNext = new JMenuItem("Goto next");
+        gotoNext.setMnemonic('n');
+        gotoNext.setAccelerator(KeyStroke.getKeyStroke('n'));
+        gotoNext.addActionListener(e -> {
+            StepRecord step = view.getSelectedInstruction();
+            if (step != null) {
+                long pc = step.getLocation().getPC();
+                Node n = Search.nextPC(view.getSelectedNode(), pc);
+                if (n != null) {
+                    log.info("Jumping to next occurence of PC=0x" + HexFormatter.tohex(pc));
+                    view.jump(n);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error: cannot find a next instruction at 0x" + HexFormatter.tohex(pc), "Goto next", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        gotoNext.setEnabled(false);
+        viewMenu.add(gotoNext);
         menu.add(viewMenu);
 
         setJMenuBar(menu);
@@ -221,6 +240,7 @@ public class MainWindow extends JFrame {
                 symbols = analysis.getSymbolTable();
                 trace = root;
                 gotoPC.setEnabled(true);
+                gotoNext.setEnabled(true);
             });
         } catch (Throwable t) {
             log.log(Level.INFO, "Loading failed: " + t, t);

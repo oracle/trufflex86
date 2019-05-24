@@ -48,7 +48,32 @@ import org.graalvm.vm.x86.trcview.io.RecordNode;
 public class Search {
     // TODO: nextPC returns the start node if start.pc == nextPC; the start node should be ignored
     // in this case
-    public static Node nextPC(Node start, long pc) {
+
+    public static Node next(Node node) {
+        if (node instanceof BlockNode) {
+            BlockNode block = (BlockNode) node;
+            return block.getFirstNode();
+        } else if (node instanceof RecordNode && ((RecordNode) node).getRecord() instanceof StepRecord) {
+            BlockNode block = node.getParent();
+            boolean start = false;
+            for (Node n : block.getNodes()) {
+                if (n == node) {
+                    start = true;
+                } else if (start && (n instanceof BlockNode || ((RecordNode) n).getRecord() instanceof StepRecord)) {
+                    return n;
+                }
+            }
+            return null;
+        } else {
+            throw new IllegalArgumentException("Not a BlockNode/RecordNode");
+        }
+    }
+
+    public static Node nextPC(Node startNode, long pc) {
+        Node start = next(startNode);
+        if (start == null) {
+            return null;
+        }
         Node c = nextPCChildren(start, pc);
         if (c == null) {
             // follow parents until reaching root
@@ -121,7 +146,11 @@ public class Search {
             }
             return null;
         } else {
-            throw new IllegalArgumentException("invalid start node type");
+            if (start instanceof RecordNode) {
+                throw new IllegalArgumentException("invalid start node type: " + start.getClass().getCanonicalName() + " [" + ((RecordNode) start).getRecord().getClass() + "]");
+            } else {
+                throw new IllegalArgumentException("invalid start node type: " + start.getClass().getCanonicalName());
+            }
         }
     }
 }

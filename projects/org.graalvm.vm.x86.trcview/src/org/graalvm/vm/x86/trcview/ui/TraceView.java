@@ -101,7 +101,7 @@ public class TraceView extends JPanel {
             public void call(BlockNode call) {
                 stack.set(call);
                 insns.set(call);
-                insns.select(call.getNodes().get(0));
+                insns.select(call.getFirstNode());
             }
 
             public void ret(RecordNode ret) {
@@ -150,14 +150,14 @@ public class TraceView extends JPanel {
         if (select != null) {
             insns.select(select);
         } else {
-            insns.select(block.getNodes().get(0));
+            insns.select(block.getFirstNode());
         }
     }
 
     public void setRoot(BlockNode root) {
         stack.set(root);
         insns.set(root);
-        insns.select(root.getNodes().get(0));
+        insns.select(root.getFirstNode());
         state.setState(root.getFirstStep());
     }
 

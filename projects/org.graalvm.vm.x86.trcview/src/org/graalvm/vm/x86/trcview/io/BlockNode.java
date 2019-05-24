@@ -81,10 +81,21 @@ public class BlockNode extends Node {
         return Collections.unmodifiableList(children);
     }
 
+    public Node getFirstNode() {
+        for (Node n : children) {
+            if (n instanceof BlockNode || n instanceof RecordNode && ((RecordNode) n).getRecord() instanceof StepRecord) {
+                return n;
+            }
+        }
+        return null;
+    }
+
     public StepRecord getFirstStep() {
         for (Node n : children) {
             if (n instanceof RecordNode && ((RecordNode) n).getRecord() instanceof StepRecord) {
                 return (StepRecord) ((RecordNode) n).getRecord();
+            } else if (n instanceof BlockNode) {
+                return ((BlockNode) n).getFirstStep();
             }
         }
         return null;
