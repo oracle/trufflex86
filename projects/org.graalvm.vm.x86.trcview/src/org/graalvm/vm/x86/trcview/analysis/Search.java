@@ -46,8 +46,8 @@ import org.graalvm.vm.x86.trcview.io.Node;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
 
 public class Search {
-    // TODO: nextPC(BlockNode, BlockNode.getHead().getLocation().getPC()) == BlockNode, although it
-    // should ignore the head of the BlockNode in this case
+    // TODO: nextPC returns the start node if start.pc == nextPC; the start node should be ignored
+    // in this case
     public static Node nextPC(Node start, long pc) {
         Node c = nextPCChildren(start, pc);
         if (c == null) {
@@ -89,7 +89,7 @@ public class Search {
                         return n;
                     }
                 } else if (n instanceof BlockNode) {
-                    Node next = nextPC(n, pc);
+                    Node next = nextPCChildren(n, pc);
                     if (next != null) {
                         return next;
                     }
@@ -97,6 +97,9 @@ public class Search {
             }
             return null;
         } else if (start instanceof RecordNode && ((RecordNode) start).getRecord() instanceof StepRecord) {
+            if (((StepRecord) ((RecordNode) start).getRecord()).getLocation().getPC() == pc) {
+                return start;
+            }
             BlockNode parent = start.getParent();
             boolean started = false;
             for (Node n : parent.getNodes()) {
@@ -107,7 +110,7 @@ public class Search {
                             return n;
                         }
                     } else if (n instanceof BlockNode) {
-                        Node next = nextPC(n, pc);
+                        Node next = nextPCChildren(n, pc);
                         if (next != null) {
                             return next;
                         }
