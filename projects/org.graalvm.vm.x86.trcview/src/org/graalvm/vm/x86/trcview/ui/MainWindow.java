@@ -125,7 +125,7 @@ public class MainWindow extends JFrame {
         setJMenuBar(menu);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1024, 600);
     }
 
     public void setStatus(String text) {

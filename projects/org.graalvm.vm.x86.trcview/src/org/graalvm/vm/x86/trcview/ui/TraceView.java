@@ -68,6 +68,8 @@ public class TraceView extends JPanel {
         JSplitPane content = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         content.setLeftComponent(insns = new InstructionView(status));
         content.setRightComponent(state = new StateView());
+        content.setResizeWeight(1.0);
+        content.setDividerLocation(400);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         split.setLeftComponent(stack = new CallStackView());
         split.setRightComponent(content);
@@ -91,6 +93,7 @@ public class TraceView extends JPanel {
             public void call(BlockNode call) {
                 stack.set(call);
                 insns.set(call);
+                insns.select(call.getNodes().get(0));
             }
 
             public void ret(RecordNode ret) {
@@ -131,12 +134,15 @@ public class TraceView extends JPanel {
         insns.set(block);
         if (select != null) {
             insns.select(select);
+        } else {
+            insns.select(block.getNodes().get(0));
         }
     }
 
     public void setRoot(BlockNode root) {
         stack.set(root);
         insns.set(root);
+        insns.select(root.getNodes().get(0));
         state.setState(root.getFirstStep());
     }
 }
