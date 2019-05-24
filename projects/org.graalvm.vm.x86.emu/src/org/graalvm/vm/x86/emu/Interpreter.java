@@ -65,6 +65,7 @@ import org.graalvm.vm.x86.posix.PosixEnvironment;
 import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallNames;
+import org.graalvm.vm.x86.posix.Syscalls;
 
 public class Interpreter {
     private static final Logger log = Trace.create(Interpreter.class);

@@ -59,81 +59,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 public class SyscallWrapper extends AMD64Node {
     private static final Logger log = Trace.create(SyscallWrapper.class);
 
-    public static final int SYS_read = 0;
-    public static final int SYS_write = 1;
-    public static final int SYS_open = 2;
-    public static final int SYS_close = 3;
-    public static final int SYS_stat = 4;
-    public static final int SYS_fstat = 5;
-    public static final int SYS_lstat = 6;
-    public static final int SYS_poll = 7;
-    public static final int SYS_lseek = 8;
-    public static final int SYS_mmap = 9;
-    public static final int SYS_mprotect = 10;
-    public static final int SYS_munmap = 11;
-    public static final int SYS_brk = 12;
-    public static final int SYS_rt_sigaction = 13;
-    public static final int SYS_rt_sigprocmask = 14;
-    public static final int SYS_ioctl = 16;
-    public static final int SYS_pread64 = 17;
-    public static final int SYS_pwrite64 = 18;
-    public static final int SYS_readv = 19;
-    public static final int SYS_writev = 20;
-    public static final int SYS_access = 21;
-    public static final int SYS_dup = 32;
-    public static final int SYS_dup2 = 33;
-    public static final int SYS_getpid = 39;
-    public static final int SYS_socket = 41;
-    public static final int SYS_connect = 42;
-    public static final int SYS_sendto = 44;
-    public static final int SYS_recvfrom = 45;
-    public static final int SYS_recvmsg = 47;
-    public static final int SYS_shutdown = 48;
-    public static final int SYS_bind = 49;
-    public static final int SYS_getsockname = 51;
-    public static final int SYS_getpeername = 52;
-    public static final int SYS_setsockopt = 54;
-    public static final int SYS_clone = 56;
-    public static final int SYS_exit = 60;
-    public static final int SYS_uname = 63;
-    public static final int SYS_fcntl = 72;
-    public static final int SYS_fsync = 74;
-    public static final int SYS_getdents = 78;
-    public static final int SYS_getcwd = 79;
-    public static final int SYS_creat = 85;
-    public static final int SYS_unlink = 87;
-    public static final int SYS_readlink = 89;
-    public static final int SYS_gettimeofday = 96;
-    public static final int SYS_sysinfo = 99;
-    public static final int SYS_times = 100;
-    public static final int SYS_getuid = 102;
-    public static final int SYS_getgid = 104;
-    public static final int SYS_setuid = 105;
-    public static final int SYS_setgid = 106;
-    public static final int SYS_geteuid = 107;
-    public static final int SYS_getegid = 108;
-    public static final int SYS_sigaltstack = 131;
-    public static final int SYS_arch_prctl = 158;
-    public static final int SYS_gettid = 186;
-    public static final int SYS_time = 201;
-    public static final int SYS_futex = 202;
-    public static final int SYS_getdents64 = 217;
-    public static final int SYS_set_tid_address = 218;
-    public static final int SYS_clock_gettime = 228;
-    public static final int SYS_clock_getres = 229;
-    public static final int SYS_exit_group = 231;
-    public static final int SYS_tgkill = 234;
-    public static final int SYS_openat = 257;
-    public static final int SYS_dup3 = 292;
-    public static final int SYS_prlimit64 = 302;
-
-    public static final int SYS_DEBUG = 0xDEADBEEF;
-    public static final int SYS_PRINTK = 0xDEADBABE;
-
-    public static final int SYS_interop_init = 0xC0DE0000;
-    public static final int SYS_interop_error = 0xC0DE0001;
-    public static final int SYS_interop_return = 0xC0DE0002;
-
     private final PosixEnvironment posix;
     private final VirtualMemory memory;
 
@@ -222,7 +147,7 @@ public class SyscallWrapper extends AMD64Node {
 
     public long executeI64(VirtualFrame frame, int nr, long a1, long a2, long a3, long a4, long a5, long a6, long pc) throws SyscallException {
         switch (nr) {
-            case SYS_arch_prctl:
+            case Syscalls.SYS_arch_prctl:
                 if (prctl == null) {
                     CompilerDirectives.transferToInterpreterAndInvalidate();
                     prctl = insert(new ArchPrctl());
@@ -238,7 +163,7 @@ public class SyscallWrapper extends AMD64Node {
                     }
                     throw e;
                 }
-            case SYS_clone:
+            case Syscalls.SYS_clone:
                 if (clone == null) {
                     CompilerDirectives.transferToInterpreterAndInvalidate();
                     clone = insert(new Clone());
@@ -262,153 +187,153 @@ public class SyscallWrapper extends AMD64Node {
     private long executeWrapper(int nr, long a1, long a2, long a3, long a4, long a5, long a6) throws SyscallException {
         log.log(Levels.DEBUG, () -> String.format("syscall %d: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", nr, a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6));
         switch (nr) {
-            case SYS_read:
+            case Syscalls.SYS_read:
                 return posix.read((int) a1, a2, a3);
-            case SYS_write:
+            case Syscalls.SYS_write:
                 return posix.write((int) a1, a2, a3);
-            case SYS_open:
+            case Syscalls.SYS_open:
                 return posix.open(a1, (int) a2, (int) a3);
-            case SYS_close:
+            case Syscalls.SYS_close:
                 return posix.close((int) a1);
-            case SYS_stat:
+            case Syscalls.SYS_stat:
                 return posix.stat(a1, a2);
-            case SYS_fstat:
+            case Syscalls.SYS_fstat:
                 return posix.fstat((int) a1, a2);
-            case SYS_lstat:
+            case Syscalls.SYS_lstat:
                 return posix.lstat(a1, a2);
-            case SYS_poll:
+            case Syscalls.SYS_poll:
                 return posix.poll(a1, (int) a2, (int) a3);
-            case SYS_lseek:
+            case Syscalls.SYS_lseek:
                 return posix.lseek((int) a1, a2, (int) a3);
-            case SYS_mmap:
+            case Syscalls.SYS_mmap:
                 return posix.mmap(a1, a2, (int) a3, (int) a4, (int) a5, a6);
-            case SYS_mprotect:
+            case Syscalls.SYS_mprotect:
                 return posix.mprotect(a1, a2, (int) a3);
-            case SYS_munmap:
+            case Syscalls.SYS_munmap:
                 return posix.munmap(a1, a2);
-            case SYS_brk:
+            case Syscalls.SYS_brk:
                 return brk(a1);
-            case SYS_rt_sigaction:
+            case Syscalls.SYS_rt_sigaction:
                 return posix.rt_sigaction((int) a1, a2, a3);
-            case SYS_rt_sigprocmask:
+            case Syscalls.SYS_rt_sigprocmask:
                 return posix.rt_sigprocmask((int) a1, a2, a3, (int) a4);
-            case SYS_ioctl:
+            case Syscalls.SYS_ioctl:
                 return posix.ioctl((int) a1, a2, a3);
-            case SYS_pread64:
+            case Syscalls.SYS_pread64:
                 return posix.pread64((int) a1, a2, (int) a3, a4);
-            case SYS_pwrite64:
+            case Syscalls.SYS_pwrite64:
                 return posix.pwrite64((int) a1, a2, (int) a3, a4);
-            case SYS_readv:
+            case Syscalls.SYS_readv:
                 return posix.readv((int) a1, a2, (int) a3);
-            case SYS_writev:
+            case Syscalls.SYS_writev:
                 return posix.writev((int) a1, a2, (int) a3);
-            case SYS_access:
+            case Syscalls.SYS_access:
                 return posix.access(a1, (int) a2);
-            case SYS_dup:
+            case Syscalls.SYS_dup:
                 return posix.dup((int) a1);
-            case SYS_dup2:
+            case Syscalls.SYS_dup2:
                 return posix.dup2((int) a1, (int) a2);
-            case SYS_getpid:
+            case Syscalls.SYS_getpid:
                 return posix.getpid();
-            case SYS_socket:
+            case Syscalls.SYS_socket:
                 return posix.socket((int) a1, (int) a2, (int) a3);
-            case SYS_connect:
+            case Syscalls.SYS_connect:
                 return posix.connect((int) a1, a2, (int) a3);
-            case SYS_sendto:
+            case Syscalls.SYS_sendto:
                 return posix.sendto((int) a1, a2, a3, (int) a4, a5, (int) a6);
-            case SYS_recvfrom:
+            case Syscalls.SYS_recvfrom:
                 return posix.recvfrom((int) a1, a2, a3, (int) a4, a5, a6);
-            case SYS_recvmsg:
+            case Syscalls.SYS_recvmsg:
                 return posix.recvmsg((int) a1, a2, (int) a3);
-            case SYS_shutdown:
+            case Syscalls.SYS_shutdown:
                 return posix.shutdown((int) a1, (int) a2);
-            case SYS_bind:
+            case Syscalls.SYS_bind:
                 return posix.bind((int) a1, a2, (int) a3);
-            case SYS_getsockname:
+            case Syscalls.SYS_getsockname:
                 return posix.getsockname((int) a1, a2, a3);
-            case SYS_getpeername:
+            case Syscalls.SYS_getpeername:
                 return posix.getpeername((int) a1, a2, a3);
-            case SYS_setsockopt:
+            case Syscalls.SYS_setsockopt:
                 return posix.setsockopt((int) a1, (int) a2, (int) a3, a4, (int) a5);
-            case SYS_exit:
-            case SYS_exit_group: // TODO: implement difference
+            case Syscalls.SYS_exit:
+            case Syscalls.SYS_exit_group: // TODO: implement difference
                 posix.exit((int) a1);
                 throw new ProcessExitException((int) a1);
-            case SYS_uname:
+            case Syscalls.SYS_uname:
                 return posix.uname(a1);
-            case SYS_fcntl:
+            case Syscalls.SYS_fcntl:
                 return posix.fcntl((int) a1, (int) a2, a3);
-            case SYS_fsync:
+            case Syscalls.SYS_fsync:
                 return posix.fsync((int) a1);
-            case SYS_getdents:
+            case Syscalls.SYS_getdents:
                 return posix.getdents((int) a1, a2, (int) a3);
-            case SYS_getcwd:
+            case Syscalls.SYS_getcwd:
                 return posix.getcwd(a1, a2);
-            case SYS_creat:
+            case Syscalls.SYS_creat:
                 return posix.creat(a1, (int) a2);
-            case SYS_unlink:
+            case Syscalls.SYS_unlink:
                 return posix.unlink(a1);
-            case SYS_readlink:
+            case Syscalls.SYS_readlink:
                 return posix.readlink(a1, a2, a3);
-            case SYS_gettimeofday:
+            case Syscalls.SYS_gettimeofday:
                 return posix.gettimeofday(a1, a2);
-            case SYS_sysinfo:
+            case Syscalls.SYS_sysinfo:
                 return posix.sysinfo(a1);
-            case SYS_times:
+            case Syscalls.SYS_times:
                 return posix.times(a1);
-            case SYS_getuid:
+            case Syscalls.SYS_getuid:
                 return posix.getuid();
-            case SYS_getgid:
+            case Syscalls.SYS_getgid:
                 return posix.getgid();
-            case SYS_setuid:
+            case Syscalls.SYS_setuid:
                 return posix.setuid(a1);
-            case SYS_setgid:
+            case Syscalls.SYS_setgid:
                 return posix.setgid(a1);
-            case SYS_geteuid:
+            case Syscalls.SYS_geteuid:
                 return posix.geteuid();
-            case SYS_getegid:
+            case Syscalls.SYS_getegid:
                 return posix.getegid();
-            case SYS_sigaltstack:
+            case Syscalls.SYS_sigaltstack:
                 return posix.sigaltstack(a1, a2);
-            case SYS_gettid:
+            case Syscalls.SYS_gettid:
                 return posix.gettid();
-            case SYS_time:
+            case Syscalls.SYS_time:
                 return posix.time(a1);
-            case SYS_futex:
+            case Syscalls.SYS_futex:
                 return posix.futex(a1, (int) a2, (int) a3, a4, a5, (int) a6);
-            case SYS_getdents64:
+            case Syscalls.SYS_getdents64:
                 return posix.getdents64((int) a1, a2, (int) a3);
-            case SYS_set_tid_address:
+            case Syscalls.SYS_set_tid_address:
                 return posix.set_tid_address(a1);
-            case SYS_clock_gettime:
+            case Syscalls.SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
-            case SYS_clock_getres:
+            case Syscalls.SYS_clock_getres:
                 return posix.clock_getres((int) a1, a2);
-            case SYS_tgkill:
+            case Syscalls.SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));
                 }
                 throw new ProcessExitException(128 + (int) a3);
-            case SYS_openat:
+            case Syscalls.SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
-            case SYS_dup3:
+            case Syscalls.SYS_dup3:
                 return posix.dup3((int) a1, (int) a2, (int) a3);
-            case SYS_prlimit64:
+            case Syscalls.SYS_prlimit64:
                 return posix.prlimit64((int) a1, (int) a2, a3, a4);
-            case SYS_DEBUG:
+            case Syscalls.SYS_DEBUG:
                 log.log(Levels.INFO, String.format("DEBUG: %d (%x), %d (%x), %d (%x), %d (%x), %d (%x), %d (%x)", a1, a1, a2, a2, a3, a3, a4, a4, a5, a5, a6, a6));
                 return 0;
-            case SYS_PRINTK:
+            case Syscalls.SYS_PRINTK:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, "printk(...)");
                 }
                 posix.printk(a1, a2, a3, a4, a5, a6);
                 return 0;
-            case SYS_interop_init:
+            case Syscalls.SYS_interop_init:
                 throw new InteropInitException(a1, a2, a3, a4);
-            case SYS_interop_return:
+            case Syscalls.SYS_interop_return:
                 throw new InteropReturnException(a1);
-            case SYS_interop_error:
+            case Syscalls.SYS_interop_error:
                 throw new InteropErrorException(CString.cstr(new PosixVirtualMemoryPointer(memory, a1)));
             default:
                 throw new SyscallException(Errno.ENOSYS);

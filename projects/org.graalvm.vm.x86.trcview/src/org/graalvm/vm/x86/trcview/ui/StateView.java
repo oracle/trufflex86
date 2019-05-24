@@ -40,6 +40,8 @@
  */
 package org.graalvm.vm.x86.trcview.ui;
 
+import static org.graalvm.vm.x86.trcview.ui.Utils.color;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -88,10 +90,6 @@ public class StateView extends JPanel {
         text.setEditable(false);
         text.setContentType("text/html");
         add(BorderLayout.CENTER, new JScrollPane(text));
-    }
-
-    private static String color(Color color) {
-        return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
 
     public void setState(StepRecord step) {

@@ -62,10 +62,12 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
 import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.util.StringUtils;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
+import org.graalvm.vm.x86.trcview.decode.SyscallDecoder;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
 import org.graalvm.vm.x86.trcview.io.Node;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
@@ -81,6 +83,15 @@ public class InstructionView extends JPanel {
     public static final Color SYSCALL_FG = Color.MAGENTA;
     public static final Color JMP_FG = Color.LIGHT_GRAY;
     public static final Color JCC_FG = new Color(0xFF, 0x80, 0x00);
+    public static final Color ENDBR_FG = Color.GRAY;
+
+    public static final String STYLE = "html, body, pre {" +
+                    "    padding: 0;" +
+                    "    margin: 0;" +
+                    "}";
+    public static final String COMMENT_STYLE = Utils.style(Color.LIGHT_GRAY);
+
+    public static final int COMMENT_COLUMN = 48;
 
     private List<Node> instructions;
     private DefaultListModel<String> model;
@@ -233,12 +244,28 @@ public class InstructionView extends JPanel {
         return buf.toString();
     }
 
+    private static void comment(StringBuilder buf, String disassembly, String comment) {
+        buf.insert(0, "<html><head><style>" + STYLE + "</style></head><body><pre>");
+        buf.append(StringUtils.repeat(" ", COMMENT_COLUMN - disassembly.length()));
+        buf.append("<span style=\"" + COMMENT_STYLE + "\">; ");
+        buf.append(comment);
+        buf.append("</span></pre></body></html>");
+    }
+
     private static String format(StepRecord step) {
+        LocationRecord loc = step.getLocation();
         StringBuilder buf = new StringBuilder();
         buf.append("0x");
-        buf.append(HexFormatter.tohex(step.getLocation().getPC(), 16));
+        buf.append(HexFormatter.tohex(loc.getPC(), 16));
         buf.append(": ");
-        buf.append(tab(step.getLocation().getDisassembly(), 8));
+        buf.append(tab(loc.getDisassembly(), 12));
+        String mnemonic = loc.getMnemonic();
+        if (mnemonic != null && mnemonic.contentEquals("syscall")) {
+            String decoded = SyscallDecoder.decode(step.getState().getState());
+            if (decoded != null) {
+                comment(buf, loc.getDisassembly(), decoded);
+            }
+        }
         return buf.toString();
     }
 
@@ -396,6 +423,10 @@ public class InstructionView extends JPanel {
                     case "js":
                     case "jz":
                         c.setForeground(JCC_FG);
+                        break;
+                    case "endbr32":
+                    case "endbr64":
+                        c.setForeground(ENDBR_FG);
                         break;
                 }
             }
