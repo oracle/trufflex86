@@ -49,6 +49,7 @@ import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
 import org.graalvm.vm.x86.node.debug.trace.Record;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
+import org.graalvm.vm.x86.trcview.analysis.Analysis;
 
 public class BlockNode extends Node {
     private StepRecord head;
@@ -89,15 +90,15 @@ public class BlockNode extends Node {
         return null;
     }
 
-    public static BlockNode read(ExecutionTraceReader in) throws IOException {
-        return read(in, null);
+    public static BlockNode read(ExecutionTraceReader in, Analysis analysis) throws IOException {
+        return read(in, analysis, null);
     }
 
-    public static BlockNode read(ExecutionTraceReader in, ProgressListener progress) throws IOException {
+    public static BlockNode read(ExecutionTraceReader in, Analysis analysis, ProgressListener progress) throws IOException {
         List<Node> nodes = new ArrayList<>();
         Node node;
         long tid = 0;
-        while ((node = parseRecord(in, progress, tid)) != null) {
+        while ((node = parseRecord(in, analysis, progress, tid)) != null) {
             nodes.add(node);
             if (tid == 0) {
                 if (node instanceof RecordNode) {
@@ -110,7 +111,7 @@ public class BlockNode extends Node {
         return new BlockNode(null, nodes);
     }
 
-    private static Node parseRecord(ExecutionTraceReader in, ProgressListener progress, long thread) throws IOException {
+    private static Node parseRecord(ExecutionTraceReader in, Analysis analysis, ProgressListener progress, long thread) throws IOException {
         long tid = thread;
         Record record = in.read();
         if (record == null) {
@@ -125,6 +126,7 @@ public class BlockNode extends Node {
         if (tid == 0) {
             tid = record.getTid();
         }
+        analysis.process(record);
         if (record instanceof StepRecord) {
             StepRecord step = (StepRecord) record;
             if (step.getLocation().getMnemonic().equals("call")) {
@@ -134,7 +136,7 @@ public class BlockNode extends Node {
                 List<Node> result = new ArrayList<>();
                 CallArgsRecord args = null;
                 while (true) {
-                    Node child = parseRecord(in, progress, tid);
+                    Node child = parseRecord(in, analysis, progress, tid);
                     if (child == null) {
                         break;
                     }

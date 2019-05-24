@@ -38,33 +38,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.graalvm.vm.util;
+package org.graalvm.vm.x86.trcview.analysis;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import java.util.ArrayList;
+import java.util.List;
 
-public class HexFormatter {
-    @TruffleBoundary
-    public static String tohex(long val, int len) {
-        String hex = Long.toHexString(val);
-        if (hex.length() >= len) {
-            return hex;
-        }
-        if (len == 8) {
-            String zeroPad = "00000000";
-            return zeroPad.substring(hex.length()) + hex;
-        } else if (len == 16) {
-            String zeroPad = "0000000000000000";
-            return zeroPad.substring(hex.length()) + hex;
-        }
-        StringBuilder buf = new StringBuilder(len);
-        for (int i = hex.length(); i < len; i++) {
-            buf.append('0');
-        }
-        return buf.append(hex).toString();
+import org.graalvm.vm.util.HexFormatter;
+import org.graalvm.vm.x86.trcview.io.Node;
+
+public class Symbol {
+    public static enum Type {
+        SUBROUTINE,
+        LOCATION;
     }
 
-    @TruffleBoundary
-    public static String tohex(long val) {
-        return Long.toHexString(val);
+    public final String name;
+    public final long address;
+    public final Type type;
+    public final List<Node> visits;
+
+    public Symbol(String name, long address, Type type) {
+        if (name == null) {
+            throw new NullPointerException("name is null");
+        }
+
+        this.name = name;
+        this.address = address;
+        this.type = type;
+        visits = new ArrayList<>();
+    }
+
+    public void addVisit(Node node) {
+        visits.add(node);
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) address;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Symbol)) {
+            return false;
+        }
+        Symbol s = (Symbol) o;
+        return s.address == address && s.name.equals(name);
+    }
+
+    @Override
+    public String toString() {
+        return "<" + name + ">@0x" + HexFormatter.tohex(address);
     }
 }

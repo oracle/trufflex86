@@ -38,33 +38,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.graalvm.vm.util;
+package org.graalvm.vm.x86.trcview.analysis;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import org.graalvm.vm.x86.node.debug.trace.LocationRecord;
+import org.graalvm.vm.x86.node.debug.trace.Record;
+import org.graalvm.vm.x86.node.debug.trace.StepRecord;
+import org.graalvm.vm.x86.trcview.io.BlockNode;
+import org.graalvm.vm.x86.trcview.io.Node;
+import org.graalvm.vm.x86.trcview.io.RecordNode;
 
-public class HexFormatter {
-    @TruffleBoundary
-    public static String tohex(long val, int len) {
-        String hex = Long.toHexString(val);
-        if (hex.length() >= len) {
-            return hex;
-        }
-        if (len == 8) {
-            String zeroPad = "00000000";
-            return zeroPad.substring(hex.length()) + hex;
-        } else if (len == 16) {
-            String zeroPad = "0000000000000000";
-            return zeroPad.substring(hex.length()) + hex;
-        }
-        StringBuilder buf = new StringBuilder(len);
-        for (int i = hex.length(); i < len; i++) {
-            buf.append('0');
-        }
-        return buf.append(hex).toString();
+public class Analysis {
+    private SymbolTable symbols;
+    private StepRecord lastStep;
+
+    public Analysis() {
+        symbols = new SymbolTable();
     }
 
-    @TruffleBoundary
-    public static String tohex(long val) {
-        return Long.toHexString(val);
+    public void start() {
+        lastStep = null;
+    }
+
+    public void process(Record record) {
+        if (record instanceof StepRecord) {
+            StepRecord step = (StepRecord) record;
+            LocationRecord loc = step.getLocation();
+            if (lastStep != null) {
+                switch (lastStep.getLocation().getMnemonic()) {
+                    case "jmp":
+                        symbols.addLocation(loc.getPC());
+                        break;
+                    case "call":
+                        if (loc.getSymbol() != null) {
+                            symbols.addSubroutine(loc.getPC(), loc.getSymbol());
+                        } else {
+                            symbols.addSubroutine(loc.getPC());
+                        }
+                        break;
+                }
+            }
+            lastStep = step;
+        }
+    }
+
+    private void resolveCalls(BlockNode root) {
+        for (Node node : root.getNodes()) {
+            if (node instanceof BlockNode) {
+                BlockNode block = (BlockNode) node;
+                resolveCalls(block);
+            } else if (node instanceof RecordNode) {
+                RecordNode record = (RecordNode) node;
+                symbols.visit(record);
+            }
+        }
+    }
+
+    public void finish(BlockNode root) {
+        resolveCalls(root);
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbols;
     }
 }

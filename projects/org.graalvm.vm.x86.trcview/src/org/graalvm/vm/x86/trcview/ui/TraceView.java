@@ -53,12 +53,14 @@ import javax.swing.KeyStroke;
 
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
+import org.graalvm.vm.x86.trcview.analysis.SymbolTable;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
 import org.graalvm.vm.x86.trcview.ui.event.CallListener;
 
 @SuppressWarnings("serial")
 public class TraceView extends JPanel {
+    private SymbolView symbols;
     private CallStackView stack;
     private StateView state;
     private InstructionView insns;
@@ -71,9 +73,26 @@ public class TraceView extends JPanel {
         content.setResizeWeight(1.0);
         content.setDividerLocation(400);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        split.setLeftComponent(stack = new CallStackView());
+        JSplitPane leftSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        leftSplit.setLeftComponent(symbols = new SymbolView());
+        leftSplit.setRightComponent(stack = new CallStackView());
+        split.setLeftComponent(leftSplit);
         split.setRightComponent(content);
         add(BorderLayout.CENTER, split);
+
+        symbols.addJumpListener(node -> {
+            if (node instanceof BlockNode) {
+                BlockNode block = (BlockNode) node;
+                stack.set(block);
+                insns.set(block);
+                insns.select(block.getNodes().get(0));
+            } else {
+                BlockNode block = node.getParent();
+                stack.set(block);
+                insns.set(block);
+                insns.select(node);
+            }
+        });
 
         insns.addChangeListener(() -> {
             StepRecord step = insns.getSelectedInstruction();
@@ -144,5 +163,9 @@ public class TraceView extends JPanel {
         insns.set(root);
         insns.select(root.getNodes().get(0));
         state.setState(root.getFirstStep());
+    }
+
+    public void setSymbols(SymbolTable symbols) {
+        this.symbols.setSymbols(symbols);
     }
 }

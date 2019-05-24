@@ -223,27 +223,6 @@ public class InstructionView extends JPanel {
         }
     }
 
-    private static String tab(String s, int tabsz) {
-        int pos = 0;
-        StringBuilder buf = new StringBuilder();
-        for (char c : s.toCharArray()) {
-            if (c == '\t') {
-                do {
-                    pos++;
-                    pos %= tabsz;
-                    buf.append(' ');
-                } while (pos != 0);
-            } else if (c == '\n') {
-                pos = 0;
-                buf.append(c);
-            } else {
-                pos++;
-                buf.append(c);
-            }
-        }
-        return buf.toString();
-    }
-
     private static void comment(StringBuilder buf, String disassembly, String comment) {
         buf.insert(0, "<html><head><style>" + STYLE + "</style></head><body><pre>");
         buf.append(StringUtils.repeat(" ", COMMENT_COLUMN - disassembly.length()));
@@ -258,7 +237,7 @@ public class InstructionView extends JPanel {
         buf.append("0x");
         buf.append(HexFormatter.tohex(loc.getPC(), 16));
         buf.append(": ");
-        buf.append(tab(loc.getDisassembly(), 12));
+        buf.append(Utils.tab(loc.getDisassembly(), 12));
         String mnemonic = loc.getMnemonic();
         if (mnemonic != null && mnemonic.contentEquals("syscall")) {
             String decoded = SyscallDecoder.decode(step.getState().getState());

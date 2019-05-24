@@ -65,6 +65,7 @@ import javax.swing.SwingWorker;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.util.ui.MessageBox;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
+import org.graalvm.vm.x86.trcview.analysis.Analysis;
 import org.graalvm.vm.x86.trcview.io.BlockNode;
 
 @SuppressWarnings("serial")
@@ -140,14 +141,20 @@ public class MainWindow extends JFrame {
             String text = "Loading " + file;
             setStatus(text);
             ExecutionTraceReader reader = new ExecutionTraceReader(in);
-            BlockNode root = BlockNode.read(reader, pos -> setStatus(text + " (" + (pos * 100L / size) + "%)"));
+            Analysis analysis = new Analysis();
+            analysis.start();
+            BlockNode root = BlockNode.read(reader, analysis, pos -> setStatus(text + " (" + (pos * 100L / size) + "%)"));
+            analysis.finish(root);
             if (root == null || root.getFirstStep() == null) {
                 setStatus("Loading failed");
                 return;
             }
             setStatus("Trace loaded");
             setTitle(file + " - " + WINDOW_TITLE);
-            EventQueue.invokeLater(() -> view.setRoot(root));
+            EventQueue.invokeLater(() -> {
+                view.setRoot(root);
+                view.setSymbols(analysis.getSymbolTable());
+            });
         } catch (Throwable t) {
             log.log(Level.INFO, "Loading failed: " + t, t);
             setStatus("Loading failed: " + t);
