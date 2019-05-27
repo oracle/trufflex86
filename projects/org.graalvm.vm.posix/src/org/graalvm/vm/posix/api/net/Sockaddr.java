@@ -72,6 +72,9 @@ public class Sockaddr implements Struct {
     }
 
     public static Sockaddr get(PosixPointer ptr, int len) {
+        if (ptr == null) {
+            return null;
+        }
         short family = ptr.getI16();
         switch (family) {
             case Socket.AF_INET: {
