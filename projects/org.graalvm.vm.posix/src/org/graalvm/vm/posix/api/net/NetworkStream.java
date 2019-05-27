@@ -66,6 +66,8 @@ public abstract class NetworkStream extends Stream {
 
     public abstract int bind(PosixPointer address, int addressLen) throws PosixException;
 
+    public abstract int listen(int backlog) throws PosixException;
+
     @Override
     public int pread(byte[] buf, int offset, int length, long fileOffset) throws PosixException {
         throw new PosixException(Errno.ESPIPE);

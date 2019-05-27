@@ -1137,6 +1137,17 @@ public class PosixEnvironment {
         }
     }
 
+    public int listen(int socket, int backlog) throws SyscallException {
+        try {
+            return posix.listen(socket, backlog);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "listen failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int getsockname(int socket, long address, long address_len) throws SyscallException {
         try {
             Sockaddr sa = posix.getsockname(socket);

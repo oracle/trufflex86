@@ -32,6 +32,7 @@ public class Syscalls {
     public static final int SYS_recvmsg = 47;
     public static final int SYS_shutdown = 48;
     public static final int SYS_bind = 49;
+    public static final int SYS_listen = 50;
     public static final int SYS_getsockname = 51;
     public static final int SYS_getpeername = 52;
     public static final int SYS_setsockopt = 54;

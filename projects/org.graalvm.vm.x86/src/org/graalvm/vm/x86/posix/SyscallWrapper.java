@@ -249,6 +249,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.shutdown((int) a1, (int) a2);
             case Syscalls.SYS_bind:
                 return posix.bind((int) a1, a2, (int) a3);
+            case Syscalls.SYS_listen:
+                return posix.listen((int) a1, (int) a2);
             case Syscalls.SYS_getsockname:
                 return posix.getsockname((int) a1, a2, a3);
             case Syscalls.SYS_getpeername:

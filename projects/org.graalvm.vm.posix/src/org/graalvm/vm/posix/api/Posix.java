@@ -1223,6 +1223,19 @@ public class Posix {
         }
     }
 
+    public int listen(int sockfd, int backlog) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("listen(%d, %d)", sockfd, backlog));
+        }
+        Stream stream = fds.getStream(sockfd);
+        if (stream instanceof NetworkStream) {
+            NetworkStream sock = (NetworkStream) stream;
+            return sock.listen(backlog);
+        } else {
+            throw new PosixException(Errno.ENOTSOCK);
+        }
+    }
+
     // Linux specific functions
     public int sysinfo(Sysinfo info) throws PosixException {
         if (strace) {

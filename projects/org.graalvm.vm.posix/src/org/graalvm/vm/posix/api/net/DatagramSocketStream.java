@@ -260,6 +260,11 @@ public class DatagramSocketStream extends NetworkStream {
     }
 
     @Override
+    public int listen(int backlog) throws PosixException {
+        throw new PosixException(Errno.EOPNOTSUPP);
+    }
+
+    @Override
     public int read(byte[] buf, int offset, int length) throws PosixException {
         ByteBuffer b = ByteBuffer.wrap(buf, offset, length);
         try {
