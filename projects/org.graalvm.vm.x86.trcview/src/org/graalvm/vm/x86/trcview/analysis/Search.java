@@ -46,9 +46,6 @@ import org.graalvm.vm.x86.trcview.io.Node;
 import org.graalvm.vm.x86.trcview.io.RecordNode;
 
 public class Search {
-    // TODO: nextPC returns the start node if start.pc == nextPC; the start node should be ignored
-    // in this case
-
     public static Node next(Node node) {
         if (node instanceof BlockNode) {
             BlockNode block = (BlockNode) node;
