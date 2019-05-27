@@ -41,22 +41,30 @@
 package org.graalvm.vm.posix.api.net;
 
 import org.graalvm.vm.posix.api.PosixPointer;
-import org.graalvm.vm.posix.api.Struct;
+import org.graalvm.vm.util.io.Endianess;
 
-public class Sockaddr implements Struct {
-    public short sa_family;
-    public byte[] sa_data = new byte[14];
+public class SockaddrIn6 extends Sockaddr {
+    public short sin6_port;
+    public int sin6_flowinfo;
+    public byte[] sin6_addr;
+    public int sin6_scope_id;
 
     @Override
     public PosixPointer read(PosixPointer ptr) {
         PosixPointer p = ptr;
         sa_family = p.getI16();
-        p.add(2);
-        for (int i = 0; i < sa_data.length; i++) {
-            sa_data[i] = p.getI8();
-            p = p.add(1);
+        p = p.add(2);
+        sin6_port = p.getI16();
+        p = p.add(2);
+        sin6_flowinfo = p.getI32();
+        p = p.add(4);
+        sin6_addr = new byte[16];
+        for (int i = 0; i < sin6_addr.length; i++) {
+            sin6_addr[i] = p.add(i).getI8();
         }
-        return p;
+        p = p.add(16);
+        sin6_scope_id = p.getI32();
+        return p.add(4);
     }
 
     @Override
@@ -64,42 +72,35 @@ public class Sockaddr implements Struct {
         PosixPointer p = ptr;
         p.setI16(sa_family);
         p = p.add(2);
-        for (int i = 0; i < sa_data.length; i++) {
-            p.setI8(sa_data[i]);
-            p = p.add(1);
+        p.setI16(sin6_port);
+        p = p.add(2);
+        p.setI32(sin6_flowinfo);
+        p = p.add(4);
+        for (int i = 0; i < sin6_addr.length; i++) {
+            p.add(i).setI8(sin6_addr[i]);
         }
-        return p;
+        p = p.add(16);
+        p.setI32(sin6_scope_id);
+        return p.add(4);
     }
 
-    public static Sockaddr get(PosixPointer ptr, int len) {
-        short family = ptr.getI16();
-        switch (family) {
-            case Socket.AF_INET: {
-                assert len == 16;
-                SockaddrIn sin = new SockaddrIn();
-                sin.read(ptr);
-                return sin;
-            }
-            case Socket.AF_INET6: {
-                assert len == 28;
-                SockaddrIn6 sin6 = new SockaddrIn6();
-                sin6.read(ptr);
-                return sin6;
-            }
-            default: {
-                Sockaddr sa = new Sockaddr();
-                sa.read(ptr);
-                return sa;
-            }
+    public String getAddressString() {
+        short[] parts = new short[8];
+        for (int i = 0; i < parts.length; i++) {
+            parts[i] = Endianess.get16bitBE(sin6_addr, i * 2);
         }
-    }
-
-    public int getSize() {
-        return 16;
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) {
+                buf.append(':');
+            }
+            buf.append(Integer.toHexString(Short.toUnsignedInt(parts[i])));
+        }
+        return buf.toString();
     }
 
     @Override
     public String toString() {
-        return "{sa_family=" + Socket.addressFamily(sa_family) + "}";
+        return "{sa_family=" + Socket.addressFamily(sa_family) + ",sin_port=" + sin6_port + ",sin_addr=\"" + getAddressString() + "\"}";
     }
 }

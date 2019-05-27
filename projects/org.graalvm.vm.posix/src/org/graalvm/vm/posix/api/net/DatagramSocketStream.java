@@ -159,6 +159,34 @@ public class DatagramSocketStream extends NetworkStream {
             } catch (IOException e) {
                 throw new PosixException(Errno.EIO);
             }
+        } else if (saddr.sa_family == Socket.AF_INET6) {
+            SockaddrIn6 addr = new SockaddrIn6();
+            addr.read(address);
+            if (addr.sa_family != Socket.AF_INET6) {
+                throw new PosixException(Errno.EAFNOSUPPORT);
+            }
+            InetAddress remoteAddr = null;
+            try {
+                remoteAddr = InetAddress.getByAddress(addr.sin6_addr);
+            } catch (UnknownHostException e) {
+                throw new PosixException(Errno.EADDRNOTAVAIL);
+            }
+            int port = addr.sin6_port;
+            SocketAddress remote = new InetSocketAddress(remoteAddr, port);
+            try {
+                socket.connect(remote);
+                return 0;
+            } catch (AlreadyConnectedException e) {
+                throw new PosixException(Errno.EISCONN);
+            } catch (ConnectionPendingException e) {
+                throw new PosixException(Errno.EALREADY);
+            } catch (UnsupportedAddressTypeException e) {
+                throw new PosixException(Errno.EAFNOSUPPORT);
+            } catch (ClosedChannelException e) {
+                throw new PosixException(Errno.EBADF);
+            } catch (IOException e) {
+                throw new PosixException(Errno.EIO);
+            }
         } else {
             throw new PosixException(Errno.EAFNOSUPPORT);
         }
@@ -183,6 +211,34 @@ public class DatagramSocketStream extends NetworkStream {
                 throw new PosixException(Errno.EADDRNOTAVAIL);
             }
             int port = addr.sin_port;
+            SocketAddress local = new InetSocketAddress(localAddr, port);
+            try {
+                socket.bind(local);
+                return 0;
+            } catch (AlreadyConnectedException e) {
+                throw new PosixException(Errno.EISCONN);
+            } catch (ConnectionPendingException e) {
+                throw new PosixException(Errno.EALREADY);
+            } catch (UnsupportedAddressTypeException e) {
+                throw new PosixException(Errno.EAFNOSUPPORT);
+            } catch (ClosedChannelException e) {
+                throw new PosixException(Errno.EBADF);
+            } catch (IOException e) {
+                throw new PosixException(Errno.EIO);
+            }
+        } else if (saddr.sa_family == Socket.AF_INET6) {
+            SockaddrIn6 addr = new SockaddrIn6();
+            addr.read(address);
+            if (addr.sa_family != Socket.AF_INET6) {
+                throw new PosixException(Errno.EAFNOSUPPORT);
+            }
+            InetAddress localAddr = null;
+            try {
+                localAddr = InetAddress.getByAddress(addr.sin6_addr);
+            } catch (UnknownHostException e) {
+                throw new PosixException(Errno.EADDRNOTAVAIL);
+            }
+            int port = addr.sin6_port;
             SocketAddress local = new InetSocketAddress(localAddr, port);
             try {
                 socket.bind(local);
@@ -324,12 +380,7 @@ public class DatagramSocketStream extends NetworkStream {
             }
 
             if (addr instanceof InetSocketAddress) {
-                InetSocketAddress iaddr = (InetSocketAddress) addr;
-                SockaddrIn sin = new SockaddrIn();
-                sin.sa_family = Socket.AF_INET;
-                sin.sin_port = (short) iaddr.getPort();
-                sin.sin_addr = Endianess.get32bitBE(iaddr.getAddress().getAddress());
-                result.sa = sin;
+                result.sa = getSockaddr(addr);
             }
         } catch (PortUnreachableException e) {
             throw new PosixException(Errno.ECONNREFUSED);

@@ -141,11 +141,22 @@ public abstract class NetworkStream extends Stream {
     protected Sockaddr getSockaddr(SocketAddress addr) {
         if (addr instanceof InetSocketAddress) {
             InetSocketAddress iaddr = (InetSocketAddress) addr;
-            SockaddrIn sin = new SockaddrIn();
-            sin.sa_family = Socket.AF_INET;
-            sin.sin_addr = Endianess.get32bitBE(iaddr.getAddress().getAddress());
-            sin.sin_port = (short) iaddr.getPort();
-            return sin;
+            byte[] ipaddr = iaddr.getAddress().getAddress();
+            if (ipaddr.length == 4) {
+                SockaddrIn sin = new SockaddrIn();
+                sin.sa_family = Socket.AF_INET;
+                sin.sin_addr = Endianess.get32bitBE(iaddr.getAddress().getAddress());
+                sin.sin_port = (short) iaddr.getPort();
+                return sin;
+            } else if (ipaddr.length == 16) {
+                SockaddrIn6 sin6 = new SockaddrIn6();
+                sin6.sa_family = Socket.AF_INET;
+                sin6.sin6_addr = ipaddr;
+                sin6.sin6_port = (short) iaddr.getPort();
+                return sin6;
+            } else {
+                throw new AssertionError("invalid ip address length");
+            }
         } else {
             return null;
         }
@@ -169,6 +180,20 @@ public abstract class NetworkStream extends Stream {
                 throw new PosixException(Errno.EADDRNOTAVAIL);
             }
             int port = addr.sin_port;
+            return new InetSocketAddress(remoteAddr, port);
+        } else if (saddr.sa_family == Socket.AF_INET6) {
+            SockaddrIn6 addr = new SockaddrIn6();
+            addr.read(address);
+            if (addr.sa_family != Socket.AF_INET6) {
+                throw new PosixException(Errno.EAFNOSUPPORT);
+            }
+            InetAddress remoteAddr = null;
+            try {
+                remoteAddr = InetAddress.getByAddress(addr.sin6_addr);
+            } catch (UnknownHostException e) {
+                throw new PosixException(Errno.EADDRNOTAVAIL);
+            }
+            int port = addr.sin6_port;
             return new InetSocketAddress(remoteAddr, port);
         } else {
             throw new PosixException(Errno.EAFNOSUPPORT);

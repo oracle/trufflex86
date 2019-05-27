@@ -448,6 +448,7 @@ public class Socket {
         NetworkStream socket;
         switch (domain) {
             case AF_INET:
+            case AF_INET6:
                 switch (type & SOCK_MASK) {
                     case SOCK_STREAM:
                         if (protocol == In.IPPROTO_IP || protocol == In.IPPROTO_TCP) {
