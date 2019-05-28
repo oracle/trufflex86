@@ -45,6 +45,7 @@ import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.Flags;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class ReadFlagsNode extends ReadNode {
@@ -60,24 +61,32 @@ public class ReadFlagsNode extends ReadNode {
 
     private static final long RESERVED = bit(1, true) | bit(Flags.IF, true);
 
+    @CompilationFinal private boolean initialized = false;
+    private final Object lock = new Object();
+
     private static long bit(long shift, boolean value) {
         return value ? (1L << shift) : 0;
     }
 
     private void createChildrenIfNecessary() {
-        if (readCF == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            ArchitecturalState state = getContextReference().get().getState();
-            RegisterAccessFactory regs = state.getRegisters();
-            readCF = regs.getCF().createRead();
-            readPF = regs.getPF().createRead();
-            readAF = regs.getAF().createRead();
-            readZF = regs.getZF().createRead();
-            readSF = regs.getSF().createRead();
-            readDF = regs.getDF().createRead();
-            readOF = regs.getOF().createRead();
-            readAC = regs.getAC().createRead();
-            readID = regs.getID().createRead();
+        if (!initialized) {
+            synchronized (lock) {
+                if (!initialized) {
+                    CompilerDirectives.transferToInterpreterAndInvalidate();
+                    ArchitecturalState state = getContextReference().get().getState();
+                    RegisterAccessFactory regs = state.getRegisters();
+                    readCF = regs.getCF().createRead();
+                    readPF = regs.getPF().createRead();
+                    readAF = regs.getAF().createRead();
+                    readZF = regs.getZF().createRead();
+                    readSF = regs.getSF().createRead();
+                    readDF = regs.getDF().createRead();
+                    readOF = regs.getOF().createRead();
+                    readAC = regs.getAC().createRead();
+                    readID = regs.getID().createRead();
+                    initialized = true;
+                }
+            }
         }
     }
 
