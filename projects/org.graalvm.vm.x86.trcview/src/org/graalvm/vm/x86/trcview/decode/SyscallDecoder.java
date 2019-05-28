@@ -175,6 +175,8 @@ public class SyscallDecoder {
                 return "shutdown(" + a1 + ", " + Socket.shutdownHow((int) a2) + ")";
             case Syscalls.SYS_bind:
                 return "bind(" + a1 + ", 0x" + hex(a2) + ", " + a3 + ")";
+            case Syscalls.SYS_listen:
+                return "listen(" + a1 + ", " + a2 + ")";
             case Syscalls.SYS_getsockname:
                 return "getsockname(" + a1 + ", 0x" + hex(a2) + ", 0x" + hex(a3) + ")";
             case Syscalls.SYS_getpeername:
