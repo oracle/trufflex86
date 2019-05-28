@@ -295,6 +295,16 @@ public abstract class VirtualMemory {
 
     public abstract void setI512(long address, Vector512 val);
 
+    public abstract boolean cmpxchgI8(long address, byte expected, byte x);
+
+    public abstract boolean cmpxchgI16(long address, short expected, short x);
+
+    public abstract boolean cmpxchgI32(long address, int expected, int x);
+
+    public abstract boolean cmpxchgI64(long address, long expected, long x);
+
+    public abstract boolean cmpxchgI128(long address, Vector128 expected, Vector128 x);
+
     public abstract void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException;
 
     public abstract boolean isExecutable(long address);

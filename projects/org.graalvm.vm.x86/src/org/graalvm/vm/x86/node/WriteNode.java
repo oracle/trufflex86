@@ -77,4 +77,24 @@ public abstract class WriteNode extends AMD64Node {
     public void executeI512(VirtualFrame frame, Vector512 value) {
         throw new UnsupportedOperationException();
     }
+
+    @SuppressWarnings("unused")
+    public boolean executeCmpxchgI8(VirtualFrame frame, byte expected, byte x) {
+        throw new UnsupportedOperationException();
+    }
+
+    @SuppressWarnings("unused")
+    public boolean executeCmpxchgI16(VirtualFrame frame, short expected, short x) {
+        throw new UnsupportedOperationException();
+    }
+
+    @SuppressWarnings("unused")
+    public boolean executeCmpxchgI32(VirtualFrame frame, int expected, int x) {
+        throw new UnsupportedOperationException();
+    }
+
+    @SuppressWarnings("unused")
+    public boolean executeCmpxchgI64(VirtualFrame frame, long expected, long x) {
+        throw new UnsupportedOperationException();
+    }
 }

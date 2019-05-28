@@ -277,6 +277,42 @@ public class VirtualMemoryVerifier extends VirtualMemory {
         nmem.setI512(address, val);
     }
 
+    // VirtualMemoryVerifier is single threaded only!
+    @Override
+    public boolean cmpxchgI8(long address, byte expected, byte x) {
+        jmem.setI8(address, x);
+        nmem.setI8(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI16(long address, short expected, short x) {
+        jmem.setI16(address, x);
+        nmem.setI16(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI32(long address, int expected, int x) {
+        jmem.setI32(address, x);
+        nmem.setI32(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI64(long address, long expected, long x) {
+        jmem.setI64(address, x);
+        nmem.setI64(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI128(long address, Vector128 expected, Vector128 x) {
+        jmem.setI128(address, x);
+        nmem.setI128(address, x);
+        return true;
+    }
+
     @Override
     public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
         jmem.mprotect(address, len, r, w, x);

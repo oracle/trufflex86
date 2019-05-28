@@ -96,4 +96,28 @@ public class AddressedMemoryWriteNode extends WriteNode {
         long addr = address.execute(frame);
         writeMemory.executeI512(addr, value);
     }
+
+    @Override
+    public boolean executeCmpxchgI8(VirtualFrame frame, byte expected, byte value) {
+        long addr = address.execute(frame);
+        return writeMemory.executeCmpxchgI8(addr, expected, value);
+    }
+
+    @Override
+    public boolean executeCmpxchgI16(VirtualFrame frame, short expected, short value) {
+        long addr = address.execute(frame);
+        return writeMemory.executeCmpxchgI16(addr, expected, value);
+    }
+
+    @Override
+    public boolean executeCmpxchgI32(VirtualFrame frame, int expected, int value) {
+        long addr = address.execute(frame);
+        return writeMemory.executeCmpxchgI32(addr, expected, value);
+    }
+
+    @Override
+    public boolean executeCmpxchgI64(VirtualFrame frame, long expected, long value) {
+        long addr = address.execute(frame);
+        return writeMemory.executeCmpxchgI64(addr, expected, value);
+    }
 }

@@ -44,11 +44,20 @@ import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.hardware.HybridVirtualMemory;
+import org.graalvm.vm.memory.hardware.NativeMemory;
 import org.graalvm.vm.memory.hardware.NativeVirtualMemory;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.memory.vector.Vector256;
 import org.graalvm.vm.memory.vector.Vector512;
 import org.graalvm.vm.util.UnsafeHolder;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNode.HybridMemoryCmpxchgI16Node;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNode.HybridMemoryCmpxchgI32Node;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNode.HybridMemoryCmpxchgI64Node;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNode.HybridMemoryCmpxchgI8Node;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNodeFactory.HybridMemoryCmpxchgI16NodeGen;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNodeFactory.HybridMemoryCmpxchgI32NodeGen;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNodeFactory.HybridMemoryCmpxchgI64NodeGen;
+import org.graalvm.vm.x86.node.HybridMemoryCmpxchgNodeFactory.HybridMemoryCmpxchgI8NodeGen;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI128Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI16Node;
 import org.graalvm.vm.x86.node.HybridMemoryWriteNode.HybridMemoryWriteI32Node;
@@ -73,6 +82,10 @@ public class MemoryWriteNode extends AMD64Node {
     @Child private HybridMemoryWriteI32Node writeI32;
     @Child private HybridMemoryWriteI64Node writeI64;
     @Child private HybridMemoryWriteI128Node writeI128;
+    @Child private HybridMemoryCmpxchgI8Node cmpxchgI8;
+    @Child private HybridMemoryCmpxchgI16Node cmpxchgI16;
+    @Child private HybridMemoryCmpxchgI32Node cmpxchgI32;
+    @Child private HybridMemoryCmpxchgI64Node cmpxchgI64;
 
     public MemoryWriteNode(VirtualMemory memory) {
         this.memory = memory;
@@ -85,6 +98,10 @@ public class MemoryWriteNode extends AMD64Node {
             writeI32 = HybridMemoryWriteI32NodeGen.create(jmem, nmem);
             writeI64 = HybridMemoryWriteI64NodeGen.create(jmem, nmem);
             writeI128 = HybridMemoryWriteI128NodeGen.create(jmem, nmem);
+            cmpxchgI8 = HybridMemoryCmpxchgI8NodeGen.create(jmem, nmem);
+            cmpxchgI16 = HybridMemoryCmpxchgI16NodeGen.create(jmem, nmem);
+            cmpxchgI32 = HybridMemoryCmpxchgI32NodeGen.create(jmem, nmem);
+            cmpxchgI64 = HybridMemoryCmpxchgI64NodeGen.create(jmem, nmem);
         }
     }
 
@@ -175,6 +192,58 @@ public class MemoryWriteNode extends AMD64Node {
             unsafe.putLong(base + 56, value.getI64(0));
         } else {
             memory.setI512(address, value);
+        }
+    }
+
+    public boolean executeCmpxchgI8(long address, byte expected, byte x) {
+        if (cmpxchgI8 != null) {
+            return cmpxchgI8.executeI8(address, expected, x);
+        } else {
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                return NativeMemory.cmpxchgI8(base, expected, x);
+            } else {
+                return memory.cmpxchgI8(address, expected, x);
+            }
+        }
+    }
+
+    public boolean executeCmpxchgI16(long address, short expected, short x) {
+        if (cmpxchgI16 != null) {
+            return cmpxchgI16.executeI16(address, expected, x);
+        } else {
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                return NativeMemory.cmpxchgI16L(base, expected, x);
+            } else {
+                return memory.cmpxchgI16(address, expected, x);
+            }
+        }
+    }
+
+    public boolean executeCmpxchgI32(long address, int expected, int x) {
+        if (cmpxchgI32 != null) {
+            return cmpxchgI32.executeI32(address, expected, x);
+        } else {
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                return NativeMemory.cmpxchgI32L(base, expected, x);
+            } else {
+                return memory.cmpxchgI32(address, expected, x);
+            }
+        }
+    }
+
+    public boolean executeCmpxchgI64(long address, long expected, long x) {
+        if (cmpxchgI64 != null) {
+            return cmpxchgI64.executeI64(address, expected, x);
+        } else {
+            if (unsafe != null && address < 0) {
+                long base = VirtualMemory.fromMappedNative(address);
+                return NativeMemory.cmpxchgI64L(base, expected, x);
+            } else {
+                return memory.cmpxchgI64(address, expected, x);
+            }
         }
     }
 }

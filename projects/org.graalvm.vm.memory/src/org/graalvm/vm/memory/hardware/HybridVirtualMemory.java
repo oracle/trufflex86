@@ -41,6 +41,7 @@
 package org.graalvm.vm.memory.hardware;
 
 import java.io.PrintStream;
+import java.nio.ByteOrder;
 
 import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.Memory;
@@ -359,6 +360,81 @@ public class HybridVirtualMemory extends VirtualMemory {
         } else {
             jmem.setI512(address, val);
         }
+    }
+
+    @Override
+    public boolean cmpxchgI8(long address, byte expected, byte x) {
+        if (MAP_NATIVE && address < 0) {
+            long addr = fromMappedNative(address);
+            int val = unsafe.getInt(addr);
+            int v;
+            int exp;
+            if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+                v = (val & 0x00FFFFFF) | (Byte.toUnsignedInt(x) << 24);
+                exp = (val & 0x00FFFFFF) | (Byte.toUnsignedInt(expected) << 24);
+            } else {
+                v = (val & 0xFFFFFF00) | Byte.toUnsignedInt(x);
+                exp = (val & 0xFFFFFF00) | Byte.toUnsignedInt(expected);
+            }
+            return unsafe.compareAndSwapInt(null, addr, exp, v);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+            return nmem.cmpxchgI8(address, expected, x);
+        } else {
+            return jmem.cmpxchgI8(address, expected, x);
+        }
+    }
+
+    @Override
+    public boolean cmpxchgI16(long address, short expected, short x) {
+        if (MAP_NATIVE && address < 0) {
+            long addr = fromMappedNative(address);
+            int val = unsafe.getInt(addr);
+            int v;
+            int exp;
+            if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+                v = (val & 0x0000FFFF) | (Short.toUnsignedInt(x) << 16);
+                exp = (val & 0x0000FFFF) | (Short.toUnsignedInt(expected) << 16);
+            } else {
+                v = (val & 0xFFFF0000) | Short.toUnsignedInt(x);
+                exp = (val & 0xFFFF0000) | Short.toUnsignedInt(expected);
+            }
+            return unsafe.compareAndSwapInt(null, addr, exp, v);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+            return nmem.cmpxchgI16(address, expected, x);
+        } else {
+            return jmem.cmpxchgI16(address, expected, x);
+        }
+    }
+
+    @Override
+    public boolean cmpxchgI32(long address, int expected, int x) {
+        if (MAP_NATIVE && address < 0) {
+            long addr = fromMappedNative(address);
+            return unsafe.compareAndSwapInt(null, addr, expected, x);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+            return nmem.cmpxchgI32(address, expected, x);
+        } else {
+            return jmem.cmpxchgI32(address, expected, x);
+        }
+    }
+
+    @Override
+    public boolean cmpxchgI64(long address, long expected, long x) {
+        if (MAP_NATIVE && address < 0) {
+            long addr = fromMappedNative(address);
+            return unsafe.compareAndSwapLong(null, addr, expected, x);
+        } else if (Long.compareUnsigned(address, nmem.getVirtualHigh()) < 0) {
+            return nmem.cmpxchgI64(address, expected, x);
+        } else {
+            return jmem.cmpxchgI64(address, expected, x);
+        }
+    }
+
+    // TODO: this is still not atomic!
+    @Override
+    public boolean cmpxchgI128(long address, Vector128 expected, Vector128 x) {
+        setI128(address, x);
+        return true;
     }
 
     @Override

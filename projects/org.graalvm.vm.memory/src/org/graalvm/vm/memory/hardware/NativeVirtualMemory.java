@@ -603,6 +603,96 @@ public class NativeVirtualMemory extends VirtualMemory {
     }
 
     @Override
+    public boolean cmpxchgI8(long address, byte expected, byte x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI8(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    public boolean cmpxchgI16B(long address, short expected, short x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI16B(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    public boolean cmpxchgI16L(long address, short expected, short x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI16L(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    @Override
+    public boolean cmpxchgI16(long address, short expected, short x) {
+        if (bigEndian) {
+            return cmpxchgI16B(address, expected, x);
+        } else {
+            return cmpxchgI16L(address, expected, x);
+        }
+    }
+
+    public boolean cmpxchgI32B(long address, int expected, int x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI32B(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    public boolean cmpxchgI32L(long address, int expected, int x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI32L(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    @Override
+    public boolean cmpxchgI32(long address, int expected, int x) {
+        if (bigEndian) {
+            return cmpxchgI32B(address, expected, x);
+        } else {
+            return cmpxchgI32L(address, expected, x);
+        }
+    }
+
+    public boolean cmpxchgI64B(long address, long expected, long x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI64B(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    public boolean cmpxchgI64L(long address, long expected, long x) {
+        long addr = addr(address);
+        long phy = phy(addr);
+        boolean value = NativeMemory.cmpxchgI64L(phy, expected, x);
+        checkSegfault(address, phy);
+        return value;
+    }
+
+    @Override
+    public boolean cmpxchgI64(long address, long expected, long x) {
+        if (bigEndian) {
+            return cmpxchgI64B(address, expected, x);
+        } else {
+            return cmpxchgI64L(address, expected, x);
+        }
+    }
+
+    @Override
+    public boolean cmpxchgI128(long address, Vector128 expected, Vector128 x) {
+        CompilerDirectives.transferToInterpreter();
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isExecutable(long address) {
         for (MemorySegment s : map) {
             if (s.contains(phy(addr(address)))) {

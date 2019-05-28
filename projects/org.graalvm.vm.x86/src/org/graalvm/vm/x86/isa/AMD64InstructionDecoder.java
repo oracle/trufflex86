@@ -238,6 +238,18 @@ import org.graalvm.vm.x86.isa.instruction.Lea.Leal;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaq;
 import org.graalvm.vm.x86.isa.instruction.Lea.Leaw;
 import org.graalvm.vm.x86.isa.instruction.Leave.Leaveq;
+import org.graalvm.vm.x86.isa.instruction.LockDec.LockDecb;
+import org.graalvm.vm.x86.isa.instruction.LockDec.LockDecl;
+import org.graalvm.vm.x86.isa.instruction.LockDec.LockDecq;
+import org.graalvm.vm.x86.isa.instruction.LockDec.LockDecw;
+import org.graalvm.vm.x86.isa.instruction.LockInc.LockIncb;
+import org.graalvm.vm.x86.isa.instruction.LockInc.LockIncl;
+import org.graalvm.vm.x86.isa.instruction.LockInc.LockIncq;
+import org.graalvm.vm.x86.isa.instruction.LockInc.LockIncw;
+import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddb;
+import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddl;
+import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddq;
+import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddw;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
 import org.graalvm.vm.x86.isa.instruction.Maxps;
 import org.graalvm.vm.x86.isa.instruction.Maxsd;
@@ -508,7 +520,7 @@ public class AMD64InstructionDecoder {
         boolean addressOverride = false;
         boolean isREPZ = false;
         boolean isREPNZ = false;
-        // boolean lock = false;
+        boolean lock = false;
         SegmentRegister segment = null;
         AMD64RexPrefix rex = null;
         boolean decode = true;
@@ -539,7 +551,7 @@ public class AMD64InstructionDecoder {
                     // LOCK is only valid for these instructions: ADC, ADD, AND, BTC, BTR, BTS,
                     // CMPXCHG, CMPXCH8B, CMPXCHG16B, DEC, INC, NEG, NOT, OR, SBB, SUB, XOR, XADD,
                     // XCHG
-                    // lock = true;
+                    lock = true;
                     op = code.read8();
                     instruction[instructionLength++] = op;
                     break;
@@ -580,11 +592,13 @@ public class AMD64InstructionDecoder {
                 np = false;
             }
         }
+
         if (AMD64RexPrefix.isREX(op)) {
             rex = new AMD64RexPrefix(op);
             op = code.read8();
             instruction[instructionLength++] = op;
         }
+
         switch (op) {
             case AMD64Opcode.ADC_A_I8: {
                 byte imm = code.read8();
@@ -872,9 +886,17 @@ public class AMD64InstructionDecoder {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
                     case 0: // INC R8
-                        return new Incb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            return new LockIncb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Incb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
                     case 1: // DEC R8
-                        return new Decb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            return new LockDecb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Decb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
                     default:
                         return new IllegalInstruction(pc, Arrays.copyOf(instruction, instructionLength));
                 }
@@ -921,20 +943,40 @@ public class AMD64InstructionDecoder {
                 Args args = new Args(code, rex, segment, addressOverride);
                 switch (args.modrm.getReg()) {
                     case 0: // INC R/M
-                        if (rex != null && rex.w) {
-                            return new Incq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else if (sizeOverride) {
-                            return new Incw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            if (rex != null && rex.w) {
+                                return new LockIncq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new LockIncw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new LockIncl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else {
-                            return new Incl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (rex != null && rex.w) {
+                                return new Incq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new Incw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Incl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         }
                     case 1: // DEC R/M
-                        if (rex != null && rex.w) {
-                            return new Decq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else if (sizeOverride) {
-                            return new Decw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            if (rex != null && rex.w) {
+                                return new LockDecq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new LockDecw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new LockDecl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else {
-                            return new Decl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (rex != null && rex.w) {
+                                return new Decq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new Decw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Decl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         }
                     case 2: // CALL R/M
                         return new CallAbsolute(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
@@ -3722,16 +3764,30 @@ public class AMD64InstructionDecoder {
                     }
                     case AMD64Opcode.XADD_RM8_R8: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        return new Xaddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            return new LockXaddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new Xaddb(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        }
                     }
                     case AMD64Opcode.XADD_RM_R: {
                         Args args = new Args(code, rex, segment, addressOverride);
-                        if (rex != null && rex.w) {
-                            return new Xaddq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                        } else if (sizeOverride) {
-                            return new Xaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        if (lock) {
+                            if (rex != null && rex.w) {
+                                return new LockXaddq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new LockXaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new LockXaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         } else {
-                            return new Xaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            if (rex != null && rex.w) {
+                                return new Xaddq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else if (sizeOverride) {
+                                return new Xaddw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            } else {
+                                return new Xaddl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                            }
                         }
                     }
                     case AMD64Opcode.XORPD_X_XM: {

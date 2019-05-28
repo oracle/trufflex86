@@ -160,6 +160,80 @@ public class NativeMemory {
         }
     }
 
+    public static boolean cmpxchgI8(long addr, byte expected, byte x) {
+        int val = unsafe.getInt(addr);
+        int v;
+        int exp;
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            v = (val & 0x00FFFFFF) | (Byte.toUnsignedInt(x) << 24);
+            exp = (val & 0x00FFFFFF) | (Byte.toUnsignedInt(expected) << 24);
+        } else {
+            v = (val & 0xFFFFFF00) | Byte.toUnsignedInt(x);
+            exp = (val & 0xFFFFFF00) | Byte.toUnsignedInt(expected);
+        }
+        return unsafe.compareAndSwapInt(null, addr, exp, v);
+    }
+
+    public static boolean cmpxchgI16B(long addr, short expected, short x) {
+        int val = unsafe.getInt(addr);
+        int v;
+        int exp;
+        if (isBE) {
+            v = (val & 0x0000FFFF) | (Short.toUnsignedInt(x) << 16);
+            exp = (val & 0x0000FFFF) | (Short.toUnsignedInt(expected) << 16);
+        } else {
+            v = (val & 0xFFFF0000) | Short.toUnsignedInt(Short.reverseBytes(x));
+            exp = (val & 0xFFFF0000) | Short.toUnsignedInt(Short.reverseBytes(expected));
+        }
+        return unsafe.compareAndSwapInt(null, addr, exp, v);
+    }
+
+    public static boolean cmpxchgI16L(long addr, short expected, short x) {
+        int val = unsafe.getInt(addr);
+        int v;
+        int exp;
+        if (isBE) {
+            v = (val & 0x0000FFFF) | (Short.toUnsignedInt(Short.reverseBytes(x)) << 16);
+            exp = (val & 0x0000FFFF) | (Short.toUnsignedInt(Short.reverseBytes(expected)) << 16);
+        } else {
+            v = (val & 0xFFFF0000) | Short.toUnsignedInt(x);
+            exp = (val & 0xFFFF0000) | Short.toUnsignedInt(expected);
+        }
+        return unsafe.compareAndSwapInt(null, addr, exp, v);
+    }
+
+    public static boolean cmpxchgI32B(long addr, int expected, int x) {
+        if (isBE) {
+            return unsafe.compareAndSwapInt(null, addr, expected, x);
+        } else {
+            return unsafe.compareAndSwapInt(null, addr, Integer.reverseBytes(expected), Integer.reverseBytes(x));
+        }
+    }
+
+    public static boolean cmpxchgI32L(long addr, int expected, int x) {
+        if (isBE) {
+            return unsafe.compareAndSwapInt(null, addr, Integer.reverseBytes(expected), Integer.reverseBytes(x));
+        } else {
+            return unsafe.compareAndSwapInt(null, addr, expected, x);
+        }
+    }
+
+    public static boolean cmpxchgI64B(long addr, long expected, long x) {
+        if (isBE) {
+            return unsafe.compareAndSwapLong(null, addr, expected, x);
+        } else {
+            return unsafe.compareAndSwapLong(null, addr, Long.reverseBytes(expected), Long.reverseBytes(x));
+        }
+    }
+
+    public static boolean cmpxchgI64L(long addr, long expected, long x) {
+        if (isBE) {
+            return unsafe.compareAndSwapLong(null, addr, Long.reverseBytes(expected), Long.reverseBytes(x));
+        } else {
+            return unsafe.compareAndSwapLong(null, addr, expected, x);
+        }
+    }
+
     public static void read(byte[] dst, int off, long addr, long len) {
         long ptr = addr;
         for (int i = 0; i < len; i++, ptr++) {

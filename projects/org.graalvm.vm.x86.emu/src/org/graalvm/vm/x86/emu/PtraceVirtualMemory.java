@@ -188,6 +188,37 @@ public class PtraceVirtualMemory extends VirtualMemory {
         }
     }
 
+    // TODO: this is *not* atomic for now!
+    @Override
+    public boolean cmpxchgI8(long address, byte expected, byte x) {
+        setI8(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI16(long address, short expected, short x) {
+        setI16(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI32(long address, int expected, int x) {
+        setI32(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI64(long address, long expected, long x) {
+        setI64(address, x);
+        return true;
+    }
+
+    @Override
+    public boolean cmpxchgI128(long address, Vector128 expected, Vector128 x) {
+        setI128(address, x);
+        return true;
+    }
+
     @Override
     public void mprotect(long address, long len, boolean r, boolean w, boolean x) throws PosixException {
         ptrace.mprotect(address, len, r, w, x);
