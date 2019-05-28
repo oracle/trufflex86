@@ -100,7 +100,7 @@ public class MemoryAllocator {
         }
     }
 
-    public long alloc(long size) {
+    public synchronized long alloc(long size) {
         check(size);
         Block b = free;
         if (b == null) {
@@ -168,7 +168,7 @@ public class MemoryAllocator {
         return null;
     }
 
-    public long allocat(long addr, long size) {
+    public synchronized long allocat(long addr, long size) {
         check(addr);
         check(size);
         Block blk = find(addr);
@@ -368,7 +368,7 @@ public class MemoryAllocator {
         }
     }
 
-    public void free(long addr) {
+    public synchronized void free(long addr) {
         check(addr);
         Block blk = find(addr);
         assert blk.base == addr;
@@ -421,7 +421,7 @@ public class MemoryAllocator {
         }
     }
 
-    public void free(long addr, long size) {
+    public synchronized void free(long addr, long size) {
         if (Long.compareUnsigned(addr, memoryBase) < 0) {
             return;
         }
@@ -687,7 +687,7 @@ public class MemoryAllocator {
     }
 
     @TruffleBoundary
-    public String dump() {
+    public synchronized String dump() {
         StringBuilder buf = new StringBuilder();
         for (Block b = memory; b != null; b = b.nextBlock) {
             buf.append(b).append("\n");
@@ -724,7 +724,7 @@ public class MemoryAllocator {
 
     // consistency checks which *don't* rely on -ea
     @TruffleBoundary
-    public void check() {
+    public synchronized void check() {
         long usedmem = 0;
         long freemem = 0;
         long nextaddr = memoryBase;
