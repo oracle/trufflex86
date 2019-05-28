@@ -48,6 +48,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,14 +99,14 @@ public class Posix {
 
     private final Sigset sigmask;
 
-    private static int tidctr = 1;
-    private static final Object tidlock = new Object();
-    private static final ThreadLocal<Integer> tid = new ThreadLocal<>();
+    private static AtomicInteger tidctr = new AtomicInteger(1);
+    private static final ThreadLocal<Integer> tid = ThreadLocal.withInitial(() -> createTid());
 
     public static final boolean WARN_ON_FILE_DELETE = System.getProperty("posix.warn.delete") != null;
 
     static {
-        createTid();
+        // initialize TID variable
+        tid.get();
     }
 
     public Posix() {
@@ -757,11 +758,7 @@ public class Posix {
     }
 
     public static int allocateTid() {
-        int newtid;
-        synchronized (tidlock) {
-            newtid = tidctr++;
-        }
-        return newtid;
+        return tidctr.getAndIncrement();
     }
 
     private static int createTid() {
