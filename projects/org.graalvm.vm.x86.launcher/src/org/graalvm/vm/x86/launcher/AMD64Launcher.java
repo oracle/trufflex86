@@ -29,9 +29,7 @@
  */
 package org.graalvm.vm.x86.launcher;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +60,7 @@ public class AMD64Launcher extends AbstractLanguageLauncher {
     }
 
     private String[] programArgs;
-    private File file;
+    private String file;
     private VersionAction versionAction = VersionAction.None;
 
     @Override
@@ -118,7 +116,7 @@ public class AMD64Launcher extends AbstractLanguageLauncher {
 
         // collect the file:
         if (file == null && iterator.hasNext()) {
-            file = Paths.get(iterator.next()).toFile();
+            file = iterator.next();
         }
 
         // collect the program args:
@@ -176,7 +174,7 @@ public class AMD64Launcher extends AbstractLanguageLauncher {
         contextBuilder.allowCreateThread(true);
         try (Context context = contextBuilder.build()) {
             runVersionAction(versionAction, context.getEngine());
-            Value result = context.eval(Source.newBuilder(getLanguageId(), file).build());
+            Value result = context.eval(Source.newBuilder(getLanguageId(), file, "<path>").build());
             return result.asInt();
         } catch (PolyglotException e) {
             if (e.isExit()) {

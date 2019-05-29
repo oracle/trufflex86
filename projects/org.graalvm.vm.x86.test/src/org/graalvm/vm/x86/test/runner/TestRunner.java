@@ -46,7 +46,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Base64.Encoder;
@@ -73,7 +72,7 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, path, "<path>").build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -100,7 +99,7 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, path, "<path>").build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -127,7 +126,7 @@ public class TestRunner {
         TestOptions.init();
         String path = getPath(filename);
 
-        Source source = Source.newBuilder(Vmx86.NAME, new File(path)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, path, "<path>").build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();

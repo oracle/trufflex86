@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.posix.vfs.FileSystem;
 import org.graalvm.vm.posix.vfs.NativeFileSystem;
 import org.graalvm.vm.posix.vfs.VFS;
@@ -148,9 +149,13 @@ public class LoaderNode extends AMD64Node {
             throw new RuntimeException(t);
         }
 
-        if (!loader.isAMD64()) {
+        if (loader.getMachineType() != Elf.EM_X86_64) {
             CompilerDirectives.transferToInterpreter();
             throw new RuntimeException("Not an x86_64 executable!");
+        }
+        if (!loader.isAMD64()) {
+            CompilerDirectives.transferToInterpreter();
+            throw new RuntimeException("Not a 64bit executable executable!");
         }
 
         writePC.executeI64(frame, loader.getPC());

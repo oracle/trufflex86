@@ -46,7 +46,6 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -113,7 +112,7 @@ public class HostTest {
     private static void run(String filename, String[] args, String stdin, Result res) throws Exception {
         TestOptions.init();
 
-        Source source = Source.newBuilder(Vmx86.NAME, new File(filename)).build();
+        Source source = Source.newBuilder(Vmx86.NAME, filename, "<path>").build();
         ByteArrayInputStream in = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();

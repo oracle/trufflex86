@@ -168,6 +168,7 @@ public class ElfLoader {
     private long sp;
     private long pc;
     private boolean amd64;
+    private short machineType;
     private PosixEnvironment posix;
     private VirtualMemory memory;
     private NavigableMap<Long, Symbol> symbols;
@@ -199,6 +200,10 @@ public class ElfLoader {
 
     public long getPC() {
         return pc;
+    }
+
+    public short getMachineType() {
+        return machineType;
     }
 
     public boolean isAMD64() {
@@ -242,6 +247,12 @@ public class ElfLoader {
 
     public void load(byte[] data, String filename) throws IOException {
         elf = new Elf(data);
+
+        if (elf.ei_class != Elf.ELFCLASS64) {
+            throw new IllegalArgumentException("32bit binary not supported");
+        }
+
+        machineType = elf.e_machine;
         amd64 = elf.ei_class == Elf.ELFCLASS64;
         ptrsz = elf.ei_class == Elf.ELFCLASS64 ? 8 : 4;
         base = 0;

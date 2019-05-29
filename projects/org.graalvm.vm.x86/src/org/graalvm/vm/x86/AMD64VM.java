@@ -42,7 +42,6 @@ package org.graalvm.vm.x86;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.graalvm.nativeimage.ImageInfo;
@@ -69,7 +68,7 @@ public class AMD64VM {
             RuntimeOptions.set("TruffleOSRCompilationThreshold", 10);
             RuntimeOptions.set("TruffleCompilationThreshold", 10);
         }
-        Source source = Source.newBuilder(Vmx86.NAME, new File(args[0])).build();
+        Source source = Source.newBuilder(Vmx86.NAME, args[0], "<path>").build();
         System.exit(executeSource(source, args));
     }
 

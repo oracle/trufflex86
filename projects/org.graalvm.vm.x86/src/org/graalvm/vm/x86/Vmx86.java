@@ -40,10 +40,6 @@
  */
 package org.graalvm.vm.x86;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.x86.node.InterpreterStartNode;
 import org.graalvm.vm.x86.node.init.InitializerNode;
 
@@ -62,21 +58,13 @@ public class Vmx86 extends AMD64Language {
 
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
-        String path = request.getSource().getPath();
-        if (path != null) {
-            byte[] data = Files.readAllBytes(Paths.get(path));
-            Elf elf = new Elf(data);
-            if (elf.ei_class != Elf.ELFCLASS64) {
-                throw new IllegalArgumentException("32bit binary not supported");
-            }
-            if (elf.e_machine != Elf.EM_X86_64) {
-                throw new IllegalArgumentException("only x86_64 is supported");
-            }
-            InterpreterStartNode interpreter = new InterpreterStartNode(this, fd, path);
-            return Truffle.getRuntime().createCallTarget(interpreter);
-        } else if (InitializerNode.BINARY != null) {
+        if (InitializerNode.BINARY != null) {
             Source src = request.getSource();
             InterpreterStartNode interpreter = new InterpreterStartNode(this, fd, src.getCharacters().toString());
+            return Truffle.getRuntime().createCallTarget(interpreter);
+        } else if (request.getSource().hasCharacters()) {
+            String path = request.getSource().getCharacters().toString();
+            InterpreterStartNode interpreter = new InterpreterStartNode(this, fd, path);
             return Truffle.getRuntime().createCallTarget(interpreter);
         } else {
             throw new IllegalArgumentException("Source type is not supported");
