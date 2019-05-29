@@ -58,7 +58,6 @@ suite = {
         "org.graalvm.vm.util",
         "org.graalvm.vm.posix",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI",
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
@@ -106,7 +105,6 @@ suite = {
         "org.graalvm.vm.memory",
         "org.graalvm.vm.math",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI"
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
@@ -117,7 +115,8 @@ suite = {
       "subDir" : "projects",
       "sourceDirs" : ["src"],
       "dependencies" : [
-        "org.graalvm.vm.x86"
+        "org.graalvm.vm.x86",
+        "truffle:TRUFFLE_NFI"
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
@@ -424,14 +423,11 @@ suite = {
       "sourcesPath" : "build/vmx86.src.zip",
       "dependencies" : [
         "org.graalvm.vm.x86",
-        "org.graalvm.vm.x86.nfi",
       ],
       "distDependencies" : [
-        "VM_NFI_NATIVE",
         "CORE",
         "POSIX",
         "truffle:TRUFFLE_API",
-        "truffle:TRUFFLE_NFI",
       ]
     },
 
@@ -455,6 +451,23 @@ suite = {
       "distDependencies" : [
         "VM"
       ],
+    },
+
+    "VM_NFI" : {
+      "path" : "build/vmx86_nfi.jar",
+      "subDir" : "vmx86",
+      "sourcesPath" : "build/vmx86_nfi.src.zip",
+      "dependencies" : [
+        "org.graalvm.vm.x86.nfi"
+      ],
+      "distDependencies" : [
+        "VM",
+        "VM_NFI_NATIVE",
+        "CORE",
+        "POSIX",
+        "truffle:TRUFFLE_API",
+        "truffle:TRUFFLE_NFI",
+      ]
     },
 
     "VM_NFI_NATIVE" : {
@@ -486,9 +499,6 @@ suite = {
       "dependencies" : ["org.graalvm.vm.x86.trcview"],
       "strip" : [
         "trcview"
-      ],
-      "distDependencies": [
-        "truffle:TRUFFLE_NFI_NATIVE",
       ],
       "overlaps" : [
         "VM",
@@ -528,6 +538,7 @@ suite = {
       ],
       "distDependencies" : [
         "VM",
+        "VM_NFI",
         "VM_TESTCASES",
         "CORE",
         "POSIX",
@@ -574,7 +585,7 @@ suite = {
       "layout": {
         "native-image.properties" : "file:mx.vmx86/native-image.properties",
         "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:vmx86:VM_NFI_NATIVE/<lib:nfi>"],
-        "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a"],
+        "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a", "file:projects/org.graalvm.vm.memory.native/include"],
       },
     },
 
