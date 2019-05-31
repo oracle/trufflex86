@@ -250,6 +250,9 @@ import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddb;
 import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddl;
 import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddq;
 import org.graalvm.vm.x86.isa.instruction.LockXadd.LockXaddw;
+import org.graalvm.vm.x86.isa.instruction.LockXchg.LockXchgl;
+import org.graalvm.vm.x86.isa.instruction.LockXchg.LockXchgq;
+import org.graalvm.vm.x86.isa.instruction.LockXchg.LockXchgw;
 import org.graalvm.vm.x86.isa.instruction.Lods.Lodsb;
 import org.graalvm.vm.x86.isa.instruction.Maxps;
 import org.graalvm.vm.x86.isa.instruction.Maxsd;
@@ -1342,15 +1345,28 @@ public class AMD64InstructionDecoder {
             case AMD64Opcode.XCHG_A_R + 5:
             case AMD64Opcode.XCHG_A_R + 6:
             case AMD64Opcode.XCHG_A_R + 7: {
-                if (rex != null && rex.w) {
-                    Register reg = getRegister64(op, rex.r);
-                    return new Xchgq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new RegisterOperand(reg));
-                } else if (sizeOverride) {
-                    Register reg = getRegister16(op, rex != null ? rex.r : false);
-                    return new Xchgw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), new RegisterOperand(reg));
+                if (lock) {
+                    if (rex != null && rex.w) {
+                        Register reg = getRegister64(op, rex.r);
+                        return new LockXchgq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new RegisterOperand(reg));
+                    } else if (sizeOverride) {
+                        Register reg = getRegister16(op, rex != null ? rex.r : false);
+                        return new LockXchgw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), new RegisterOperand(reg));
+                    } else {
+                        Register reg = getRegister32(op, rex != null ? rex.r : false);
+                        return new LockXchgl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), new RegisterOperand(reg));
+                    }
                 } else {
-                    Register reg = getRegister32(op, rex != null ? rex.r : false);
-                    return new Xchgl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), new RegisterOperand(reg));
+                    if (rex != null && rex.w) {
+                        Register reg = getRegister64(op, rex.r);
+                        return new Xchgq(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.RAX), new RegisterOperand(reg));
+                    } else if (sizeOverride) {
+                        Register reg = getRegister16(op, rex != null ? rex.r : false);
+                        return new Xchgw(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.AX), new RegisterOperand(reg));
+                    } else {
+                        Register reg = getRegister32(op, rex != null ? rex.r : false);
+                        return new Xchgl(pc, Arrays.copyOf(instruction, instructionLength), new RegisterOperand(Register.EAX), new RegisterOperand(reg));
+                    }
                 }
             }
             case AMD64Opcode.OR_A_I8: {
@@ -2089,12 +2105,22 @@ public class AMD64InstructionDecoder {
             }
             case AMD64Opcode.XCHG_RM_R: {
                 Args args = new Args(code, rex, segment, addressOverride);
-                if (rex != null && rex.w) {
-                    return new Xchgq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
-                } else if (sizeOverride) {
-                    return new Xchgw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                if (lock) {
+                    if (rex != null && rex.w) {
+                        return new LockXchgq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    } else if (sizeOverride) {
+                        return new LockXchgw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    } else {
+                        return new LockXchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    }
                 } else {
-                    return new Xchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    if (rex != null && rex.w) {
+                        return new Xchgq(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    } else if (sizeOverride) {
+                        return new Xchgw(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    } else {
+                        return new Xchgl(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                    }
                 }
             }
             case AMD64Opcode.XOR_A_I8: {
