@@ -24,6 +24,7 @@ public class Syscalls {
     public static final int SYS_access = 21;
     public static final int SYS_dup = 32;
     public static final int SYS_dup2 = 33;
+    public static final int SYS_nanosleep = 35;
     public static final int SYS_getpid = 39;
     public static final int SYS_socket = 41;
     public static final int SYS_connect = 42;

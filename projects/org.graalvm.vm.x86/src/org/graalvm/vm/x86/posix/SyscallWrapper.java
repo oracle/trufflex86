@@ -233,6 +233,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.dup((int) a1);
             case Syscalls.SYS_dup2:
                 return posix.dup2((int) a1, (int) a2);
+            case Syscalls.SYS_nanosleep:
+                return posix.nanosleep(a1, a2);
             case Syscalls.SYS_getpid:
                 return posix.getpid();
             case Syscalls.SYS_socket:

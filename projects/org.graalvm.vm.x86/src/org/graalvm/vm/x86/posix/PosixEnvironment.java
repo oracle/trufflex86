@@ -974,6 +974,24 @@ public class PosixEnvironment {
         }
     }
 
+    public long nanosleep(long rqtp, long rmtp) throws SyscallException {
+        try {
+            Timespec req = new Timespec();
+            req.read64(posixPointer(rqtp));
+            Timespec rem = rmtp == 0 ? null : new Timespec();
+            int result = posix.nanosleep(req, rem);
+            if (rem != null) {
+                rem.write64(posixPointer(rmtp));
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "nanosleep failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int prlimit64(int pid, int resource, long newLimit, long oldLimit) throws SyscallException {
         if (pid != 0) {
             if (strace) {

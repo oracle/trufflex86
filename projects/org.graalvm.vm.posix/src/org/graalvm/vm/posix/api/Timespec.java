@@ -65,6 +65,24 @@ public class Timespec implements Struct {
     }
 
     @Override
+    public PosixPointer read32(PosixPointer ptr) {
+        PosixPointer p = ptr;
+        tv_sec = Integer.toUnsignedLong(p.getI32());
+        p = p.add(4);
+        tv_nsec = Integer.toUnsignedLong(p.getI32());
+        return p.add(4);
+    }
+
+    @Override
+    public PosixPointer read64(PosixPointer ptr) {
+        PosixPointer p = ptr;
+        tv_sec = p.getI64();
+        p = p.add(8);
+        tv_nsec = p.getI64();
+        return p.add(8);
+    }
+
+    @Override
     public PosixPointer write32(PosixPointer ptr) {
         PosixPointer p = ptr;
         p.setI32((int) tv_sec);
@@ -84,6 +102,6 @@ public class Timespec implements Struct {
 
     @Override
     public String toString() {
-        return String.format("timespec[tv_sec=%d,tv_nsec=%d]", tv_sec, tv_nsec);
+        return String.format("{tv_sec=%d,tv_nsec=%d}", tv_sec, tv_nsec);
     }
 }

@@ -717,6 +717,25 @@ public class Posix {
         return times.times(buffer);
     }
 
+    public int nanosleep(Timespec rqtp, @SuppressWarnings("unused") Timespec rmtp) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("nanosleep(%s, %s)", rqtp, rmtp));
+        }
+        if (rqtp.tv_nsec < 0 || rqtp.tv_nsec > 999999999) {
+            throw new PosixException(Errno.EINVAL);
+        }
+        long ms = rqtp.tv_sec * 1000 + rqtp.tv_nsec / 1000000;
+        long ns = rqtp.tv_nsec % 1000000;
+        try {
+            Thread.sleep(ms, (int) ns);
+            return 0;
+        } catch (InterruptedException e) {
+            // update rmtp
+            throw new PosixException(Errno.EINTR);
+            // return -1;
+        }
+    }
+
     // FIXME: implement properly
     public long getuid() {
         if (strace) {

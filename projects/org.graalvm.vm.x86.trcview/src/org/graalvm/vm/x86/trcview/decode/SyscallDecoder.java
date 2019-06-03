@@ -159,6 +159,8 @@ public class SyscallDecoder {
                 return "dup(" + a1 + ")";
             case Syscalls.SYS_dup2:
                 return "dup2(" + a1 + ", " + a2 + ")";
+            case Syscalls.SYS_nanosleep:
+                return "nanosleep(0x" + hex(a1) + ", 0x" + hex(a2) + ")";
             case Syscalls.SYS_getpid:
                 return "getpid()";
             case Syscalls.SYS_socket:
