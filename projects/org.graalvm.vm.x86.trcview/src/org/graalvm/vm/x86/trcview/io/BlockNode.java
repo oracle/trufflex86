@@ -40,11 +40,15 @@
  */
 package org.graalvm.vm.x86.trcview.io;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.debug.trace.CallArgsRecord;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceReader;
 import org.graalvm.vm.x86.node.debug.trace.Record;
@@ -52,6 +56,8 @@ import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.trcview.analysis.Analysis;
 
 public class BlockNode extends Node {
+    private static Logger log = Trace.create(BlockNode.class);
+
     private StepRecord head;
     private CallArgsRecord callArgs;
     private List<Node> children;
@@ -124,7 +130,12 @@ public class BlockNode extends Node {
 
     private static Node parseRecord(ExecutionTraceReader in, Analysis analysis, ProgressListener progress, long thread) throws IOException {
         long tid = thread;
-        Record record = in.read();
+        Record record = null;
+        try {
+            record = in.read();
+        } catch (EOFException e) {
+            log.log(Levels.WARNING, "Unexpected EOF", e);
+        }
         if (record == null) {
             return null;
         }
