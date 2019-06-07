@@ -826,6 +826,10 @@ public class PosixEnvironment {
         posix.exit_group(code);
     }
 
+    public int sched_yield() {
+        return posix.sched_yield();
+    }
+
     private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result) {
         if (traceWriter != null) {
             traceWriter.mmap(addr, length, prot, flags, fildes, offset, result, null);

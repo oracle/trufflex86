@@ -22,6 +22,7 @@ public class Syscalls {
     public static final int SYS_readv = 19;
     public static final int SYS_writev = 20;
     public static final int SYS_access = 21;
+    public static final int SYS_sched_yield = 24;
     public static final int SYS_dup = 32;
     public static final int SYS_dup2 = 33;
     public static final int SYS_nanosleep = 35;

@@ -1358,6 +1358,14 @@ public class Posix {
         throw new ProcessExitException(code);
     }
 
+    public int sched_yield() {
+        if (strace) {
+            log.log(Levels.INFO, "sched_yield()");
+        }
+        Thread.yield();
+        return 0;
+    }
+
     // these functions are not part of the POSIX interface
     public boolean isExitGroup() {
         return exitGroup;

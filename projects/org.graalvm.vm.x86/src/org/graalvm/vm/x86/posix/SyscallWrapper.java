@@ -230,6 +230,8 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.writev((int) a1, a2, (int) a3);
             case Syscalls.SYS_access:
                 return posix.access(a1, (int) a2);
+            case Syscalls.SYS_sched_yield:
+                return posix.sched_yield();
             case Syscalls.SYS_dup:
                 return posix.dup((int) a1);
             case Syscalls.SYS_dup2:
