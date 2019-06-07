@@ -556,6 +556,19 @@ public class Posix {
         return 0;
     }
 
+    public int fchdir(int fildes) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("fchdir(%s)", fildes));
+        }
+        FileDescriptor fd = fds.getFileDescriptor(fildes);
+        if (fd.stream instanceof DirectoryStream) {
+            vfs.chdir(fd.name);
+            return 0;
+        } else {
+            throw new PosixException(Errno.ENOTDIR);
+        }
+    }
+
     public PosixPointer getcwd(PosixPointer buf, long size) throws PosixException {
         String cwd = vfs.getcwd();
         if (size == 0) {

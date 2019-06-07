@@ -273,6 +273,10 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getdents((int) a1, a2, (int) a3);
             case Syscalls.SYS_getcwd:
                 return posix.getcwd(a1, a2);
+            case Syscalls.SYS_chdir:
+                return posix.chdir(a1);
+            case Syscalls.SYS_fchdir:
+                return posix.fchdir((int) a1);
             case Syscalls.SYS_creat:
                 return posix.creat(a1, (int) a2);
             case Syscalls.SYS_unlink:

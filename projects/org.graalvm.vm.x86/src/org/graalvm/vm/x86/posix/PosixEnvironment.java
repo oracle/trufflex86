@@ -653,6 +653,28 @@ public class PosixEnvironment {
         }
     }
 
+    public int chdir(long path) throws SyscallException {
+        try {
+            return posix.chdir(cstr(path));
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "chdir failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int fchdir(int fildes) throws SyscallException {
+        try {
+            return posix.fchdir(fildes);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "fchdir failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public int futex(long uaddr, int futex_op, int val, long timeout, long uaddr2, int val3) throws SyscallException {
         try {
             return posix.futex(posixPointer(uaddr), futex_op, val, posixPointer(timeout), posixPointer(uaddr2), val3);

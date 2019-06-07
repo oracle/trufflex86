@@ -44,6 +44,8 @@ public class Syscalls {
     public static final int SYS_fsync = 74;
     public static final int SYS_getdents = 78;
     public static final int SYS_getcwd = 79;
+    public static final int SYS_chdir = 80;
+    public static final int SYS_fchdir = 81;
     public static final int SYS_creat = 85;
     public static final int SYS_unlink = 87;
     public static final int SYS_readlink = 89;
