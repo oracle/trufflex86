@@ -56,6 +56,7 @@ import org.graalvm.vm.posix.api.PosixPointer;
 public class Linux {
     private final Futex futex = new Futex();
     private static final ThreadLocal<PosixPointer> clear_child_tid = new ThreadLocal<>();
+    private static final ThreadLocal<PosixPointer> robust_list = new ThreadLocal<>();
 
     static class Line {
         public final String name;
@@ -147,5 +148,13 @@ public class Linux {
     public long set_tid_address(PosixPointer tidptr) {
         clear_child_tid.set(tidptr);
         return Posix.getTid();
+    }
+
+    public long set_robust_list(PosixPointer head, long len) throws PosixException {
+        if (len != 24) {
+            throw new PosixException(Errno.EINVAL);
+        }
+        robust_list.set(head);
+        return 0;
     }
 }

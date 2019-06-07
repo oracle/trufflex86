@@ -99,6 +99,11 @@ import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 
+import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.nodes.InvalidAssumptionException;
+
 public class PosixEnvironment {
     private static final Logger log = Trace.create(PosixEnvironment.class);
 
@@ -118,6 +123,8 @@ public class PosixEnvironment {
 
     private final ExecutionTraceWriter traceWriter;
 
+    private final Assumption exitGroupAssumption;
+
     public PosixEnvironment(VirtualMemory mem, String arch, ExecutionTraceWriter traceWriter) {
         this.mem = mem;
         this.arch = arch;
@@ -129,6 +136,7 @@ public class PosixEnvironment {
             symbolResolver = new SymbolResolver(symbols);
             libraries = new TreeMap<>();
         }
+        exitGroupAssumption = Truffle.getRuntime().createAssumption("exit_group");
     }
 
     public void setStrace(boolean value) {
@@ -664,6 +672,17 @@ public class PosixEnvironment {
         return posix.set_tid_address(posixPointer(tidptr));
     }
 
+    public long set_robust_list(long head, long len) throws SyscallException {
+        try {
+            return posix.set_robust_list(posixPointer(head), len);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "set_robust_list failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
     public long getcwd(long buf, long size) throws SyscallException {
         try {
             posix.getcwd(posixPointer(buf), size);
@@ -778,6 +797,11 @@ public class PosixEnvironment {
 
     public void exit(int code) {
         posix.exit(code);
+    }
+
+    public void exit_group(int code) {
+        exitGroupAssumption.invalidate();
+        posix.exit_group(code);
     }
 
     private void logMmap(long addr, long length, int prot, int flags, int fildes, long offset, long result) {
@@ -1345,6 +1369,33 @@ public class PosixEnvironment {
 
     public Stack getSigaltstack() {
         return posix.getSigaltstack();
+    }
+
+    public ThreadGroup getThreadGroup() {
+        return posix.getThreadGroup();
+    }
+
+    public void addThread(Thread thread) {
+        posix.addThread(thread);
+    }
+
+    @TruffleBoundary
+    private void handleExitGroup() {
+        assert posix.isExitGroup();
+        posix.handleExitGroup();
+    }
+
+    public void handleSignals() {
+        try {
+            exitGroupAssumption.check();
+        } catch (InvalidAssumptionException e) {
+            handleExitGroup();
+        }
+    }
+
+    @TruffleBoundary
+    public void joinAllThreads() {
+        posix.joinAllThreads();
     }
 
     // DEBUGGING FEATURES (NONSTANDARD!)

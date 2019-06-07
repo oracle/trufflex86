@@ -42,6 +42,7 @@ package org.graalvm.vm.x86.node;
 
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
+import org.graalvm.vm.x86.posix.PosixEnvironment;
 
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -49,16 +50,25 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class InterpreterStartNode extends AMD64RootNode {
     @Child private InterpreterRootNode interpreter;
+    private final PosixEnvironment posix;
 
     public InterpreterStartNode(TruffleLanguage<AMD64Context> language, FrameDescriptor fd, String programName) {
         super(language, fd);
-        ArchitecturalState state = language.getContextReference().get().getState();
+        AMD64Context ctx = language.getContextReference().get();
+        ArchitecturalState state = ctx.getState();
+        posix = ctx.getPosixEnvironment();
         interpreter = insert(new InterpreterRootNode(state, programName));
     }
 
     @Override
     public Object execute(VirtualFrame frame) {
-        return interpreter.execute(frame);
+        // ensure a TID is allocated for the main thread
+        PosixEnvironment.getTid();
+
+        posix.addThread(Thread.currentThread());
+        Object result = interpreter.execute(frame);
+        posix.joinAllThreads();
+        return result;
     }
 
     @Override

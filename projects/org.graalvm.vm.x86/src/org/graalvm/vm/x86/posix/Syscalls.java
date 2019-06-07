@@ -68,6 +68,7 @@ public class Syscalls {
     public static final int SYS_exit_group = 231;
     public static final int SYS_tgkill = 234;
     public static final int SYS_openat = 257;
+    public static final int SYS_set_robust_list = 273;
     public static final int SYS_dup3 = 292;
     public static final int SYS_prlimit64 = 302;
 

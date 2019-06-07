@@ -47,6 +47,7 @@ import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.posix.api.CString;
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.api.linux.Sched;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
@@ -260,9 +261,8 @@ public class SyscallWrapper extends AMD64Node {
             case Syscalls.SYS_setsockopt:
                 return posix.setsockopt((int) a1, (int) a2, (int) a3, a4, (int) a5);
             case Syscalls.SYS_exit:
-            case Syscalls.SYS_exit_group: // TODO: implement difference
                 posix.exit((int) a1);
-                throw new ProcessExitException((int) a1);
+                throw new AssertionError("exit must not return");
             case Syscalls.SYS_uname:
                 return posix.uname(a1);
             case Syscalls.SYS_fcntl:
@@ -313,6 +313,9 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.clock_gettime((int) a1, a2);
             case Syscalls.SYS_clock_getres:
                 return posix.clock_getres((int) a1, a2);
+            case Syscalls.SYS_exit_group:
+                posix.exit_group((int) a1);
+                throw new AssertionError("exit must not return");
             case Syscalls.SYS_tgkill:
                 if (posix.isStrace()) {
                     log.log(Level.INFO, () -> String.format("tgkill(%d, %d, %d)", (int) a1, (int) a2, (int) a3));
@@ -320,6 +323,8 @@ public class SyscallWrapper extends AMD64Node {
                 throw new ProcessExitException(128 + (int) a3);
             case Syscalls.SYS_openat:
                 return posix.openat((int) a1, a2, (int) a3, (int) a4);
+            case Syscalls.SYS_set_robust_list:
+                return posix.set_robust_list(a1, a2);
             case Syscalls.SYS_dup3:
                 return posix.dup3((int) a1, (int) a2, (int) a3);
             case Syscalls.SYS_prlimit64:

@@ -51,6 +51,7 @@ import org.graalvm.vm.memory.JavaVirtualMemory;
 import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.elf.Symbol;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
@@ -63,7 +64,6 @@ import org.graalvm.vm.x86.isa.CodeMemoryReader;
 import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.util.Debug;
 
 import com.oracle.truffle.api.CompilerDirectives;

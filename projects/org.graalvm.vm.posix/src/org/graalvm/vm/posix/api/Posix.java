@@ -48,6 +48,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,14 +102,15 @@ public class Posix {
     private final Sigset sigmask;
 
     private static AtomicInteger tidctr = new AtomicInteger(1);
-    private static final ThreadLocal<Integer> tid = ThreadLocal.withInitial(() -> createTid());
+    private static final ThreadLocal<Integer> tid = ThreadLocal.withInitial(() -> allocateTid());
 
     public static final boolean WARN_ON_FILE_DELETE = System.getProperty("posix.warn.delete") != null;
 
-    static {
-        // initialize TID variable
-        tid.get();
-    }
+    private ThreadGroup threadGroup;
+    private Set<Thread> threads;
+
+    private boolean exitGroup;
+    private volatile int exitCode;
 
     public Posix() {
         fds = new FileDescriptorManager();
@@ -121,6 +124,10 @@ public class Posix {
         socket = new Socket();
         sigaltstack = null;
         sigmask = new Sigset();
+
+        threadGroup = new ThreadGroup("POSIX Threads");
+        threads = new HashSet<>();
+        exitGroup = false;
     }
 
     public void setStrace(boolean value) {
@@ -780,12 +787,6 @@ public class Posix {
         return tidctr.getAndIncrement();
     }
 
-    private static int createTid() {
-        int newtid = allocateTid();
-        setTid(newtid);
-        return newtid;
-    }
-
     public static void setTid(int newtid) {
         tid.set(newtid);
     }
@@ -1292,10 +1293,14 @@ public class Posix {
         return linux.set_tid_address(tidptr);
     }
 
-    public void exit(int code) {
+    public long set_robust_list(PosixPointer head, long len) throws PosixException {
         if (strace) {
-            log.log(Levels.INFO, () -> String.format("exit(%s)", code));
+            log.log(Levels.INFO, () -> String.format("set_robust_list(%s, %s)", head, len));
         }
+        return linux.set_robust_list(head, len);
+    }
+
+    private void threadCleanup(String func) {
         PosixPointer clearChildTid = linux.getClearChildTid();
         if (clearChildTid != null) {
             try {
@@ -1307,13 +1312,96 @@ public class Posix {
                 linux.futex(clearChildTid, Futex.FUTEX_WAKE, 1, null, null, 0);
             } catch (PosixException e) {
                 if (strace) {
-                    log.log(Levels.INFO, () -> String.format("exit(%s): futex operation failed: %s", code, Errno.toString(e.errno)));
+                    log.log(Levels.INFO, () -> String.format("%s: futex operation failed: %s", func, Errno.toString(e.errno)));
                 }
+            }
+        }
+        threadKilled(Thread.currentThread());
+    }
+
+    public void exit(int code) {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("exit(%s)", code));
+        }
+        threadCleanup("exit(" + code + ")");
+        throw new ProcessExitException(code);
+    }
+
+    public void exit_group(int code) {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("exit_group(%s)", code));
+        }
+        exitCode = code;
+        exitGroup = true;
+        Thread currentThread = Thread.currentThread();
+        synchronized (threads) {
+            threads.forEach(t -> {
+                if (t != currentThread) {
+                    t.interrupt();
+                }
+            });
+        }
+        threadCleanup("exit_group(" + code + ")");
+        throw new ProcessExitException(code);
+    }
+
+    // these functions are not part of the POSIX interface
+    public boolean isExitGroup() {
+        return exitGroup;
+    }
+
+    public void handleExitGroup() {
+        if (exitGroup) {
+            threadCleanup("exit_group(" + exitCode + ")");
+            throw new ProcessExitException(exitCode);
+        }
+    }
+
+    public void joinAllThreads() {
+        Thread self = Thread.currentThread();
+
+        // check thread group
+        Thread[] list = new Thread[256];
+        while (true) {
+            int cnt = threadGroup.enumerate(list);
+            if (cnt > 0) {
+                for (int i = 0; i < cnt; i++) {
+                    if (list[i] != self) {
+                        try {
+                            list[i].join();
+                        } catch (InterruptedException e) {
+                            // ignore
+                        }
+                    }
+                }
+            } else {
+                break;
             }
         }
     }
 
-    // these functions are not part of the POSIX interface
+    public ThreadGroup getThreadGroup() {
+        return threadGroup;
+    }
+
+    public void addThread(Thread thread) {
+        synchronized (threads) {
+            if (threads.contains(thread)) {
+                throw new IllegalArgumentException("thread already registered");
+            }
+            threads.add(thread);
+        }
+    }
+
+    public void threadKilled(Thread thread) {
+        synchronized (threads) {
+            if (!threads.contains(thread)) {
+                throw new IllegalArgumentException("thread was not registered");
+            }
+            threads.remove(thread);
+        }
+    }
+
     public Stack getSigaltstack() {
         return sigaltstack;
     }

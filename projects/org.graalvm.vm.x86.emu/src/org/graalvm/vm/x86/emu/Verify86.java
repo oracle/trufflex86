@@ -53,6 +53,7 @@ import org.graalvm.vm.memory.hardware.linux.MemoryMap;
 import org.graalvm.vm.memory.hardware.linux.MemorySegment;
 import org.graalvm.vm.memory.vector.Vector128;
 import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.api.mem.Mman;
 import org.graalvm.vm.util.BitTest;
 import org.graalvm.vm.util.HexFormatter;
@@ -70,7 +71,6 @@ import org.graalvm.vm.x86.node.debug.trace.MunmapRecord;
 import org.graalvm.vm.x86.node.debug.trace.Record;
 import org.graalvm.vm.x86.node.debug.trace.StepRecord;
 import org.graalvm.vm.x86.node.debug.trace.SystemLogRecord;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 
 public class Verify86 {
     private static final Logger log = Trace.create(Verify86.class);

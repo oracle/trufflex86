@@ -3,6 +3,7 @@ package org.graalvm.vm.x86.node;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.memory.exception.SegmentationViolation;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.api.Signal;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
@@ -17,7 +18,6 @@ import org.graalvm.vm.x86.node.flow.InterTraceDispatchNode;
 import org.graalvm.vm.x86.node.flow.RetException;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializerNode;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;

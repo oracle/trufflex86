@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.x86.AMD64Register;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
@@ -13,7 +14,6 @@ import org.graalvm.vm.x86.isa.CodeReader;
 import org.graalvm.vm.x86.isa.Register;
 import org.graalvm.vm.x86.isa.RegisterOperand;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.substitution.Signature;
 import org.graalvm.vm.x86.substitution.Substitution;
 import org.graalvm.vm.x86.substitution.SubstitutionRegistry;

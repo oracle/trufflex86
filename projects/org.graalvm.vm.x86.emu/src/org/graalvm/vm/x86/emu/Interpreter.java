@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.posix.api.PosixException;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.elf.Symbol;
 import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Trace;
@@ -62,7 +63,6 @@ import org.graalvm.vm.x86.isa.instruction.Cpuid;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
 import org.graalvm.vm.x86.posix.ArchPrctl;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.posix.SyscallException;
 import org.graalvm.vm.x86.posix.SyscallNames;
 import org.graalvm.vm.x86.posix.Syscalls;

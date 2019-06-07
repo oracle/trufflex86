@@ -96,7 +96,7 @@ public class TraceCallTarget extends AMD64RootNode {
         gprMaskSlot = ctx.getGPRMask();
         avxMaskSlot = ctx.getAVXMask();
         singleThreaded = ctx.getSingleThreadedAssumption();
-        dispatch = new TraceDispatchNode(ctx.getState(), startPC);
+        dispatch = new TraceDispatchNode(ctx.getState(), ctx.getPosixEnvironment(), startPC);
         try {
             sym = ctx.getSymbolResolver().getSymbol(pc);
         } catch (Throwable t) {

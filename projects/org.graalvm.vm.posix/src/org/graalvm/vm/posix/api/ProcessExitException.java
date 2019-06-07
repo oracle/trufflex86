@@ -38,7 +38,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.graalvm.vm.x86.posix;
+package org.graalvm.vm.posix.api;
 
 public class ProcessExitException extends RuntimeException {
     private static final long serialVersionUID = -7483493093129513658L;

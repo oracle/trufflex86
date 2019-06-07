@@ -440,7 +440,10 @@ public class AMD64Context {
     }
 
     public Thread createThread(Runnable runnable) {
-        return env.createThread(runnable);
+        ThreadGroup group = posix.getThreadGroup();
+        Thread thread = env.createThread(runnable, null, group);
+        posix.addThread(thread);
+        return thread;
     }
 
     public void setInterpreter(CallTarget interpreter) {

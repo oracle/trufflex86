@@ -42,6 +42,7 @@ package org.graalvm.vm.x86.node.flow;
 
 import static org.graalvm.vm.x86.Options.getBoolean;
 
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.Options;
@@ -52,7 +53,6 @@ import org.graalvm.vm.x86.node.WriteNode;
 import org.graalvm.vm.x86.node.init.CopyToCpuStateNode;
 import org.graalvm.vm.x86.node.init.InitializeFromCpuStateNode;
 import org.graalvm.vm.x86.posix.InteropInitException;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;

@@ -57,6 +57,7 @@ import org.graalvm.vm.memory.MemoryPage;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.posix.api.MemoryFaultException;
+import org.graalvm.vm.posix.api.ProcessExitException;
 import org.graalvm.vm.posix.elf.Symbol;
 import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.log.Levels;
@@ -76,7 +77,6 @@ import org.graalvm.vm.x86.node.RegisterReadNode;
 import org.graalvm.vm.x86.node.RegisterWriteNode;
 import org.graalvm.vm.x86.posix.InteropException;
 import org.graalvm.vm.x86.posix.PosixEnvironment;
-import org.graalvm.vm.x86.posix.ProcessExitException;
 import org.graalvm.vm.x86.substitution.SubstitutionRegistry;
 
 import com.oracle.truffle.api.CompilerAsserts;
@@ -117,7 +117,10 @@ public class TraceDispatchNode extends AMD64Node {
 
     private final Object lock = new Object();
 
-    public TraceDispatchNode(ArchitecturalState state, long pc) {
+    private final PosixEnvironment posix;
+
+    public TraceDispatchNode(ArchitecturalState state, PosixEnvironment posix, long pc) {
+        this.posix = posix;
         memory = state.getMemory();
         reader = new CodeMemoryReader(memory, 0);
         substitutions = state.getSubstitutions();
@@ -306,6 +309,7 @@ public class TraceDispatchNode extends AMD64Node {
                 }
                 try {
                     CompilerAsserts.partialEvaluationConstant(index);
+                    posix.handleSignals();
                     boolean result = blocks[index].executeBlock(frame);
                     if (result) {
                         index = blocks[index].successor1;
@@ -339,7 +343,6 @@ public class TraceDispatchNode extends AMD64Node {
             long offset = 0;
 
             if (sym == null) {
-                PosixEnvironment posix = ctx.getPosixEnvironment();
                 sym = posix.getSymbol(e.getPC());
                 long b = posix.getBase(e.getPC());
                 if (b != -1) {
@@ -359,7 +362,6 @@ public class TraceDispatchNode extends AMD64Node {
                 filename = page.name;
             }
             if (filename == null) {
-                PosixEnvironment posix = ctx.getPosixEnvironment();
                 filename = posix.getFilename(e.getPC());
             }
 
