@@ -152,7 +152,7 @@ public abstract class NetworkStream extends Stream {
                 return sin;
             } else if (ipaddr.length == 16) {
                 SockaddrIn6 sin6 = new SockaddrIn6();
-                sin6.sa_family = Socket.AF_INET;
+                sin6.sa_family = Socket.AF_INET6;
                 sin6.sin6_addr = ipaddr;
                 sin6.sin6_port = (short) iaddr.getPort();
                 return sin6;
