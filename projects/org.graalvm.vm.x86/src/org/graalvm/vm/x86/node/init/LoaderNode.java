@@ -44,12 +44,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.posix.vfs.FileSystem;
 import org.graalvm.vm.posix.vfs.NativeFileSystem;
 import org.graalvm.vm.posix.vfs.VFS;
+import org.graalvm.vm.posix.vfs.proc.Procfs;
+import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.AMD64Context;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.ElfLoader;
@@ -65,6 +68,8 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class LoaderNode extends AMD64Node {
+    private static final Logger log = Trace.create(LoaderNode.class);
+
     @Child private RegisterReadNode readSP;
     @Child private RegisterWriteNode writeSP;
     @Child private RegisterWriteNode writePC;
@@ -120,6 +125,13 @@ public class LoaderNode extends AMD64Node {
             posixPath.append('/').append(cwd.getName(i));
         }
         posix.getPosix().chdir(posixPath.toString());
+
+        try {
+            Procfs proc = new Procfs(vfs, posix.getPosix());
+            posix.mount("/proc", proc);
+        } catch (PosixException e) {
+            log.warning("Cannot mount /proc: " + e);
+        }
     }
 
     @TruffleBoundary

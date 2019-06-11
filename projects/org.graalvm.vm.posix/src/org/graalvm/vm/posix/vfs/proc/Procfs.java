@@ -38,41 +38,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.graalvm.vm.x86.node;
+package org.graalvm.vm.posix.vfs.proc;
 
-import org.graalvm.vm.x86.AMD64Context;
-import org.graalvm.vm.x86.ArchitecturalState;
-import org.graalvm.vm.x86.posix.PosixEnvironment;
+import org.graalvm.vm.posix.api.Posix;
+import org.graalvm.vm.posix.vfs.FileSystem;
+import org.graalvm.vm.posix.vfs.VFS;
 
-import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
+public class Procfs extends FileSystem {
+    private ProcfsRoot root;
 
-public class InterpreterStartNode extends AMD64RootNode {
-    @Child private InterpreterRootNode interpreter;
-    private final PosixEnvironment posix;
-
-    public InterpreterStartNode(TruffleLanguage<AMD64Context> language, FrameDescriptor fd, String programName) {
-        super(language, fd);
-        AMD64Context ctx = language.getContextReference().get();
-        ArchitecturalState state = ctx.getState();
-        posix = ctx.getPosixEnvironment();
-        interpreter = insert(new InterpreterRootNode(state, programName));
+    public Procfs(VFS vfs, Posix posix) {
+        super("procfs");
+        root = new ProcfsRoot(vfs, "/", 0, 0, 755, posix);
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
-        // ensure a TID is allocated for the main thread
-        int tid = PosixEnvironment.getTid();
-
-        posix.addThread(tid, Thread.currentThread());
-        Object result = interpreter.execute(frame);
-        posix.joinAllThreads();
-        return result;
-    }
-
-    @Override
-    public String getName() {
-        return "[InterpreterStart]";
+    public ProcfsRoot getRoot() {
+        return root;
     }
 }

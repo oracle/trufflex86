@@ -58,7 +58,6 @@ import org.graalvm.vm.memory.PosixVirtualMemoryPointer;
 import org.graalvm.vm.memory.VirtualMemory;
 import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.posix.api.BytePosixPointer;
-import org.graalvm.vm.posix.api.CString;
 import org.graalvm.vm.posix.api.Dirent;
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.posix.api.Posix;
@@ -115,8 +114,6 @@ public class PosixEnvironment {
     private boolean strace;
     private final String arch;
 
-    private String execfn;
-
     private NavigableMap<Long, Symbol> symbols;
     private NavigableMap<Long, String> libraries;
     private SymbolResolver symbolResolver;
@@ -149,7 +146,7 @@ public class PosixEnvironment {
     }
 
     public void setExecfn(String execfn) {
-        this.execfn = execfn;
+        posix.setExecfn(execfn);
     }
 
     public ExecutionTraceWriter getTraceWriter() {
@@ -510,13 +507,6 @@ public class PosixEnvironment {
     public long readlink(long path, long buf, long bufsize) throws SyscallException {
         String p = cstr(path);
         PosixPointer ptr = posixPointer(buf);
-        if (p.equals("/proc/self/exe")) {
-            if (strace) {
-                log.log(Level.INFO, () -> String.format("readlink(\"%s\", 0x%x, %d)", p, buf, bufsize));
-            }
-            CString.strcpy(ptr, execfn);
-            return execfn.length();
-        }
         try {
             return posix.readlink(p, ptr, bufsize);
         } catch (PosixException e) {
@@ -1401,8 +1391,8 @@ public class PosixEnvironment {
         return posix.getThreadGroup();
     }
 
-    public void addThread(Thread thread) {
-        posix.addThread(thread);
+    public void addThread(int tid, Thread thread) {
+        posix.addThread(tid, thread);
     }
 
     @TruffleBoundary

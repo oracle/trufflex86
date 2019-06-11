@@ -58,7 +58,7 @@ public abstract class FileSystem {
         return type;
     }
 
-    public VFSDirectory createMountPoint(VFS vfs, String mountPoint) {
+    public final VFSDirectory createMountPoint(VFS vfs, String mountPoint) {
         final VFSDirectory root = getRoot();
         return new VFSDirectory(vfs, mountPoint, 0, 0, 0755) {
             @Override

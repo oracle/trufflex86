@@ -68,17 +68,79 @@ public class VFS {
         cwd = "/";
     }
 
+    public String realpath(String path) throws PosixException {
+        return realpath(path, cwd);
+    }
+
+    private String realpath(String path, String at) throws PosixException {
+        return resolvePath(getPath(resolve(path, at)));
+    }
+
+    private String resolvePath(String path) throws PosixException {
+        if (path.equals("") || path.equals(".")) {
+            return cwd;
+        }
+        String[] parts = path.split("/");
+        VFSDirectory dir = directory;
+
+        StringBuilder result = new StringBuilder();
+        int i = 0;
+        for (String part : parts) {
+            i++;
+            VFSEntry entry = dir.get(part);
+            if (entry == null) {
+                throw new PosixException(Errno.ENOENT);
+            } else if (entry instanceof VFSDirectory) {
+                dir = (VFSDirectory) entry;
+                result.append('/').append(part);
+            } else if (entry instanceof VFSSymlink) {
+                VFSSymlink link = (VFSSymlink) entry;
+
+                // resolve link
+                String linkpath = link.readlink();
+                if (linkpath.startsWith("/")) {
+                    result = new StringBuilder(linkpath);
+                    entry = get(getPath(realpath(linkpath, result.toString())));
+                } else {
+                    throw new AssertionError("relative symlinks not yet supported");
+                }
+                if (entry instanceof VFSDirectory) {
+                    dir = (VFSDirectory) entry;
+                } else { // VFSFile, VFSSpecialFile
+                    if (i != parts.length) {
+                        throw new PosixException(Errno.ENOTDIR);
+                    } else {
+                        dir = (VFSDirectory) entry;
+                        return result.toString();
+                    }
+                }
+            } else { // VFSFile, VFSSpecialFile
+                if (i != parts.length) {
+                    throw new PosixException(Errno.ENOTDIR);
+                } else {
+                    result.append('/').append(part);
+                    return result.toString();
+                }
+            }
+        }
+        return result.toString();
+    }
+
     private <T extends VFSEntry> T find(String path) throws PosixException {
         return find(path, true);
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends VFSEntry> T find(String path, boolean resolve) throws PosixException {
+        return find(path, resolve, directory);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends VFSEntry> T find(String path, boolean resolve, VFSDirectory root) throws PosixException {
         if (path.equals("")) {
-            return (T) directory;
+            return (T) root;
         }
         String[] parts = path.split("/");
-        VFSDirectory dir = directory;
+        VFSDirectory dir = root;
         int i = 0;
         for (String part : parts) {
             i++;
@@ -192,7 +254,7 @@ public class VFS {
         if (entry == null) {
             return Collections.emptyList();
         } else if (entry instanceof VFSDirectory) {
-            return ((VFSDirectory) entry).list();
+            return ((VFSDirectory) entry).readdir();
         } else {
             return Arrays.asList(entry);
         }
@@ -210,7 +272,8 @@ public class VFS {
         if (path.startsWith("/")) {
             return find(getPath(path));
         } else {
-            throw new AssertionError("getat not yet implemented");
+            VFSDirectory dir = entry.getParent();
+            return find(path, true, dir);
         }
     }
 

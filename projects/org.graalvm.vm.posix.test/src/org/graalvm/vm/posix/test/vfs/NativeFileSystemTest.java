@@ -57,6 +57,7 @@ import org.graalvm.vm.posix.api.io.Fcntl;
 import org.graalvm.vm.posix.api.io.Stat;
 import org.graalvm.vm.posix.api.io.Stream;
 import org.graalvm.vm.posix.vfs.NativeFileSystem;
+import org.graalvm.vm.posix.vfs.Tmpfs;
 import org.graalvm.vm.posix.vfs.VFS;
 import org.graalvm.vm.posix.vfs.VFSDirectory;
 import org.graalvm.vm.posix.vfs.VFSEntry;
@@ -138,5 +139,18 @@ public class NativeFileSystemTest {
         String ref = Files.readSymbolicLink(Paths.get("/proc/self/exe")).toString();
         String act = vfs.readlink("/proc/self/exe");
         assertEquals(ref, act);
+    }
+
+    @Test
+    public void testMount002() throws PosixException {
+        VFS vfs = new VFS();
+        NativeFileSystem fs = new NativeFileSystem(vfs, "/");
+        vfs.mount("/", fs);
+
+        Tmpfs tmpfs = new Tmpfs(vfs);
+        vfs.mount("/proc", tmpfs);
+
+        List<VFSEntry> entries = vfs.list("/proc");
+        assertEquals(0, entries.size());
     }
 }

@@ -234,4 +234,22 @@ public class VFSTest {
         assertNotNull(mnt);
         assertEquals("tmp", mnt.getName());
     }
+
+    @Test
+    public void testRealpath001() throws PosixException {
+        vfs.mkdir("/tmp", 0, 0, 0755);
+        vfs.mkdir("/tmp/dir", 0, 0, 0755);
+        vfs.mkfile("/tmp/dir/file", 0, 0, 0755);
+        vfs.symlink("/tmp/link", 0, 0, 0755, "/tmp/dir");
+
+        assertEquals("/tmp/dir", vfs.readlink("/tmp/link"));
+
+        vfs.chdir("/");
+        assertEquals("/tmp", vfs.realpath("/tmp"));
+        assertEquals("/tmp", vfs.realpath("tmp"));
+        assertEquals("/tmp/dir", vfs.realpath("tmp/dir"));
+        assertEquals("/tmp/dir", vfs.realpath("/tmp/dir"));
+        assertEquals("/tmp/dir/file", vfs.realpath("/tmp/dir/file"));
+        assertEquals("/tmp/dir/file", vfs.realpath("/tmp/link/file"));
+    }
 }

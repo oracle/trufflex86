@@ -48,7 +48,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -107,10 +108,12 @@ public class Posix {
     public static final boolean WARN_ON_FILE_DELETE = System.getProperty("posix.warn.delete") != null;
 
     private ThreadGroup threadGroup;
-    private Set<Thread> threads;
+    private Map<Integer, Thread> threads;
 
     private boolean exitGroup;
     private volatile int exitCode;
+
+    private String execfn;
 
     public Posix() {
         fds = new FileDescriptorManager();
@@ -126,7 +129,7 @@ public class Posix {
         sigmask = new Sigset();
 
         threadGroup = new ThreadGroup("POSIX Threads");
-        threads = new HashSet<>();
+        threads = new HashMap<>();
         exitGroup = false;
     }
 
@@ -1329,7 +1332,7 @@ public class Posix {
                 }
             }
         }
-        threadKilled(Thread.currentThread());
+        threadKilled(getTid(), Thread.currentThread());
     }
 
     public void exit(int code) {
@@ -1348,7 +1351,7 @@ public class Posix {
         exitGroup = true;
         Thread currentThread = Thread.currentThread();
         synchronized (threads) {
-            threads.forEach(t -> {
+            threads.forEach((threadId, t) -> {
                 if (t != currentThread) {
                     t.interrupt();
                 }
@@ -1405,25 +1408,41 @@ public class Posix {
         return threadGroup;
     }
 
-    public void addThread(Thread thread) {
+    public void addThread(int id, Thread thread) {
         synchronized (threads) {
-            if (threads.contains(thread)) {
+            if (threads.get(id) != null && threads.get(id) != thread) {
                 throw new IllegalArgumentException("thread already registered");
             }
-            threads.add(thread);
+            threads.put(id, thread);
         }
     }
 
-    public void threadKilled(Thread thread) {
+    public void threadKilled(int id, Thread thread) {
         synchronized (threads) {
-            if (!threads.contains(thread)) {
+            if (threads.get(id) != null && threads.get(id) != thread) {
                 throw new IllegalArgumentException("thread was not registered");
             }
-            threads.remove(thread);
+            threads.remove(id);
         }
+    }
+
+    public boolean hasThread(int id) {
+        return threads.get(id) != null;
+    }
+
+    public Set<Integer> getTids() {
+        return threads.keySet();
     }
 
     public Stack getSigaltstack() {
         return sigaltstack;
+    }
+
+    public void setExecfn(String execfn) {
+        this.execfn = execfn;
+    }
+
+    public String getExecfn() {
+        return execfn;
     }
 }

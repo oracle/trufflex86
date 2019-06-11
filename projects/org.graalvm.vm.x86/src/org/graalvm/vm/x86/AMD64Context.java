@@ -439,10 +439,10 @@ public class AMD64Context {
         return interopPointers;
     }
 
-    public Thread createThread(Runnable runnable) {
+    public Thread createThread(int tid, Runnable runnable) {
         ThreadGroup group = posix.getThreadGroup();
         Thread thread = env.createThread(runnable, null, group);
-        posix.addThread(thread);
+        posix.addThread(tid, thread);
         return thread;
     }
 

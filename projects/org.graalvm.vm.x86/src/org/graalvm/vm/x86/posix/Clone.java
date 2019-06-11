@@ -109,7 +109,7 @@ public class Clone extends AMD64Node {
             memory.executeI32(ctid, tid);
         }
 
-        Thread t = ctx.createThread(() -> {
+        Thread t = ctx.createThread(tid, () -> {
             PosixEnvironment.setTid(tid);
             if (BitTest.test(flags, Sched.CLONE_CHILD_CLEARTID)) {
                 posix.setTidAddress(ctid);

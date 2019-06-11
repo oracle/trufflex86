@@ -40,6 +40,8 @@
  */
 package org.graalvm.vm.posix.vfs;
 
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+
 import java.io.IOException;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
@@ -52,7 +54,9 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.graalvm.vm.posix.api.Errno;
@@ -62,12 +66,12 @@ import org.graalvm.vm.posix.api.io.Stat;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-
 public class NativeDirectory extends VFSDirectory {
     private static final Logger log = Trace.create(NativeDirectory.class);
 
     private final Path absolutePath;
+
+    private Map<String, NativeDirectory> directoryCache = new HashMap<>();
 
     public NativeDirectory(VFS vfs, Path absolutePath) {
         super(vfs, getName(absolutePath), 0, 0, 0755);
@@ -129,7 +133,12 @@ public class NativeDirectory extends VFSDirectory {
         try {
             BasicFileAttributes info = Files.getFileAttributeView(path, BasicFileAttributeView.class, NOFOLLOW_LINKS).readAttributes();
             if (info.isDirectory()) {
-                return new NativeDirectory(this, path);
+                NativeDirectory dir = directoryCache.get(name);
+                if (dir == null) {
+                    dir = new NativeDirectory(this, path);
+                    directoryCache.put(name, dir);
+                }
+                return dir;
             } else if (info.isRegularFile()) {
                 return new NativeFile(this, path);
             } else if (info.isSymbolicLink()) {
@@ -151,7 +160,13 @@ public class NativeDirectory extends VFSDirectory {
             for (Path path : entries) {
                 BasicFileAttributes info = Files.getFileAttributeView(path, BasicFileAttributeView.class, NOFOLLOW_LINKS).readAttributes();
                 if (info.isDirectory()) {
-                    result.add(new NativeDirectory(this, path));
+                    String name = getName(path);
+                    NativeDirectory dir = directoryCache.get(name);
+                    if (dir == null) {
+                        dir = new NativeDirectory(this, path);
+                        directoryCache.put(name, dir);
+                    }
+                    result.add(dir);
                 } else if (info.isRegularFile()) {
                     result.add(new NativeFile(this, path));
                 } else if (info.isSymbolicLink()) {
