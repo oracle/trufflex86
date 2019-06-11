@@ -52,7 +52,7 @@ public class ProcfsRoot extends VFSDirectory {
         if (id != 1) { // only PID 1 exists
             throw new PosixException(Errno.ENOENT);
         }
-        return new ProcfsProcessDirectory(this, Integer.toString(id), 0, 0, 0755, posix);
+        return new ProcfsProcessDirectory(this, Integer.toString(id), 0, 0, 0555, posix);
     }
 
     @Override
@@ -60,9 +60,9 @@ public class ProcfsRoot extends VFSDirectory {
         switch (name) {
             case "self":
                 // only PID 1 exists for now
-                return new ProcfsSymlink(this, "self", 0, 0, 0755, Integer.toString(1));
+                return new ProcfsSymlink(this, "self", 0, 0, 0777, Integer.toString(1));
             case "thread-self":
-                return new ProcfsSymlink(this, "thread-self", 0, 0, 0755, "1/task/" + Integer.toString(Posix.getTid()));
+                return new ProcfsSymlink(this, "thread-self", 0, 0, 0777, "1/task/" + Integer.toString(Posix.getTid()));
             default:
                 try {
                     int tid = Integer.parseInt(name);
@@ -78,8 +78,8 @@ public class ProcfsRoot extends VFSDirectory {
     protected List<VFSEntry> list() throws PosixException {
         List<VFSEntry> result = new ArrayList<>();
         result.add(getProcessDirectory(1));
-        result.add(new ProcfsSymlink(this, "self", 0, 0, 0755, Integer.toString(1)));
-        result.add(new ProcfsSymlink(this, "thread-self", 0, 0, 0755, "1/task/" + Integer.toString(Posix.getTid())));
+        result.add(new ProcfsSymlink(this, "self", 0, 0, 0777, Integer.toString(1)));
+        result.add(new ProcfsSymlink(this, "thread-self", 0, 0, 0777, "1/task/" + Integer.toString(Posix.getTid())));
         return result;
     }
 

@@ -40,9 +40,11 @@
  */
 package org.graalvm.vm.x86.posix;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -134,6 +136,15 @@ public class PosixEnvironment {
             libraries = new TreeMap<>();
         }
         exitGroupAssumption = Truffle.getRuntime().createAssumption("exit_group");
+        posix.setMemoryMapProvider(() -> {
+            try (ByteArrayOutputStream buf = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(buf)) {
+                mem.printMaps(ps);
+                ps.flush();
+                return buf.toByteArray();
+            } catch (IOException e) {
+                return null;
+            }
+        });
     }
 
     public void setStrace(boolean value) {

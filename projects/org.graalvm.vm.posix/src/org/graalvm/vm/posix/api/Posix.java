@@ -114,6 +114,7 @@ public class Posix {
     private volatile int exitCode;
 
     private String execfn;
+    private MemoryMapProvider mapsProvider;
 
     public Posix() {
         fds = new FileDescriptorManager();
@@ -127,6 +128,9 @@ public class Posix {
         socket = new Socket();
         sigaltstack = null;
         sigmask = new Sigset();
+
+        execfn = null;
+        mapsProvider = null;
 
         threadGroup = new ThreadGroup("POSIX Threads");
         threads = new HashMap<>();
@@ -1444,5 +1448,13 @@ public class Posix {
 
     public String getExecfn() {
         return execfn;
+    }
+
+    public void setMemoryMapProvider(MemoryMapProvider provider) {
+        mapsProvider = provider;
+    }
+
+    public MemoryMapProvider getMemoryMapProvider() {
+        return mapsProvider;
     }
 }

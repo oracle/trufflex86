@@ -49,19 +49,23 @@ public class ProcfsProcessDirectory extends VFSDirectory {
     }
 
     private VFSEntry getCwd() {
-        return new ProcfsSymlink(this, "cwd", 0, 0, 0755, getVFS().getcwd());
+        return new ProcfsSymlink(this, "cwd", 0, 0, 0777, getVFS().getcwd());
     }
 
     private VFSEntry getExe() {
-        return new ProcfsSymlink(this, "exe", 0, 0, 0755, posix.getExecfn());
+        return new ProcfsSymlink(this, "exe", 0, 0, 0777, posix.getExecfn());
     }
 
     private VFSEntry getRoot() {
-        return new ProcfsSymlink(this, "root", 0, 0, 0755, "/");
+        return new ProcfsSymlink(this, "root", 0, 0, 0777, "/");
     }
 
     private VFSEntry getTasks() {
-        return new ProcfsTasksDirectory(this, "task", 0, 0, 0755, posix);
+        return new ProcfsTasksDirectory(this, "task", 0, 0, 0555, posix);
+    }
+
+    private VFSEntry getMaps() {
+        return new ProcfsPidMaps(this, "maps", 0, 0, 0444, posix);
     }
 
     @Override
@@ -71,6 +75,8 @@ public class ProcfsProcessDirectory extends VFSDirectory {
                 return getCwd();
             case "exe":
                 return getExe();
+            case "maps":
+                return getMaps();
             case "root":
                 return getRoot();
             case "task":
@@ -85,6 +91,7 @@ public class ProcfsProcessDirectory extends VFSDirectory {
         List<VFSEntry> result = new ArrayList<>();
         result.add(getCwd());
         result.add(getExe());
+        result.add(getMaps());
         result.add(getRoot());
         result.add(getTasks());
         return result;
