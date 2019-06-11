@@ -151,7 +151,7 @@ public class VFS {
                 dir = (VFSDirectory) entry;
             } else if (entry instanceof VFSSymlink) {
                 VFSSymlink link = (VFSSymlink) entry;
-                if (!resolve && (i == parts.length)) {
+                if (!resolve && (i == parts.length) && !path.endsWith("/")) {
                     return (T) link;
                 }
                 // resolve link
@@ -198,6 +198,10 @@ public class VFS {
             }
         }
         String result = normalized.stream().collect(Collectors.joining("/"));
+        // force symlink resolution in paths like symlink/, symlink/., and symlink/..
+        if (path.endsWith("/") || path.endsWith("/.") || path.endsWith("/..")) {
+            result += "/";
+        }
         if (path.startsWith("/")) {
             return "/" + result;
         } else {
