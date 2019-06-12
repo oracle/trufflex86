@@ -339,6 +339,17 @@ public class Vector128 implements Cloneable {
     }
 
     @ExplodeLoop
+    public Vector128 rcpFloat() {
+        float[] a = getFloats();
+        float[] rcp = new float[a.length];
+        CompilerAsserts.partialEvaluationConstant(rcp.length);
+        for (int i = 0; i < rcp.length; i++) {
+            rcp[i] = 1.0f / a[i];
+        }
+        return new Vector128(rcp);
+    }
+
+    @ExplodeLoop
     public Vector128 addDouble(Vector128 x) {
         double[] a = getDoubles();
         double[] b = x.getDoubles();

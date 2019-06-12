@@ -395,6 +395,7 @@ import org.graalvm.vm.x86.isa.instruction.Push.Pushw;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfq;
 import org.graalvm.vm.x86.isa.instruction.Pushf.Pushfw;
 import org.graalvm.vm.x86.isa.instruction.Pxor;
+import org.graalvm.vm.x86.isa.instruction.Rcpps;
 import org.graalvm.vm.x86.isa.instruction.Rdssp.Rdsspq;
 import org.graalvm.vm.x86.isa.instruction.Rdtsc;
 import org.graalvm.vm.x86.isa.instruction.Rep;
@@ -3595,6 +3596,14 @@ public class AMD64InstructionDecoder {
                         Args args = new Args(code, rex, segment, addressOverride);
                         if (sizeOverride) {
                             return new Pxor(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
+                        } else {
+                            return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
+                        }
+                    }
+                    case AMD64Opcode.RCPPS_X_XM: {
+                        Args args = new Args(code, rex, segment, addressOverride);
+                        if (np) {
+                            return new Rcpps(pc, args.getOp(instruction, instructionLength), args.getOperandDecoder());
                         } else {
                             return new IllegalInstruction(pc, args.getOp(instruction, instructionLength));
                         }
