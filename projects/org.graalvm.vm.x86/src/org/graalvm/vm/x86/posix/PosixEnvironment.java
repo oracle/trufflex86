@@ -823,8 +823,10 @@ public class PosixEnvironment {
     }
 
     public void exit_group(int code) {
-        exitGroupAssumption.invalidate();
-        posix.exit_group(code);
+        synchronized (posix) {
+            exitGroupAssumption.invalidate();
+            posix.exit_group(code);
+        }
     }
 
     public int sched_yield() {
@@ -1408,8 +1410,10 @@ public class PosixEnvironment {
 
     @TruffleBoundary
     private void handleExitGroup() {
-        assert posix.isExitGroup();
-        posix.handleExitGroup();
+        synchronized (posix) {
+            assert posix.isExitGroup();
+            posix.handleExitGroup();
+        }
     }
 
     public void handleSignals() {
