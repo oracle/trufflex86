@@ -1507,4 +1507,8 @@ public class Posix {
     public Info getProcessInfo() {
         return processInfo;
     }
+
+    public Uname getUname() {
+        return uname;
+    }
 }

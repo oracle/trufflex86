@@ -7,20 +7,20 @@ import java.util.List;
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
-import org.graalvm.vm.posix.vfs.VFS;
 import org.graalvm.vm.posix.vfs.VFSDirectory;
 import org.graalvm.vm.posix.vfs.VFSEntry;
 import org.graalvm.vm.posix.vfs.VFSFile;
 import org.graalvm.vm.posix.vfs.VFSSymlink;
 
-public class ProcfsRoot extends VFSDirectory {
-    private final Date creationTime;
+public class ProcfsSysDirectory extends VFSDirectory {
     private final Posix posix;
 
-    public ProcfsRoot(VFS vfs, String path, long uid, long gid, long permissions, Posix posix) {
-        super(vfs, path, uid, gid, permissions);
+    private final Date ctime;
+
+    public ProcfsSysDirectory(VFSDirectory parent, String path, long uid, long gid, long permissions, Posix posix) {
+        super(parent, path, uid, gid, permissions);
         this.posix = posix;
-        creationTime = new Date();
+        ctime = new Date();
     }
 
     @Override
@@ -48,30 +48,16 @@ public class ProcfsRoot extends VFSDirectory {
         throw new PosixException(Errno.EPERM);
     }
 
-    private VFSEntry getProcessDirectory(int id) throws PosixException {
-        if (id != 1) { // only PID 1 exists
-            throw new PosixException(Errno.ENOENT);
-        }
-        return new ProcfsProcessDirectory(this, Integer.toString(id), 0, 0, 0555, posix);
+    private VFSEntry getKernel() {
+        return new ProcfsSysKernelDirectory(this, "kernel", 0, 0, 0555, posix);
     }
 
     @Override
     protected VFSEntry getEntry(String name) throws PosixException {
         switch (name) {
-            case "self":
-                // only PID 1 exists for now
-                return new ProcfsSymlink(this, "self", 0, 0, 0777, Integer.toString(1));
-            case "thread-self":
-                return new ProcfsSymlink(this, "thread-self", 0, 0, 0777, "1/task/" + Integer.toString(Posix.getTid()));
-            case "sys":
-                return new ProcfsSysDirectory(this, "sys", 0, 0, 0555, posix);
+            case "kernel":
+                return getKernel();
             default:
-                try {
-                    int tid = Integer.parseInt(name);
-                    return getProcessDirectory(tid);
-                } catch (NumberFormatException e) {
-                    // nothing
-                }
                 throw new PosixException(Errno.ENOENT);
         }
     }
@@ -79,10 +65,7 @@ public class ProcfsRoot extends VFSDirectory {
     @Override
     protected List<VFSEntry> list() throws PosixException {
         List<VFSEntry> result = new ArrayList<>();
-        result.add(getProcessDirectory(1));
-        result.add(new ProcfsSymlink(this, "self", 0, 0, 0777, Integer.toString(1)));
-        result.add(new ProcfsSymlink(this, "thread-self", 0, 0, 0777, "1/task/" + Integer.toString(Posix.getTid())));
-        result.add(new ProcfsSysDirectory(this, "sys", 0, 0, 0555, posix));
+        result.add(getKernel());
         return result;
     }
 
@@ -108,16 +91,16 @@ public class ProcfsRoot extends VFSDirectory {
 
     @Override
     public Date atime() throws PosixException {
-        return creationTime;
+        return ctime;
     }
 
     @Override
     public Date mtime() throws PosixException {
-        return creationTime;
+        return ctime;
     }
 
     @Override
     public Date ctime() throws PosixException {
-        return creationTime;
+        return ctime;
     }
 }
