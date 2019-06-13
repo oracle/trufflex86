@@ -184,6 +184,9 @@ public class Posix {
     }
 
     private int __open(String path, int flags, int mode) throws PosixException {
+        if (fds.count() >= processInfo.rlimit_nofile) {
+            throw new PosixException(Errno.EMFILE);
+        }
         if (path.equals("")) {
             throw new PosixException(Errno.ENOENT);
         }
@@ -834,32 +837,68 @@ public class Posix {
         }
         switch (resource) {
             case Resource.RLIMIT_CORE:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_core;
                 rlp.rlim_max = processInfo.rlimit_core;
                 break;
             case Resource.RLIMIT_CPU:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_cpu;
                 rlp.rlim_max = processInfo.rlimit_cpu;
                 break;
             case Resource.RLIMIT_DATA:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_data;
                 rlp.rlim_max = processInfo.rlimit_data;
                 break;
             case Resource.RLIMIT_FSIZE:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_fsize;
                 rlp.rlim_max = processInfo.rlimit_fsize;
                 break;
             case Resource.RLIMIT_NOFILE:
-                rlp.rlim_cur = fds.count();
+                rlp.rlim_cur = processInfo.rlimit_nofile;
                 rlp.rlim_max = processInfo.rlimit_nofile;
                 break;
             case Resource.RLIMIT_STACK:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_stack;
                 rlp.rlim_max = processInfo.rlimit_stack;
                 break;
             case Resource.RLIMIT_AS:
-                rlp.rlim_cur = 0;
+                rlp.rlim_cur = processInfo.rlimit_as;
                 rlp.rlim_max = processInfo.rlimit_as;
+                break;
+            case Resource.RLIMIT_NICE:
+                rlp.rlim_cur = processInfo.rlimit_nice;
+                rlp.rlim_max = processInfo.rlimit_nice;
+                break;
+            case Resource.RLIMIT_RTPRIO:
+                rlp.rlim_cur = processInfo.rlimit_rtprio;
+                rlp.rlim_max = processInfo.rlimit_rtprio;
+                break;
+            case Resource.RLIMIT_RTTIME:
+                rlp.rlim_cur = processInfo.rlimit_rttime;
+                rlp.rlim_max = processInfo.rlimit_rttime;
+                break;
+            case Resource.RLIMIT_RSS:
+                rlp.rlim_cur = processInfo.rlimit_rss;
+                rlp.rlim_max = processInfo.rlimit_rss;
+                break;
+            case Resource.RLIMIT_LOCKS:
+                rlp.rlim_cur = processInfo.rlimit_locks;
+                rlp.rlim_max = processInfo.rlimit_locks;
+                break;
+            case Resource.RLIMIT_MEMLOCK:
+                rlp.rlim_cur = processInfo.rlimit_memlock;
+                rlp.rlim_max = processInfo.rlimit_memlock;
+                break;
+            case Resource.RLIMIT_MSGQUEUE:
+                rlp.rlim_cur = processInfo.rlimit_msgqueue;
+                rlp.rlim_max = processInfo.rlimit_msgqueue;
+                break;
+            case Resource.RLIMIT_NPROC:
+                rlp.rlim_cur = processInfo.rlimit_nproc;
+                rlp.rlim_max = processInfo.rlimit_nproc;
+                break;
+            case Resource.RLIMIT_SIGPENDING:
+                rlp.rlim_cur = processInfo.rlimit_sigpending;
+                rlp.rlim_max = processInfo.rlimit_sigpending;
                 break;
             default:
                 throw new PosixException(Errno.EINVAL);
@@ -1229,6 +1268,9 @@ public class Posix {
         if (strace) {
             log.log(Levels.INFO, () -> String.format("socket(%s, %s, %s)", Socket.addressFamily(domain), Socket.type(type), Socket.protocol(domain, protocol)));
         }
+        if (fds.count() >= processInfo.rlimit_nofile) {
+            throw new PosixException(Errno.EMFILE);
+        }
         Stream stream = socket.socket(domain, type, protocol);
         int fd = fds.allocate(stream);
         return fd;
@@ -1438,6 +1480,10 @@ public class Posix {
         return threads.keySet();
     }
 
+    public int getThreadCount() {
+        return threads.size();
+    }
+
     public Stack getSigaltstack() {
         return sigaltstack;
     }
@@ -1456,5 +1502,9 @@ public class Posix {
 
     public MemoryMapProvider getMemoryMapProvider() {
         return mapsProvider;
+    }
+
+    public Info getProcessInfo() {
+        return processInfo;
     }
 }

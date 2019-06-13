@@ -99,6 +99,10 @@ public class Clone extends AMD64Node {
         AMD64Context ctx = ctxref.get();
         CallTarget threadMain = ctx.getInterpreter();
         PosixEnvironment posix = ctx.getPosixEnvironment();
+        if (posix.getThreadCount() >= posix.getPosix().getProcessInfo().rlimit_nproc) {
+            throw new SyscallException(Errno.EAGAIN);
+        }
+
         int tid = PosixEnvironment.allocateTid();
 
         if (BitTest.test(flags, Sched.CLONE_PARENT_SETTID)) {

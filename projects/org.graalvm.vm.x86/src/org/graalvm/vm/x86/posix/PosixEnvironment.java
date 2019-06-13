@@ -62,6 +62,7 @@ import org.graalvm.vm.memory.exception.SegmentationViolation;
 import org.graalvm.vm.posix.api.BytePosixPointer;
 import org.graalvm.vm.posix.api.Dirent;
 import org.graalvm.vm.posix.api.Errno;
+import org.graalvm.vm.posix.api.Info;
 import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.PosixPointer;
@@ -96,6 +97,7 @@ import org.graalvm.vm.util.HexFormatter;
 import org.graalvm.vm.util.io.Endianess;
 import org.graalvm.vm.util.log.Levels;
 import org.graalvm.vm.util.log.Trace;
+import org.graalvm.vm.x86.AMD64;
 import org.graalvm.vm.x86.Options;
 import org.graalvm.vm.x86.SymbolResolver;
 import org.graalvm.vm.x86.node.debug.trace.ExecutionTraceWriter;
@@ -145,6 +147,16 @@ public class PosixEnvironment {
                 return null;
             }
         });
+
+        // set rlimits
+        Info processInfo = posix.getProcessInfo();
+        processInfo.rlimit_stack = AMD64.STACK_SIZE;
+        processInfo.rlimit_nice = 0;
+        processInfo.rlimit_rtprio = 0;
+        processInfo.rlimit_nofile = 1024;
+        processInfo.rlimit_msgqueue = 819200;
+        processInfo.rlimit_nproc = 65535;
+        processInfo.rlimit_memlock = 65536;
     }
 
     public void setStrace(boolean value) {
@@ -174,6 +186,10 @@ public class PosixEnvironment {
 
     public static void setTid(int newtid) {
         Posix.setTid(newtid);
+    }
+
+    public int getThreadCount() {
+        return posix.getThreadCount();
     }
 
     public Symbol getSymbol(long pc) {
