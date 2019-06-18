@@ -139,9 +139,9 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
             jar_distributions=['vmx86:VMX86_LAUNCHER'],
             main_class='org.graalvm.vm.x86.launcher.AMD64Launcher',
             build_args=[
-                '--language:amd64',
                 '-H:CLibraryPath=<path:VMX86_GRAALVM_SUPPORT>/clibraries/<os>-<arch>'
-            ]
+            ],
+            language='amd64'
         )
     ],
 ))
