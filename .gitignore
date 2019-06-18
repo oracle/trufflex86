@@ -32,3 +32,4 @@ projects/*/\bin
 projects/*/\.checkstyle
 projects/*/*.iml
 projects/*/\.factorypath
+/.metadata/
