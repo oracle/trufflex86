@@ -40,7 +40,14 @@
  */
 package org.graalvm.vm.posix.api;
 
+import java.util.logging.Logger;
+
+import org.graalvm.vm.util.log.Levels;
+import org.graalvm.vm.util.log.Trace;
+
 public class Clock {
+    private static final Logger log = Trace.create(Clock.class);
+
     // @formatter:off
     public static final int CLOCK_REALTIME                = 0;
     public static final int CLOCK_MONOTONIC               = 1;
@@ -56,8 +63,6 @@ public class Clock {
     public static final int CLOCK_TAI                     = 11;
     // @formatter:on
 
-    private long startTime = System.nanoTime();
-
     private static final String[] CLOCK_NAMES = {
                     /* 00 */ "CLOCK_REALTIME",
                     /* 01 */ "CLOCK_MONOTONIC",
@@ -72,6 +77,25 @@ public class Clock {
                     /* 10 */ "CLOCK_SGI_CYCLE",
                     /* 11 */ "CLOCK_TAI"
     };
+
+    private final double timeScale = getTimeScaleFromProperty();
+
+    private long startTime = System.nanoTime();
+    private long startUnixTime = System.currentTimeMillis();
+
+    private static double getTimeScaleFromProperty() {
+        String scale = System.getProperty("posix.clock.scale");
+        if (scale != null) {
+            try {
+                return Double.parseDouble(scale);
+            } catch (NumberFormatException e) {
+                log.log(Levels.WARNING, "Invalid value for time scale", e);
+                return 1.0;
+            }
+        } else {
+            return 1.0;
+        }
+    }
 
     public static String getClockName(int clk_id) {
         if (clk_id >= 0 && clk_id < CLOCK_NAMES.length) {
@@ -105,6 +129,9 @@ public class Clock {
             case CLOCK_REALTIME:
             case CLOCK_REALTIME_COARSE: {
                 long t = System.currentTimeMillis();
+                if (timeScale != 1.0) {
+                    t = (long) ((t - startUnixTime) * timeScale + startUnixTime);
+                }
                 tp.tv_sec = t / 1000;
                 tp.tv_nsec = (t % 1000) * 1000000;
                 break;
@@ -112,6 +139,9 @@ public class Clock {
             case CLOCK_MONOTONIC:
             case CLOCK_MONOTONIC_COARSE: {
                 long t = System.nanoTime();
+                if (timeScale != 1.0) {
+                    t = (long) ((t - startTime) * timeScale + startTime);
+                }
                 tp.tv_sec = t / 1000000000L;
                 tp.tv_nsec = (t % 1000000000L);
                 break;
@@ -119,6 +149,9 @@ public class Clock {
             case CLOCK_PROCESS_CPUTIME_ID:
             case CLOCK_THREAD_CPUTIME_ID: {
                 long t = System.nanoTime() - startTime;
+                if (timeScale != 1.0) {
+                    t = (long) ((t - startTime) * timeScale + startTime);
+                }
                 tp.tv_sec = t / 1000000000L;
                 tp.tv_nsec = (t % 1000000000L);
                 break;
@@ -131,6 +164,9 @@ public class Clock {
 
     public int gettimeofday(Timeval tp) {
         long t = System.currentTimeMillis();
+        if (timeScale != 1.0) {
+            t = (long) ((t - startUnixTime) * timeScale + startUnixTime);
+        }
         tp.tv_sec = t / 1000;
         tp.tv_usec = (t % 1000) * 1000;
         return 0;
