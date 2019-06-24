@@ -45,6 +45,12 @@ public class Times {
 
     private static final long TIMES_FACTOR = 1000000 / Time.CLOCKS_PER_SEC;
 
+    private final Clock clock;
+
+    public Times(Clock clock) {
+        this.clock = clock;
+    }
+
     public long times(Tms buffer) throws PosixException {
         if (buffer == null) {
             throw new PosixException(Errno.EFAULT);
@@ -55,7 +61,7 @@ public class Times {
         buffer.tms_cutime = 0;
         buffer.tms_cstime = 0;
 
-        long t = System.currentTimeMillis();
+        long t = clock.getTimestamp(System.currentTimeMillis());
         return t / TIMES_FACTOR;
     }
 }

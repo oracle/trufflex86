@@ -105,6 +105,18 @@ public class Clock {
         }
     }
 
+    public long getTimestamp(long timestamp) {
+        if (timeScale != 1.0) {
+            return (long) ((timestamp - startUnixTime) * timeScale + startUnixTime);
+        } else {
+            return timestamp;
+        }
+    }
+
+    public long getTimestamp() {
+        return getTimestamp(System.currentTimeMillis());
+    }
+
     public int clock_getres(int clk_id, Timespec tp) throws PosixException {
         switch (clk_id) {
             case CLOCK_REALTIME:
@@ -128,10 +140,7 @@ public class Clock {
         switch (clk_id) {
             case CLOCK_REALTIME:
             case CLOCK_REALTIME_COARSE: {
-                long t = System.currentTimeMillis();
-                if (timeScale != 1.0) {
-                    t = (long) ((t - startUnixTime) * timeScale + startUnixTime);
-                }
+                long t = getTimestamp();
                 tp.tv_sec = t / 1000;
                 tp.tv_nsec = (t % 1000) * 1000000;
                 break;
@@ -163,10 +172,7 @@ public class Clock {
     }
 
     public int gettimeofday(Timeval tp) {
-        long t = System.currentTimeMillis();
-        if (timeScale != 1.0) {
-            t = (long) ((t - startUnixTime) * timeScale + startUnixTime);
-        }
+        long t = getTimestamp();
         tp.tv_sec = t / 1000;
         tp.tv_usec = (t % 1000) * 1000;
         return 0;

@@ -122,7 +122,7 @@ public class Posix {
         uname = new Uname();
         vfs = new VFS();
         clock = new Clock();
-        times = new Times();
+        times = new Times(clock);
         linux = new Linux();
         processInfo = new Info();
         socket = new Socket();
