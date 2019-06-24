@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
+import org.graalvm.vm.memory.MemoryOptions;
 import org.graalvm.vm.memory.hardware.MMU;
 import org.graalvm.vm.util.log.Trace;
 import org.graalvm.vm.x86.node.InterpreterThreadRootNode;
@@ -69,8 +70,11 @@ public abstract class AMD64Language extends TruffleLanguage<AMD64Context> {
     @Override
     protected AMD64Context createContext(Env env) {
         try {
-            // try to load libmemory from language home
-            MMU.loadLibrary(getLanguageHome() + "/libmemory.so");
+            // no need to load native extension if Java memory is used
+            if (!MemoryOptions.MEM_VIRTUAL.get()) {
+                // try to load libmemory from language home
+                MMU.loadLibrary(getLanguageHome() + "/libmemory.so");
+            }
         } catch (UnsatisfiedLinkError e) {
             // ignore
         }
