@@ -280,9 +280,9 @@ public class Socket {
     static {
         pf = new HashMap<>();
         pf.put(PF_UNSPEC, "PF_UNSPEC");
-        pf.put(PF_LOCAL, "PF_LOCAL");
+        // pf.put(PF_LOCAL, "PF_LOCAL");
         pf.put(PF_UNIX, "PF_UNIX");
-        pf.put(PF_FILE, "PF_FILE");
+        // pf.put(PF_FILE, "PF_FILE");
         pf.put(PF_INET, "PF_INET");
         pf.put(PF_AX25, "PF_AX25");
         pf.put(PF_IPX, "PF_IPX");
@@ -329,9 +329,9 @@ public class Socket {
 
         af = new HashMap<>();
         af.put(AF_UNSPEC, "AF_UNSPEC");
-        af.put(AF_LOCAL, "AF_LOCAL");
+        // af.put(AF_LOCAL, "AF_LOCAL");
         af.put(AF_UNIX, "AF_UNIX");
-        af.put(AF_FILE, "AF_FILE");
+        // af.put(AF_FILE, "AF_FILE");
         af.put(AF_INET, "AF_INET");
         af.put(AF_AX25, "AF_AX25");
         af.put(AF_IPX, "AF_IPX");
