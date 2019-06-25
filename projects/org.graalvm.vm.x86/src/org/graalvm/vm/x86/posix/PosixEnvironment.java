@@ -63,11 +63,13 @@ import org.graalvm.vm.posix.api.BytePosixPointer;
 import org.graalvm.vm.posix.api.Dirent;
 import org.graalvm.vm.posix.api.Errno;
 import org.graalvm.vm.posix.api.Info;
+import org.graalvm.vm.posix.api.Itimerspec;
 import org.graalvm.vm.posix.api.Posix;
 import org.graalvm.vm.posix.api.PosixException;
 import org.graalvm.vm.posix.api.PosixPointer;
 import org.graalvm.vm.posix.api.Rlimit;
 import org.graalvm.vm.posix.api.Sigaction;
+import org.graalvm.vm.posix.api.Sigevent;
 import org.graalvm.vm.posix.api.Sigset;
 import org.graalvm.vm.posix.api.Stack;
 import org.graalvm.vm.posix.api.Timespec;
@@ -898,7 +900,7 @@ public class PosixEnvironment {
                         page = mem.allocate(mem.roundToPageSize(length));
                     }
                 } catch (OutOfMemoryError e) {
-                    throw new SyscallException(Errno.ENOMEM);
+                    throw new PosixException(Errno.ENOMEM);
                 }
                 page.x = BitTest.test(prot, Mman.PROT_EXEC);
                 logMmap(addr, length, pr, fl, fildes, offset, page.base);
@@ -1056,6 +1058,56 @@ public class PosixEnvironment {
         } catch (PosixException e) {
             if (strace) {
                 log.log(Level.INFO, "nanosleep failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int timer_create(int clockid, long evp, long timerid) throws SyscallException {
+        try {
+            Sigevent ev;
+            if (evp == 0) {
+                ev = null;
+            } else {
+                ev = new Sigevent();
+                ev.read64(posixPointer(evp));
+            }
+            return posix.timer_create(clockid, ev, posixPointer(timerid));
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "timer_create failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int timer_settime(int timerid, int flags, long new_value, long old_value) throws SyscallException {
+        try {
+            Itimerspec newv = new Itimerspec();
+            newv.read64(posixPointer(new_value));
+            Itimerspec oldv = null;
+            if (old_value != 0) {
+                oldv = new Itimerspec();
+            }
+            int result = posix.timer_settime(timerid, flags, newv, oldv);
+            if (oldv != null) {
+                oldv.write64(posixPointer(old_value));
+            }
+            return result;
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "timer_settime failed: " + Errno.toString(e.getErrno()));
+            }
+            throw new SyscallException(e.getErrno());
+        }
+    }
+
+    public int timer_delete(int timerid) throws SyscallException {
+        try {
+            return posix.timer_delete(timerid);
+        } catch (PosixException e) {
+            if (strace) {
+                log.log(Level.INFO, "timer_delete failed: " + Errno.toString(e.getErrno()));
             }
             throw new SyscallException(e.getErrno());
         }

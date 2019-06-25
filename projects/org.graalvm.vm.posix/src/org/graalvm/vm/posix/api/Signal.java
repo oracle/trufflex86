@@ -91,6 +91,11 @@ public class Signal {
     public static final int SIG_BLOCK     = 0; /* for blocking signals */
     public static final int SIG_UNBLOCK   = 1; /* for unblocking signals */
     public static final int SIG_SETMASK   = 2; /* for setting the signal mask */
+
+    public static final int SIGEV_SIGNAL    = 0; /* notify via signal */
+    public static final int SIGEV_NONE      = 1; /* other notification: meaningless */
+    public static final int SIGEV_THREAD    = 2; /* deliver via thread creation */
+    public static final int SIGEV_THREAD_ID = 4; /* deliver to thread */
     // @formatter:on
 
     private static final String[] SIGNALS = {
@@ -147,6 +152,21 @@ public class Signal {
             return SIGNALS[signal];
         } else {
             return Integer.toString(signal);
+        }
+    }
+
+    public static String sigev(int sigev_notify) {
+        switch (sigev_notify) {
+            case SIGEV_SIGNAL:
+                return "SIGEV_SIGNAL";
+            case SIGEV_NONE:
+                return "SIGEV_NONE";
+            case SIGEV_THREAD:
+                return "SIGEV_THREAD";
+            case SIGEV_THREAD_ID:
+                return "SIGEV_THREAD_ID";
+            default:
+                return Integer.toString(sigev_notify);
         }
     }
 }

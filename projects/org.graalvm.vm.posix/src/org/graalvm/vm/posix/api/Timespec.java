@@ -60,8 +60,17 @@ public class Timespec implements Struct {
         tv_nsec = (msec % 1000) * 1000000;
     }
 
+    public Timespec(Timespec ts) {
+        copyFrom(ts);
+    }
+
     public long toMillis() {
         return tv_sec * 1000 + (tv_nsec / 1000000);
+    }
+
+    public void copyFrom(Timespec ts) {
+        tv_sec = ts.tv_sec;
+        tv_nsec = ts.tv_nsec;
     }
 
     @Override

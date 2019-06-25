@@ -97,6 +97,7 @@ public class Posix {
     private final Linux linux;
     private final Info processInfo;
     private final Socket socket;
+    private final Timers timers;
 
     private Stack sigaltstack;
 
@@ -128,6 +129,7 @@ public class Posix {
         socket = new Socket();
         sigaltstack = null;
         sigmask = new Sigset();
+        timers = new Timers();
 
         execfn = null;
         mapsProvider = null;
@@ -149,6 +151,10 @@ public class Posix {
 
     private static String str(String s) {
         return s == null ? "NULL" : '"' + s + '"';
+    }
+
+    private static String str(Object o) {
+        return o == null ? "NULL" : o.toString();
     }
 
     public VFS getVFS() {
@@ -764,6 +770,54 @@ public class Posix {
             throw new PosixException(Errno.EINTR);
             // return -1;
         }
+    }
+
+    public int timer_create(int clockid, Sigevent evp, PosixPointer timerid) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("timer_create(%s, %s, %s)", Clock.getClockName(clockid), evp, timerid));
+        }
+        switch (clockid) {
+            case Clock.CLOCK_MONOTONIC:
+            case Clock.CLOCK_REALTIME:
+                break;
+            default:
+                throw new PosixException(Errno.EINVAL);
+        }
+        // TODO: create timer
+        int id = timers.create(new Timer(clockid, evp));
+        timerid.setI32(id);
+        return 0;
+    }
+
+    public int timer_settime(int timerid, int flags, Itimerspec new_value, Itimerspec old_value) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("timer_settime(%d, %s, %s, %s)", timerid, Time.timerFlags(flags), str(new_value), str(old_value)));
+        }
+
+        if (new_value == null) {
+            throw new PosixException(Errno.EFAULT);
+        }
+
+        Timer timer = timers.get(timerid);
+
+        if (old_value != null) {
+            old_value.it_interval.copyFrom(timer.getInterval());
+            old_value.it_value.copyFrom(timer.getValue());
+        }
+
+        timer.setInterval(new_value.it_interval);
+        timer.setValue(new_value.it_value);
+
+        return 0;
+    }
+
+    public int timer_delete(int timerid) throws PosixException {
+        if (strace) {
+            log.log(Levels.INFO, () -> String.format("timer_delete(%d)", timerid));
+        }
+
+        timers.delete(timerid);
+        return 0;
     }
 
     // FIXME: implement properly

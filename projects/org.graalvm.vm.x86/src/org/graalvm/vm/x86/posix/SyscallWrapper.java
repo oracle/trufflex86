@@ -315,6 +315,12 @@ public class SyscallWrapper extends AMD64Node {
                 return posix.getdents64((int) a1, a2, (int) a3);
             case Syscalls.SYS_set_tid_address:
                 return posix.set_tid_address(a1);
+            case Syscalls.SYS_timer_create:
+                return posix.timer_create((int) a1, a2, a3);
+            case Syscalls.SYS_timer_delete:
+                return posix.timer_delete((int) a1);
+            case Syscalls.SYS_timer_settime:
+                return posix.timer_settime((int) a1, (int) a2, a3, a4);
             case Syscalls.SYS_clock_gettime:
                 return posix.clock_gettime((int) a1, a2);
             case Syscalls.SYS_clock_getres:

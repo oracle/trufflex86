@@ -44,6 +44,7 @@ import static org.graalvm.vm.util.HexFormatter.tohex;
 
 import org.graalvm.vm.posix.api.Clock;
 import org.graalvm.vm.posix.api.Signal;
+import org.graalvm.vm.posix.api.Time;
 import org.graalvm.vm.posix.api.Unistd;
 import org.graalvm.vm.posix.api.io.Fcntl;
 import org.graalvm.vm.posix.api.io.Ioctls;
@@ -237,6 +238,12 @@ public class SyscallDecoder {
                 return "getdents64(" + a1 + ", 0x" + hex(a2) + ", " + a3 + ")";
             case Syscalls.SYS_set_tid_address:
                 return "set_tid_address(0x" + hex(a1) + ")";
+            case Syscalls.SYS_timer_create:
+                return "timer_create(" + Clock.getClockName((int) a1) + ", 0x" + hex(a2) + ", 0x" + hex(a3) + ")";
+            case Syscalls.SYS_timer_settime:
+                return "timer_settime(" + a1 + ", " + Time.timerFlags((int) a2) + ", 0x" + hex(a3) + ", 0x" + hex(a4) + ")";
+            case Syscalls.SYS_timer_delete:
+                return "timer_delete(" + a1 + ")";
             case Syscalls.SYS_clock_gettime:
                 return "clock_gettime(" + Clock.getClockName((int) a1) + ", 0x" + hex(a2) + ")";
             case Syscalls.SYS_clock_getres:
