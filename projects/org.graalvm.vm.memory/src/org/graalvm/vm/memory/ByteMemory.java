@@ -46,12 +46,20 @@ import org.graalvm.vm.util.io.Endianess;
 public class ByteMemory extends Memory {
     private byte[] data;
 
+    private static byte[] newArray(long size) {
+        if ((int) size != size) {
+            throw new OutOfMemoryError();
+        } else {
+            return new byte[(int) size];
+        }
+    }
+
     public ByteMemory(long size) {
         this(size, true);
     }
 
     public ByteMemory(long size, boolean isBE) {
-        this(new byte[(int) size], isBE);
+        this(newArray(size), isBE);
     }
 
     public ByteMemory(byte[] data) {
