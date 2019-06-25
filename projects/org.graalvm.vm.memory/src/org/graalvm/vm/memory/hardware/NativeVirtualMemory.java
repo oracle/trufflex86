@@ -378,7 +378,7 @@ public class NativeVirtualMemory extends VirtualMemory {
             MMU.mmap(start, size, page.r, true, page.x, true, true, false, -1, 0);
         } catch (PosixException e) {
             CompilerDirectives.transferToInterpreter();
-            log.log(Levels.ERROR, "mmap failed: " + Errno.toString(e.getErrno()));
+            log.log(Levels.WARNING, "mmap failed: " + Errno.toString(e.getErrno()));
             throw new OutOfMemoryError("mmap failed: " + Errno.toString(e.getErrno()));
         }
 
@@ -427,7 +427,7 @@ public class NativeVirtualMemory extends VirtualMemory {
             MMU.mprotect(start, size, page.r, page.w, page.x);
         } catch (PosixException e) {
             CompilerDirectives.transferToInterpreter();
-            log.log(Levels.ERROR, "mprotect failed: " + Errno.toString(e.getErrno()));
+            log.log(Levels.WARNING, "mprotect failed: " + Errno.toString(e.getErrno()));
             throw new OutOfMemoryError("mprotect failed: " + Errno.toString(e.getErrno()));
         }
 
