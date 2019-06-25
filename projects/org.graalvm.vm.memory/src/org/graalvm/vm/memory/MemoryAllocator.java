@@ -161,14 +161,23 @@ public class MemoryAllocator {
 
     private Block find(long addr) {
         for (Block b = memory; b != null; b = b.nextBlock) {
+            assert (b.nextBlock == null) || (b.nextBlock.base == b.base + b.size) : String.format("0x%x vs 0x%x", b.base + b.size, b.nextBlock.base);
             if (b.base == addr || b.contains(addr)) {
                 return b;
             }
         }
+        assert false : String.format("BUG! 0x%x [%x-%x]", addr, memoryBase, memoryBase + memorySize);
         return null;
     }
 
     public synchronized long allocat(long addr, long size) {
+        if (Long.compareUnsigned(addr, memoryBase) < 0) {
+            return addr;
+        }
+        if (Long.compareUnsigned(addr, memoryBase + memorySize) >= 0) {
+            return addr;
+        }
+
         check(addr);
         check(size);
         Block blk = find(addr);
@@ -369,6 +378,13 @@ public class MemoryAllocator {
     }
 
     public synchronized void free(long addr) {
+        if (Long.compareUnsigned(addr, memoryBase) < 0) {
+            return;
+        }
+        if (Long.compareUnsigned(addr, memoryBase + memorySize) >= 0) {
+            return;
+        }
+
         check(addr);
         Block blk = find(addr);
         assert blk.base == addr;

@@ -365,10 +365,6 @@ public class NativeVirtualMemory extends VirtualMemory {
         } else if (!(mem instanceof ByteMemory) && !(mem instanceof NullMemory)) {
             throw new IllegalArgumentException("not a ByteMemory");
         }
-        boolean ok = Long.compareUnsigned(page.end, pointerBase) <= 0 || Long.compareUnsigned(page.end, pointerEnd) > 0;
-        if (!ok) {
-            allocator.allocat(page.base, page.size);
-        }
         long addr = addr(page.base);
         long phy = phy(addr);
         long start = pageStart(phy);
@@ -380,6 +376,12 @@ public class NativeVirtualMemory extends VirtualMemory {
             CompilerDirectives.transferToInterpreter();
             log.log(Levels.WARNING, "mmap failed: " + Errno.toString(e.getErrno()));
             throw new OutOfMemoryError("mmap failed: " + Errno.toString(e.getErrno()));
+        }
+
+        // update allocator here, otherwise failed mmap cannot be rolled back in allocator
+        boolean ok = Long.compareUnsigned(page.end, pointerBase) <= 0 || Long.compareUnsigned(page.end, pointerEnd) > 0;
+        if (!ok) {
+            allocator.allocat(page.base, page.size);
         }
 
         // System.out.printf("ADD: [0x%x-0x%x:0x%x] (0x%x-0x%x)\n", page.base, page.end, page.size,
