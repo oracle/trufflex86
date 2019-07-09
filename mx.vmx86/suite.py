@@ -78,7 +78,6 @@ suite = {
   "libraries" : {
     "XED" : {
       # source code: https://github.com/intelxed/xed
-      "path" : "lib/xed.tar.gz",
       "urls" : [
         "https://orakel.has.enough.coffee/repo/xed-install-base-2018-06-29-lin-x86-64.tar.gz"
       ],
@@ -102,6 +101,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.svm" : {
@@ -114,6 +114,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.native" : {
@@ -136,6 +137,7 @@ suite = {
         "OS" : "<os>",
         "ARCH" : "<arch>"
       },
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86" : {
@@ -149,6 +151,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.nfi" : {
@@ -161,6 +164,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.launcher" : {
@@ -172,6 +176,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.trcview" : {
@@ -182,112 +187,21 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.testcases.c" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "testProject" : True,
-    },
-
-    "org.graalvm.vm.x86.testcases.sulong.asm" : {
-      "subDir" : "tests",
-      "class" : "VMX86TestSuite",
-      "testProject" : True,
-    },
-
-    "org.graalvm.vm.x86.testcases.gcc" : {
-      "subDir" : "tests",
-      "class" : "VMX86TestSuite",
-      "testProject" : True,
-    },
-
-    "benchmarksgame" : {
-      "subDir" : "tests",
-      "native" : True,
-      "vpath" : True,
-      "results" : [
-        "bin/binarytrees.gcc",
-        "bin/binarytrees.gcc-2",
-        "bin/binarytrees.gpp-2",
-        "bin/binarytrees.gpp-6",
-        "bin/fasta.cint",
-        "bin/fasta.gcc",
-        "bin/fasta.gcc-4",
-        "bin/fasta.gcc-5",
-        "bin/fasta.gpp",
-        "bin/fasta.gpp-2",
-        "bin/fasta.gpp-3",
-        "bin/fasta.gpp-4",
-        "bin/fastaredux.gcc-2",
-        "bin/fastaredux.gcc-3",
-        "bin/fastaredux.gcc-5",
-        "bin/fastaredux.gpp",
-        "bin/fastaredux.gpp-2",
-        "bin/fastaredux.gpp-5",
-        "bin/fannkuchredux.cint",
-        "bin/fannkuchredux.gcc",
-        "bin/fannkuchredux.gcc-3",
-        "bin/fannkuchredux.gpp-3",
-        "bin/mandelbrot.cint",
-        "bin/mandelbrot.gcc-2",
-        "bin/mandelbrot.gcc-4",
-        "bin/mandelbrot.gcc-8",
-        "bin/mandelbrot.gcc-9",
-        "bin/mandelbrot.gpp",
-        "bin/mandelbrot.gpp-2",
-        "bin/mandelbrot.gpp-3",
-        "bin/mandelbrot.gpp-5",
-        "bin/mandelbrot.gpp-6",
-        "bin/mandelbrot.gpp-7",
-        "bin/mandelbrot.gpp-8",
-        "bin/mandelbrot.gpp-9",
-        "bin/spectralnorm.cint",
-        "bin/spectralnorm.gcc",
-        "bin/spectralnorm.gcc-2",
-        "bin/spectralnorm.gcc-3",
-        "bin/spectralnorm.gcc-5",
-        "bin/spectralnorm.gpp",
-        "bin/pidigits.cint-4",
-        "bin/pidigits.gcc",
-        "bin/pidigits.gcc-4",
-        "bin/nbody.cint",
-        "bin/nbody.gcc",
-        "bin/nbody.gcc-2",
-        "bin/nbody.gcc-3",
-        "bin/nbody.gcc-4",
-        "bin/nbody.gcc-6",
-        "bin/nbody.gpp",
-        "bin/nbody.gpp-2",
-        "bin/nbody.gpp-3",
-        "bin/nbody.gpp-5",
-        "bin/nbody.gpp-6",
-        "bin/nbody.gpp-7",
-        "bin/nbody.gpp-8",
-        "bin/meteor.cint",
-        "bin/meteor.gcc",
-        "bin/meteor.gpp",
-        "bin/meteor.gpp-2",
-        "bin/meteor.gpp-3",
-        "bin/meteor.gpp-4",
-        "bin/meteor.gpp-5",
-        "bin/meteor.gpp-6",
-        "bin/knucleotide.cint",
-        "bin/knucleotide.gcc-8",
-        "bin/regexdna.cint-2",
-        "bin/regexdna.gcc-2",
-        "bin/revcomp.cint-2",
-        "bin/revcomp.gcc-4",
-        "bin/revcomp.gpp-3",
-        "bin/revcomp.gpp-5"
-      ],
-      "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.test" : {
@@ -297,14 +211,12 @@ suite = {
         "org.graalvm.vm.x86",
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
-        "org.graalvm.vm.x86.testcases.sulong.asm",
-        "org.graalvm.vm.x86.testcases.gcc",
-        "benchmarksgame",
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.test" : {
@@ -317,6 +229,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.emu" : {
@@ -330,6 +243,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.emu.native" : {
@@ -348,6 +262,7 @@ suite = {
         "OS" : "<os>",
       },
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.nfi.native" : {
@@ -361,34 +276,7 @@ suite = {
         "LIBNFI" : "<lib:nfi>",
         "OS" : "<os>",
       },
-    },
-
-    "org.graalvm.vm.x86.nfi.test.native" : {
-      "subDir" : "projects",
-      "native" : True,
-      "vpath" : True,
-      "results" : [
-        "bin/<lib:test>",
-      ],
-      "buildEnv" : {
-        "LIBTEST" : "<lib:test>",
-        "OS" : "<os>",
-      },
-      "testProject" : True,
-    },
-
-    "org.graalvm.vm.x86.nfi.test" : {
-      "subDir" : "projects",
-      "sourceDirs" : ["src"],
-      "dependencies" : [
-        "org.graalvm.vm.x86.nfi",
-        "truffle:TRUFFLE_TCK",
-        "mx:JUNIT",
-      ],
-      "javaCompliance" : "1.8+",
-      "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
-      "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.util" : {
@@ -399,6 +287,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.math" : {
@@ -409,6 +298,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.posix" : {
@@ -420,6 +310,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.util.test" : {
@@ -431,6 +322,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.math.test" : {
@@ -442,6 +334,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.posix.test" : {
@@ -453,6 +346,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
   },
 
@@ -468,7 +362,8 @@ suite = {
         "CORE",
         "POSIX",
         "truffle:TRUFFLE_API",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_MEMORY_NATIVE" : {
@@ -478,6 +373,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.memory.native"
       ],
+      "license" : "UPL",
     },
 
     "VM_MEMORY_SVM" : {
@@ -491,6 +387,7 @@ suite = {
       "distDependencies" : [
         "VM"
       ],
+      "license" : "UPL",
     },
 
     "VM_NFI" : {
@@ -507,7 +404,8 @@ suite = {
         "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_NFI_NATIVE" : {
@@ -517,6 +415,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86.nfi.native"
       ],
+      "license" : "UPL",
     },
 
     "VMX86_LAUNCHER" : {
@@ -529,6 +428,7 @@ suite = {
         "CORE",
         "sdk:LAUNCHER_COMMON",
       ],
+      "license" : "UPL",
     },
 
     "VMX86_TRCVIEW" : {
@@ -547,7 +447,8 @@ suite = {
         "sdk:GRAAL_SDK",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_TESTCASES" : {
@@ -557,14 +458,11 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86.testcases.asm",
         "org.graalvm.vm.x86.testcases.c",
-        "org.graalvm.vm.x86.testcases.sulong.asm",
-        "benchmarksgame",
-        "org.graalvm.vm.x86.testcases.gcc",
-        "org.graalvm.vm.x86.nfi.test.native"
       ],
       "javaProperties" : {
         "library.path" : "<path:VM_MEMORY_NATIVE>/<lib:memory>"
       },
+      "license" : "UPL",
     },
 
     "VM_TEST" : {
@@ -573,7 +471,6 @@ suite = {
       "sourcesPath" : "build/vmx86_test.src.zip",
       "dependencies" : [
         "org.graalvm.vm.x86.test",
-        "org.graalvm.vm.x86.nfi.test",
         "org.graalvm.vm.memory.test"
       ],
       "distDependencies" : [
@@ -593,6 +490,7 @@ suite = {
       "javaProperties" : {
         "vmx86test.testSuitePath" : "<path:VM_TESTCASES>"
       },
+      "license" : "UPL",
     },
 
     "VM_EMU86_NATIVE" : {
@@ -602,6 +500,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86.emu.native"
       ],
+      "license" : "UPL",
     },
 
     "VM_EMU86" : {
@@ -616,6 +515,7 @@ suite = {
         "CORE",
         "POSIX"
       ],
+      "license" : "UPL",
     },
 
     "VMX86_GRAALVM_SUPPORT" : {
@@ -627,6 +527,7 @@ suite = {
         "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:vmx86:VM_NFI_NATIVE/<lib:nfi>"],
         "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a", "file:projects/org.graalvm.vm.memory.native/include"],
       },
+      "license" : "UPL",
     },
 
     "CORE" : {
@@ -639,7 +540,8 @@ suite = {
       ],
       "distDependencies" : [
         "truffle:TRUFFLE_API",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "POSIX" : {
@@ -652,7 +554,8 @@ suite = {
       "distDependencies" : [
         "CORE",
         "truffle:TRUFFLE_API"
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "CORE_TEST" : {
@@ -668,7 +571,8 @@ suite = {
       ],
       "distDependencies" : [
         "CORE",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "POSIX_TEST" : {
@@ -684,7 +588,8 @@ suite = {
       "distDependencies" : [
         "CORE",
         "POSIX"
-      ]
+      ],
+      "license" : "UPL",
     }
   }
 }
