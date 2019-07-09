@@ -78,7 +78,6 @@ suite = {
   "libraries" : {
     "XED" : {
       # source code: https://github.com/intelxed/xed
-      "path" : "lib/xed.tar.gz",
       "urls" : [
         "https://orakel.has.enough.coffee/repo/xed-install-base-2018-06-29-lin-x86-64.tar.gz"
       ],
