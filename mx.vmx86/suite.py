@@ -102,6 +102,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.svm" : {
@@ -114,6 +115,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.native" : {
@@ -136,6 +138,7 @@ suite = {
         "OS" : "<os>",
         "ARCH" : "<arch>"
       },
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86" : {
@@ -149,6 +152,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.nfi" : {
@@ -161,6 +165,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.launcher" : {
@@ -172,6 +177,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.trcview" : {
@@ -182,18 +188,21 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.testcases.asm" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.testcases.c" : {
       "subDir" : "tests",
       "class" : "VMX86TestSuite",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.test" : {
@@ -208,6 +217,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.memory.test" : {
@@ -220,6 +230,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.emu" : {
@@ -233,6 +244,7 @@ suite = {
       "javaCompliance" : "1.8+",
       "workingSets" : "vmx86",
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.emu.native" : {
@@ -251,6 +263,7 @@ suite = {
         "OS" : "<os>",
       },
       "testProject" : True,
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.x86.nfi.native" : {
@@ -264,6 +277,7 @@ suite = {
         "LIBNFI" : "<lib:nfi>",
         "OS" : "<os>",
       },
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.util" : {
@@ -274,6 +288,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.math" : {
@@ -284,6 +299,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.posix" : {
@@ -295,6 +311,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.util.test" : {
@@ -306,6 +323,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.math.test" : {
@@ -317,6 +335,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
 
     "org.graalvm.vm.posix.test" : {
@@ -328,6 +347,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "workingSets" : "core",
+      "license" : "UPL",
     },
   },
 
@@ -343,7 +363,8 @@ suite = {
         "CORE",
         "POSIX",
         "truffle:TRUFFLE_API",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_MEMORY_NATIVE" : {
@@ -353,6 +374,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.memory.native"
       ],
+      "license" : "UPL",
     },
 
     "VM_MEMORY_SVM" : {
@@ -366,6 +388,7 @@ suite = {
       "distDependencies" : [
         "VM"
       ],
+      "license" : "UPL",
     },
 
     "VM_NFI" : {
@@ -382,7 +405,8 @@ suite = {
         "POSIX",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_NFI_NATIVE" : {
@@ -392,6 +416,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86.nfi.native"
       ],
+      "license" : "UPL",
     },
 
     "VMX86_LAUNCHER" : {
@@ -404,6 +429,7 @@ suite = {
         "CORE",
         "sdk:LAUNCHER_COMMON",
       ],
+      "license" : "UPL",
     },
 
     "VMX86_TRCVIEW" : {
@@ -422,7 +448,8 @@ suite = {
         "sdk:GRAAL_SDK",
         "truffle:TRUFFLE_API",
         "truffle:TRUFFLE_NFI",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "VM_TESTCASES" : {
@@ -436,6 +463,7 @@ suite = {
       "javaProperties" : {
         "library.path" : "<path:VM_MEMORY_NATIVE>/<lib:memory>"
       },
+      "license" : "UPL",
     },
 
     "VM_TEST" : {
@@ -463,6 +491,7 @@ suite = {
       "javaProperties" : {
         "vmx86test.testSuitePath" : "<path:VM_TESTCASES>"
       },
+      "license" : "UPL",
     },
 
     "VM_EMU86_NATIVE" : {
@@ -472,6 +501,7 @@ suite = {
       "dependencies" : [
         "org.graalvm.vm.x86.emu.native"
       ],
+      "license" : "UPL",
     },
 
     "VM_EMU86" : {
@@ -486,6 +516,7 @@ suite = {
         "CORE",
         "POSIX"
       ],
+      "license" : "UPL",
     },
 
     "VMX86_GRAALVM_SUPPORT" : {
@@ -497,6 +528,7 @@ suite = {
         "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:vmx86:VM_NFI_NATIVE/<lib:nfi>"],
         "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a", "file:projects/org.graalvm.vm.memory.native/include"],
       },
+      "license" : "UPL",
     },
 
     "CORE" : {
@@ -509,7 +541,8 @@ suite = {
       ],
       "distDependencies" : [
         "truffle:TRUFFLE_API",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "POSIX" : {
@@ -522,7 +555,8 @@ suite = {
       "distDependencies" : [
         "CORE",
         "truffle:TRUFFLE_API"
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "CORE_TEST" : {
@@ -538,7 +572,8 @@ suite = {
       ],
       "distDependencies" : [
         "CORE",
-      ]
+      ],
+      "license" : "UPL",
     },
 
     "POSIX_TEST" : {
@@ -554,7 +589,8 @@ suite = {
       "distDependencies" : [
         "CORE",
         "POSIX"
-      ]
+      ],
+      "license" : "UPL",
     }
   }
 }
