@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ */
 /* vim:set ts=8 sts=8 sw=8 tw=80 cc=80 noet: */
 #include <string.h>
 #include <stdint.h>

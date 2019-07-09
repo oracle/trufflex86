@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ */
 /* PR c/68120 - can't easily deal with integer overflow at compile time */
 /* { dg-do run } */
 /* { dg-additional-options "-Wno-long-long" } */
