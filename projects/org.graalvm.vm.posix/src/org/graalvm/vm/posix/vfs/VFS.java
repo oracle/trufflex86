@@ -202,7 +202,7 @@ public class VFS {
         if (path.endsWith("/") || path.endsWith("/.") || path.endsWith("/..")) {
             result += "/";
         }
-        if (path.startsWith("/")) {
+        if (path.startsWith("/") && !result.equals("/")) {
             return "/" + result;
         } else {
             return result;

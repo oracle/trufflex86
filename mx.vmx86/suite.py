@@ -79,7 +79,7 @@ suite = {
     "XED" : {
       # source code: https://github.com/intelxed/xed
       "urls" : [
-        "https://orakel.has.enough.coffee/repo/xed-install-base-2018-06-29-lin-x86-64.tar.gz"
+        "https://lafo.ssw.jku.at/pub/graal-external-deps/xed-install-base-2018-06-29-lin-x86-64.tar.gz"
       ],
       "sha1" : "ec6ada3f0f3c8c71b57724b3d841d21d6c57fa67",
       "license" : "Apache-2.0",

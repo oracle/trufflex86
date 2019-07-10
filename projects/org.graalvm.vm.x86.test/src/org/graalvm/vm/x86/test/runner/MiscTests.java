@@ -40,6 +40,7 @@
  */
 package org.graalvm.vm.x86.test.runner;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MiscTests {
@@ -48,6 +49,7 @@ public class MiscTests {
         TestRunner.run("i-am-pure.elf", new String[0], "", "0\n0\n", "", 0);
     }
 
+    @Ignore
     @Test
     public void dlIteratePhdr() throws Exception {
         String stdout = "Name: \"\" (8 segments)\n" +
