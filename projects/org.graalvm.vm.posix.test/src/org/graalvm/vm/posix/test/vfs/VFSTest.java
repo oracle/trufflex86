@@ -110,22 +110,22 @@ public class VFSTest {
 
     @Test
     public void normalize010() {
-        assertEquals("xyz/test", VFS.normalize("xyz////test/"));
+        assertEquals("xyz/test/", VFS.normalize("xyz////test/"));
     }
 
     @Test
     public void normalize011() {
-        assertEquals("/xyz/test", VFS.normalize("//xyz////test////"));
+        assertEquals("/xyz/test/", VFS.normalize("//xyz////test////"));
     }
 
     @Test
     public void normalize012() {
-        assertEquals("/xyz/test", VFS.normalize("/xyz/test/."));
+        assertEquals("/xyz/test/", VFS.normalize("/xyz/test/."));
     }
 
     @Test
     public void normalize013() {
-        assertEquals("/xyz", VFS.normalize("/xyz/test/.."));
+        assertEquals("/xyz/", VFS.normalize("/xyz/test/.."));
     }
 
     @Test
