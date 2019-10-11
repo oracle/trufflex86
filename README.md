@@ -1,7 +1,7 @@
-vmx86
-=====
+trufflex86
+==========
 
-vmx86 is an x86\_64 interpreter built on top of the GraalVM.
+trufflex86 is an x86\_64 interpreter built on top of the GraalVM.
 
 
 Build Dependencies
@@ -10,7 +10,7 @@ Build Dependencies
 - gcc for libmemory (high performance memory library) and libemu86 (ptrace based debugging tool)
 - Linux/x86\_64 host with gcc to build the test cases
 
-It *is* possible to build vmx86 on any non-Linux/x86\_64 host as long as mx and a JDK are available. However, such configurations are *not tested*. If vmx86 is built on any host other than Linux/x86\_64, the test programs have to be cross-compiled or copied from a Linux/x86\_64 host. It might be necessary to change the `suite.py` in order to do that.
+It *is* possible to build trufflex86 on any non-Linux/x86\_64 host as long as mx and a JDK are available. However, such configurations are *not tested*. If trufflex86 is built on any host other than Linux/x86\_64, the test programs have to be cross-compiled or copied from a Linux/x86\_64 host. It might be necessary to change the `suite.py` in order to do that.
 
 
 How to get started
@@ -22,7 +22,7 @@ Create a new directory, e.g. `git` which will contain all necessary git reposito
 mkdir git && cd git
 ```
 
-Install mx which is used to build vmx86:
+Install mx which is used to build trufflex86:
 
 ```
 git clone https://github.com/graalvm/mx
@@ -33,19 +33,19 @@ Clone the Graal repository as well as this repository:
 
 ```
 git clone https://github.com/oracle/graal
-git clone https://github.com/graalvm/vmx86
+git clone https://github.com/oracle/trufflex86
 ```
 
 Set `JAVA_HOME` to a JDK >= 1.8, e.g.:
 
 ```
-echo JAVA_HOME=/usr/lib/jvm/java-11-openjdk > vmx86/mx.vmx86/env
+echo JAVA_HOME=/usr/lib/jvm/java-11-openjdk > trufflex86/mx.trufflex86/env
 ```
 
-Build vmx86:
+Build trufflex86:
 
 ```
-cd vmx86 && mx build
+cd trufflex86 && mx build
 ```
 
 Running a program
@@ -111,9 +111,3 @@ To check if all CPU instructions are implemented correctly (at least for a given
 ```
 mx trchk trace-file.trc
 ```
-
-
-Project name?
-=============
-
-Basically "VM" as in "Virtual Machine" + "x86" like the architecture name. Or "vmx" like the virtualization extension feature flag in `/proc/cpuinfo` + "86". Who knows.
