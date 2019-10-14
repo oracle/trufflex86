@@ -45,7 +45,7 @@ import mx_subst
 import mx_sdk
 import mx_unittest
 
-_suite = mx.suite('vmx86')
+_suite = mx.suite('trufflex86')
 _root = os.path.join(_suite.dir, 'projects')
 _build = os.path.join(_suite.dir, 'build');
 
@@ -161,14 +161,14 @@ mx_unittest.add_config_participant(_unittest_config_participant)
 
 mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
     suite=_suite,
-    name='vmx86',
+    name='trufflex86',
     short_name='vmx86',
     dir_name='amd64',
     license_files=[],
     third_party_license_files=[],
-    truffle_jars=['vmx86:VM', 'vmx86:VM_MEMORY_SVM', 'vmx86:CORE', 'vmx86:POSIX'],
+    truffle_jars=['trufflex86:VM', 'trufflex86:VM_MEMORY_SVM', 'trufflex86:CORE', 'trufflex86:POSIX'],
     support_distributions=[
-        'vmx86:VMX86_GRAALVM_SUPPORT'
+        'trufflex86:VMX86_GRAALVM_SUPPORT'
     ],
     polyglot_lib_build_args=[
         '-H:CLibraryPath=<path:VMX86_GRAALVM_SUPPORT>/clibraries/<os>-<arch>'
@@ -176,7 +176,7 @@ mx_sdk.register_graalvm_component(mx_sdk.GraalVmLanguage(
     launcher_configs=[
         mx_sdk.LanguageLauncherConfig(
             destination='bin/<exe:vmx86>',
-            jar_distributions=['vmx86:VMX86_LAUNCHER'],
+            jar_distributions=['trufflex86:VMX86_LAUNCHER'],
             main_class='org.graalvm.vm.x86.launcher.AMD64Launcher',
             build_args=[
                 '-H:CLibraryPath=<path:VMX86_GRAALVM_SUPPORT>/clibraries/<os>-<arch>'

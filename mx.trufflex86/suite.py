@@ -40,7 +40,7 @@
 #
 suite = {
   "mxversion" : "5.223.0",
-  "name" : "vmx86",
+  "name" : "trufflex86",
   "versionConflictResolution" : "latest",
 
   "imports" : {
@@ -100,7 +100,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -113,7 +113,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -150,7 +150,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -163,7 +163,7 @@ suite = {
       ],
       "javaCompliance" : "1.8+",
       "annotationProcessors" : ["truffle:TRUFFLE_DSL_PROCESSOR"],
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -175,7 +175,7 @@ suite = {
         "sdk:LAUNCHER_COMMON"
       ],
       "javaCompliance" : "1.8+",
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -186,7 +186,7 @@ suite = {
         "org.graalvm.vm.x86"
       ],
       "javaCompliance" : "1.8+",
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "license" : "UPL",
     },
 
@@ -214,7 +214,7 @@ suite = {
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8+",
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "testProject" : True,
       "license" : "UPL",
     },
@@ -227,7 +227,7 @@ suite = {
         "mx:JUNIT",
       ],
       "javaCompliance" : "1.8+",
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "testProject" : True,
       "license" : "UPL",
     },
@@ -241,7 +241,7 @@ suite = {
         "org.graalvm.vm.x86"
       ],
       "javaCompliance" : "1.8+",
-      "workingSets" : "vmx86",
+      "workingSets" : "trufflex86",
       "testProject" : True,
       "license" : "UPL",
     },
@@ -521,11 +521,11 @@ suite = {
     "VMX86_GRAALVM_SUPPORT" : {
       "native" : True,
       "platformDependent" : True,
-      "description" : "vmx86 support distribution for the GraalVM",
+      "description" : "trufflex86 support distribution for the GraalVM",
       "layout": {
-        "native-image.properties" : "file:mx.vmx86/native-image.properties",
-        "./" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:vmx86:VM_NFI_NATIVE/<lib:nfi>"],
-        "clibraries/<os>-<arch>/" : ["extracted-dependency:vmx86:VM_MEMORY_NATIVE/libmemory.a", "file:projects/org.graalvm.vm.memory.native/include"],
+        "native-image.properties" : "file:mx.trufflex86/native-image.properties",
+        "./" : ["extracted-dependency:trufflex86:VM_MEMORY_NATIVE/<lib:memory>", "extracted-dependency:trufflex86:VM_NFI_NATIVE/<lib:nfi>"],
+        "clibraries/<os>-<arch>/" : ["extracted-dependency:trufflex86:VM_MEMORY_NATIVE/libmemory.a", "file:projects/org.graalvm.vm.memory.native/include"],
       },
       "license" : "UPL",
     },
