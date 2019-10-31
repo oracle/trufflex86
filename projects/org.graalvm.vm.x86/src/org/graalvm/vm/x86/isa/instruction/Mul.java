@@ -40,7 +40,6 @@
  */
 package org.graalvm.vm.x86.isa.instruction;
 
-import org.graalvm.vm.math.LongMultiplication;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -53,6 +52,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
+import com.oracle.truffle.api.ExactMath;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Mul extends AMD64Instruction {
@@ -223,7 +223,7 @@ public abstract class Mul extends AMD64Instruction {
             long rax = readRAX.executeI64(frame);
             long op = readOp.executeI64(frame);
             long resultL = rax * op;
-            long resultH = LongMultiplication.multiplyHighUnsigned(rax, op);
+            long resultH = ExactMath.multiplyHighUnsigned(rax, op);
             writeRAX.executeI64(frame, resultL);
             writeRDX.executeI64(frame, resultH);
             boolean of = resultH != 0;

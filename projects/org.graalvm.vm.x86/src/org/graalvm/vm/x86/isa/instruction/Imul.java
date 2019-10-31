@@ -40,7 +40,6 @@
  */
 package org.graalvm.vm.x86.isa.instruction;
 
-import org.graalvm.vm.math.LongMultiplication;
 import org.graalvm.vm.x86.ArchitecturalState;
 import org.graalvm.vm.x86.RegisterAccessFactory;
 import org.graalvm.vm.x86.isa.AMD64Instruction;
@@ -54,6 +53,7 @@ import org.graalvm.vm.x86.node.ReadNode;
 import org.graalvm.vm.x86.node.WriteFlagNode;
 import org.graalvm.vm.x86.node.WriteNode;
 
+import com.oracle.truffle.api.ExactMath;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public abstract class Imul extends AMD64Instruction {
@@ -212,7 +212,7 @@ public abstract class Imul extends AMD64Instruction {
             long a = readOp.executeI64(frame);
             long b = readA.executeI64(frame);
             long resultL = a * b;
-            long resultH = LongMultiplication.multiplyHigh(a, b);
+            long resultH = ExactMath.multiplyHigh(a, b);
             writeA.executeI64(frame, resultL);
             writeD.executeI64(frame, resultH);
             boolean overflow = resultH != 0 && resultH != -1;
@@ -345,7 +345,7 @@ public abstract class Imul extends AMD64Instruction {
             long op1 = readOp1.executeI64(frame);
             long op2 = readOp2.executeI64(frame);
             long resultL = op1 * op2;
-            long resultH = LongMultiplication.multiplyHigh(op1, op2);
+            long resultH = ExactMath.multiplyHigh(op1, op2);
             writeDst.executeI64(frame, resultL);
             boolean ok1 = resultH != 0 || resultL >= 0; // resultH == 0 -> resultL >= 0;
             boolean ok2 = resultH != -1 || resultL < 0; // resultH == -1 -> resultL < 0;
